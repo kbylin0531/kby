@@ -1,0 +1,93 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script>
+    var school='{$school}';
+    var teacherno='{$teacherno}';
+
+    $(function(){
+        var school_input = $("#school");
+        var year_input = $("#year");
+        var term_input = $("#term");
+        var coursegroup_input = $("#courseno");
+        var coursename_input = $("#coursename");
+        var teachername_input = $("#teachername");
+        var dgrid = $("#dgrid");
+
+        school_input.val(school);
+        year_input.val(GenKits.getParentYear());
+        term_input.val(GenKits.getParentTerm());
+
+        $('#search_three').bind('click',function(){
+            dgrid.datagrid('load',{
+                year:year_input.val(),
+                term:term_input.val(),
+                school:school_input.val(),
+                courseno:coursegroup_input.val(),
+                coursename:coursename_input.val(),
+                teachername:teachername_input.val(),
+                opera:$("#opera").val(),
+                scoretype:$("#scoretype").val()
+            });
+        });
+    });
+</script>
+<body style="background: #fff">
+    <div class="easyui-layout" data-options="fit:true,border:false">
+        <div id="tdemo">
+            <label for="year">学年：</label>
+            <input type="text" name="YEAR" id="year" size="4">&nbsp;
+            <label for="term">学期：</label>
+            <input type="text" name="TERM" id="term" size="1">
+            <label for="term">课号：</label>
+            <input type="text" name="courseno" id="courseno" size="9" value="%" />
+            <label for="term">课名：</label>
+            <input type="text" name="coursename" id="coursename" size="9" value="%" />
+            <label for="term">教师名：</label>
+            <input type="text" name="teachername" id="teachername" size="9" value="%" />
+            <label for="opera">输入情况：</label>
+            <select name="opera" id="opera">
+                <!--<option value="0" >全部</option>-->
+                <option value="-1">从未录入</option>
+                <option value="1" >未完成录入</option>
+            </select>
+            <label for="scoretype">成绩类型：</label>
+            <select name="scoretype" id="scoretype">
+                <option value="1">期中</option>
+                <option value="2">期末</option>
+                <option value="3">总评</option>
+                <option value="4">补考</option>
+            </select>
+            <label for="school">所在学院：</label>
+            <select name="school" id="school">
+                <option value="%">全部</option>
+                <volist name="schools" id="s">
+                    <option value="{$s.SCHOOL}">{$s.NAME}</option>
+                </volist>
+            </select>
+            <a id="search_three" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+        </div>
+        <div data-options="region:'center',border:false" style="padding:0;background:#eee;">
+            <table class="easyui-datagrid" id="dgrid"
+                   data-options="url:'__URL__/listCoursesWhichScoreInputness',pageList:[200,500],fitColumns:true,pagination:true,singleSelect:true,fit:true,toolbar:'#tdemo'">
+                <thead>
+                    <tr>
+                        <th data-options="field:'coursegroup',width:100" align="center">课号</th>
+                        <th data-options="field:'coursename',width:100" align="center">课程名称</th>
+                        <th data-options="field:'teachername',width:100" align="center">教师</th>
+                        <th data-options="field:'mobile',width:100" align="center">手机号</th>
+                        <th data-options="field:'nums',width:120" align="center">期末成绩未输入的学生数</th>
+                        <th data-options="field:'approach',width:80" align="center">修课方式</th>
+                        <th data-options="field:'examtype',width:100" align="center">考核方式</th>
+                        <th data-options="field:'classname',width:100" align="center">班级</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</body>
+
+
+
+
+
+

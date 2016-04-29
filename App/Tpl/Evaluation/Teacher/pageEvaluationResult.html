@@ -1,0 +1,90 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/searcher.js"></script>
+<script>
+
+    
+   $(function () {
+       var yearInput = $("#SEARCHER_YEAR");
+       var termInput = $("#SEARCHER_TERM");
+       var classnoInput = $("#SEARCHER_CLASS");
+       var teachernoInput = $("#SEARCHER_TEACHER");
+
+       var dgrid = $("#dgrid");
+
+       yearInput.val(GenKits.getParentYear());
+       termInput.val(GenKits.getParentTerm());
+
+       function getQuery(){
+           return {
+               year:yearInput.val(),term:termInput.val(),
+               classno:classnoInput.val(),teacherno:teachernoInput.val()
+           };
+       }
+
+
+       $("#search").click(function () {
+           dgrid.datagrid('load',getQuery());
+       });
+       
+       $("#export").click(function () {
+            window.open('__URL__/exportEvaluationResult?'+ $.param(getQuery()));
+       });
+
+       $("#lookdetail").click(function () {
+           if(Datagrid.hasSelected(dgrid)){
+               var row = Datagrid.getSelected(dgrid);
+               var query = {};
+               query.row = row;
+               query.year = yearInput.val();
+               query.term = termInput.val();
+               openNewTabsWindows(row.teachername+' 的评价','__URL__/pageEvaluationDetail?'+ $.param(query));
+           }
+
+       });
+
+
+   });
+
+</script>
+<body style="background: #fff">
+
+<div id="ccc" class="easyui-layout" data-options="fit:true">
+    <div id="tdemo">
+
+        <!-- searcher插件JS+HTML部分 开始 -->
+        <label for="SEARCHER_YEAR">学年:</label><input type="text" name="year" id="SEARCHER_YEAR" class="SEARCHER_YEAR" size="4" />
+        <label for="SEARCHER_TERM">学期:</label><input type="text" name="term" id="SEARCHER_TERM" class="SEARCHER_TERM" size="1" />
+        <label for="SEARCHER_GRADE">年级:</label><select name="grade" id="SEARCHER_GRADE" class="SEARCHER_GRADE"></select>
+        <label for="SEARCHER_SCHOOL">学部:</label><select name="schoolno" id="SEARCHER_SCHOOL" class="SEARCHER_SCHOOL"></select>
+        <label for="SEARCHER_CLASS">班级:</label><select name="classno" id="SEARCHER_CLASS" class="SEARCHER_CLASS"></select>
+        <!--<label for="SEARCHER_STUDENT">学生:</label><select name="studentno" id="SEARCHER_STUDENT" class="SEARCHER_STUDENT"></select>-->
+        <label for="SEARCHER_TEACHER">教师:</label><select name="teacherno" id="SEARCHER_TEACHER" class="SEARCHER_TEACHER"></select>
+        <script> $(function () {searcher("__ROOT__"); }); </script>
+        <!-- searcher插件JS+HTML部分 结束 -->
+
+        <a href="javascript:void(0)" class="easyui-linkbutton" id="search" data-options="iconCls:'icon-search'">查询</a>&nbsp;
+        <a href="javascript:void(0)" class="easyui-linkbutton" id="export" data-options="iconCls:'icon-excel',plain:true">导出</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" id="lookdetail" data-options="iconCls:'icon-chaxun2',plain:true">查看详细</a>
+    </div>
+    <div data-options="region:'center',border:false,split:false" style="padding:0;background:#eee;">
+        <table class="easyui-datagrid" id="dgrid" data-options="url:'__URL__/listEvaluationResult',pageList:[20,50,100,200,500],fit:true,
+               singleSelect:true,pagination:true,toolbar:'#tdemo'">
+            <thead>
+                <tr>
+                    <th data-options="field:'teacherno',width:100" align="center">编号</th>
+                    <th data-options="field:'teachername',width:100" align="center">教师姓名</th>
+                    <th data-options="field:'classno',width:100,hidden:true" align="center">班级号</th>
+                    <th data-options="field:'coursegroup',width:100,hidden:true" align="center"> 课号组号</th>
+                    <th data-options="field:'classname',width:200" align="center">班级</th>
+                    <th data-options="field:'coursename',width:200" align="center">课程名称</th>
+                    <th data-options="field:'score_avg',width:100" align="center">成绩</th>
+                </tr>
+            </thead>
+        </table>
+
+    </div>
+</div>
+
+
+</body>
+

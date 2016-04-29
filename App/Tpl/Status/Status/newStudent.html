@@ -1,0 +1,143 @@
+<include file=":Include:jqueryHeader"/>
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script>
+    $(function () {
+        $('#back').bind('click', function () {$("#new_student").reset(); });
+
+        $('#tijiao').bind('click', function () {
+            $.ajax({
+                type: 'post',
+                url: '__URL__/insertStudent',
+                data: $("#new_student").serialize(),
+                success: function (c) {
+                    return Messager.show(c);
+                }
+            });
+        });
+    });
+</script>
+<style>
+    td {
+        border: 1px #95B8E7 solid;
+    }
+
+    input {
+        height: 23px;
+        vertical-align: middle;
+    }
+
+    span {
+        border: 0 solid red;;
+        vertical-align: middle;
+    }
+
+</style>
+<body style="background-color: white">
+<p align="center"><span style="font-size: 15px">输入新学生记录表单</span></p>
+
+<div align="center" id="content">
+    <form id="new_student" action="" onsubmit="return false">
+        <div align="center">
+            <table border="0" cellpadding="0" cellspacing="1" width="69%">
+                <tr>
+                    <td width="13%" height="15" align="right" bgcolor="#E0ECFF">学号：</td>
+                    <td width="28%" height="15" align="left"><input type="text" size="8"
+                                                                    name="studentno" maxlength="9">9位，必须输入。
+                    </td>
+                    <td width="11%" height="15" align="right" bgcolor="#E0ECFF">姓名：</td>
+                    <td width="48%" height="15" align="left"><input type="text" size="10"
+                                                                    name="studentname">必须输入
+                    </td>
+                </tr>
+                <tr>
+                    <td width="13%" height="16" align="right" bgcolor="#E0ECFF">性别：</td>
+                    <td width="28%" height="16" align="left"><select size="1" name="sex">
+                        <option selected value="M">男</option>
+                        <option value="F">女</option>
+                    </select></td>
+                    <td width="11%" height="16" bgcolor="#E0ECFF" align="right">入学日期：</td>
+                    <td width="48%" height="16" align="left"><input type="text" size="11"
+                                                                    name="enterdate"
+                                                                    id="ENTERDATE">例：<font size="2">2001-01-03，必须输入。
+                    </td>
+                </tr>
+
+                <tr>
+                    <td width="13%" height="16" align="right" bgcolor="#E0ECFF">民族：</td>
+                    <td width="28%" height="16" align="left">
+                        <select id="nationalitycode" name="nationality">
+                            <volist name="nationalitycode" id="v">
+                                <option value='{$v.CODE}'>{$v.NAME}</option>
+                            </volist>
+                        </select>
+                    </td>
+
+                    <td width="11%" height="16" align="right" bgcolor="#E0ECFF">出生日期：</td>
+                    <td width="48%" height="16" align="left"><input type="text" size="11" id="birthday"
+                                                                    name="birthday">例：
+                        <font size="2">2001-01-03，必须输入。</td>
+
+
+                </tr>
+                <tr>
+                    <td width="13%" height="16" align="right" bgcolor="#E0ECFF">学制：</td>
+                    <td width="28%" height="16" align="left"><select size="1" name="years" id="YEARS">
+                        <option value="0" selected>旁听</option>
+                        <option value="1">1年制</option>
+                        <option value="2">2年制</option>
+                        <option value="3">3年制</option>
+                        <option value="4">4年制</option>
+                        <option value="5">5年制</option>
+                    </select></td>
+                    <td width="11%" height="16" align="right" bgcolor="#E0ECFF">学部：</td>
+                    <td width="48%" height="16" align="left"><select id="SCHOOL"
+                                                                                    name="school">
+                        <volist name="schools" id="v">
+                            <option value="{$v.SCHOOL}">{$v.NAME}</option>
+                        </volist>
+                    </select></td>
+                </tr>
+                <tr>
+                    <td width="13%" height="16" align="right" bgcolor="#E0ECFF">班号：</td>
+                    <td width="28%" height="16" align="left"><input type="text" size="6" name="classno"> 6位</td>
+                    <td width="11%" height="16" align="right" bgcolor="#E0ECFF">身份证号：</td>
+                    <td width="48%" height="16" align="left"><input type="text" size="18" name="id"
+                                                                    id="ID"></td>
+                </tr>
+                <tr>
+                    <td width="13%" height="16" align="right" bgcolor="#E0ECFF">联系方法：</td>
+                    <td width="28%" height="16" align="left"><input type="text" size="20"
+                                                                    name="contact"></td>
+                    <td width="11%" height="16" align="right" bgcolor="#E0ECFF">口令：</td>
+                    <td width="48%" height="16" align="left"><input type="password" size="10"
+                                                                    id="PASSWORD" name="password"
+                                                                    value="123456">&nbsp&nbsp默认密码:123456
+                    </td>
+                </tr>
+                <tr>
+                    <td width="13%" height="16" align="right" bgcolor="#E0ECFF">政治面貌：</td>
+                    <td width="28%" height="16" align="left">
+                        <select id="partycode" name="party">
+                            <volist name="partycode" id="v">
+                                <option value="{$v.CODE}">{$v.NAME}</option>
+                            </volist>
+                        </select>
+                    </td>
+                    <td width="11%" height="16" align="right" bgcolor="#E0ECFF"></td>
+                    <td width="48%" height="16" align="left"></td>
+                </tr>
+            </table>
+
+            <INPUT TYPE="SUBMIT" name="SUBMITTING" id="tijiao" value="提交">
+            <input type="reset" value="全部重写" name="RESET" id="back">
+        </div>
+    </form>
+</div>
+<script>
+    $(function () {
+        $("#nationalitycode option[value=01]").attr("selected", "selected");
+        $("#partycode option[value=13]").attr("selected", "selected");
+    });
+</script>
+
+</body>

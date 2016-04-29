@@ -1,0 +1,108 @@
+<include file=":Include:jqueryHeader"/>
+<script src="__ROOT__/thirdparty/jquery/js/ExtSearcher.js"></script>
+
+<script type="text/javascript">
+    $(function () {
+
+        new ExtSearcher('__APP__/Common/Provider/seacher', false, 's').start();
+        //获取radio对象组
+        var chkObjs = document.getElementsByName("coursetype");
+
+        function getChedckedValue() {
+            for (var i = 0; i < chkObjs.length; i++) {
+                if (chkObjs[i].checked) {
+                    return chkObjs[i].value;
+                }
+            }
+        }
+
+        //生志数据
+        $("#btAuto").bind("click", function () {
+            $.messager.confirm("系统提示：", "自动生成开课计划将首先清除指定学年学期的记录，继续吗？", function (r) {
+                if (r) {
+                    var coursetype = getChedckedValue();
+                    $.post("__ROOT__/CoursePlan/Commencement/auto/hasJson/true", {
+                        YEAR: $("#ES_YEAR").val(),
+                        TERM: $("#ES_TERM").val(),
+                        WEEKS: $("#WEEKS").html(),
+                        coursetype: coursetype,
+                        grade:$("#ES_GRADE").val(),
+                        schoolno:$("#ES_SCHOOL").val(),
+                        classno:$("#ES_CLASS").val()
+                    }, function (rsp) {
+                        if (rsp) {
+                            msgShow("系统消息：", rsp.message, rsp.type);
+                            bindMessageErrorEven("确定", function () {
+                                switch (coursetype) {
+                                    case 'ot':
+                                        openTopTabs(11);
+                                        break;
+                                    case 'ac':
+                                        openTopTabs(16);
+                                        break;
+                                    case 'gc':
+                                        openTopTabs(17);
+                                        break;
+                                }
+                            }, "info");
+                        }
+                    }, "JSON");
+                }
+            });
+        });
+    });
+</script>
+
+<body>
+<div class="easyui-layout" data-options="border:false,fit:true">
+    <div data-options="region:'center',border:false" style=";background:#FFFFFF;">
+        <table border="0" class="formtable" align="center" style="margin-top:50px">
+            <tr>
+                <td width="140" align="right"><label for="ES_YEAR">学年:</label></td>
+                <td width="400" id="YEAR">
+                    <input name="year" size='4' id="ES_YEAR" class="ES_YEAR s" value="{$yearTerm.YEAR}"/>
+                </td>
+            </tr>
+            <tr>
+                <td align="right"><label for="ES_TERM">学期:</label></td>
+                <td id="TERM">
+                    <input name="term" size='1' id="ES_TERM" class="ES_TERM s" value="{$yearTerm.TERM}"/>
+                </td>
+            </tr>
+            <tr>
+                <td align="right">周数：</td>
+                <td id="WEEKS">{$yearTerm.WEEKS}</td>
+            </tr>
+            <tr>
+                <td align="right">课程类型：</td>
+                <td id="coursetype">
+                    <input type="radio" name="coursetype" value="ot" checked="checked"/> 正常课程&nbsp;&nbsp;
+                    <input type="radio" name="coursetype" value="gc"/> 通识课&nbsp;&nbsp;
+                    <input type="radio" name="coursetype" value="ac"/> 社团课
+                </td>
+            </tr>
+
+            <tr>
+                <td align="right">范围：</td>
+                <td>
+                    <label for="ES_GRADE">年级:</label><select name="grade" id="ES_GRADE" class="ES_GRADE s"></select>
+                    <label for="ES_SCHOOL">学部:</label><select name="schoolno" id="ES_SCHOOL" class="ES_SCHOOL s"></select>
+                    <label for="ES_CLASS">班级:</label><select name="classno" id="ES_CLASS" class="ES_CLASS s"></select>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" align="center">
+                    <if condition="$yearTerm.LOCK eq 0">
+                        <input type="button" id="btAuto" value="自动生成开课计划">
+                        <else/>
+                        <input type="button" value="__DEANNAME__已锁定" disabled>
+                    </if>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+
+</html>
+

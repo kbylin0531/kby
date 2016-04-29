@@ -1,0 +1,329 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script>
+    var myschool='{$myschool.SCHOOL}';      //todo:我的学院
+    var school='{$shuju.SCHOOL}';            //todo:选择的课程的学院
+
+    var year='{$shuju.YEAR}';
+    var term='{$shuju.TERM}';
+    var courseno='{$shuju.COURSENO}';
+    var coursetype='{$shuju.COURSETYPE}';
+    var type=[];
+    var total_row=0;
+    var course_credit=0;
+    var COURSENO='{$shuju.COURSENO}';                     //todo:查看学生列表 所在的学院
+ //   alert(coursetype)
+    $(function(){
+
+        var studentDataGrid = $('#student_dat');
+        var inputAddByStudentno = $("#add_Studentno");
+        var inputAddByClassno = $("#add_Classno");
+
+
+        studentDataGrid.datagrid({
+            onClickCell:function(index,filed,value){
+                studentDataGrid.datagrid('unselectRow',index);
+
+            }
+        });
+
+        //todo:添加学生的window
+        var add_student_wd=$('#add_student_wd').window(new wind(300,230,false,false,true,true,false));
+
+
+
+        $('#add_student_wd').css('display','');
+
+
+        //todo:添加学生触发的事件
+        $('#add_student').bind('click',function(){
+            $('#add_student_wd').window({closed:false})
+        })
+
+
+        function reloadList(){
+            $.post('__URL__/StudentList/reqtag/getlist',{
+                'year':year,'term':term,'coursegroupno':courseno
+            }, function (data) {
+                studentDataGrid.datagrid('loadData', eval('('+data+')'));
+            });
+        }
+        /**
+         * 按照学号添加
+         */
+        $('#add_bt_one').linkbutton({
+            text:'提交到数据库'
+        }).bind('click',function(){
+            if(!inputAddByStudentno.val().trim()){
+                return $.messager.alert('提示','请填写学号,或用通配符%')
+            }
+            //如果是百分号，则打开新的页面进行查询
+            if(inputAddByStudentno.val() != '%'){
+//                openTabsWindows('学生列表','__URL__/liebiao/year/'+year+'/term/'+term+'/courseno/'+COURSENO+'/coursetype/'+coursetype,'',true);
+                $.post(
+                    '__URL__/addStudent_add',
+                    {
+                        'bind':[{'xh':inputAddByStudentno.val().trim()}],
+                        YEAR:parent.$('[NAME=YEAR]').val(),
+                        TERM:parent.$('[name=TERM]').val(),
+                        COURSENO:COURSENO
+                    },
+                    function(c){
+//                        console.log(c);
+                        return $.messager.alert('提示', c.message, c.type, function () {
+                            reloadList();
+                        });
+                    });
+            }else{
+                return $.messager.alert('提示','请输入学生号！');
+//                openTabsWindows('学生列表','__URL__/liebiao/year/'+year+'/term/'+term+'/courseno/'+COURSENO+'/coursetype/'+coursetype,'',true);
+            }
+        });
+
+
+        /**
+         * 按照班级号添加
+         */
+        $('#add_bt_two').linkbutton({
+            text:'查询'
+        }).bind('click',function(){
+			 openTabsWindows('学生列表','__URL__/liebiao2/year/'+year+'/term/'+term+'/courseno/'+COURSENO+'/classno/'+inputAddByClassno.val().replace('%','')+'/coursetype/'+coursetype,'',true)
+        });
+
+
+
+
+
+        studentDataGrid.datagrid({
+            onLoadSuccess:function(data){
+                total_row=data.total;
+                $('#STUDENTNOS').html(data.total);
+                for(var i=0;i<type.length;i++){
+                    $('[name=tkfs'+i+']').val(type[i])
+                }
+            }
+
+        });
+
+
+        reloadList();
+//        $.post('__APP__/Status/Status/Squery',{'Sqlpath':{'select':'CourseManager/One_one_StudentList_select.SQL',
+//            'count':'CourseManager/One_one_StudentList_count.SQL'
+//        },bind:{':YONE':year,':TONE':term,':COURSENO':courseno,':YTWO':year,':TTWO':term
+//        }},function(c){
+//            studentDataGrid.datagrid('loadData',c)
+//
+//        });
+
+
+        ajiakesi('__APP__/Book/Book/Bexecute',{':ID':'QUERY','exe':'CourseManager/One_one_title_select.SQL','bind':{
+            ':YEAR':year,':TERM':term,':COURSENO':courseno
+        }},function(c){
+            eval('var one='+c);
+            $('#t_kh').html(one[0]['COURSENOGROUP']);
+            $('#t_km').html(one[0]['COURSENAME']);
+            $('#t_xf').html(one[0]['CREDITS'])
+            course_credit=one[0]['CREDITS'];
+            $('#t_xy').html(one[0]['SCHOOLNAME']);
+            $('#t_yjrs').html(one[0]['ESTIMATE'])
+            $('#numlimit').val(one[0]['ESTIMATE'])
+
+        })
+
+
+        $('#e_save').bind('click',function(){
+            if(!{$isdean}&&school!=myschool){
+                return $.messager.alert('提示','你不能更改别的学部的选课结果！')
+            }
+            var obj={}
+            var rowList=studentDataGrid.datagrid('getChecked')
+            for(var i=0;i<rowList.length;i++){
+                obj[rowList[i].row]=rowList[i]
+            }
+            ajiakesi('__URL__/one_one/hasJson/1',{':ID':'EXE','exe':'CourseManager/One_one_updateStatus.SQL',bind:{'obj':obj,
+                ':YEAR':year,':TERM':term,':COURSENO':courseno
+            }},function(c){
+                $.messager.alert('提示','提交成功')
+            })
+        })
+
+        function ddel(){
+            $.messager.confirm('提示','您确定要删除选中的学生吗',function(c){
+                if(c){
+                    var obj={}
+                    var rowList=studentDataGrid.datagrid('getSelections')
+                    for(var i=0;i<rowList.length;i++){
+                        obj[i]=rowList[i].xh
+                    }
+
+                    ajiakesi('__URL__/delete_student/hasJson/1',{':ID':'EXE','exe':'CourseManager/One_one_updateStatus.SQL',bind:{'obj':obj,
+                        ':YEAR':year,':TERM':term,':COURSENO':courseno
+                    }},function(c){
+                        return $.messager.alert('提示', c, 'info',function () {
+                            reloadList();
+                        });
+//                        reloadList();
+//                        studentDataGrid.datagrid('options').url='__APP__/Status/Status/Squery';
+//                        studentDataGrid.datagrid('load',{'Sqlpath':{'select':'CourseManager/One_one_StudentList_select.SQL',
+//                            'count':'CourseManager/One_one_StudentList_count.SQL'
+//                        },bind:{':YONE':year,':TONE':term,':COURSENO':courseno,':YTWO':year,':TTWO':term
+//                        }});
+//                            studentDataGrid.datagrid('reload');
+                    });
+                }
+            });
+        }
+
+
+
+        $('#admin_del').bind('click',ddel)
+        $('#e_del').bind('click',ddel)
+
+        $('#e_order').bind('click',function(){
+            var xuanke=total_row
+            var shangxian=$('#numlimit').val()
+            var rowList=studentDataGrid.datagrid('getRows')
+            var i=0;
+            while(xuanke>shangxian){
+                if(parseFloat(rowList[i].xqgxkms)>1){
+                    var index=studentDataGrid.datagrid('getRowIndex',rowList[i]);
+                    studentDataGrid.datagrid('selectRow',index)
+                    xuanke--;
+                }
+                i++
+            }
+        });
+
+        $('#e_suiji').bind('click',function(){
+
+            var shanchurenshu=0;                          //todo:删除了几个人
+            var jilu=total_row;                           //todo:一共有几条
+
+            var shangxian=$('#numlimit').val()            //todo;人数上限
+            var xuefeng_sx=$('#creditlimit').val()         //todo:学分上限
+            var rowList=studentDataGrid.datagrid('getRows')
+            var draw=new Array();
+            for(var i=0;i<rowList.length;i++){
+                if(parseFloat(rowList[i].zxf)>xuefeng_sx){
+
+                    shanchurenshu++;
+                    var index=studentDataGrid.datagrid('getRowIndex',rowList[i]);
+                    studentDataGrid.datagrid('selectRow',index)
+                }else{
+                    draw[i]=studentDataGrid.datagrid('getRowIndex',rowList[i]);
+
+                }
+            }
+
+            var toDraw=total_row-shanchurenshu-shangxian;
+
+            var todelete=shanchurenshu;
+
+            if(toDraw>0){
+
+                var temp;
+                var count=draw.length;
+                var pos;
+                todelete+=toDraw;
+                for(var j=0;j<count;j++){
+                    pos=Math.round(Math.random()*(count-1));
+                    temp=draw[j];
+                    draw[j]=draw[pos];
+                    draw[pos]=temp;
+                }
+
+
+                for(var k=0;k<toDraw;k++){
+                    studentDataGrid.datagrid('selectRow',draw[k])
+                }
+            }
+
+        })
+
+    });
+
+
+
+    function up_status(index,ziduan){
+        var row=$('#student_dat').datagrid('getRows')[index];
+        if($('[name='+ziduan+index+']').is(":checked")){
+            row[ziduan]=1
+        }else{
+            row[ziduan]=0
+        }
+    }
+
+    function up_status2(index,ziduan){
+        var row=$('#student_dat').datagrid('getRows')[index];
+        row['tkfs']=$('[name=tkfs'+index+']').find("option:selected").val()
+    }
+
+</script>
+
+
+<!--添加学生的窗口-->
+<div id="add_student_wd" title="学生添加" style="display: none">
+    <center>
+    <fieldset>
+        <legend><b>直接输入学号选课：</b></legend>
+        学号:<input type="text" id="add_Studentno" name="add_Studentno" value=""><br><br>
+        重修:<input type="checkbox" name="add_chongxiu" />
+        <a href="javascript:void(0)" id="add_bt_one">提交到数据库</a>
+    </fieldset>
+    <fieldset>
+        <legend><b>直接输入班号选课：</b></legend>
+        班号:<input type="text" id="add_Classno" name="add_Classno" value="%"><br><br>
+        <a href="javascript:void(0)" id="add_bt_two">查询</a>
+    </fieldset>
+    <a href="javascript:void(0)" onclick="javascript:$('#add_student_wd').window({closed:true})" class="easyui-linkbutton" iconCls="icon-cut">关闭</a>
+    </center>
+</div>
+
+
+<!--学生列表的窗口-->
+<div id="student_wd" class="easyui-panel" title=""
+     data-options="iconCls:'icon-save',closable:false,fit:true,closed:false,border:false,
+                collapsible:false,minimizable:false,maximizable:false">
+    <div id="ccc" class="easyui-layout" data-options="fit:true,split:false,border:false">
+        <div id="tdemo">
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-save"  id="e_save" plain=true>保存</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cut"  id="e_del" plain=true>删除</a>
+            <label for="numlimit">设定人数上限:</label><INPUT type="text" id=numlimit name=numlimit size=3 value="%"><label for="creditlimit">设定学分上限:</label><INPUT type="text" id=creditlimit name=creditlimit size=2 value="50">
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit"  id="e_order" plain=true>按排序筛选</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-back"  id="e_suiji" plain=true>随机筛选</a>
+            <a href="javascript:void(0)" id="add_student" class="easyui-linkbutton" iconCls="icon-add">直接添加学生</a>
+
+
+        </div>
+        <div data-options="region:'center',split:false" style="padding:0px;background:#eee;">
+
+            <table class="easyui-datagrid" id="student_dat" title='<center>课号:<LABEL id="t_kh"></LABEL>&nbsp&nbsp&nbsp&nbsp
+            课名:<LABEL id="t_km"></LABEL>&nbsp&nbsp&nbsp&nbsp学分:<LABEL id="t_xf"></LABEL>&nbsp&nbsp&nbsp&nbsp开课学部:<LABEL id="t_xy"></LABEL>&nbsp&nbsp&nbsp&nbsp
+            预计人数:<LABEL id="t_yjrs"></LABEL>&nbsp&nbsp&nbsp&nbsp已有人数:<LABEL id=STUDENTNOS>0</LABEL></center>'
+                   data-options="fit:true,toolbar:'#tdemo'">
+             <!--   <thead frozen="true">
+
+                </thead>-->
+
+                <thead>
+                <tr>
+                    <th data-options="filed:'row',checkbox:true">选中</th>
+                    <th data-options="field:'xh',width:80" align="center">学号</th>   <th data-options="field:'xm',width:70" align="center">姓名</th>
+                    <th data-options="field:'xb',width:50,align:'right'" align="center">性别</th>
+                    <th data-options="field:'xsbj',width:130,align:'right'" align="center">学生班级</th>
+                    <th data-options="field:'zxf',width:60,align:'right'" align="center">总学分</th>
+                    <th data-options="field:'xkms',width:60,align:'right'" align="center">选课门数</th>
+                    <th data-options="field:'ct',width:40,align:'right'" align="center">冲突</th>
+                    <th data-options="field:'xkfs',width:60,align:'right'" align="center">修课方式</th>
+                    <th data-options="field:'kh2',width:60,align:'right'" align="center">考核</th>
+
+
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+

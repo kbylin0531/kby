@@ -1,0 +1,184 @@
+<include file=":Include:jqueryHeader" />
+<script type="text/javascript">
+    var itemComboTree = null;
+    $(function() {
+        //todo 初始化数据表
+        datagrid = $('#datagrid').datagrid({
+            toolbar : '#toobar',
+            frozenColumns:[[{field:'ck',checkbox:true}]],
+            onBeforeLoad : function(){
+                $(this).datagrid("unselectAll");
+                return true;
+            }
+        });
+
+        var wDataForm = $("#wDataForm");
+        var win = $("#win");
+        //添加按钮
+        var addbtn = $("#wfOK").click(function () {
+            var values = wDataForm.serialize();
+            $.post('__URL__/createReward',{_PARAMS_:values}, function (data) {
+                return Messager.show(data, function () {
+                    datagrid.datagrid('reload');
+                    win.window('close');
+                });
+            });
+        });
+        //编辑按钮
+        var editbtn = $("#wfEOK").click(function () {
+            var values = wDataForm.serialize();
+            $.post('__URL__/updateReward',{_PARAMS_:values}, function (data) {
+                return Messager.show(data, function () {
+                    datagrid.datagrid('reload');
+                    win.window('close');
+                });
+            });
+        });
+        
+//        var removebtn =
+        //批量删除记录
+        $("#event_delete").click(function () {
+            if(Datagrid.hasSelected(datagrid)){
+                var rows = Datagrid.getSelections(datagrid);
+                $.post('__URL__/deleteReward',{rows:rows}, function (data) {
+                    return Messager.show(data, function () {
+                        datagrid.datagrid('reload');
+                    });
+                });
+            }
+        });
+
+        //todo 搜索事件
+        $("#event_searcher").bind("click", function(){
+            datagrid.datagrid("options").url="__ROOT__/TReward/Index/reward/hasJson/true";
+            datagrid.datagrid("load",{YEAR:$("#Q_YEAR").val(), TERM:$("#Q_TERM").val(), TEACHERNO:$("#Q_TEACHERNO").val()})
+        });
+
+        //todo 新增事件
+        $("#event_add").bind("click", function(){
+            setFormVal();
+            $("#win").window("open");
+            addbtn.css('display','');
+            editbtn.css('display','none');
+        });
+
+        //todo 编辑事件
+        $("#event_edit").bind("click",function(){
+            var rows = datagrid.datagrid("getSelections");
+            if(!rows || rows.length!=1){
+                msgShow("系统提示：","只能选择一行数据进行编辑！","warning");
+                return;
+            }
+            setFormVal(rows[0]);
+            $("#win").window("open");
+            addbtn.css('display','none');
+            editbtn.css('display','');
+        });
+        //todo 取消编辑
+        $("#wfCancel").bind("click",function(){
+            $("#win").window("close");
+        });
+
+        function setFormVal(row){
+            initForms();
+            if(row){
+                $("#wYEAR").val(row.YEAR);
+                $("#wTERM").val(row.TERM);
+                $("#wTEACHERNO").val(row.TEACHERNO);
+                $("#wItemID").combotree("setValue", row.ITEMID);
+                $("#wRewardVal").html(row.REWARD_VAL);
+                $("#wRID").val(row.RID);
+                $("#comment").val(row.COMMENT);
+            }else{
+                $("#wYEAR").val($("#Q_YEAR").val());
+                $("#wTERM").val($("#Q_TERM").val());
+                $("#wTEACHERNO").val('');
+                $("#wItemID").combotree("setValue", null);
+                $("#wRewardVal").html("-");
+                $("#wRID").val('');
+                $("#comment").val('');
+            }
+        }
+        function initForms(){
+            if(itemComboTree==null){
+                $('#wItemID').combotree({
+                    url : "__ROOT__/TReward/Index/getItems/hasJson/true",
+                    valueField:'id',
+                    textField:'text'
+                });
+            }
+        }
+        
+
+        
+    });
+</script>
+
+<body class="easyui-layout" style="background: #fff;padding:0px;overflow-y: hidden"  fit="true" split="false" scroll="no" >
+
+<!-- 主页面 -->
+<div id="mainPanle" region="center" border="1" style="background: #fff; padding:3px; " >
+    <table id="datagrid" fitColumns="true" width="100%" singleSelect="false" fit="true" idField="RANKID"
+           pagination="true" pageSize="20" pageList="[20,40,60]" striped="true" >
+        <thead>
+        <tr>
+            <th data-options="field:'YEAR',align:'center',width:40">学年</th>
+            <th data-options="field:'TERM',align:'center',width:40">学期</th>
+            <th data-options="field:'TEACHER_NAME',align:'center',width:100,formatter:function(val,row){return val+'('+row.TEACHERNO+')'}">教师</th>
+            <th data-options="field:'REWARD_VAL',align:'center',width:40">奖励分</th>
+            <th data-options="field:'ISTEAM',align:'center',width:40,formatter:function(value){return value==1 ? '是' : '否'}">团体</th>
+            <th data-options="field:'LEVEL_NAME',width:120,formatter:function(val,row){return row.LEVEL_VAL+' = '+val}">等级项</th>
+            <th data-options="field:'ITEM_NAME',width:180,formatter:function(val,row){return row.ITEM_VAL+' = '+val}">权重项</th>
+            <th data-options="field:'COMMENT',width:80">备注</th></tr>
+        </thead>
+    </table>
+</div>
+
+<!-- 主页面工具条 -->
+<div id="toobar">
+    <span class="datagrid-btn-separator-area">
+        <label for="Q_YEAR">学年：<input type="text" id="Q_YEAR" size="6"  value='{$yearTerm.YEAR}'></label>
+        <label for="Q_TERM">学期：<input type="text" id="Q_TERM" size="4"  value='{$yearTerm.TERM}'></label>
+        <label for="Q_TEACHERNO">教师号：<input type="text" id="Q_TEACHERNO" size="10"  value='%' class="easyui-humanize" humType="gteacher"></label>
+        <a id="event_searcher" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true">搜索</a>
+    </span>
+    <a class="datagrid-btn-separator"></a>
+    <a id="event_add" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">新增奖励</a>
+    <a id="event_edit" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true">编辑</a>
+    <a id="event_delete" class="easyui-linkbutton" data-options="iconCls:'icon-cut',plain:true">删除</a>
+</div>
+
+<!-- 添加修改界面 -->
+<div id="win" class="easyui-window" style="width:360px;height:270px" title="新增及编辑" data-options="minimizable:false,maximizable:false,collapsible:false,modal:true,closed:true">
+    <div class="easyui-layout" data-options="fit:true">
+        <div region="center" border="false" style="overflow: hidden;padding: 10px; background: #fff; border:0px;border-bottom:1px solid #ccc;">
+            <form id="wDataForm">
+                <table cellpadding=3>
+                    <tr><th align="right"><font color="red">*</font>学年：</th><td><input id="wYEAR" type="text" size="10" name="YEAR"  /></tr>
+                    <tr><th align="right"><font color="red">*</font>学期：</th><td><input id="wTERM" type="text" size="10" name="TERM" /></td></tr>
+                    <tr><th align="right"><font color="red">*</font>教师：</th><td><input id="wTEACHERNO" type="text" size="20" name="TEACHERNO" class="easyui-humanize" humType="gteacher" /></td></tr>
+                    <tr><th align="right"><font color="red">*</font>等级：</th>
+                        <td>
+                            <select id="wRTYPE" name="RTYPE"><volist name="levelList" id="data"><option value="{$data.LEVEL_ID}">{$data.NAME}</option></volist></select>
+                            <select id="wRANKID" name="RANKID"><volist name="rankList" id="data"><option value="{$data.RANKID}">{$data.NAME}</option></volist></select>
+                        </td>
+                    </tr>
+                    <tr><th align="right"><font color="red">*</font>权重：</th><td><select id="wItemID" name="ITEMID" style="width:220px"></select></td></tr>
+                    <tr><th align="right">奖励分：</th><td id="wRewardVal">-</td></tr>
+                    <tr><th align="right"><label for="comment">备注：</label></th><td>
+                        <input name="comment" id="comment" value="" />
+                    </td></tr>
+                </table>
+                <input type="hidden" name="RID" id="wRID" value="" /><!-- primary key for edit -->
+            </form>
+        </div>
+        <div region="south" border="false" style="text-align: right; height: 30px; line-height: 30px;">
+            <a id="wfOK" class="easyui-linkbutton" icon="icon-ok" > 确定添加</a>
+            <a id="wfEOK" class="easyui-linkbutton" icon="icon-ok" > 确定修改</a>
+            <a id="wfCancel" class="easyui-linkbutton" icon="icon-cancel">取消</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,105 @@
+<include file=":Include:jqueryHeader" />
+<script type="text/javascript">
+    var datagrid = null;     //数据表
+    var editRowIndex=null;  //保存索引键的变量
+    $(function() {
+        //todo 初始化数据表
+        datagrid = $('#datagrid').datagrid({
+            toolbar : '#toobar',
+            url : '__ROOT__/TReward/Index/level/hasJson/true',
+            onBeforeLoad : function(){
+                $(this).datagrid("unselectAll");
+                return true;
+            },
+            onClickRow : function(index, data){
+                if(editRowIndex!=null) {
+                    $(this).datagrid('endEdit',editRowIndex);
+                }
+                editRowIndex = index;
+                $(this).datagrid('beginEdit',editRowIndex);
+            }
+        });
+
+        //todo 撤消事件
+        $("#event_undo").bind("click",function(){
+            var rows = datagrid.datagrid('getChanges');
+            if(!rows || rows.length==0){
+                msgShow("系统提示：","没有可以撤消的变化数据！","warning");
+                return;
+            }
+
+            $.messager.confirm("系统提示：", "真的要撤消所有的变化数据吗？",function(b){
+                if(b) {
+                    datagrid.datagrid('rejectChanges');
+                    editRowIndex = null;
+                    return true;
+                }
+            });
+        });
+
+        //todo 保存事件
+        $('#event_save').bind('click',function(){
+            if(editRowIndex!=null){
+                datagrid.datagrid('endEdit',editRowIndex);
+                editRowIndex=null;
+            }
+
+            var rows = datagrid.datagrid('getChanges');
+            if(!rows || rows.length==0) {
+                msgShow("系统提示：","没有需要保存的变化数据！","warning")
+                return;
+            }
+
+            $.ajax({
+                url:'__ROOT__/TReward/Index/level_save/hasJson/true/',
+                data:{'DATAS':rows},
+                type:'POST',
+                success:function(rep){
+                    console.log(rep)
+                    if(rep){
+                        $.messager.alert('系统提示：', rep.message, rep.type);
+                        datagrid.datagrid('reload');
+                    }else{
+                        $.messager.alert('系统提示：','发生未知错误!!','error');
+                    }
+                }
+            });
+        });
+
+        //todo 刷新事件
+        $('#event_reload').bind('click', function(){
+            datagrid.datagrid('reload');
+        });
+
+    });
+</script>
+
+<body class="easyui-layout" style="background: #fff;padding:0px;overflow-y: hidden"  fit="true" split="false" scroll="no" >
+
+<!-- 主页面 -->
+<div id="mainPanle" region="center" border="1" style="background: #fff; padding:3px; " >
+    <table id="datagrid" fitColumns="false" width="100%" singleSelect="false" fit="true" idField="RANKID"
+           pagination="false" pageSize="20" pageList="[20,40,60]" striped="true" >
+        <thead>
+        <tr><th data-options="field:'NAME',width:160">名次</th>
+            <th data-options="field:'ISTEAM',align:'center',width:80,formatter:function(value){return value==1 ? '是' : '否'}">是否团体</th>
+            <th data-options="field:'SORT',width:80,editor:{type:'numberbox', options:{required:true,missingMessage:'只能输入数字'}}">排序</th>
+            <th data-options="field:'G1',width:80,editor:{type:'numberbox', options:{required:true,missingMessage:'只能输入数字'}}">国家级</th>
+            <th data-options="field:'S2',width:80,editor:{type:'numberbox', options:{required:true,missingMessage:'只能输入数字'}}">省级</th>
+            <th data-options="field:'C3',width:80,editor:{type:'numberbox', options:{required:true,missingMessage:'只能输入数字'}}">市级</th>
+            <th data-options="field:'Q4',width:80,editor:{type:'numberbox', options:{required:true,missingMessage:'只能输入数字'}}">区级</th>
+            <th data-options="field:'X5',width:80,editor:{type:'numberbox', options:{required:true,missingMessage:'只能输入数字'}}">校级</th></tr>
+        </thead>
+    </table>
+</div>
+
+<!-- 主页面工具条 -->
+<div id="toobar">
+    <a id="event_reload" class="easyui-linkbutton" data-options="iconCls:'icon-reload',plain:true">刷新</a>
+    <a id="event_undo" class="easyui-linkbutton" data-options="iconCls:'icon-undo',plain:true">撤消修改</a>
+    <a id="event_save" class="easyui-linkbutton" data-options="iconCls:'icon-save',plain:true">保存修改</a>
+</div>
+
+
+</body>
+</html>

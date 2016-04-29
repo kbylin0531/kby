@@ -1,0 +1,198 @@
+<include file=":Include:jqueryHeader"/>
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script src="__ROOT__/thirdparty/jquery/js/ExtSearcher.js"></script>
+<script src="__ROOT__/thirdparty/jquery/js/Shadow.js"></script>
+<script>
+    var studentno = null;
+
+    $(function () {
+        var passless_dg = $("#passless_dg");
+        var preview_dg = $("#preview_dg");
+        var midterm_dg = $("#midterm_dg");
+        var general_dg = $("#general_dg");
+        var passless_resit_dg = $('#passless_resit_dg');
+        var studentno_input = $("#STUDENTNO");
+        new ExtSearcher('__APP__/Common/Provider/seacher',['grade','school','class','student'],'s').start();
+
+        var shadow = new Shadow({'text':'后台处理中...'});
+        var search_window   = $("#search_window");
+//        search_window.window(new wind(400, 200, false, false, false, false, false));
+//        search_window.window({collapsible: false, closable: false});
+
+        $('#search').click(function () {
+            shadow.show();
+            studentno = studentno_input.val().trim();
+            if (studentno == "")  return $.messager.alert('提示', '学生号不能为空,请先输入学号再查询');
+
+            $.post('__URL__/selectPersonScores',{
+                year:GenKits.getParentYear(),
+                term:GenKits.getParentTerm(),
+                studentno:studentno
+            }, function (data) {
+                if(Messager.isMessage(data)){
+                    return Messager.show(data);
+                }
+                var personinfo = data['person_info'];
+                var scoresinfo = data['scores_info'];
+                var midterm_scores_passless_info = data['midterm_scores_passless_info'];
+                var finals_scores_passless_info = data['finals_scores_passless_info'];
+                var general_scores_finals_passless_info = data['general_scores_finals_passless_info'];
+                var resitscores_resit_passless_info = data['resitscores_resit_passless_info'];
+
+                //学生个人信息
+                $('#student_no').html(studentno);
+                $('#school_name').html(personinfo['schoolname']);
+                $('#class_name').html(personinfo['classname']);
+                $('#student_name').html(personinfo['studentname']);
+                $('#credit').html(personinfo['credit']);
+
+                //课程信息
+                preview_dg.datagrid('loadData',scoresinfo);
+                midterm_dg.datagrid('loadData',midterm_scores_passless_info);
+                passless_dg.datagrid('loadData',finals_scores_passless_info);
+                general_dg.datagrid('loadData',general_scores_finals_passless_info);
+                passless_resit_dg.datagrid('loadData',resitscores_resit_passless_info);
+                shadow.hide();
+            });
+
+//            search_window.window({closed: true});
+//            $('#contents').panel({closed: false})
+        });
+
+    });
+</script>
+
+<body style="background-color: #fff">
+<div id="search_window">
+    <!--<div align="center">-->
+        <!--<label for="STUDENTNO" style="font-size: 20px">请输入学号：</label>-->
+        <!--<input type=text name="STUDENTNO" id="STUDENTNO" value="" size="8">&nbsp;&nbsp;&nbsp;&nbsp;-->
+        <!--<a href="javascript:void(0)" id="search" class="easyui-linkbutton">查询</a>-->
+    <!--</div>-->
+
+    <label for="ES_GRADE">年级:</label><select name="grade" id="ES_GRADE" class="ES_GRADE s"></select>
+    <label for="ES_SCHOOL">学部:</label><select name="schoolno" id="ES_SCHOOL" class="ES_SCHOOL s"></select>
+    <label for="ES_CLASS">班级:</label><select name="classno" id="ES_CLASS" class="ES_CLASS s"></select>
+    <label for="STUDENTNO">学生:</label><select name="STUDENTNO" id="STUDENTNO" class="ES_STUDENT s"></select>
+    <a href="javascript:void(0)" id="search" class="easyui-linkbutton">查询</a>
+
+</div>
+
+<div id="contents" class="easyui-panel"
+     data-options="fit:true,closable:false,
+                collapsible:false,minimizable:false,maximizable:false,title:'',closed:false,border:false">
+    <div class="easyui-layout" data-options="fit:true">
+        <div data-options="region:'center',title:'',iconCls:'icon-ok'">
+            <div class="easyui-accordion" data-options="fit:true,border:false" id="haha">
+                <div title="成绩总表" style="padding:0;">
+                    <div id="ccccc" class="easyui-layout" data-options="fit:true">
+                        <div data-options="region:'north',split:false,border:false" style="height:30px;">
+                            <div align="center">
+                                <b>
+                                    学部:<span id="school_name"></span>&nbsp;
+                                    班级:<span id="class_name"></span>&nbsp;
+                                    学号:<span id="student_no"></span>&nbsp;
+                                    姓名:<span id="student_name"></span>&nbsp;
+                                    获得学分:<span id="credit"></span>
+                                </b>
+                            </div>
+                        </div>
+                        <div data-options="region:'center',title:'',pageList:[50,100]"
+                             style="padding:0;background:#eee;">
+                            <table class="easyui-datagrid" id="preview_dg" data-options="
+                            fitColumns:true,fit:true,pagination:false,border:false,singleSelect:true,toolbar:'search_window'">
+                                <thead>
+                                    <tr>
+                                        <th data-options="field:'year',width:40,align:'center'">学年</th>
+                                        <th data-options="field:'term',width:30,align:'center'">学期</th>
+                                        <th data-options="field:'coursegroup',width:100,align:'center'">课号</th>
+                                        <th data-options="field:'coursename',width:200,align:'center'">课名</th>
+                                        <th data-options="field:'credit',width:40,align:'center'">学分</th>
+                                        <th data-options="field:'approach',width:60,align:'center'">修课方式</th>
+                                        <th data-options="field:'examtype',width:60,align:'center'">考试方式</th>
+                                        <th data-options="field:'normal_score',width:100,align:'center'">平时</th>
+                                        <th data-options="field:'midterm_score',width:100,align:'center'">期中</th>
+                                        <th data-options="field:'finals_score',width:100,align:'center'">期末</th>
+                                        <th data-options="field:'general_score',width:100,align:'center'">总评</th>
+                                        <th data-options="field:'resit_score',width:100,align:'center'">补考</th>
+                                    </tr>
+                                </thead>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+                <div title="期中未通过课程列表" style="padding:0">
+                    <table class="easyui-datagrid" id="midterm_dg"
+                           data-options="pagination:false,fitColumns:true,singleSelect:true,fit:true,border:false">
+                        <thead>
+                        <tr>
+                            <th data-options="field:'year',width:40,align:'center'">学年</th>
+                            <th data-options="field:'term',width:30,align:'center'">学期</th>
+                            <th data-options="field:'coursegroup',width:100,align:'center'">课号</th>
+                            <th data-options="field:'coursename',width:200,align:'center'">课名</th>
+                            <th data-options="field:'credit',width:40,align:'center'">学分</th>
+                            <th data-options="field:'approach',width:60,align:'center'">修课方式</th>
+                            <th data-options="field:'examtype',width:60,align:'center'">考试方式</th>
+                            <th data-options="field:'midterm_score',width:100,align:'center'">期中成绩</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div title="期末未通过课程列表" style="padding:0">
+                    <table class="easyui-datagrid" id="passless_dg"
+                           data-options="pagination:false,fitColumns:true,singleSelect:true,fit:true,border:false">
+                        <thead>
+                        <tr>
+                            <th data-options="field:'year',width:40,align:'center'">学年</th>
+                            <th data-options="field:'term',width:30,align:'center'">学期</th>
+                            <th data-options="field:'coursegroup',width:100,align:'center'">课号</th>
+                            <th data-options="field:'coursename',width:200,align:'center'">课名</th>
+                            <th data-options="field:'credit',width:40,align:'center'">学分</th>
+                            <th data-options="field:'approach',width:60,align:'center'">修课方式</th>
+                            <th data-options="field:'examtype',width:60,align:'center'">考试方式</th>
+                            <th data-options="field:'finals_score',width:100,align:'center'">期末成绩</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div title="总评未通过课程列表" style="padding:0">
+                    <table class="easyui-datagrid" id="general_dg"
+                           data-options="pagination:false,fitColumns:true,singleSelect:true,fit:true,border:false">
+                        <thead>
+                        <tr>
+                            <th data-options="field:'year',width:40,align:'center'">学年</th>
+                            <th data-options="field:'term',width:30,align:'center'">学期</th>
+                            <th data-options="field:'coursegroup',width:100,align:'center'">课号</th>
+                            <th data-options="field:'coursename',width:200,align:'center'">课名</th>
+                            <th data-options="field:'credit',width:40,align:'center'">学分</th>
+                            <th data-options="field:'approach',width:60,align:'center'">修课方式</th>
+                            <th data-options="field:'examtype',width:60,align:'center'">考试方式</th>
+                            <th data-options="field:'general_score',width:100,align:'center'">总评成绩</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div title="补考未通过课程列表" style="padding:0">
+                    <table class="easyui-datagrid" id="passless_resit_dg"
+                           data-options="pagination:false,fitColumns:true,singleSelect:true,fit:true,border:false">
+                        <thead>
+                        <tr>
+                            <th data-options="field:'year',width:40,align:'center'">学年</th>
+                            <th data-options="field:'term',width:30,align:'center'">学期</th>
+                            <th data-options="field:'coursegroup',width:100,align:'center'">课号</th>
+                            <th data-options="field:'coursename',width:200,align:'center'">课名</th>
+                            <th data-options="field:'credit',width:40,align:'center'">学分</th>
+                            <th data-options="field:'approach',width:60,align:'center'">修课方式</th>
+                            <th data-options="field:'examtype',width:60,align:'center'">考试方式</th>
+                            <th data-options="field:'general_score',width:100,align:'center'">总评</th>
+                            <th data-options="field:'resit_score',width:100,align:'center'">补考成绩</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>

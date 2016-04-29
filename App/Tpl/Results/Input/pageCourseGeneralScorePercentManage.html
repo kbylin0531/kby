@@ -1,0 +1,165 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script type="text/javascript" src='__ROOT__/thirdparty/jquery/js/datagrid-bufferview.js'> </script>
+<script type="text/javascript" src="__ROOT__/thirdparty/jquery/js/easyui.validate.js"></script>
+<script type="text/javascript" src="__ROOT__/thirdparty/jquery/js/easyui.extend.js"></script>
+<script type="text/javascript" src="__ROOT__/thirdparty/jquery/js/common.js"></script>
+<script type="text/javascript" src="__ROOT__/thirdparty/jquery/js/modules/results.js"></script>
+<script>
+
+    $(function () {
+        var dgrid = $("#dgrid");
+        var coursegroupno_input = $("#coursegroupno");
+        var window = $('#win');
+        var addform = $("#addform");
+
+        window.window('close');
+
+        GenDataGridEditor.initDatagrid(dgrid,['normalscore','midtermscore','finalsscore']);
+
+        function loadData(){ dgrid.datagrid('load',{coursegroupno:coursegroupno_input.val()});}
+        loadData();
+        $("#search").click(function () { loadData();  });
+
+
+        $("#save").click(function () {
+            Datagrid.endEdit(dgrid);
+            var updates = Datagrid.getUpdated(dgrid);
+            console.log(updates);
+            if(!updates.length){
+                return Messager.showWarning("未修改数据!");
+            }
+            //检查数值
+            for(var x in updates){
+                var row = updates[x];
+                console.log(row);
+                if(100 !== (parseInt(row.normalscore) + parseInt(row.finalsscore) + parseInt(row.midtermscore))){
+                    return Messager.showWarning("课号"+row.coursegroup+"总百分比不到100，请重新编辑");
+                }
+            }
+            $.post('__URL__/updateGeneralScorePercentInBatch',{'rowlist':updates}, function (data) {
+                return Messager.showMessage(data);
+            });
+        });
+
+        $("#delete").click(function () {
+            if(Datagrid.hasSelected(dgrid)){
+                var row = Datagrid.getSelected(dgrid);
+                $.post('__URL__/deleteCourseGeneralScorePercent',{coursegroup:row.coursegroup},function(data){
+                    return Messager.showMessage(data, function () {
+                        dgrid.datagrid('reload');
+                    });
+                });
+            }
+        });
+
+        $("#add").click(function () { window.window('open'); });
+        $("#submit").click(function () {
+            var values = addform.serialize();
+            $.post('__URL__/createCourseGeneralScorePercent',{_PARAMS_:values}, function (data) {
+                return Messager.showMessage(data, function () {
+                    if(data.type === 'info'){
+                        window.window('close');
+                        dgrid.datagrid('reload');
+                    }
+                })
+            });
+        });
+
+    });
+
+</script>
+<body style="background: #fff">
+
+
+
+<div class="easyui-layout" data-options="fit:true">
+    <div id="tdemo">
+        <label for="coursegroupno">课号：</label>
+        <input type="text"  value="%" id="coursegroupno" size="10">&nbsp;&nbsp;
+        <a href="javascript:void(0)" id="search"  class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+        <a href="javascript:void(0)" id="save" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true" >保存修改</a>
+        <a href="javascript:void(0)" id="delete" class="easyui-linkbutton" data-options="iconCls:'icon-remove',plain:true" >删除特例</a>
+        <a href="javascript:void(0)" id="add" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true" >添加特例</a>
+    </div>
+    <div data-options="region:'center',border:false,split:false" style="padding:0;background:#eee;">
+        <table class="easyui-datagrid" id="dgrid"
+               data-options="url:'__URL__/listCourseGeneralScorePercent',pageList:[30,50,100,200,500],title:'',fitColumns:true,pagination:true,fit:true,toolbar:'#tdemo',singleSelect:false">
+            <thead>
+                <tr>
+                    <th data-options="field:'coursegroup',width:100,formatter:function(a){
+                        if(a === '000000000'){
+                            return '默认';
+                        }else{
+                            return a;
+                        }
+                    }" align="center">课号组号</th>
+                    <th data-options="field:'normalscore',width:100,editor:{type:'text'}" align="center">平时百分比</th>
+                    <th data-options="field:'midtermscore',width:100,editor:{type:'text'}" align="center">期中百分比</th>
+                    <th data-options="field:'finalsscore',width:100,editor:{type:'text'}" align="center">期末百分比</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+
+<div id="win" class="easyui-window" title="添加特例" style="width:300px;height:200px;"
+     data-options="iconCls:'icon-add',modal:true">
+    <form id="addform" method="post"  >
+        <table style="width: 100%">
+            <thead>
+                <tr>
+                    <th style="width: 50%;"></th>
+                    <th style="width: 50%;"></th>
+                </tr>
+            </thead>
+            <tr>
+                <td>
+                    <label for="coursegroup" >课号组号</label>
+                </td>
+                <td>
+                    <input id="coursegroup" name="coursegroup" value="" size="9"  />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="normalscore" >平时百分比</label>
+                </td>
+                <td>
+                    <input id="normalscore" name="normalscore" value="" size="3"  />%
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="midtermscore" >期中百分比</label>
+                </td>
+                <td>
+                    <input id="midtermscore" name="midtermscore" value="" size="3"  />%
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="finalsscore" >期末百分比</label>
+                </td>
+                <td>
+                    <input id="finalsscore" name="finalsscore" value="" size="3"  />%
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="button" id="submit" value="添加" />
+                </td>
+                <td>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+
+
+
+
+
+</body>

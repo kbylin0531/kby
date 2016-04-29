@@ -1,0 +1,729 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script type="text/javascript" src='__ROOT__/thirdparty/jquery/js/taskMonitor.js'></script>
+
+<style>
+.query{}
+legend{margin-left: 20px;}
+.query label{font-weight: bold;margin-left:20px;}
+#searcher{margin-left: 20px;}
+</style>
+<body>
+<div class="easyui-layout"  data-options="border:false,fit:true" >
+    <div id="tdemo" class="query">
+		<div>
+			   <label>学年：</label>
+			   
+			   <input value="{$yearTerm.YEAR}" name="Qyear" size="6">
+			   
+			   <label>学期：</label>
+			   
+			   <input value="{$yearTerm.TERM}" name="Qterm" size="2">
+		
+			   <label>学部：</label>
+			   <select class="easyui-combotree" id="Qschool" name="Qschool" style="width:120px;" data-options="url:'__URL__/getjsonschools/hasJson/1',required:false,lines:true,editable:false">
+	
+			   </select>
+			   
+			   <label>审核状态：</label>
+			   
+               <select name="Qstatus" >
+                 <option value="%">全部</option>
+                 <option value="1" selected>待审核</option>
+                 <option value="2">通过</option>
+                 <option value="3">不通过</option>
+                 <option value="-1">退回</option>
+               </select>               
+            </div>
+		<div>			   
+			   <label>教师号：</label>
+			   
+			   <input name="Qteacherno" size="10"  value='%'  maxlength="10">
+			   
+			   <label>教师名：</label>
+			   
+               <input name="Qteachername" size="10" value='%' />     
+                         
+			   <label>奖励类别：</label>
+			   
+               <input name="Qrewardssort" size="10" value='%' />               
+			   
+			   <label>奖励级别：</label>
+			   
+               <input name="Qrewardsgrade" size="10" value='%' />               
+               
+			   <a href="javascript:void(0)" id="searcher">检索</a>
+            </div>
+            <div>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit"  id="e_vedit" plain=true>审核</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" id="e_batchvedit" plain=true>批量审核</a>
+			</div>
+	</div>
+    <div data-options="region:'center',border:false" style=";background:#eee;">
+        <div id="content"></div>
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+$(function(){	
+	$('#Qschool').combotree('setValue', 0);
+		
+	//教师奖励信息列表加载
+    var indexrow=undefined;
+    var dat=$('#content').datagrid({
+		fit:true,
+		striped:true,
+        fitColumns:true,
+        columns:[[{field:'ID',checkbox:true},
+                  {field:'YEAR',title:'学年', width:60,align:'center'},
+                  {field:'TERM',title:'学期', width:60,align:'center'},
+                  {field:'TEACHERNO',title:'教师号',width:100,align:'center'},
+                  {field:'TEACHERNAME',title:'教师名',width:100,align:'center'},
+                  {field:'REWARDSNAME',title:'奖励名称', width:100,align:'center',formatter:function(value,row,index){
+                	  
+                	  var result = '<a title="查看具体信息" href="javascript:dorowview(\\'' + row.ID + '\\');">' + row.REWARDSNAME + '</a>';
+                	  return result;
+           	    	
+  		          }},
+                  {field:'REWARDSSORT',title:'奖励类别',width:100,align:'center'},
+                  {field:'REWARDSGRADE',title:'奖励级别', width:150,align:'center'},
+                  {field:'REWARDSSCORE',title:'奖励分数',width:60,align:'center'},
+                  {field:'STATUS',title:'状态',width:60,align:'center',formatter:function(value,row,index){
+                	  if (row.STATUS == 1)
+                	  {
+                		  return "待审核";
+                	  }
+                	  else if (row.STATUS == -1)
+                	  {
+                		  return "退回";
+                	  }
+                	  else if (row.STATUS == 2)
+                	  {
+                		  return "通过";
+                	  }
+                	  else if (row.STATUS == 3)
+                	  {
+                		  return "不通过";
+                	  }
+                	  
+  		          }}]],
+        onRowContextMenu:function(e,rowindex,row){
+            dat.datagrid('rejectChanges')
+            var tt=$('#content');
+
+            e.preventDefault();  //该方法将通知 Web 浏览器不要执行与事件关联的默认动作（如果存在这样的动作）
+            tt.datagrid('selectRow',rowindex);
+            $('#admin_access_menu').menu('show',{
+                left: e.pageX,
+                top: e.pageY
+            });
+        },
+		pagination:true,
+		pageList:[10,20,30,40,50],
+		pageSize:20,
+		toolbar:'#tdemo'
+    })
+
+    /*
+     * 条件查询开始
+     */
+    $('#searcher').linkbutton({iconCls: 'icon-search'});//搜索按钮
+    $('#searcher').click(function(){
+    	$('#content').datagrid("options").url = "__URL__/vqlist/hasJson/1";
+    	$('#content').datagrid('load',{
+    		Qyear:$.trim($(".query [name='Qyear']").val()),
+    		Qterm:$.trim($(".query [name='Qterm']").val()),
+    		Qschool:(($.trim($(".query [name='Qschool']").val())=="0")?"%":$.trim($(".query [name='Qschool']").val())),    		
+    		Qteacherno:$.trim($(".query [name='Qteacherno']").val()),
+    		Qteachername:$.trim($(".query [name='Qteachername']").val()),
+    		Qrewardssort:$.trim($(".query [name='Qrewardssort']").val()),
+    		Qrewardsgrade:$.trim($(".query [name='Qrewardsgrade']").val()),
+    		Qstatus:$.trim($(".query [name='Qstatus']").val())     		
+        })
+    })
+    
+    $('#e_vedit').bind('click',evedit);
+    $('#admin_vedit').bind('click',evedit);
+    $('#e_batchvedit').bind('click',ebatchvedit)
+    $('#admin_view').bind('click',doview);
+    
+    function evedit(){
+        var rowList=dat.datagrid('getSelections');//获取所有被选中的
+
+        if(rowList.length>1){
+            $.messager.alert('提示','请选择一条进行审核,不能选多条','?');//用户选了多行编辑
+        }else if(rowList.length<1){
+            $.messager.alert('提示','请选择要审核的数据','?');//用户没选择行
+        }else{
+        	
+        	var resdata = rowList[0];
+
+        	if (resdata.STATUS==0)
+        	{
+        		$.messager.alert('提示','当前记录尚未提交审核','?');
+        	}
+        	else if (resdata.STATUS==-1)
+        	{
+        		$.messager.alert('提示','当前记录已退回，请等待提交审核','?');
+        	}
+        	else 
+        	{
+        		$('#e_editrewards').window({closed:false});
+                formreset();
+                
+            	$('#edit_YEAR').text(resdata.YEAR);
+            	$('#edit_TERM').text(resdata.TERM);              	
+				$('#edit_TEACHERNO').text(resdata.TEACHERNO + ' / ' + resdata.TEACHERNAME);
+				$('#edit_REWARDS_SORT').text(resdata.REWARDSSORT);
+				$('#edit_REWARDS_GRADE').text(resdata.REWARDSGRADE);
+				$('#edit_REWARDS_NAME_ID').text(resdata.REWARDSNAME);                
+            	$('#edit_REWARDS_SCORE').text(resdata.REWARDSSCORE);
+            	$('#edit_REWARDS_REMARK').text(resdata.REWARDS_REMARK);  
+            	
+            	$('#edit_VERIFY_REMARK').val(resdata.VERIFY_REMARK);
+            	$('#edit_ID').val(resdata.ID);
+        		
+        	}
+
+        }
+    }
+	
+    $('#btn_save').bind('click',function(){
+    	
+    	formsubmit('__URL__/verify',1);
+       
+    })
+	
+    $('#btn_up2').bind('click',function(){
+    	
+    	formsubmit('__URL__/verify',2);
+       
+    })
+	
+    $('#btn_up3').bind('click',function(){
+    	
+    	formsubmit('__URL__/verify',3);
+       
+    })
+	
+    $('#btn_up_1').bind('click',function(){
+    	
+    	formsubmit('__URL__/verify',-1);
+       
+    })
+    
+    function formreset()
+    {
+    	$('#edit_YEAR').text('');
+    	$('#edit_TERM').text('');
+    	$('#edit_TEACHERNO').text('');
+    	$('#edit_REWARDS_SORT').text('');
+    	$('#edit_REWARDS_GRADE').text('');
+    	$('#edit_REWARDS_NAME_ID').text('');
+    	$('#edit_REWARDS_SCORE').text('');
+    	$('#edit_REWARDS_REMARK').text('');
+    	$('#edit_VERIFY_REMARK').val('');
+    	$('#edit_ID').val('');
+    }
+    
+    function formcheck(status)
+    {
+    	var result = true;
+    	
+    	if (status == 3)
+    	{
+    		if($.trim($('#edit_VERIFY_REMARK').val())==''){
+            	result = false;
+                $.messager.alert('提示','请填写审核意见');
+            }
+    	}
+    	else if (status == -1)
+    	{
+    		if($.trim($('#edit_VERIFY_REMARK').val())==''){
+            	result = false;
+                $.messager.alert('提示','请填写审核意见');
+            }
+    	}
+    	
+    	return result;    	
+    }
+    
+    function formsubmit(url,status)
+    {
+    	if (formcheck(status))
+    	{
+    		var data = {
+    	            'VERIFY_REMARK':$('#edit_VERIFY_REMARK').val(),
+    	            'ID':$('#edit_ID').val(),
+    	            'STATUS':status
+    	            };
+    		
+    	    $.ajax({
+    	        type:'post',
+    	        url:url,
+    	        data:data,
+    	        success:function(c){
+
+    	        	 $.messager.alert('提示',c);
+    	        	 
+    	        	 $('#e_editrewards').window({closed:true});
+    	        	
+    	        	 $('#content').datagrid('reload',{
+    	         		Qyear:$.trim($(".query [name='Qyear']").val()),
+    	        		Qterm:$.trim($(".query [name='Qterm']").val()),
+    	        		Qschool:(($.trim($(".query [name='Qschool']").val())=="0")?"%":$.trim($(".query [name='Qschool']").val())),    		
+    	        		Qteacherno:$.trim($(".query [name='Qteacherno']").val()),
+    	        		Qteachername:$.trim($(".query [name='Qteachername']").val()),
+    	        		Qrewardssort:$.trim($(".query [name='Qrewardssort']").val()),
+    	        		Qrewardsgrade:$.trim($(".query [name='Qrewardsgrade']").val()),
+    	        		Qstatus:$.trim($(".query [name='Qstatus']").val())     		
+    	            })
+        
+        
+    	        }
+    	    })
+    		
+    		
+    	}
+    }
+    
+ 
+
+    function ebatchvedit(){
+        var row1 = dat.datagrid('getSelections');
+        if (row1.length){
+            $.messager.confirm('提示','您确定要批量审核吗',function(b){
+                if(b){                	
+                	
+                	var msg = '';
+					for(var i=0;i<row1.length;i++){
+                    	
+                    	var resdata = row1[i];                    	
+                    	if (resdata.STATUS==0)
+                    	{
+                    		msg += '<br>' + '“' + resdata.TEACHERNAME + '”' + '“' + resdata.REWARDSNAME + '”' + '尚未提交审核！';
+                    		
+                    	}
+                    	else if (resdata.STATUS==-1)
+                    	{
+                    		msg += '<br>' + '“' + resdata.TEACHERNAME + '”' + '“' + resdata.REWARDSNAME + '”' + '已退回，请等待提交审核！';
+                    	}
+                    }
+                	
+                	if (msg != '')
+                	{
+                		$.messager.alert('提示',msg);
+                	}
+                	else
+                	{
+                		$('#e_batchrewards').window({closed:false});
+                		
+                		vformreset();
+                		
+                	}
+                    
+                }
+            });
+        }
+        else
+        {
+        	$.messager.alert('提示','请选择要批量审核的数据','?');
+        }
+        
+    }
+    
+	
+    $('#btn_batchsave').bind('click',function(){
+    	
+    	vformsubmit('__URL__/verifys',1);
+       
+    })
+	
+    $('#btn_batchup2').bind('click',function(){
+    	
+    	vformsubmit('__URL__/verifys',2);
+       
+    })
+	
+    $('#btn_batchup3').bind('click',function(){
+    	
+    	vformsubmit('__URL__/verifys',3);
+       
+    })
+	
+    $('#btn_batchup_1').bind('click',function(){
+    	
+    	vformsubmit('__URL__/verifys',-1);
+       
+    })
+    
+    function vformreset()
+    {
+    	$('#batch_VERIFY_REMARK').val('');
+    }
+    
+    function vformcheck(status)
+    {
+    	var result = true;
+    	
+    	var row1 = dat.datagrid('getSelections');
+    	if (row1.length)
+    	{    		
+    	}    	
+    	else
+    	{
+    		result = false;
+    		$.messager.alert('提示','请选择批量审核的记录');
+    	}
+    	
+    	if (result)
+    	{
+        	if (status == 3)
+        	{
+        		if($.trim($('#batch_VERIFY_REMARK').val())==''){
+                	result = false;
+                    $.messager.alert('提示','请填写审核意见');
+                }
+        	}
+        	else if (status == -1)
+        	{
+        		if($.trim($('#batch_VERIFY_REMARK').val())==''){
+                	result = false;
+                    $.messager.alert('提示','请填写审核意见');
+                }
+        	}
+    	}
+    	
+    	return result;    	
+    }
+    
+    function vformsubmit(url,status)
+    {
+    	if (vformcheck(status))
+    	{
+    		var row1 = dat.datagrid('getSelections');
+    		var infoarr=[];                  
+            var j=0;
+            for(var i=0;i<row1.length;i++)
+            {            	
+            	var resdata = row1[i];
+            	if (resdata.STATUS==0)
+            	{
+            	}
+            	else if (resdata.STATUS==-1)
+            	{
+            	}
+            	else 
+            	{
+            		infoarr[j]=row1[i].ID;
+                    j++;
+            	}
+            } 
+            
+            if(infoarr.length > 0){
+        		var data = {
+        	            'VERIFY_REMARK':$('#batch_VERIFY_REMARK').val(),
+        	            'in':infoarr,
+        	            'STATUS':status
+        	            };
+        		
+        	    $.ajax({
+        	        type:'post',
+        	        url:url,
+        	        data:data,
+        	        success:function(c){
+
+        	        	 $.messager.alert('提示',c);
+        	        	 
+        	        	 $('#e_batchrewards').window({closed:true});
+        	        	
+        	        	 $('#content').datagrid('reload',{
+        	         		Qyear:$.trim($(".query [name='Qyear']").val()),
+        	        		Qterm:$.trim($(".query [name='Qterm']").val()),
+        	        		Qschool:(($.trim($(".query [name='Qschool']").val())=="0")?"%":$.trim($(".query [name='Qschool']").val())),    		
+        	        		Qteacherno:$.trim($(".query [name='Qteacherno']").val()),
+        	        		Qteachername:$.trim($(".query [name='Qteachername']").val()),
+        	        		Qrewardssort:$.trim($(".query [name='Qrewardssort']").val()),
+        	        		Qrewardsgrade:$.trim($(".query [name='Qrewardsgrade']").val()),
+        	        		Qstatus:$.trim($(".query [name='Qstatus']").val())     		
+        	            })
+            
+            
+        	        }
+        	    })
+        		
+            	
+            }
+
+    		
+    	}
+    }
+    
+    function doview(){   
+		var row1 = dat.datagrid('getSelected');
+    	if (row1)
+    	{
+    		id = row1.ID;	
+    	}
+    	var url="__URL__/view/id/" + id;
+	    openTabsWindows("教师奖励信息查看" + id,url);    
+    	
+    }
+    
+    
+    var e_viewrewards_grid=$('#e_viewrewards_grid').datagrid({
+		fit:true,
+		striped:true,
+        fitColumns:true,
+        columns:[[
+                  {field:'VERIFY_STATUS',title:'审核结果', width:60,align:'center',formatter:function(value,row,index){
+                	  if (row.VERIFY_STATUS == -1)
+                	  {
+                		  return "退回";
+                	  }
+                	  else if (row.VERIFY_STATUS == 2)
+                	  {
+                		  return "通过";
+                	  }
+                	  else if (row.VERIFY_STATUS == 3)
+                	  {
+                		  return "不通过";
+                	  }
+                	  
+  		          }},
+                  {field:'VERIFY_REMARK',title:'审核意见', width:60,align:'left'},
+                  {field:'VERIFY_USER',title:'审核用户',width:100,align:'center'},
+                  {field:'VERIFY_TIME',title:'审核日期',width:100,align:'center'}]],
+       onLoadSuccess:function(data){
+    	   
+    	   var reward = data.reward;
+    	   
+    	   $('#e_viewrewards_YEAR').text(reward.YEAR);
+    	   $('#e_viewrewards_TERM').text(reward.TERM);
+    	   $('#e_viewrewards_TEACHER').text(reward.TEACHERNO + ' / ' + reward.TEACHERNAME);
+    	   if (reward.STATUS == -1)
+    	   {
+    		   $('#e_viewrewards_STATUS').text('退回');
+    	   }
+    	   else if (reward.STATUS == 1)
+    	   {
+    		   $('#e_viewrewards_STATUS').text('已提交');
+    	   }
+    	   else if (reward.STATUS == 2)
+    	   {
+    		   $('#e_viewrewards_STATUS').text('通过');
+    	   }
+    	   else if (reward.STATUS == 3)
+    	   {
+    		   $('#e_viewrewards_STATUS').text('不通过');
+    	   }
+    	   $('#e_viewrewards_REWARDSSORT').text(reward.REWARDSSORT);
+    	   $('#e_viewrewards_REWARDSGRADE').text(reward.REWARDSGRADE);
+    	   $('#e_viewrewards_REWARDSNAME').text(reward.REWARDSNAME);
+    	   $('#e_viewrewards_REWARDSSCORE').text(reward.REWARDSSCORE);
+    	   $('#e_viewrewards_REWARDS_REMARK').text(reward.REWARDS_REMARK);
+    	   $('#e_viewrewards_ADD_USER').text(reward.ADD_USER);
+    	   $('#e_viewrewards_ADD_TIME').text(reward.ADD_TIME);    	   
+
+        },
+		pagination:false
+    })
+    
+    
+    
+});
+
+
+function dorowview(id){   
+//	var url="__URL__/view/id/" + id;
+//    openTabsWindows("教师奖励信息查看" + id,url);    
+	
+	$('#e_viewrewards').window({closed:false});
+	
+	$('#e_viewrewards_grid').datagrid("options").url = "__URL__/view/hasJson/1";
+	$('#e_viewrewards_grid').datagrid('load',{
+		id:id  		
+    })
+	
+}
+
+</script>
+
+<div id="e_editrewards" class="easyui-window" title="审核教师奖励申请" style="width:500px;height:340px"
+     data-options="iconCls:'icon-save',modal:true,minimizable:false,maximizable:false,closable:true,collapsible:false,closed:true">
+    <table align=center border="2" width="77%" style="border-collapse:collapse;margin-top:10px" bordercolor="#000000" >
+        <tr>
+            <td width="30%" align="right" height="23">学年：</td>
+            <td width="70%" height="23">
+                <span id="edit_YEAR"></span>
+                *
+            </td>
+        </tr>
+        <tr>
+            <td align="right" height="28" >学期：</td>
+            <td height="28">
+                <span id="edit_TERM"></span>
+                *
+            </td>
+        </tr>
+        <tr>
+            <td align="right" height="5">教师名 / 教师名：</td>
+            <td height="5">    
+              <span id="edit_TEACHERNO"></span>
+              *
+            </td>
+        </tr>
+        <tr>
+            <td align="right" height="2">申请奖励类别：</td>
+            <td height="2">
+              <span id="edit_REWARDS_SORT"></span>
+              * 
+            </td>
+        </tr>
+        <tr>
+            <td align="right" height="2">申请奖励级别：</td>
+            <td height="2">
+              <span id="edit_REWARDS_GRADE"></span>
+              * 
+            </td>
+        </tr>
+        <tr>
+            <td align="right" height="2">申请奖励名称：</td>
+            <td height="2">
+              <span id="edit_REWARDS_NAME_ID"></span>
+              * 
+            </td>
+        </tr>
+        <tr>
+            <td align="right" height="28">申请奖励分数：</td>
+            <td height="28">
+                <span id="edit_REWARDS_SCORE"></span>
+            </td>
+        </tr>
+        <tr>
+            <td align="right" height="28">奖励说明：</td>
+            <td height="28">
+                <span id="edit_REWARDS_REMARK"></span>
+            </td>
+        </tr>
+        <tr>
+            <td align="right" height="28">审核意见：</td>
+            <td height="28">
+                <textarea id="edit_VERIFY_REMARK" name="VERIFY_REMARK"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" align="center">
+                <a href="javascript:void(0)" class="easyui-linkbutton" id="btn_save">保存</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" id="btn_up2">通过</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" id="btn_up3">不通过</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" id="btn_up_1">退回</a>
+                
+                <input type="hidden" id="edit_ID" name="ID" >
+            </td>
+        </tr>
+    </table>
+
+</div>
+
+<div id="e_batchrewards" class="easyui-window" title="批量审核教师奖励申请" style="width:500px;height:160px"
+     data-options="iconCls:'icon-save',modal:true,minimizable:false,maximizable:false,closable:true,collapsible:false,closed:true">
+    <table align=center border="2" width="77%" style="border-collapse:collapse;margin-top:10px" bordercolor="#000000" >
+        <tr>
+            <td width="30%" align="right" height="28">审核意见：</td>
+            <td width="70%" height="28">
+                <textarea id="batch_VERIFY_REMARK" name="VERIFY_REMARK"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" align="center">
+                <a href="javascript:void(0)" class="easyui-linkbutton" id="btn_batchsave">保存</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" id="btn_batchup2">通过</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" id="btn_batchup3">不通过</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" id="btn_batchup_1">退回</a>
+            </td>
+        </tr>
+    </table>
+
+</div>
+
+
+<div id="e_viewrewards" class="easyui-window" title="教师奖励信息查看" style="width:700px;height:400px; overflow:auto;"
+     data-options="iconCls:'icon-save',modal:true,minimizable:false,maximizable:false,closable:true,collapsible:false,closed:true">
+
+    <table align=center border="2" width="100%" style="border-collapse:collapse;margin-top:10px" bordercolor="#000000" >
+        <tr>
+            <td width="15%" align="right" height="23">学年：</td>
+            <td width="35%" height="23">
+                <span id="e_viewrewards_YEAR"></span>
+            </td>
+            <td width="15%" align="right" height="28" >学期：</td>
+            <td width="35%" height="28">
+                <span id="e_viewrewards_TERM"></span>
+            </td>
+        </tr>
+        <tr>
+            <td align="right" height="5">教师名 / 教师名：</td>
+            <td height="5">    
+              <span id="e_viewrewards_TEACHER"></span>
+            </td>
+            <td align="right" height="28" >状态：</td>
+            <td height="28">
+            	<span id="e_viewrewards_STATUS"></span>            	
+            </td>
+        </tr>
+        <tr>
+            <td align="right" height="2">申请奖励类别：</td>
+            <td height="2">
+            	<span id="e_viewrewards_REWARDSSORT"></span>     
+            </td>
+            <td align="right" height="2">申请奖励级别：</td>
+            <td height="2">
+            	<span id="e_viewrewards_REWARDSGRADE"></span> 
+            </td>
+        </tr>
+        <tr>
+            <td align="right" height="2">申请奖励名称：</td>
+            <td height="2">
+            	<span id="e_viewrewards_REWARDSNAME"></span> 
+            </td>
+            <td align="right" height="28">申请奖励分数：</td>
+            <td height="28">
+            	<span id="e_viewrewards_REWARDSSCORE"></span> 
+            </td>
+        </tr>
+        <tr>
+            <td align="right" height="28">奖励说明：</td>
+            <td height="28" colspan="3">
+            	<span id="e_viewrewards_REWARDS_REMARK"></span> 
+            </td>
+        </tr>
+        <tr>
+            <td align="right" height="28">操作人员：</td>
+            <td height="28">
+            	<span id="e_viewrewards_ADD_USER"></span> 
+            </td>
+            <td align="right" height="28">操作时间：</td>
+            <td height="28">
+            	<span id="e_viewrewards_ADD_TIME"></span> 
+            </td>
+        </tr>
+    </table>
+
+ 
+             <table id="e_viewrewards_grid" fitColumns="true" width="100%" >
+
+            </table>
+    
+   
+</div>
+
+<div id="admin_access_menu" class="easyui-menu" style="width:100px;">
+    <div id='admin_view'>查看本条目</div>
+    <div id='admin_vedit'>审核本条目</div>
+</div>
+
+</body>
+</html>

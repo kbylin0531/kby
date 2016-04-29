@@ -1,0 +1,282 @@
+<include file=":Include:jqueryHeader"/>
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script>
+    var school = '{$school}';
+    var teacherno = '{$teacherno}';
+
+    function lockFormatter(value) {
+        value = parseInt(value);
+        if(value > 0){
+            return '锁定';
+        }else if(value < 0 ){
+            return '-';
+        }else{
+            return '开放';
+        }
+    }
+
+    //课程号点击直接进入成绩登记表
+    function coursenoFormatter(value) {
+        return "<a target='_blank' href='__URL__/pageFinalsInputForPrint/year/" + $("#year").val() + '/term/' + $("#term").val() + '/courseno/' + value + "'>" + value + "</a>";
+    }
+
+    $(function () {
+        var school_input = $("#school");
+        var year_input = $("#year");
+        var term_input = $("#term");
+        var coursegroup_input = $("#courseno");
+        var coursename_input = $("#coursename");
+        var teachername_input = $("#teachername");
+
+        //课程学生列表窗口
+        var studentlist = $("#studentlist");
+        studentlist.window('close');
+
+        var dgrid = $("#dgrid");
+        var courseStudentsGrid = $("#courseStudents");
+
+        school_input.val(school);
+        year_input.val(GenKits.getParentYear());
+        term_input.val(GenKits.getParentTerm());
+
+        var reload = function () {
+            dgrid.datagrid('load', {
+                year: year_input.val(),
+                term: term_input.val(),
+                school: school_input.val(),
+                courseno: coursegroup_input.val(),
+                coursename: coursename_input.val(),
+                teachername: teachername_input.val()
+            });
+        };
+
+        $('#search').bind('click', reload);
+
+
+        /**
+         * 查看课程学生锁定情况
+         */
+        $("#lookCourseStudents").click(function () {
+            if (Datagrid.selectSingle(dgrid)) {
+                var row = Datagrid.getSelected(dgrid);
+                courseStudentsGrid.datagrid('load', {
+                    year:year_input.val(),
+                    term:term_input.val(),
+                    coursegroup:row.coursegroup
+                });
+                studentlist.window('open');
+            }
+        });
+
+        /**
+         * 查看学生成绩打印单
+         */
+        $('#lookStudentsScores').bind('click', function () {
+            if (Datagrid.selectSingle(dgrid)) {
+                var row = Datagrid.getSelected(dgrid);
+                open('__URL__/pageFinalsInputForPrint/year/' + year_input.val() +
+                        '/term/' + term_input.val() + '/courseno/' + row.coursegroup);
+            }
+        });
+        /**
+         * 一键修改
+         */
+        $("#updateAllLock").click(function () {
+            $.post('__URL__/updateAllLock',{
+                lock:$("#operation").val(),
+                scoretype:$("#scoretype").val()
+            }, function (c) {
+                return Messager.showMessage(c, function () {
+                    dgrid.datagrid('reload');
+                });
+            });
+        });
+        
+        $("#updateLockS").click(function () {
+
+            var lock = $("#operationS").val();
+            var type = $("#scoretypeS").val();
+            if (Datagrid.hasSelected(courseStudentsGrid)){
+                var rows = Datagrid.getSelections(courseStudentsGrid);
+                var tip = '';
+                for (var i = 0; i < rows.length; i++) {
+                    if (i != (rows.length - 1)) {
+                        tip += rows[i].studentname + ',';
+                    } else {
+                        tip += rows[i].studentname;
+                    }
+                }
+                $.messager.confirm('提示', '请确认开放的学生为：<br />' + tip, function (c) {
+                    if (c) {
+                        $.post('__URL__/updateStudentLockInBatch',{
+                            year: year_input.val(),
+                            term: term_input.val(),
+                            students: rows,
+                            type: type,
+                            lock: lock
+                        }, function (c) {
+                            return Messager.showMessage(c, function() {
+                                courseStudentsGrid.datagrid('reload');
+                            });
+                        });
+                    }
+                });
+            }
+        });
+        
+        $("#updateLock").click(function () {
+            var action = null;
+            var lock = $("#operation").val();
+            switch (parseInt($("#scoretype").val())) {
+                case 2:action = '__URL__/updateFinalsLockStatusInBatch';break;
+                case 3:action = '__URL__/updateResitLockStatusInBatch';break;
+                case 1:
+                default : action = '__URL__/updateMidtermLockStatusInBatch';
+            }
+
+            if (Datagrid.hasSelected(dgrid)) {
+                var rows = Datagrid.getSelections(dgrid);
+                var tip = "";
+                for (var i = 0; i < rows.length; i++) {
+                    if (i != (rows.length - 1)) {
+                        tip += rows[i].coursename + ',';
+                    } else {
+                        tip += rows[i].coursename;
+                    }
+                }
+                $.messager.confirm('提示', '请确认开放的课程为：<br />' + tip, function (c) {
+                    if (c) {
+                        $.post(action,{
+                            courses: rows,
+                            year: year_input.val(),
+                            term: term_input.val(),
+                            lock:lock
+                        }, function (c) {
+                            return Messager.showMessage(c, function () {
+                                dgrid.datagrid('reload');
+                            });
+                        });
+                    }
+                });
+            }
+        });
+
+        $('#exportexcel').bind('click', function () {
+            open("__URL__/exportCoursesWithOpen?"+$("#form").serialize());
+        });
+
+        $("#lockAllInputed").click(function () {
+            $.post('__URL__/pageCoursesWithOpen/reqtag/lockAllInputed',{}, function (data) {
+                return Messager.show(data, reload);
+            });
+        });
+
+    });
+</script>
+<body style="background: #fff">
+<div class="easyui-layout" data-options="fit:true">
+    <div id="tdemo">
+        <form id="form">
+        <label for="year">学年：</label>
+        <input type="text" name="year" id="year" size="4" />
+        <label for="term">学期：</label>
+        <input type="text" name="term" id="term" size="1" />
+        <label for="courseno">课号：</label>
+        <input type="text" name="courseno" id="courseno" size="9" value="%" />
+        <label for="coursename">课名：</label>
+        <input type="text" name="coursename" id="coursename" size="9" value="%" />
+        <label for="teachername">教师名：</label>
+        <input type="text" name="teachername" id="teachername" size="9" value="%" />
+        <label for="school">所在学院：</label>
+        <select name="school" id="school">
+            <option value="%">全部</option>
+            <volist name="schools" id="s">
+                <option value="{$s.SCHOOL}">{$s.NAME}</option>
+            </volist>
+        </select>
+        <a href="javascript:void(0)" id="search"
+           class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+        <a href="javascript:void(0)" id="lookStudentsScores"
+           class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true">查看成绩登记表</a>
+        <a href="javascript:void(0)" id="lookCourseStudents"
+           class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true">查看锁定详细</a>
+            <a href="javascript:void(0)" id="exportexcel"
+               class="easyui-linkbutton" data-options="iconCls:'icon-excel',plain:true">导出Excel</a>
+        <a href="javascript:void(0)" id="lockAllInputed"
+           class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true">锁定已有期末和总评成绩的学生</a>
+        <br />
+
+        <label for="operation">操作</label>
+        <select id="operation">
+            <option value="0">解锁</option>
+            <option value="1">上锁</option>
+        </select>
+        <label for="scoretype">成绩类型</label>
+        <select id="scoretype">
+            <option value="1">期中</option>
+            <option value="2">期末</option>
+            <option value="3">补考</option>
+        </select>
+        <a href="javascript:void(0)" id="updateLock"
+           class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:false">修改选中记录</a>
+        <a href="javascript:void(0)" id="updateAllLock"
+           class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:false">一键修改</a>
+        </form>
+    </div>
+    <div data-options="region:'center',border:false,split:false" style="padding:0;background:#eee;">
+        <table class="easyui-datagrid" id="dgrid"
+               data-options="url:'__URL__/listCoursesWithOpen',
+               pageList:[20,50,100,200,500],title:'',fitColumns:true,pagination:true,
+               checkbox:true,fit:true,toolbar:'#tdemo',singleSelect:false">
+            <thead>
+                <tr>
+                    <th data-options="field:'ck',checkbox:true"></th>
+                    <th data-options="field:'coursegroup',width:100,formatter: coursenoFormatter" align="center">课号</th>
+                    <th data-options="field:'coursename',width:100" align="center">课程名称</th>
+                    <th data-options="field:'teachers',width:100" align="center">教师名称</th>
+                    <th data-options="field:'approach',width:100" align="center">修课方式</th>
+                    <th data-options="field:'examtype',width:100" align="center">考核方式</th>
+                    <th data-options="field:'midterm_lock',width:100,formatter:lockFormatter" align="center">期中锁</th>
+                    <th data-options="field:'finals_lock',width:100,formatter:lockFormatter" align="center">期末锁</th>
+                    <th data-options="field:'resit_lock',width:100,formatter:lockFormatter" align="center">补考锁</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+
+    <div id="stoolbar">
+        <label for="operationS">操作</label>
+        <select id="operationS">
+            <option value="0">解锁</option>
+            <option value="1">上锁</option>
+        </select>
+        <label for="scoretypeS">成绩类型</label>
+        <select id="scoretypeS">
+            <option value="1">期中</option>
+            <option value="2">期末</option>
+            <option value="3">补考</option>
+        </select>
+        <a href="javascript:void(0)" id="updateLockS"
+           class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:false">修改</a>
+    </div>
+    <div id="studentlist" class="easyui-window" title="课程学生列表" style="width:600px;height:400px"
+         data-options="iconCls:'icon-studentList',modal:true">
+        <table class="easyui-datagrid" id="courseStudents"
+               data-options="url:'__URL__/listCoursesStudentsWithOpen',
+               pageList:[20,50,100,200,500],title:'',fitColumns:true,pagination:true,toolbar:'#stoolbar',
+               checkbox:true,fit:true,singleSelect:false">
+            <thead>
+            <tr>
+                <th data-options="field:'ck',checkbox:true"></th>
+                <th data-options="field:'studentname',width:100,formatter: coursenoFormatter" align="center">学生姓名</th>
+                <th data-options="field:'studentno',width:100" align="center">学号</th>
+                <th data-options="field:'midterm_lock',width:100,formatter:lockFormatter" align="center">期中锁</th>
+                <th data-options="field:'finals_lock',width:100,formatter:lockFormatter" align="center">期末锁</th>
+                <th data-options="field:'resit_lock',width:100,formatter:lockFormatter" align="center">补考锁</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+
+</div>
+</body>

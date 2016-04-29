@@ -1,0 +1,114 @@
+<include file=":Include:jqueryHeader" />
+
+<script>
+    $(function () {
+
+        var dat = $("#dat").datagrid({
+            'onDblClickRow': function (rowIndex) {
+                dat.datagrid('beginEdit',rowIndex);
+            }
+        });
+
+        var reload = function () {
+            dat.datagrid('reload');
+        };
+
+        $("#search").click(function () {
+            dat.datagrid('load',{'name':$("#certname").val()});
+        });
+
+        $("#edit").click(function () {
+            Datagrid.editSelections(dat);
+        });
+
+        $("#add").click(function () {
+            dat.datagrid('insertRow',{
+                index: 0,
+                row: {
+                    name: '',
+                    credit: '',
+                    status: 1
+                }
+            });
+        });
+
+        $("#cancel").click(function () {
+            Datagrid.rejectChanges(dat);
+        });
+
+        function create(){
+            var insts = Datagrid.getInserted(dat);
+            if(0 === insts.length) return ;
+            $.post('__URL__/createCertificate',{rows:insts}, function (c) {
+                return Messager.show(c, reload);
+            });
+        }
+
+        function update(){
+            var upds = Datagrid.getUpdated(dat);
+            if(0 === upds.length) return ;
+            $.post('__URL__/updateCertificate',{rows:upds}, function (c) {
+                return Messager.show(c);
+            });
+        }
+
+        $("#save").click(function () {
+            Datagrid.endEdit(dat);
+            create();update();
+        });
+
+
+        $("#delete").click(function () {
+            if(Datagrid.hasSelected(dat)){
+                var rows = Datagrid.getSelections(dat);
+                $.post('__URL__/deleteCertificate',{rows:rows}, function (c) {
+                    return Messager.show(c,reload);
+                });
+            }
+        });
+
+
+        $("#switch").click(function () {
+            if(Datagrid.hasSelected(dat)){
+                var rows = Datagrid.getSelections(dat);
+                $.post('__URL__/updateCertificateStatus',{rows:rows}, function (c) {
+                    return Messager.show(c,reload);
+                });
+            }
+        });
+    });
+</script>
+
+
+<body style="background: #fff">
+<div  class="easyui-layout" data-options="fit:true">
+    <div id="tbar">
+        <label for="certname">证书名称</label>
+        <input type="text" id="certname" name="certname" size="10" value="%" />
+        <a id="search"  href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+        <a id="add"     href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">添加</a>
+        <a id="edit"    href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true">编辑</a>
+        <a id="cancel"  href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-cancel',plain:true">取消添加/编辑</a>
+        <a id="save"    href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-save',plain:true">保存添加/编辑</a>
+        <a id="delete"  href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-remove',plain:true">删除</a>
+        <a id="switch"  href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-reload',plain:true">启/停用</a>
+    </div>
+    <!-- 列表栏 -->
+    <div data-options="region:'center',border:false" style="padding:0;background:#eee;">
+        <table class="easyui-datagrid" id="dat"
+               data-options="
+               url:'__URL__/listCertificate',
+               pagination:false,singleSelect:false,fit:true,toolbar:'#tbar'">
+            <thead>
+                <tr>
+                    <th data-options="field:'name',width:100,editor:'text'" align="center">证书名称</th>
+                    <th data-options="field:'credit',width:300,editor:'text'" align="center">学分</th>
+                    <th data-options="field:'status',width:200" align="center">启用状态</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+</body>
+

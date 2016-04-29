@@ -1,0 +1,84 @@
+<include file=":Include:jqueryHeader" />
+<include file="./style" />
+<body class="easyui-layout">
+<div data-options="region:'center',border:false" style="padding:3px;">
+    <table id="datagrid" fitColumns="true" width="100%" fit="true"
+           pagination="true" pageSize="20" pageList="[20,40,60,80]" striped="true">
+        <thead>
+        <tr><th data-options="field:'classno',align:'center',width:40">班号</th>
+            <th data-options="field:'classname',align:'center',width:60">班级</th>
+            <th data-options="field:'schoolname',align:'center',width:60">学院</th>
+            <th data-options="field:'price',align:'center',width:20">原价（总价）</th>
+            <th data-options="field:'dis_price',align:'center',width:20">折扣价（总价）</th>
+            <th data-options="field:'cz',align:'center',width:20,formatter:getFormat">操作</th></tr>
+        </thead>
+    </table>
+</div>
+<div id="toobar">
+    <form id="queryForm"  method="post">
+		<label>班级：</label><input name="classname" value='%' size="14" maxlength="20">
+		<label>班号：</label><input name="classno" value='%' size="14" maxlength="20">
+		<a href="javascript:void(0)" id="searcher" class="easyui-linkbutton" data-options="iconCls:'icon-search'">检索</a>
+        <a href="javascript:void(0)" id="delBut" class="easyui-linkbutton" data-options="iconCls:'icon-cancel',plain:true">撤销教材发放</a>
+    </form>
+</div>
+<script type="text/javascript">
+$(function(){
+	//班级发放信息
+	datagrid = $('#datagrid').datagrid({toolbar:'#toobar'});
+    // 条件查询
+    $("#searcher").click(function(){
+        datagrid.datagrid("options").url = "__URL__/classIssue/hasJson/1";
+        datagrid.datagrid("load",getData());
+    });
+    //不发放
+    $("#delBut").click(function(){
+        list=datagrid.datagrid('getSelections');
+        if (list.length){
+            $.messager.confirm('提示',"撤销教材发放将删除当前班级"+year+"学年"+term+"学期所有教材的发放信息，您确定要撤销发放么？",function(b){
+                if(b){
+                    var ary=[];                      //存储删除信息的数组
+                    for(var i=0;i<list.length;i++){
+                        ary[i]=list[i].classno;
+                    }
+                    $.ajax({
+                        url:'__URL__/delPayment/hasJson/1',
+                        data:{"year":getYear(),"term":getTerm(),"cids":ary},
+                        type:'POST',
+                        success:function(del){
+                            if(del){
+                                msgShow("系统提示：","操作成功！","info");
+                                datagrid.datagrid("load",getData());
+                            }else{
+                                msgShow("系统提示：","操作失败,您没有权限！","info");
+                            }
+                        }
+                    });
+                }
+            });
+        }else{
+            msgShow("系统提示：","请选择要撤销发放的教材！","error");
+        }
+    });
+});
+//获取检索条件信息
+function getData(){
+	var data={
+        "year":getYear(),"term":getTerm(),
+        classname:$.trim($("#toobar [name='classname']").val()),
+        classno:$.trim($("#toobar [name='classno']").val())
+    };
+	return data;
+}
+//返回操作格式化值
+function  getFormat(val,row){
+    return "<a href=\"javascript:void(0)\" onclick=\"issue('"+row.classno+"')\">查看发放</a>";
+}
+//发放查看
+function issue(classno){
+    var url="__ROOT__/Book/Issue/issueByClass/year/"+getYear()+"/term/"+getTerm()+"/classno/"+classno;
+    openTabsWindows("班级发放清单",url);
+}
+</script>
+</body>
+</html>

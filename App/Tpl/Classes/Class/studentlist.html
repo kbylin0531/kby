@@ -1,0 +1,116 @@
+<include file=":Include:jqueryHeader"/>
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script>
+
+    var classno = '{$info.classno}';
+    document.write(classno);
+    var content = '{$info}';
+
+    $(function () {
+
+        var menu = $("#admin_access_menu");
+        var dgrid = $("#dgrid").datagrid({
+            onRowContextMenu: function (e, rowindex) {
+                var tt = $(this).datagrid('rejectChanges');
+                e.preventDefault();  //该方法将通知 Web 浏览器不要执行与事件关联的默认动作（如果存在这样的动作）
+                tt.datagrid('selectRow', rowindex);
+                menu.menu('show', {
+                    left: e.pageX,
+                    top: e.pageY
+                });
+            }
+        });
+
+        var loadData = function () {
+            dgrid.datagrid('load', {'classno': classno});
+        };
+        loadData();
+
+        var lookStudentDetail = function () {
+            var yi = yitiao(dgrid);
+            if (yi) {
+                var obj = {}
+                var row3 = dgrid.datagrid('getSelected');                 //获得被选中的索引
+                openTabsWindows(row3.Name + '信息', '__URL__/studentinfo/studentno/' + row3.StudentNo, '', true)
+            }
+        };
+
+        var deleteStudent = function () {
+
+            if (Datagrid.selectSingle(dgrid)) {
+                var selected = Datagrid.getSelected(dgrid);
+
+            }
+
+            var row3 = dgrid.datagrid('getSelections');
+            if (row3.length < 1) return $.messager.alert('提示', '请选择一条要删除的数据');
+            var fangfa = function (c1) {
+                if (c1 == 'true') {
+                    $.messager.confirm('提示', '您确定要删除吗', function (c) {
+                        if (c) {
+                            var gaga = function (cc) {
+                                $.messager.alert('提示', cc)
+                                dgrid.datagrid('reload')
+                            };
+                            ajiakesi('__URL__/deleteClassStudent/hasJson/1', {STUDENT: row3}, gaga);
+                        }
+                    });
+                    return
+                }
+                $.messager.alert('提示', c1);
+            }
+        };
+
+        var addStudent = function () {
+            var fangfa = function (c) {
+                if (c == 'true') {
+                    openTabsWindows('添加学生', '__URL__/add_student/classno/' + ClassNo, '', true);
+                    return
+                }
+                $.messager.alert('提示', c)
+
+            }
+        };
+
+        //右键操作
+        $('#admin_del2').bind('click', lookStudentDetail);
+        $('#admin_edit2').bind('click', deleteStudent);
+
+    });
+</script>
+<body>
+
+<div id="cc" class="easyui-layout" data-options="fit:true,border:false">
+    <div id="tdemo">
+        <form id="form">
+            <a id="lookDetail" class="easyui-linkbutton" data-options="iconCls:'icon-personal',plain:true">查看注册信息</a>
+            <a id="delete" class="easyui-linkbutton" data-options="iconCls:'icon-kaichu',plain:true">删除选中</a>
+            <a id="add" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">添加</a>
+            <a id="reload" class="easyui-linkbutton" data-options="iconCls:'icon-reload',plain:true">刷新</a>
+            <a id="export" class="easyui-linkbutton" data-options="iconCls:'icon-excel',plain:true">导出</a>
+        </form>
+    </div>
+    <div data-options="region:'center',border:false" style="padding:0;background:#eee;">
+        <table class="easyui-datagrid" id="dgrid"
+               data-options="url:'__URL__/studentlist/reqtag/getlist',pageList:[20,50,100,200,500],fitColumns:true,toolbar:'#tdemo',singleSelect:true,fit:true,pagination:true">
+            <thead>
+            <tr>
+                <th data-options="field:'ck',checkbox:true"></th>
+                <th data-options="field:'studentno',width:100" align="center">学号</th>
+                <th data-options="field:'studentname',width:100" align="center">姓名</th>
+                <th data-options="field:'sexname',width:100" align="center">性别</th>
+                <th data-options="field:'preclassname',align:'right',width:200" align="center">分流前班级</th>
+                <th data-options="field:'major',align:'right',width:100" align="center">专业</th>
+                <!--<th data-options="field:'majoritem',align:'right',width:100" align="center">专业性质</th>-->
+            </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+<div id="admin_access_menu" class="easyui-menu" style="width:100px;">
+    <div id='admin_del2'>查看学生注册信息</div>
+    <div id='admin_edit2'>将学生从班级列表中删除</div>
+</div>
+
+</body>

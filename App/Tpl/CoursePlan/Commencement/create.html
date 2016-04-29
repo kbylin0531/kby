@@ -1,0 +1,239 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/ExtSearcher.js"></script>
+
+<body bgcolor="#FFFFFF" style="background: #ffffff">
+
+<SCRIPT>
+    $(function() {
+        var msg = $.trim("{$error}");
+        if(msg != ''){
+            $.messager.alert('提示',msg);
+        }
+
+        new ExtSearcher('__APP__/Common/Provider/seacher', ['grade','school','class'], 's').start();
+        var yearInput = $("#YEAR");
+        var termInput = $("#TERM");
+        var coursenoInput = $("#COURSENO");
+        var classnoInput = $("#CLASSNO");
+        var cFrom = $("#v");
+
+        yearInput.val(parent.$("#YEAR").val());
+        termInput.val(parent.$("#TERM").val());
+        $("#COURSETYPE").val("M");
+        $("#EXAMTYPE").val("T");
+
+
+        cFrom.submit(function(e){
+            e.preventDefault();
+            if($.trim(yearInput.val())=="" || ($.trim(termInput.val())=="")){
+                return $.messager.alert("系统提示：","学年、学期必须填入！","error");
+            }
+            if(coursenoInput.val().length!=7){
+                return $.messager.alert("系统提示：","课号必须是7位！","error");
+            }
+            if(classnoInput.val().length!=6 && classnoInput.val().length!=7){
+                return $.messager.alert("系统提示：","班号必须是6位或7位！","error");
+            }
+            cFrom.submit();
+        });
+
+        function getCourseNofromGrid()
+        {
+            var rows = _dataSearch.datagrid("getSelections");
+            if(rows == null || rows.length!=1){
+                return $.messager.alert("系统提示：","<br />请选择一门课程！","error");
+            }
+            $('#COURSENO').val(rows[0]['CourseNo']);
+            $('#GROUP').val('');
+            $('#win').window('close');
+        }
+        $("#AddToRight").bind("click",function(){
+            getCourseNofromGrid();
+        });
+
+        $("#getGroupNo").bind("click",function(){
+            $.post('__URL__/getCourseGroupNo',{'YEAR':$('#YEAR').val(),'TERM':$('#TERM').val(),'COURSENO':$('#COURSENO').val()}, function (data, status) {
+                if(data['r'] !== 'success'){
+                    $('#GROUP').val('00');
+                    return $.messager.alert("系统提示：","未查询到该课程，设置组号为00！");
+                }else{
+                    $('#GROUP').val(data['data']['group']);
+                }
+            })
+        });
+        var _dataSearch = null;
+        //打开选择课程界面
+        $("#handlerAdd").bind("click",function(){
+            $('#win').window('open');
+            initDataSearch();
+        });
+        function initDataSearch(){
+            if(_dataSearch==null){
+                _dataSearch = $('#dataSelect').datagrid({
+                    toolbar:'#toobarSearch',
+                    frozenColumns:[[{field:'ck',checkbox:true}]],
+                    onDblClickCell: function(index,field,value){
+                        getCourseNofromGrid();
+                    }
+                });
+            }
+            _dataSearch.datagrid("clearSelections");
+            _dataSearch.datagrid("unselectAll");
+        }
+
+        $("#searcher").bind("click",function(){
+            _dataSearch.datagrid("options").url = "__ROOT__/Programs/TeachingPlan/courseAdd/hasJson/true";
+            _dataSearch.datagrid("load", {
+                COURSENAME:$("#COURSENAME").val(),
+                COURSENO:$("#COURSENO_s").val(),
+                SCHOOL:$("#SCHOOL").val(),
+                COURSETYPE:$("#COURSETYPE_s").val(),
+                TGROUPNO:$('#TGROUP').val()
+            })
+        });
+    });
+
+</SCRIPT>
+
+<table border="0" width="73%" align="center">
+<tr><td align="center"><p><b>添加开课计划条目:</b></p></td></tr>
+</table>
+<form method="POST" name="MyForm" id="MyForm" action="__URL__/save">
+    <table border="0" width="73%" class="formtable" align="center">
+        <tr><td width="17%" align="right">学年：</td>
+            <td width="83%"><input type="text" name="YEAR" id="YEAR" size="4" maxlength="4"></td></tr>
+        <tr><td align="right">学期：</td>
+            <td><input type="text" name="TERM" id="TERM" size="1" maxlength="1"></td></tr>
+        <tr><td align="right">课号：</td>
+            <td>
+                <input type="text" name="COURSENO" id="COURSENO" size="7" value="">
+
+                <a href="#" id="handlerAdd" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">选择课程</a>
+            </td></tr>
+        <tr><td align="right">组号：</td>
+            <td><input type="text" id="GROUP" name="GROUP" size="2" value="" maxlength="2">
+
+                <a href="#" id="getGroupNo" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">获取组号</a>
+            </td></tr>
+        <tr><td align="right">班级：</td>
+            <td><!--input type="text" id="CLASSNO" name="CLASSNO" size="7" value="000000"-->
+
+                <label for="ES_GRADE">年级:</label><select style="width:70px;" name="grade" id="ES_GRADE" class="ES_GRADE s"></select>
+                <label for="ES_SCHOOL">学部:</label><select style="width:70px;"  name="schoolno" id="ES_SCHOOL" class="ES_SCHOOL s"></select>
+                <label for="ES_CLASS">班级:</label><select style="width:90px;"  name="CLASSNO" id="ES_CLASS" class="ES_CLASS s"></select></td>
+            </td></tr>
+        <tr><td align="right">修课方式：</td>
+            <td>
+                <select id="COURSETYPE" name="COURSETYPE" >
+                    <volist name="courseApproches" id="v">
+                        <option value="{$v.value}">{$v.text}</option>
+                    </volist>
+                </select>
+            </td></tr>
+        <tr><td align="right">课程类别：</td>
+            <td>
+                <select id="CATEGORY" name="CATEGORY" >
+                    <volist name="coursetypeoption" id="v">
+                        <option value="{$v.value}">{$v.text}</option>
+                    </volist>
+                </select>
+            </td></tr>
+        <tr><td align="right">考试类型：</td>
+            <td>
+                <select id="EXAMTYPE" name="EXAMTYPE" >
+                    <volist name="examType" id="v">
+                        <option value="{$v.value}">{$v.text}</option>
+                    </volist>
+                </select>
+            </td></tr>
+        <tr><td align="right">学分：</td>
+            <td>
+                <input type="text" name="CREDITS" id="CREDITS" value="0" size="4" maxlength="4" />
+            </td></tr>
+        <tr><td align="right">限选总学分：</td>
+            <td>
+                <input type="text" name="LIMITCREDIT" id="LIMITCREDIT" value="0" size="4" maxlength="4" />
+            </td></tr>
+        <tr><td align="right">限选组号：</td>
+            <td>
+                <input type="text" name="LIMITGROUPNO" id="LIMITGROUPNO" value="0" size="4" maxlength="4" />
+            0不区分组号</td></tr>
+        <tr><td align="right">限选条数：</td>
+            <td><input type="text" name="LIMITNUM" id="LIMITNUM" value="1" size="2" maxlength="2"></td></tr>
+        <tr><td align="right">上课周次：</td>
+            <td>
+        <?php
+            for($i=0; $i<$yearTerm["WEEKS"];$i++){
+                echo '第'.($i<9?'0'.($i+1):$i+1).'周 <input type="checkbox" name="Week['.($i+1).']" checked value="'.($i+1).'">';
+                if($i%6==5)
+                    echo "<br />\n";
+                else
+                    echo "\n";
+            }
+        ?>
+            </td></tr>
+        <tr><td align="right">人数：</td>
+            <td><input type="text" name="ATTENDENTS" id="ATTENDENTS" size="6" value="" maxlength="3"></td></tr>
+        <tr><td align="right">备注：</td>
+            <td><input type="text" name="REM" size="50" value=""></td></tr>
+        </table>
+        <table border="0" width="73%" align="center">
+        <tr><td align="center"><input type="submit" value="添加开课计划" name="PlanInsert"></td></tr>
+    </table>
+</form>
+<!-- 查询课程 -->
+
+    <div id="win" class="easyui-window" style="width:600px;height:400px" title="添加修读课程" data-options="minimizable:false,collapsible:false,modal:true,closed:true">
+        <div class="easyui-layout" data-options="fit:true">
+            <div data-options="region:'north',split:true">
+                <div class="easyui-layout" data-options="fit:true,border:false"  style="height: 100%">
+                    <div data-options="region:'north',split:false,border:false" style="height:60px;background:#E0ECFF;overflow: hidden">
+                        <table style="" height="60">
+                            <tr>
+                                <th>课名：</th><td><input type="text" name="COURSENAME" id="COURSENAME" value="%" size="20" /></td>
+                                <th>课号：</th><td><input type="text" name="COURSENO_s" id="COURSENO_s" value="%" size="20" /></td>
+                                <th>课程类别：</th><td><Cwebs:sqlselect id="COURSETYPE_s" name="COURSETYPE_s" value="CODE" title="NAME" headerKey="%" headerTitle="所有" file="course/courseTypeOptions.sql" /></td>
+                            </tr>
+                            <tr>
+                                <th>所在学部：</th><td><Cwebs:sqlselect id="SCHOOL" name="SCHOOL" value="CODE" title="NAME" headerKey="%" headerTitle="全部学部" file="school/schoolOptions.sql" /></td>
+                                <th>教研组：</th>
+                                <td>
+                                    <select name="TGROUP"  id="TGROUP" >
+                                        <option value="%">请选择</option>
+                                        <volist name="tgroup" id="v">
+                                            <option value="{$v.TGROUP}">{$v.NAME}</option>
+                                        </volist>
+                                    </select>
+                                </td>
+
+                                <td><a href="javascript:void(0)" class="easyui-linkbutton"  iconCls="icon icon-search"  id="searcher">搜索</a></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div data-options="region:'center'">
+                <table id="dataSelect" fitColumns="true" border="0" width="100%" singleSelect="true" fit="true" idField="CourseNo" striped="true" >
+                    <thead>
+                    <tr><th data-options="field:'CourseNo',align:'center',width:150" >课号</th>
+                        <th data-options="field:'CourseName',align:'center',width:300">课名</th>
+                        <!--
+                                            <th data-options="field:'Credits',align:'center',width:250">学分</th>
+                        -->
+                        <th data-options="field:'REM',align:'center',width:200">备注</th>
+                        <th data-options="field:'SchoolName',align:'center',width:250">开课学部</th>
+                        <th data-options="field:'tgroupname',align:'center',width:220">开课教研组</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+            <div id="toobarSearch">
+                <a href="#" id="AddToRight" class="easyui-linkbutton" data-options="iconCls:'icon-redo',plain:true" >确定选中课程</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>                    
+       
+       
+

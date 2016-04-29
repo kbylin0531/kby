@@ -1,0 +1,103 @@
+<include file=":Include:jqueryHeader" />
+
+<body style="background: #FFFFFF">
+    
+
+
+    <table align=center border="2" width="77%" style="border-collapse:collapse;margin-top:10px" bordercolor="#000000" >
+        <tr>
+            <td width="15%" align="right" height="23">学年：</td>
+            <td width="35%" height="23">
+                {$rewards.YEAR}
+            </td>
+            <td width="15%" align="right" height="28" >学期：</td>
+            <td width="35%" height="28">
+                {$rewards.TERM}
+            </td>
+        </tr>
+        <tr>
+            <td align="right" height="5">教师名 / 教师名：</td>
+            <td height="5">    
+              {$rewards.TEACHERNO} / {$rewards.TEACHERNAME}
+            </td>
+            <td align="right" height="28" >状态：</td>
+            <td height="28">
+            
+            	<eq name="rewards.STATUS" value="0">未提交</eq>
+            	<eq name="rewards.STATUS" value="-1">退回</eq>
+            	<eq name="rewards.STATUS" value="1">已提交</eq>
+            	<eq name="rewards.STATUS" value="2">通过</eq>
+            	<eq name="rewards.STATUS" value="3">不通过</eq>
+            	
+            </td>
+        </tr>
+        <tr>
+            <td align="right" height="2">申请奖励类别：</td>
+            <td height="2">
+              {$rewards.REWARDSSORT}
+            </td>
+            <td align="right" height="2">申请奖励级别：</td>
+            <td height="2">
+              {$rewards.REWARDSGRADE}
+            </td>
+        </tr>
+        <tr>
+            <td align="right" height="2">申请奖励名称：</td>
+            <td height="2">
+              {$rewards.REWARDSNAME}
+            </td>
+            <td align="right" height="28">申请奖励分数：</td>
+            <td height="28">
+                {$rewards.REWARDSSCORE}
+            </td>
+        </tr>
+        <tr>
+            <td align="right" height="28">奖励说明：</td>
+            <td height="28" colspan="3">
+                {$rewards.REWARDS_REMARK}
+            </td>
+        </tr>
+        <tr>
+            <td align="right" height="28">操作人员：</td>
+            <td height="28">
+                {$rewards.ADD_USER}
+            </td>
+            <td align="right" height="28">操作时间：</td>
+            <td height="28">
+                {$rewards.ADD_TIME}
+            </td>
+        </tr>
+    </table>
+
+    <table align=center border="2" width="77%" style="border-collapse:collapse;margin-top:10px" bordercolor="#000000" >
+
+<tr>
+<th>审核结果</th>
+<th>审核意见</th>
+<th>审核用户</th>
+<th>审核日期</th>
+</tr>
+
+<volist name="verifys" id="verify">
+<tr>
+<td>
+
+    <eq name="verify.VERIFY_STATUS" value="-1">退回</eq>
+    <eq name="verify.VERIFY_STATUS" value="2">通过</eq>
+    <eq name="verify.VERIFY_STATUS" value="3">不通过</eq>
+    
+</td>
+<td>{$verify.VERIFY_REMARK}</td>
+<td>{$verify.VERIFY_USER}</td>
+<td>{$verify.VERIFY_TIME}</td>
+</tr>
+</volist>
+
+</table>
+
+
+</body>
+
+
+</html>
+

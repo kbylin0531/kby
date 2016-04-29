@@ -1,0 +1,68 @@
+<include file=":Include:jqueryHeader" />
+<include file="./style" />
+<body class="easyui-layout">
+<div data-options="region:'center',border:false" style="padding:3px;">
+    <table id="datagrid" fitColumns="true" width="100%" fit="true"
+           pagination="true" pageSize="20" pageList="[20,40,60]" striped="true" singleSelect="true">
+        <thead>
+        <tr><th data-options="field:'studentno',align:'center',width:60">学号</th>
+            <th data-options="field:'name',align:'center',width:60">姓名</th>
+            <th data-options="field:'classname',align:'center',width:80">班级名称</th>
+            <th data-options="field:'price',align:'center',width:40">原价（总价）</th>
+            <th data-options="field:'dis_price',align:'center',width:40">折扣价（总价）</th></tr>
+        </thead>
+    </table>
+</div>
+<div id="toobar">
+    <form id="queryForm"  method="post">
+        <input type="hidden" name="year"><input type="hidden" name="term">
+        <label>学号：</label><input name="studentno" value='%'  size="10">
+        <label>姓名：</label><input name="name" value='%' size="10">
+        <label>学部：</label>
+        <select class="easyui-combobox" name="school" data-options="editable:false">
+            <option value="%">全部</option>
+            <volist name="school" id="s">
+                <option value="{$s.SCHOOL}">{$s.NAME}</option>
+            </volist>
+        </select>
+        <a href="javascript:void(0)" id="searcher" class="easyui-linkbutton" data-options="iconCls:'icon-search'">检 索</a>
+        <a href="javascript:void(0)" id="ExportBut" class="easyui-linkbutton" data-options="iconCls:'icon-excel',plain:true">学生发放总汇表</a>
+    </form>
+</div>
+<script type="text/javascript">
+$(function(){
+	//学生发放信息
+	datagrid = $('#datagrid').datagrid({toolbar:'#toobar'});
+    // 条件查询
+    $("#searcher").click(function(){
+        datagrid.datagrid("options").url = "__URL__/sumStudent/hasJson/1";
+        datagrid.datagrid("load",getData());
+    });
+    //导出
+    $("#ExportBut").click(function(){
+        list=datagrid.datagrid('getRows');
+        if(list.length){
+            $("#toobar [name='year']").val(getYear());
+            $("#toobar [name='term']").val(getTerm());
+            $.taskMonitor(userKey,"导出Excel……",{prepareCallback:function(){
+                $("#queryForm").attr("action","__ROOT__/Book/Excel/stuSumExport/");
+                $("#queryForm").submit();
+            }});
+        }else{
+            msgShow("系统提示：","请先检索出您要导出的数据","info");
+        }
+    });
+});
+//获取检索条件信息
+function getData(){
+    var data={
+        "year":getYear(),"term":getTerm(),
+        studentno:$.trim($("#toobar [name='studentno']").val()),
+        name:$.trim($("#toobar [name='name']").val()),
+        school:$.trim($("#toobar [name='school']").val())
+    };
+    return data;
+}
+</script>
+</body>
+</html>

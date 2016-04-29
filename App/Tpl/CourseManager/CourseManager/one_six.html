@@ -1,0 +1,33 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script>
+    $(function(){
+        var parentYearInput = parent.$('[name=YEAR]');
+        var parentTermInput = parent.$('[name=TERM]');
+
+        $('#bt').click(function(){
+            return $.messager.confirm('提示','您确定要同步'+parentYearInput.val()+'学年第'+parentTermInput.val()+'的课程总表吗',function(c){
+                if(c){
+                    $.post('__URL__/tongbu/',{'YEAR':parentYearInput.val(),'TERM':parentTermInput.val()},function(c){
+                        return $.messager.alert('提示', c.message, c.type);
+                    });
+                }
+            });
+        });
+        $('#bt2').click(function(){
+            return $.messager.confirm('提示','您确定要追加同步'+parentYearInput.val()+'学年第'+parentTermInput.val()+'的课程总表吗',function(c){
+                if(c){
+                    $.post('__URL__/tongbu/reqtag/assocSyn',{'YEAR':parentYearInput.val(),'TERM':parentTermInput.val()},function(c){
+                        return $.messager.alert('提示', c.message, c.type);
+                    });
+                }
+            });
+        });
+
+    })
+</script>
+<body style="background: #fff">
+    <a href="javascript:void(0)" class="easyui-linkbutton" id="bt">同步课程总表</a>&nbsp;&nbsp;
+    <a href="javascript:void(0)" class="easyui-linkbutton" id="bt2">同步社团课</a>&nbsp;&nbsp;
+    <br /><br />可以对设置的学年学期里的所有课程，进行同步操作。如果对课程总表作了更改，需要运行此方法以获得更新后的课程总表。
+</body>

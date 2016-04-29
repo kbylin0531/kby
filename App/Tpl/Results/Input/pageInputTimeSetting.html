@@ -1,0 +1,99 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+
+<script>
+    var year= '{$setting.year}';
+    var term= '{$setting.term}';
+    var start1='{$setting.begin_time}';
+    var end1='{$setting.end_time}';
+    var status= parseInt('{$setting.status}');
+    $(function(){
+        var year_input = $("#year");
+        var term_input = $("#term");
+        var begin_input = $('#begin_time');
+        var end_input = $('#end_time');
+        var setting_form = $("#setting_form");
+
+        year_input.val(year);
+        term_input.val(term);
+//        console.log(parseInt(status),typeof parseInt(status));
+        if(parseInt(status) === 1){
+            $("#status_open").attr('checked','checked');
+        }else{
+            $("#status_close").attr('checked','checked');
+        }
+        begin_input.datebox('setValue',start1);
+        end_input.datebox('setValue',end1);
+
+
+        //todo;点击保存的时候
+        $('#bt').bind('click',function(){
+            if(year_input.val().trim()===""){
+                return $.messager.alert('提示','请您填写本学年的学年，不能为空')
+            }
+            if(term_input.val().trim()===""){
+                return $.messager.alert('提示','请您填写本学期的学期，不能为空')
+            }
+            if(begin_input.datebox('getValue').trim()===""){
+                return $.messager.alert('提示','请您选择一个开始的时间')
+            }
+            if(end_input.datebox('getValue').trim()===""){
+                return $.messager.alert('提示','请选择一个结束的时间')
+            }
+
+            var values = setting_form.serialize();
+
+            $.post('__URL__/updateInputTime',{_PARAMS_:values},function(data){
+                return Messager.showMessage(data);
+            });
+        })
+
+    });
+</script>
+<style>
+    td{border:1px #95B8E7 solid;
+    }
+    input{height:23px;vertical-align:middle;}
+    span{border:0px solid red;;vertical-align:middle;}
+    #bt{height:40px;width:70px;background-color:#E0ECFF;border:1px #95B8E7 solid; }
+</style>
+
+<body style="background-color: #ffffff">
+<form id="setting_form">
+    <table border="0"  width="456" style="margin-top: 80px" align="center">
+        <tr>
+            <td width="107" bgcolor="#E0ECFF" height="25">
+                <p align="right"><b>学年：</b></td>
+            <td width="209" height="25"><input name="year" id="year" type="text" size='4' value="" /></td>
+        </tr>
+        <tr>
+            <td width="107" bgcolor="#E0ECFF" height="25">
+                <p align="right"><b>学期：</b></td>
+            <td width="209" height="25"><input type="text" name="term" id="term" size="1" value=""></td>
+        </tr>
+        <tr>
+            <td width="107" bgcolor="#E0ECFF" height="25">
+                <p align="right"><b>开始时间：</b></td>
+            <td width="209" height="25"><span><input type="text" id="begin_time" name="begin_time" class="easyui-datebox" required="required" /></span></td>
+        </tr>
+        <tr>
+            <td width="107" bgcolor="#E0ECFF" height="25">
+                <p align="right"><b>结束时间：</b></td>
+            <td width="209" height="25"><span><input type="text"  id="end_time" name="end_time" class="easyui-datebox" required="required" /></span></td>
+        </tr>
+        <tr>
+            <td width="107" bgcolor="#E0ECFF" height="25">
+                <p align="right"><b>开启状态：</b></td>
+            <td width="209" height="25">
+                <span><input type="radio"  style="position: relative; bottom:2px;" name="status" id="status_open" value="1" />开启</span>&nbsp;
+                <span><input type="radio" style="position: relative; bottom:2px;" name="status" id="status_close" value="0" />关闭</span>
+            </td>
+        </tr>
+        <tr><td style="border:0px;" height="5" align="center" colspan="2"></td></tr>
+        <tr>
+            <td style="border:0px;" height="25" align="center" colspan="2">
+                <button id="bt">保存</button> </td>
+        </tr>
+    </table>
+</form>
+</body>

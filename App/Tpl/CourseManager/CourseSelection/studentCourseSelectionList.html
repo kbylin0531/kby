@@ -1,0 +1,145 @@
+<include file=":Include:jqueryHeader" />
+
+<script type="text/javascript">
+
+    if (!Array.prototype.indexOf)
+    {
+        Array.prototype.indexOf = function(elt /*, from*/)
+        {
+            var len = this.length >>> 0;
+            var from = Number(arguments[1]) || 0;
+            from = (from < 0)
+                    ? Math.ceil(from)
+                    : Math.floor(from);
+            if (from < 0)
+                from += len;
+            for (; from < len; from++)
+            {
+                if (from in this &&
+                        this[from] === elt)
+                    return from;
+            }
+            return -1;
+        };
+    }
+
+
+    var year = "{$year}";
+    var term = "{$term}";
+
+    $(function() {
+
+        var datagrid = $('#datagrid').datagrid({
+            view: detailview,
+            toolbar: '#toobar',
+            frozenColumns:[[{field:'ck',checkbox:true}]],
+            detailFormatter:function(index,row){
+                return '<div style="padding:2px;width:100%"><table width="100%">' +
+                '<tr><td width="116" height="18">选课标志</td><td>'+(row.FLAG!=undefined?row.FLAG:'')+'</td></tr>' +
+                '<tr><td height="18">课程安排</td><td>'+(row.CURRICULUM!=undefined?row.CURRICULUM:'')+'</td></tr>' +
+                '<tr><td height="18">上课教师</td><td>'+(row.TEACHERNONAME!=undefined?row.TEACHERNONAME:'')+'</td></tr>' +
+                '<tr><td height="18">备注</td><td>'+(row.REM!=undefined?row.REM:'')+'</td></tr>'+
+                '<tr><td height="18">课程介绍</td><td>'+(row.introduce!=undefined?row.introduce:'')+'</td></tr>'+
+               '</table></div>';
+            },
+            onBeforeLoad : function(){
+                $(this).datagrid("uncheckAll");
+                return true;
+            }
+        });
+
+        datagrid.ready(function(){
+            if(!year || !term){
+                return $.messager.alert("提示","没有可用的学年和学期，请联系__DEANNAME__！","error");
+            }
+            datagrid.datagrid("options").url = "__ROOT__/{$query_url}/YEAR/"+year+"/TERM/"+term;
+            $("#handlerYearTerm").html(year+"学年第"+term+"学期所选课程")
+        });
+
+        //刷新表格
+        $("#handlerReload").bind("click",function(){
+            datagrid.datagrid("reload");
+        });
+
+        //确认退课
+        $('#handlerSave').bind("click",function(){
+            var checkedItems = datagrid.datagrid("getChecked");
+            if(checkedItems.length==0){
+                return $.messager.alert("系统消息：", "没有选择任一数据项！", "error");
+            }
+
+            //达到限选条件才能删除
+            var rows = datagrid.datagrid('getRows');
+            var checked = [];
+            for(var x in checkedItems){
+                var limitgroupno = checkedItems[x].LIMITGROUPNO;
+                if(-1 === checked.indexOf(limitgroupno)){
+                //还未检测
+                    var num = 0;
+                    var num2 = 0;
+                    for(var y in checkedItems){
+                        if(checkedItems[y].LIMITGROUPNO === limitgroupno){
+                            num++;
+                        }
+                    }
+                    for(var z in rows){
+                        if(rows[z].LIMITGROUPNO === limitgroupno){
+                            num2 ++;
+                        }
+                    }
+                    if(num !== num2){
+//                        return $.messager.alert('提示',"限选组号为["+limitgroupno+"]的课程有["+num2+"]门，你只选了["+num+"]门！");
+                    }
+                }else{
+                    checked.push(limitgroupno);
+                }
+            }
+
+            $.messager.confirm("系统消息：","您真的要退掉选择的课程吗？",function(data){
+                    if(data){
+                        var ids = [];
+                        $.each(checkedItems, function(index, item){
+                            ids.push(item.COURSENOGROUP);
+                        });
+                        $.post("__ROOT__/{$remove_url}", {ids:ids,YEAR:year,TERM:term}, function(rsp) {
+                            if(rsp){
+                                $.messager.alert("系统消息：", rsp.message, rsp.type, function () {
+                                    if(rsp.type=="info") datagrid.datagrid("reload");
+                                });
+                            }
+                        });
+                    }
+                });
+        });
+
+    });
+</script>
+<body class="easyui-layout" style="background: #fff;overflow-y: hidden"  fit="true" split="false"   scroll="no" >
+
+<div id="mainPanle" region="center" border="1" style="background: #fff; padding:3px; " >
+    <table id="datagrid" title="已选课程" iconCls="icon icon-retreat" fitColumns="false"
+           width="100%" singleSelect="false" fit="true" idField="COURSENOGROUP"
+           pagination="true" pageSize="20" pageList="[20,40]" striped="true" >
+        <thead>
+        <tr><th data-options="field:'COURSENOGROUP',width:120" >课号</th>
+            <th data-options="field:'COURSENAME'">课名</th>
+            <th data-options="field:'CREDITS',width:40,align:'center'">学分</th>
+            <th data-options="field:'WEEKHOURS',width:50,align:'center'">周课时</th>
+            <th data-options="field:'COURSETYPE',width:40,align:'center'">修课方式</th>
+            <th data-options="field:'EXAMTYPE',width:40,align:'center'">考核</th>
+            <th data-options="field:'coursetypeoptionname',width:70,align:'center'">课程类型</th>
+            <th data-options="field:'FLAG',hidden:true">选课标志</th>
+            <th data-options="field:'LIMITGROUPNO',hidden:false">限选组号</th>
+            <th data-options="field:'TEACHERNONAME',hidden:false">上课教师</th>
+        </thead>
+    </table>
+</div>
+
+<div id="toobar">
+    <a href="#" id="handlerReload" class="easyui-linkbutton" data-options="iconCls:'icon-reload',plain:true">刷新</a>
+    <a href="#" id="handlerSave" class="easyui-linkbutton" data-options="iconCls:'icon-cancel',plain:true">确认退课</a>
+    <a href="#" id="handlerYearTerm" class="easyui-linkbutton" data-options="plain:true" style="color: #ff0000"></a>
+</div>
+
+</body>
+</html>

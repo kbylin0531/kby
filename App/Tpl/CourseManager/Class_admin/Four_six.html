@@ -1,0 +1,51 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script src="__ROOT__/thirdparty/jquery/js/searcher.js"></script>
+<script>
+    var haha={'M':'必修','E':'选修','R':'现修','T':'模块','F':'辅修'}
+    $(function(){
+
+        $('#six_sub').bind('click',function(){
+            $('#tuike_dat').datagrid('load',{'Sqlpath':{'select':'CourseManager/Four_six_select.SQL','count':'CourseManager/Four_six_count.SQL'},
+                'bind':{':YEAR':parent.$('[name=YEAR]').val(),':TERM':parent.$('[name=TERM]').val(),':CLASSNO':$('[name=CLASSNO]').val()}})
+        })
+    })
+
+</script>
+<body style="background-color: #FFF">
+<div id="ccccc" class="easyui-layout" data-options="fit:true">
+    <div data-options="region:'north',split:false,border:false" style="height:30px;padding:0px;">
+        <div id="tdemo">
+            <!--<label>设定班号：</label><input type=text name="CLASSNO" id="CLASSNO" value="%" size="7">-->
+            <!-- searcher插件JS+HTML部分 -->
+            年级:<select name="GRADE" class="SEARCHER_GRADE"></select>
+            学部:<select name="SCHOOL" class="SEARCHER_SCHOOL"></select>
+            班级:<select name="CLASSNO"  id="CLASSNO"  class="SEARCHER_CLASS"></select>
+            <!--学号:<select name="STUDENTNO"  id="SNO"  class="SEARCHER_STUDENT"></select>-->
+            <script> $(function () {searcher("__ROOT__"); }); </script>
+
+            <a href="javascript:void(0)" id="six_sub" class="easyui-linkbutton">检索</a>
+        </div>
+    </div>
+    <div data-options="region:'center',split:false,border:false" style="padding:0px;background:#fff;">
+
+        <table class="easyui-datagrid" id="tuike_dat"
+               data-options="url:'__APP__/Status/Status/Squery/hasJson/1',fit:true,pagination:true
+                 ">
+            <thead>
+            <tr>
+                <th data-options="field:'row',checkbox:true">选择</th>
+                <th data-options="field:'STUDENTNO',width:150" align="center">学号</th>
+                <th data-options="field:'STUDENTNAME',width:220" align="center">姓名</th>
+                <th data-options="field:'COURSENOGROUP',width:100" align="center">课号</th>
+                <th data-options="field:'CREDITS',width:100" align="center">学分</th>
+                <th data-options="field:'REASON',width:288" align="center">删除原因</th>
+                <th data-options="field:'INPROGRAM',width:100" align="center">修课计划内</th>
+                <th data-options="field:'COURSETYPE',width:100" align="center">修课方式</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+</body>
+</html>

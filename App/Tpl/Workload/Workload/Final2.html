@@ -1,0 +1,577 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script>
+    var year=parent.$('#YEAR').val()
+    var term=parent.$('#TERM').val()
+    var workload_arr={}                             //todo:保存工作量
+    var Totalrow;                                   //todo:保存 单条总量的row
+    var ss;                     //todo:保存教师号的数组
+   var school=''             //todo:操作用户所在学部*/
+
+    $(function(){
+        $('#nei_back').bind('click',function(){
+            $('#wd2').window({closed:true})
+            $('#teacher_dat').datagrid('load',{})
+
+        })
+        $('#e_back').bind('click',function(){
+
+            $('#apply_dat2').datagrid('rejectChanges')
+
+        })
+        $('#starttime').html("{$fjsj[0]['begintime']}")
+        $('#endtime').html("{$fjsj[0]['endtime']}")
+
+        var wd=$('#wd2').window(new wind(0,0,false,false,true,true,true))
+      //  var wd2=$('#work_load').window(new wind(0,0,false,false,false,true,true))
+    //    var wd3=$('#work_load2').window(new wind(0,0,false,false,true,true,true))
+        //todo:新增教师
+        $('#xinzeng').bind('click',function(){
+            if($('#teacherno').val()==""){
+                return $.messager.alert('提示','请填写一个教师号,不能为空')
+            }
+            var rows=$('#teacher_dat').datagrid('getRows')
+
+            for(var i=0;i<rows.length;i++){
+                var namem=rows[i].jsh
+                if(namem==$('#teacherno').val()){
+                    return $.messager.alert('提示','要添加的教师号列表上已经存在,请勿重复添加')
+                }
+            }
+
+
+            ajiakesi('__APP__/Book/Book/Bexecute',{':ID':'QUERY','exe':'Workload/Two_two_selectTeacherinfo.SQL','bind':{
+                ':TEACHERNO':$('#teacherno').val()
+            }},function(c){
+                if('false'==c){
+                    $.messager.alert('提示','您填写的教师号有误,请检查教师号')
+                }
+                eval('var one='+c)
+                $('#teacher_dat').datagrid('appendRow',one[0])
+
+            })
+
+        })
+
+
+        $('#teacher_dat').datagrid({
+            onSelect:function(index,rowdata){                       //todo:单击列表可修改工作量
+                $('#teacher_dat').datagrid('beginEdit',index)
+            }
+        })
+
+/*
+
+        //todo:点击搜索的时候
+        $('#ss').bind('click',function(){
+            $('#apply_dat').datagrid('load',{'Sqlpath':{'select':'Workload/Two_three_selectTotal.SQL','count':'Workload/Two_three_countTotal.SQL'},'bind':{
+                ':YEAR':parent.$('#YEAR').val(),':TERM':parent.$('#TERM').val(),':CLASSNO':$('[name=s_kh]').val().trim(),':COURSENO':$('[name=s_bh]').val().trim(),':TEACHERNO':$('[name=s_jsh]').val().trim(),':CODE':$('[name=s_code]').val().trim(),':status':'%4%',':myschool':school
+            }
+            })
+         //   wd2.window({closed:false})
+                    $('#work_load').panel({closed:false})
+            $('#work_load2').panel({closed:true})
+        })
+*/
+        //todo:单条分解
+
+
+        //todo:重复工作量计算
+        $('#cfjs').bind('click',function(){
+            $('#apply_dat2').datagrid('load',{'Sqlpath':{'select':'Workload/Two_three_selectTotal.SQL','count':'Workload/Two_three_countTotal.SQL'},'bind':{
+                ':YEAR':parent.$('#YEAR').val(),':TERM':parent.$('#TERM').val(),':CLASSNO':$('[name=s_kh]').val().trim(),':COURSENO':$('[name=s_bh]').val().trim(),
+                ':TEACHERNO':$('[name=s_jsh]').val().trim(),':CODE':$('[name=s_code]').val().trim(),':status':'%4%',':myschool':school,':teacherschool':$('[name=teacherschool]').val()
+            }
+            })
+                   // $('#work_load2').panel({closed:false})
+                    //$('#work_load').panel({closed:true})
+           // wd3.window({closed:false})
+        })
+
+
+
+        //todo:单挑修改
+        function ddantiao(){
+            var yi=yitiao($('#apply_dat2'),'请选择一条要分解的信息不能选择多条','请选择一条要分解的信息');
+            if(yi){
+                var row=$('#apply_dat2').datagrid('getSelected')
+
+                Totalrow=row
+                $('#look_kh').html(row.kh);
+                $('#look_km').html(row.km);
+                $('#look_xf').html(row.xf);
+                $('#look_yjrs').html(row.yjrs);
+                $('#look_sjrs').html(row.renshu);
+                $('#look_bzb').html(row.bzb);
+                $('#look_zs').html(row.WEEKS);
+                $('#look_mzks').html(row.mzks);
+                $('#look_xk').html(row.xklx)
+                $('#look_lx').html(row.kclx)
+                $('#look_bxxs').html(row.code)
+
+                $('#look_skbj').html(row.skbj);
+                $('#look_jsxm').html(row.jsxm)
+                var tstr=''
+                ajiakesi('__APP__/Book/Book/Bexecute',{':ID':'QUERY','exe':'Workload/Two_three_select_FJteacher.SQL',bind:{':courseno':$('#look_kh').html()}},function(c){
+                    eval('var one='+c)
+                    var gzl=0
+                    for(var i=0;i<one.length;i++){
+                        gzl+=parseFloat(one[i]['grgzl'])
+                        var rows=$('#teacher_dat').datagrid('getRows')
+                        for(var i=0;i<rows.length;i++){
+                            var namem=rows[i].jsh
+                            if(namem==$('#teacherno').val()){
+                                return $.messager.alert('提示','要添加的教师号列表上已经存在,请勿重复添加')
+                            }
+                        }
+                        tstr+=one[i]['jsxm']
+                        if(i!=one.length-1){
+                            tstr+=','
+                        }
+                        $('#teacher_dat').datagrid('appendRow',one[i])
+                    }
+
+                    $('#look_jsxm').html(tstr)
+                    $('#look_gzzl').html(gzl)
+                })
+                $('#wd2').window({closed:false})
+
+            }
+        }
+        $('#dantiao').bind('click',ddantiao)
+
+
+        //todo:删除
+        $('#del').bind('click',function(){
+            var row=$('#apply_dat2').datagrid('getSelections')
+            if(row==''){
+                return $.messager.alert('提示','请选择一条要删除的数据')
+            }
+            $.messager.confirm('提示','您确定要删除吗?',function(c){
+                if(c){
+
+                    ajiakesi('__URL__/total_delete2/hasJon/1',{bind:row},function(c){
+                        $.messager.alert('提示',c)
+                        $('#apply_dat2').datagrid('load',{'Sqlpath':{'select':'Workload/Two_three_selectTotal.SQL','count':'Workload/Two_three_countTotal.SQL'},'bind':{
+                            ':YEAR':parent.$('#YEAR').val(),':TERM':parent.$('#TERM').val(),':CLASSNO':$('[name=s_kh]').val().trim(),':COURSENO':$('[name=s_bh]').val().trim(),
+                            ':TEACHERNO':$('[name=s_jsh]').val().trim(),':CODE':$('[name=s_code]').val().trim(),':status':'%4%',':myschool':school,':teacherschool':$('[name=teacherschool]').val()
+                        }
+                        })
+                    })
+                }
+
+            })
+
+
+        })
+
+
+        //todo:设置外聘老师按钮
+        $('#set_waiping').bind('click',function(){
+
+            ajiakesi('__URL__/set_waiping/hasJson/1',{},function(c){
+                $.messager.alert('提示',c)
+            })
+
+        })
+        //todo:修改条目
+        function eedit(){
+            var row=$('#apply_dat2').datagrid('getSelected');
+            $('#apply_dat2').datagrid('beginEdit',$('#apply_dat2').datagrid('getRowIndex',row))
+        }
+
+        $('#e_edit').bind('click',eedit)
+
+
+        //todo:保存条目
+        function ssave(){
+           $('#apply_dat2').datagrid('endEdit',$('#apply_dat2').datagrid('getRowIndex',$('#apply_dat2').datagrid('getSelected')));
+
+        }
+
+        $('#apply_dat2').datagrid({
+            onAfterEdit:function(index,row,changes){
+                ajiakesi('__URL__/chongfu/hasJson/1',row,function(c){
+                    $.messager.alert('提示',c)
+
+
+
+                    $('#apply_dat2').datagrid('load',{'Sqlpath':{'select':'Workload/Two_three_selectTotal.SQL','count':'Workload/Two_three_countTotal.SQL'},'bind':{
+                        ':YEAR':parent.$('#YEAR').val(),':TERM':parent.$('#TERM').val(),':CLASSNO':$('[name=s_kh]').val().trim(),':COURSENO':$('[name=s_bh]').val().trim(),
+                        ':TEACHERNO':$('[name=s_jsh]').val().trim(),':CODE':$('[name=s_code]').val().trim(),':status':'%4%',':myschool':school,':teacherschool':$('[name=teacherschool]').val()
+                    }
+                    })
+
+
+                })
+            }
+        })
+
+        //todo:点重复工作量计算的时候
+        $('#e_CF').bind('click',function(){
+            ajiakesi('__URL__/chongfu',{},function(c){
+                $.messager.alert('提示',c)
+                $('#apply_dat2').datagrid('load',{'Sqlpath':{'select':'Workload/Two_three_selectTotal.SQL','count':'Workload/Two_three_countTotal.SQL'},'bind':{
+                    ':YEAR':parent.$('#YEAR').val(),':TERM':parent.$('#TERM').val(),':CLASSNO':$('[name=s_kh]').val().trim(),':COURSENO':$('[name=s_bh]').val().trim(),':TEACHERNO':$('[name=s_jsh]').val().trim(),':CODE':$('[name=s_code]').val().trim(),':status':'%4%',':myschool':school
+                }
+                })
+            })
+        })
+
+
+        $('#e_save').bind('click',ssave)
+        //todo:工作量归档确认提交（//todo:计算重复工作量 插入到 工作量存档表）
+        $('#workload_sub').bind('click',function(){
+           ajiakesi('__APP__/Book/Book/Bexecute',{':ID':'QUERY','exe':'Workload/Two_two_selectTotalStatus.SQL','bind':{':school':school}},function(c){
+                eval('var one='+c)
+               if(one[0]['ROWS']!='0'){
+                    return $.messager.alert('提示','还有分解的工作量存在')
+                }
+
+            })
+
+            $.messager.confirm('提示','点击确认,进行归档处理',function(c){
+                var year=parent.$('#YEAR').val()
+                var term=parent.$('#TERM').val()
+
+                if(c){
+                    ajiakesi('__URL__/FINAL2/hasJson/1',{'year':year,'term':term},function(c){
+                        $.messager.alert('提示',c)
+                    })
+                }
+            })
+        })
+
+        //todo:点击保存并关闭
+        $('#save_closed').bind('click',function(){
+            var rows=$('#teacher_dat').datagrid('getRows')
+            for(var j=0;j<rows.length;j++){
+                $('#teacher_dat').datagrid('endEdit',$('#teacher_dat').datagrid('getRowIndex',rows[j]))
+            }
+            var Mingxi_load=0;
+            var teacherinfo_arr={};                //todo:保存教师信息
+            for(var i=0;i<rows.length;i++){
+                Mingxi_load+=parseFloat(rows[i].grgzl)
+                teacherinfo_arr[rows[i].jsh]=rows[i]
+            }
+
+            if(Mingxi_load!=parseFloat($('#look_gzzl').html())){
+                return $.messager.alert('提示','个人工作量总和不能大于或小于 工作总量,请正确设置教师的工作量')
+            }
+            ajiakesi('__URL__/insertMingxi',{'status':4,'year':parent.$('#YEAR').val(),'term':parent.$('#TERM').val(),'exe':'Workload/Two_two_insertmingxi_dan.SQL','bind':teacherinfo_arr,'T_info':Totalrow},function(c){
+                $.messager.alert('提示','修改成功')
+            })
+        })
+    })
+
+
+    //insert into work(Totalwork_id,TeacherNo,TeacherName,Work,Status)
+    //values(:Totalwork_id,:TeacherNo,:TeacherName,:Work,:Status)
+    function run_save(index){
+        $('#teacher_dat').datagrid('endEdit',index);
+        $('#teacher_dat').datagrid('selectRow',index);
+        var row=$('#teacher_dat').datagrid('getSelected')        //todo:要保存的行的信息
+        ajiakesi('__URL__/insertMingxi',{'exe':'Workload/Two_two_insertmingxi.SQL','bind':{':Totalwork_id':Totalrow.Totalwork_id,':TeacherNo':row.jsh,':TeacherName':row.jsxm,':Work':row.grgzl,':Status':0},':Totalwork_id':Totalrow.Totalwork_id},function(c){
+            $.messager.alert('提示',c)
+        })
+    }
+
+    //todo:单个删除的时候
+    function run_Through(index){
+        $.messager.confirm('提示','您确定要删除该老师工作量吗',function(c){
+            if(c){
+                $('#teacher_dat').datagrid('endEdit',index);
+                $('#teacher_dat').datagrid('selectRow',index);
+                var row=$('#teacher_dat').datagrid('getSelected')
+                ajiakesi('__URL__/deleteMingxi',{'exe':'Workload/Two_two_deletemingxi.SQL','bind':{':courseno':$('#look_kh').html(),':teachername':row.jsxm}},function(c){
+
+                    $('#teacher_dat').datagrid('deleteRow',index)
+
+                    $('#apply_dat').datagrid('reload')
+                    $.messager.alert('提示',c)
+                })
+            }
+        })
+
+
+    }
+
+    //todo:保留小数点
+    function formatFloat(src, pos)
+    {
+
+        return Math.round(src*Math.pow(10, pos))/Math.pow(10, pos);
+
+    }
+</script>
+<style>
+    #apply_info td{border:1px #95B8E7 solid;
+    }
+    #aplly_Details td{border:1px #95B8E7 solid;height:20px
+    }
+    #apply_info input{height:23px;vertical-align:middle;}
+    .bt{height:35px;width:70px;background-color:#E0ECFF;border:1px #95B8E7 solid; }
+    #zhuyao{width:90%;height:120%;resize: none;background:transparent;border-style:none;}
+</style>
+<!--todo: 进来的默认页面-->
+<body >
+<div id="tdemo">
+    <b>班号:</b>
+    <input type="text" name="s_kh" size="10" value="%">
+    &nbsp
+    <b>课号:</b>
+    <input type="text" name="s_bh" size="10" value="%">
+    &nbsp
+    <b>教师号:</b>
+    <input type="text" name="s_jsh" size="10" value="%">
+    &nbsp
+    <b>工作量类型:</b>
+    <select name="s_code" class="easyui-combobox">
+        <option value="%">全部</option>
+        <volist name="workloadtype" id="w">
+            <option value="{$w.worktype_code}">{$w.worktype_code}---{$w.worktype_name}</option>
+        </volist>
+    </select>
+    &nbsp&nbsp
+    <b>教师所在学部</b>
+    <select name="teacherschool">
+            <option value="%">全部</option>
+        <volist name="schools" id="s">
+            <option value="{$s.SCHOOL}">{$s.NAME}</option>
+        </volist>
+    </select>
+    <!--                  <a href="javascript:void(0)" id="ss" class="easyui-linkbutton">检索</a>-->
+    <a href="javascript:void(0)" id="cfjs" class="easyui-linkbutton"><!--重复工作量计算-->检索</a>
+    <div >
+
+
+        &nbsp&nbsp
+
+        <a href="javascript:void(0)" id="dantiao" class="easyui-linkbutton" plain="true" iconCls="icon-cut">单条修改</a>
+        <a href="javascript:void(0)" id="e_edit" class="easyui-linkbutton" plain="true" iconCls="icon-edit">修改条目</a>
+        <a href="javascript:void(0)" id="e_back" class="easyui-linkbutton" plain="true" iconCls="icon-back">取消修改</a>
+        <a href="javascript:void(0)" id="e_save" class="easyui-linkbutton" plain="true" iconCls="icon-save">保存条目</a>
+        <a href="javascript:void(0)" id="e_CF" class="easyui-linkbutton" plain="true" iconCls="icon-lookfile">重复工作量计算</a>
+
+      <!--  <a href="javascript:void(0)" id="set_waiping" class="easyui-linkbutton" plain="true" iconCls="icon-personal">设置外聘老师</a>-->
+        <a href="javascript:void(0)" id="workload_sub" class="easyui-linkbutton" plain="true" iconCls="icon-file">工作量归档</a>
+        <a href="javascript:void(0)" id="del" class="easyui-linkbutton" plain="true" iconCls="icon-stop">删除</a>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <b>  分解时间：<font color="red"><span id="starttime"></span></font> 至 <font color="red"><span id="endtime"></span></font></b>：
+    还剩<input type="text" name="personal_number" size="3" value="{$day}" readOnly="true">天
+    </div>
+
+</div>
+<div id="cc" class="easyui-layout" data-options="fit:true,border:false">
+            <div data-options="region:'center',title:'',border:false,split:false">
+                <div id="work_load" class="easyui-panel" title=""
+                     data-options="iconCls:'icon-save',closable:false,fit:true,closed:true,
+                collapsible:false,minimizable:false,maximizable:false,border:false">
+                <table id="apply_dat"  class="easyui-datagrid"
+                       data-options="url:'__APP__/Status/Status/Squery/hasJson/1',fit:true,pagination:true,singleSelect:true">
+                    <thead>
+
+
+                    <tr>
+                        <th align="center" data-options="field:'kh',width:80">课号</th>
+                        <th align="center" data-options="field:'km',width:100">课名</th>
+                        <th align="center" data-options="field:'xf',width:60">学分</th>
+                        <th align="center" data-options="field:'yjrs',width:100,align:'right'">预计人数</th>
+                        <th align="center" data-options="field:'renshu',width:100">实际人数</th>
+                        <th align="center" data-options="field:'zs',width:60">周数</th>
+                        <th align="center" data-options="field:'xklx',width:50">修课</th>
+                        <th align="center" data-options="field:'kclx',width:60">类型</th>
+                        <th align="center" data-options="field:'mzks',width:100">每周课时</th>
+                        <th align="center" data-options="field:'bzb',width:70">标准班</th>
+                        <th align="center" data-options="field:'code',width:100">教学代码</th>
+
+                        <th align="center" data-options="field:'grgzl',width:60">工作量</th>
+
+                        <th align="center" data-options="field:'skbj',width:200">上课班级</th>
+                        <th align="center" data-options="field:'jsxm',width:100">教师姓名</th>
+                    </tr>
+                    </thead>
+                </table>
+                </div>
+
+
+                <!--todo:计算重复工作量-->
+                <div id="work_load2" class="easyui-panel" title=""
+                     data-options="iconCls:'icon-save',closable:false,fit:true,closed:false,
+                collapsible:false,minimizable:false,maximizable:false,border:false">
+                    <table id="apply_dat2"  class="easyui-datagrid"
+                           data-options="url:'__APP__/Status/Status/Squery/hasJson/1',pageList:[20,50,100,500],fit:true,pagination:true,singleSelect:true,toolbar:'#tdemo'">
+                        <thead>
+                        <script>
+                        </script>
+                        <tr>
+                            <th align="center" data-options="field:'kh',width:80">课号</th>
+                            <th align="center" data-options="field:'km',width:150">课名</th>
+                            <th align="center" data-options="field:'xf',width:40">学分</th>
+                            <th align="center" data-options="field:'yjrs',width:60,align:'right'">预计人数</th>
+                            <th align="center" data-options="field:'renshu',editor:{type:'text'},width:60">实际人数</th>
+                            <th align="center" data-options="field:'zs',width:40">周数</th>
+                            <th align="center" data-options="field:'xklx',formatter:function(a,b,c){
+                                return b.xklx2
+                            },width:40">修课</th>
+                            <th align="center" data-options="field:'kclx',formatter:function(a,b,c){
+                                return b.kclx2
+                            },width:40">类型</th>
+                            <th align="center" data-options="field:'mzks',width:50">每周课时</th>
+                            <th align="center" data-options="field:'bzb',width:50">标准班</th>
+                            <th align="center" data-options="field:'jiaozhengxishu',editor:{type:'text'},width:60">校正系数</th>
+                            <th align="center" data-options="field:'yjzxs',editor:{type:'text'},width:60">校正系数2</th>
+                            <th align="center" data-options="field:'code',width:40">教学代码</th>
+                            <th align="center" data-options="field:'grgzl',editor:{type:'text'},width:50">工作量</th>
+                            <th align="center" data-options="field:'ywork',editor:{type:'text'},width:50">工作量2</th>
+                            <th align="center" data-options="field:'cfxs',editor:{type:'text'},width:60,formatter:function(a,b,c){
+                                if($.trim(a)==''){
+                                    return '暂未计算'
+                                }else{
+                                    return a
+                                }
+
+                            }">重复系数</th>
+                            <th align="center" data-options="field:'cfgzl',width:70,formatter:function(a,b,c){
+                                if($.trim(b.cfxs)==''){
+                                    return '暂未计算'
+                                }else{
+                                    return Math.round(b.grgzl*b.cfxs*100)/100
+                                }
+
+                            }">重复工作量</th>
+                            <th align="center" data-options="field:'skbj',width:200">上课班级</th>
+                            <th align="center" data-options="field:'jsxm',width:60">教师姓名</th>
+                            <th align="center" data-options="field:'teacherSCHOOL',width:100">教师所在学部</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+
+            </div>
+
+    </div>
+
+
+<!--todo:点击单条分解 所弹出的窗口-->
+<div id="wd2" title="">
+    <div id="cccc" class="easyui-layout" data-options="fit:true">
+        <div data-options="region:'north',title:'',split:false,border:true" style="height:300px;">
+            <br>
+            <table border="1" width="80%" style="" align="center" >
+                <tr>
+                    <td width="187" bgcolor="#E0ECFF" height="25">
+                        <p align="right"><b>课号：</b></td>
+                    <td width="180" align="center" height="25"><span id="look_kh"></span></td>
+                    <td bgcolor="#E0ECFF" width="187">
+                        <p align="right"><b>课名：</b></td>
+                    </td>
+                    <td width="180" align="center" height="25"><span id="look_km"></span></td>
+                    <td bgcolor="#E0ECFF" width="187">
+                        <p align="right"><b>学分：</b></td>
+                    </td>
+                    <td width="180" align="center" height="25"><span id="look_xf"></span></td>
+                </tr>
+                <tr>
+                    <td width="187" bgcolor="#E0ECFF" height="25">
+                        <p align="right"><b>预计人数：</b></td>
+                    <td width="180" align="center" height="25"><span id="look_yjrs"></span></td>
+                    <td bgcolor="#E0ECFF" width="187">
+                        <p align="right"><b>实际人数：</b></td>
+                    </td>
+                    <td width="180" align="center" height="25"><span id="look_sjrs"></span></td>
+                    <td bgcolor="#E0ECFF" width="187">
+                        <p align="right"><b>标准班：</b></td>
+                    </td>
+                    <td width="180" align="center" height="25"><span id="look_bzb"></span></td>
+                </tr>
+                <tr>
+                    <td width="187" bgcolor="#E0ECFF" height="25">
+                        <p align="right"><b>周数：</b></td>
+                    <td width="180" align="center" height="25"><span id="look_zs"></span></td>
+                    <td bgcolor="#E0ECFF" width="187">
+                        <p align="right"><b>每周课时：</b></td>
+                    </td>
+                    <td align="center">
+                        <span id="look_mzks" width="180" ></span>
+                    </td>
+                    <td></td><td></td>
+                </tr>
+                <tr>
+                    <td width="187" bgcolor="#E0ECFF" height="25">
+                        <p align="right"><b>修课：</b></td>
+                    <td align="center">
+                        <span id="look_xk" width="180" align="center"></span>
+                    </td>
+                    <td width="187" bgcolor="#E0ECFF" height="25">
+                        <p align="right"><b>类型：</b></td>
+                    <td width="360px" align="center"><span id="look_lx" ></span></td>
+                    <td width="187" bgcolor="#E0ECFF" height="25">
+                        <p align="right"><b>
+                            类别：</b></td>
+                    <td  width="360px" align="center">
+                        <span id="look_lb"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="187" bgcolor="#E0ECFF" height="25">
+                        <p align="right"><b>班型系数：</b></td>
+                    <td  width="360px" align="center"><span id="look_bxxs" width="180" align="center"></span></td>
+                    <td width="187" bgcolor="#E0ECFF" height="25">
+                        <p align="right"><b>
+                            校正系数：</b></td>
+                    <td  width="360px">
+                        <span id="look_jzxs"></span>
+                    </td>
+                    <td width="187" bgcolor="#E0ECFF" height="25">
+                        <p align="right"><b>
+                            工作总量：</b></td>
+                    <td  width="360px" align="center">
+                        <span id="look_gzzl" align="center" width="180"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="187" bgcolor="#E0ECFF" height="25">
+                        <p align="right"><b>上课班级：</b></td>
+                    <td colspan="2" width="360px" align="center"><span id="look_skbj"></span></td>
+                    <td width="187" bgcolor="#E0ECFF" height="25" >
+                        <p align="right"><b>
+                            教师姓名：</b></td>
+                    <td colspan="2" width="360px" align="center">
+                        <span id="look_jsxm"></span>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+        <div id="neidemo">
+
+            <a href="javascript:void(0)" id="nei_back" class="easyui-linkbutton" iconCls="icon-goleft" plain="true">返回上一页</a>
+            <a href="javascript:void(0)" id="save_closed" class="easyui-linkbutton" iconCls="icon-save" plain="true">保存并关闭</a>
+        </div>
+        <div data-options="region:'center',split:false,border:false,title:''" >
+            工作量分解新增，输入教师号：<input type="text" id="teacherno" size="9">  <button id="xinzeng">新增</button>
+            <table class="easyui-datagrid" id="teacher_dat"
+                   data-options="url:'__APP__/Status/Status/Squery',fitColumns:true,singleSelect:true,toolbar:'#neidemo'">
+                <thead>
+                <tr>
+                    <th data-options="filed:'SCHOOL',checkbox:true,width:100"></th>
+                    <th data-options="field:'jsh',width:100">教师号</th>
+                    <th data-options="field:'jsxm',width:100">教师姓名</th>
+                    <th data-options="field:'jsxy',width:100,align:'center'">教师学部</th>
+                    <th data-options="field:'zc',width:100,align:'center'">职称</th>
+                    <th data-options="field:'gwlb',width:100,align:'center'">岗位类别</th>
+                    <th data-options="field:'grgzl',width:100,align:'center',editor:{type:'text'}">个人工作量</th>
+                    <th data-options="field:'cz',width:100,align:'center',formatter:function(a,b,c){
+                    return '<span onclick='+'run_save('+c+')'+'><a href='+'javascript:void(0)'+'></a></span> <span onclick='+'run_Through('+c+')'+'><a href='+'javascript:void(0)'+'><b>删除</b></a></span>'}">操作</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+        <!--   <div data-options="region:'south',split:false" style="height:40px" >
+               <table align="center" width=100% border="0"><tr><td align="center"></td></tr></table>
+           </div>-->
+    </div>
+</div>
+</body>
+</html>

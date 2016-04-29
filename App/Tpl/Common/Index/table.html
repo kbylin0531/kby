@@ -1,0 +1,69 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/ExtSearcher.js"></script>
+<block name="common_script">
+    <script>
+        $(function () {
+
+
+            var $search  = "{$search}";
+            if("true" === $search) $search = true;
+            new ExtSearcher('__APP__/Common/Provider/seacher',$search , 's').start();
+
+            var form = $("#form");
+            var dgrid = $("#dgrid");
+
+            var reload = function () {
+                dgrid.datagrid('load',{_PARAMS_:form.serialize()});
+            };
+            //页面加载完毕自动加载
+            reload();
+
+            $("#dosearch").click(reload);
+
+            if(parseInt("{$export}") === 1){
+                $("#doexport").click(function () {
+                    open("{$listurl}/reqtag/export?"+form.serialize());
+                });
+            }
+
+        });
+    </script>
+</block><!-- 通用页面脚本 -->
+
+<block name="append_script"></block><!-- 附加页面脚本 -->
+<body>
+
+<div id="cc" class="easyui-layout" data-options="fit:true,border:false">
+    <div id="tdemo">
+        <form id="form">
+            <block name="form">
+                <label for="ES_GRADE">年级:</label><select name="grade" id="ES_GRADE" class="ES_GRADE s"></select>
+                <label for="ES_SCHOOL">学部:</label><select name="school" id="ES_SCHOOL" class="ES_SCHOOL s"></select>
+                <label for="ES_CLASS">班级:</label><select name="classno" id="ES_CLASS" class="ES_CLASS s"></select>
+
+                <label for="studentno">学号:</label><input type="text" name="studentno" id="studentno" value="%" size="9" />
+            </block><!-- 查询表单 -->
+
+            <!-- 查询和导出 -->
+            <a id="dosearch" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+
+            <if condition="$export eq 1">
+                <a id="doexport" class="easyui-linkbutton" data-options="iconCls:'icon-excel',plain:true">导出</a>
+            </if>
+        </form>
+    </div>
+    <div data-options="region:'center',border:false" style="padding:0;background:#eee;">
+        <table class="easyui-datagrid" id="dgrid"
+               data-options="url:'{$listurl}/reqtag/getlist',singleSelect:{$single},
+               pageList:[20,50,100,200,500],fitColumns:true,toolbar:'#tdemo',fit:true,pagination:true">
+            <thead>
+                <tr>
+                    <volist name="fields" id="v"><!-- 表单数据 -->
+                        <th data-options="field:'{$v.name}',width:{$v.width},hidden:{$v.hidden},align:'{$v.align}'">{$v.text}</th>
+                    </volist>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+</body>

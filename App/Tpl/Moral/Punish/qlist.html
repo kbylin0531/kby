@@ -1,0 +1,222 @@
+<include file=":Include:jqueryHeader" />
+<script type="text/javascript">
+    var datagrid = null; //数据表
+    var hashInit=false;
+    $(function() {
+
+        var classnoInput = $("#CLASSNO");
+
+        if(!parseInt("{$isdean}")){
+            //是管理员
+            classnoInput.attr('readonly','readonly');
+        }
+
+        // 初始化数据表
+        datagrid = $('#datagrid').datagrid({
+            toolbar : '#toobar',
+            frozenColumns:[[{field:'ck',checkbox:true}]],
+            onBeforeLoad : function(){
+                $(this).datagrid("unselectAll");
+                return true;
+            }
+        });
+
+        // 查询
+        $("#event_searcher").bind("click",function(){
+            if(!checkBZL()) return false;
+            datagrid.datagrid("options").url = '__ROOT__/Moral/Punish/qlist/hasJson/true'
+            datagrid.datagrid("reload",{YEAR:$("#YEAR").val(), TERM:$("#TERM").val(), SNAME:$("#SNAME").val(), SNO:$("#SNO").val()});
+        });
+
+        // 添加事件
+        $("#event_add").bind("click",function(){
+            if(!checkBZL()) return false;
+            setFormData();
+            $('#win').window('open');
+        });
+
+        // 编辑事件
+        $("#event_edit").bind("click",function(){
+            if(!checkBZL()) return false;
+            var rowList=datagrid.datagrid('getSelections');              //获取所有被选中的
+            if(rowList.length>1){
+                msgShow("系统提示：","请选择一条进行编辑,不能选多条","error");  //用户选了多行编辑
+            }else if(rowList.length<1){
+                msgShow("系统提示：","请选择要编辑的数据","error");   //用户没选择行
+            }else if(rowList[0].STATUS!=0){
+                msgShow("系统提示：","此条信息已经审核完成不能编辑！","warning");   //已经审核不能修改了
+            }
+            else{
+                setFormData(rowList[0]);
+                $('#win').window('open');
+            }
+        });
+
+        // 取消编辑
+        $("#wfCancel").bind("click",function(){
+            $('#win').window('close');
+        });
+
+        // 删除事件
+        $('#event_del').bind('click',function(){
+            if(!checkBZL()) return false;
+            var row2 = datagrid.datagrid('getSelections');
+            if (row2.length){
+                $.messager.confirm('系统提示：','您确定要删除吗',function(b){
+                    if(b){
+                        var infoarr=[];     //存储删除信息的数组
+                        for(var i=0;i<row2.length;i++) infoarr[i]=row2[i].ID;
+                        $.ajax({
+                            url:'/Moral/Punish/del/hasJson/true/',
+                            data:{'IDS':infoarr},
+                            type:'POST',
+                            success:function(C){
+                                if(C){
+                                    $.messager.alert('系统提示：', C.message, C.type);
+                                    datagrid.datagrid('reload');
+                                }else{
+                                    $.messager.alert('系统提示：','删除时发生未知错误','?');
+                                }
+                            }
+                        });
+                    }
+                });
+            }else msgShow("系统提示：","没有选择任一条记录删除!","warning");
+
+        });
+
+        // 保存事件
+        $('#wfOK').bind('click',function(){
+            if(checkDoPost()==false) return;
+            $.post("/Moral/Punish/save/hasJson/true",$("#wDataForm").serialize(),function(rep){
+                if(rep){
+                    if(rep.type!="error") {
+                        $('#win').window('close');
+                        datagrid.datagrid("reload");
+                    }
+                    msgShow("系统提示：", rep.message, rep.type);
+                }else msgShow("系统提示：", "发生未知错误！", "error");
+            });
+        });
+
+        //初始化表单
+        function initForm(){
+            $("#wSTUDENTNO").combobox("reload","/Student/NonSafe/findStudentsByClassNO/hasJson/true/CLASSNO/"+classnoInput.val());
+            $("#wDETAILID").combobox({
+                valueField:"CODE",
+                textField:"NAME",
+                url:"/Moral/NonSafe/findPenaltyClausesALL/hasJson/true/MTYPE/3"
+            });
+            hashInit = true;
+        }
+        function setFormData(row){
+            if(hashInit==false) initForm();
+
+            $("#wSTUDENTNO").combobox("clear");
+            $("#wDETAILID").combobox("clear");
+            if(row){
+                $("#wYEAR").val(row.YEAR);
+                $("#wTERM").val(row.TERM);
+                $("#wSTUDENTNO").combobox("setValue",row.STUDENTNO);
+                $("#wDETAILID").combobox("setValue", row.DETAIL_ID);
+                $("#wREM").val(row.REM);
+                $("#wID").val(row.ID);
+            }else{
+                $("#wYEAR").val('{$YearTerm.YEAR}');
+                $("#wTERM").val('{$YearTerm.TERM}');
+                $("#wREM").val('');
+                $("#wID").val('');
+            }
+        }
+        function checkDoPost(){
+            if(!checkBZL()) return false;
+
+
+            return console.log('$',
+                    $("#wYEAR").val(),'$',
+                    $.trim($("#wTERM").val()),'$',
+                            $.trim($("#wSTUDENTNO").combobox("getValue")),'$',
+                            $.trim($("#wDETAILID").combobox("getValue")));
+
+            if($.trim($("#wYEAR").val())=='' || $.trim($("#wTERM").val())==''
+                || $.trim($("#wSTUDENTNO").combobox("getValue"))=='' || $.trim($("#wDETAILID").combobox("getValue"))==''){
+                msgShow("系统提示：","打*的必须填写，不能为空！","error");
+                return false;
+            }
+            return true;
+        }
+
+        function checkBZL(){
+            return true;
+//        <empty name="classes">
+//            msgShow("系统提示：","您不是班主任没有可操作的相应班级！","error");
+//            return false;
+//        </empty>
+//            return true;
+        }
+    });
+</script>
+
+<body class="easyui-layout" style="background: #fff;padding:0px;overflow-y: hidden"  fit="true" split="false" scroll="no" >
+
+<!-- 主页面 -->
+<div id="mainPanle" region="center" border="1" style="background: #fff; padding:3px; " >
+    <table id="datagrid" fitColumns="true" width="100%" singleSelect="false" fit="true" idField="ID"
+           pagination="true" pageSize="20" pageList="[20,40,60]" striped="true" >
+        <thead>
+        <tr><th data-options="field:'YEAR',width:60">学年</th>
+            <th data-options="field:'TERM',width:60">学期</th>
+            <th data-options="field:'CLASSNAME',width:100">班级</th>
+            <th data-options="field:'STUDENTNO',width:80">学号</th>
+            <th data-options="field:'NAME',width:80">姓名</th>
+            <th data-options="field:'DETAILS',width:120">处分状态</th>
+            <th data-options="field:'REM',width:60">处分原因</th>
+            <th data-options="field:'TEACHER_NAME',width:80">操作教师</th>
+            <th data-options="field:'STATUS',width:80">审核状态</th></tr>
+        </thead>
+    </table>
+</div>
+
+<!-- 主页面工具条 -->
+<div id="toobar">
+    <span class="datagrid-btn-separator-area">
+        <!--当前班级：<empty name="classes"><font color="red">无任课班级</font><else /><font color="blue">{$classes.CLASSNAME}({$classes.CLASSNO})</font></empty>-->
+        <label for="CLASSNO">班级</label> <input type="text" id="CLASSNO" size="10"  value='{$classes.CLASSNO}'  />
+        <label for="YEAR">学年:<input type="text" id="YEAR" size="10"  value='{$YearTerm.YEAR}' class="easyui-validatebox"></label>
+        <label for="TERM">学期:<input type="text" id="TERM" size="10"  value='{$YearTerm.TERM}' class="easyui-validatebox"></label>
+        <label for="SNAME">姓名:<input type="text" id="SNAME" size="12"  value='%' class="easyui-validatebox"></label>
+        <label for="SNO">学号:<input type="text" id="SNO" size="10"  value='%' class="easyui-validatebox"></label>
+        <a id="event_searcher" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true">搜索</a>
+    </span>
+    <a class="datagrid-btn-separator"></a>
+    <a id="event_add" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true" >申请</a>
+    <a id="event_edit" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true">编辑</a>
+    <a id="event_del" class="easyui-linkbutton" data-options="iconCls:'icon-cut',plain:true">删除</a>
+</div>
+
+<!-- 添加修改界面 -->
+<div id="win" class="easyui-window" style="width:360px;height:260px" title="申请及编辑" data-options="minimizable:false,maximizable:false,collapsible:false,modal:true,closed:true">
+    <div class="easyui-layout" data-options="fit:true">
+        <div region="center" border="false" style="overflow: hidden;padding: 10px; background: #fff; border:0px;border-bottom:1px solid #ccc;">
+            <form id="wDataForm">
+                <table cellpadding=3>
+                    <tr><th align="right">班级：</th><td>{$classes.CLASSNAME}</td></tr>
+                    <tr><th align="right"><font color="red">*</font>学年：</th><td><input id="wYEAR" type="text" size="10" name="YEAR"  /></tr>
+                    <tr><th align="right"><font color="red">*</font>学期：</th><td><input id="wTERM" type="text" size="10" name="TERM" /></td></tr>
+                    <tr><th align="right"><font color="red">*</font>学生：</th><td><input id="wSTUDENTNO" class="easyui-combobox"
+                            data-options="valueField: 'STUDENTNO',textField: 'NAME'"type="text" style="width:220px" name="STUDENTNO" /></td></tr>
+                    <tr><th align="right"><font color="red">*</font>处分状态：</th><td><input id="wDETAILID" style="width:160px" type="text" name="DETAIL_ID" /></td></tr>
+                    <tr><th align="right"><font color="red">*</font>处分原因：</th><td><input id="wREM" style="width:220px" type="text" name="REM" /></td></tr>
+                </table>
+                <input type="hidden" name="ID" id="wID" value="" />
+            </form>
+        </div>
+        <div region="south" border="false" style="text-align: right; height: 30px; line-height: 30px;">
+            <a id="wfOK" class="easyui-linkbutton" icon="icon-ok" >
+                确定</a> <a id="wfCancel" class="easyui-linkbutton" icon="icon-cancel">取消</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,61 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script>
+    $(function(){
+        var search_form = $("#search_form");
+
+        $('#search').click(function(){
+            $('#dgrid').datagrid('load',{ '_PARAMS_':search_form.serialize() });
+        });
+        $('#printExcel').bind('click',function(){
+            window.open('__URL__/statistics/reqtag/export?'+search_form.serialize());
+        });
+    })
+</script>
+<body>
+<div id="cc" class="easyui-layout" data-options="fit:true">
+    <div id="tdemo">
+        <form id="search_form">
+            <label for="year">学年：</label>
+            <input type="text" name="year" id="year" size="4" value="{$yearterm.YEAR}" >
+            <label for="term">学期：</label>
+            <input type="text" name="term" id="term" size="1" value="{$yearterm.TERM}" >
+            <label for="levelname">获奖等级:</label>
+            <select id="levelname" name="levelname">
+                <option value="%">全部</option>
+                <volist name="REWARD_LEVEL" id="v">
+                    <option value="{$v.LEVEL_ID}">{$v.NAME}</option>
+                </volist>
+            </select>
+            <label for="rankname">获奖名次:</label>
+            <select id="rankname" name="rankname">
+                <option value="%">全部</option>
+                <volist name="REWARD_RANK" id="v">
+                    <option value="{$v.RANKID}">{$v.NAME}</option>
+                </volist>
+            </select>
+            <label for="teachername">学号:</label>
+            <input type="text" name="teachername" id='teachername' value="%" size="9">
+
+            <a href="javascript:void(0);" id="search" class="easyui-linkbutton" data-options="iconCls:'icon-search'"> 查询</a>
+            <a href="javascript:void(0);" id="printExcel" class="easyui-linkbutton" data-options="iconCls:'icon-excel',plain:true">导出Excel</a>
+        </form>
+    </div>
+    <div data-options="region:'center'" style="padding:0;background:#eee;">
+
+        <table class="easyui-datagrid" id="dgrid"
+               data-options="url:'__URL__/statistics/reqtag/getlist',toolbar:'#tdemo',fitColumns:true,singleSelect:true,fit:true,pagination:true,pageList:[20,50,100,200,500]">
+            <thead>
+            <tr>
+                <th data-options="field:'teachername',width:230" align="center">教师姓名</th>
+                <th data-options="field:'reward_val',width:450" align="center">奖励分</th>
+                <th data-options="field:'level_name',width:150,align:'right'" align="center">获奖等级</th>
+                <th data-options="field:'isteam',width:100,align:'right'" align="center">是否团队</th>
+                <th data-options="field:'comment',width:100,align:'right'" align="center">备注</th>
+            </tr>
+            </thead>
+        </table>
+
+    </div>
+</div>
+</body>

@@ -1,0 +1,151 @@
+<include file=":Include:jqueryHeader" />
+
+<script>
+    $(function () {
+
+        var dat = $("#dat").datagrid({
+            'onDblClickRow': function (rowIndex) {
+                dat.datagrid('beginEdit',rowIndex);
+            }
+        });
+
+        var coursenameInput = $("#name");
+        var reload = function () {
+            dat.datagrid('load',{'name':coursenameInput.val()});
+        };
+
+        $("#search").click(reload);
+
+        $("#edit").click(function () {
+            Datagrid.editSelections(dat);
+        });
+
+        $("#add").click(function () {
+            dat.datagrid('insertRow',{
+                index: 0,
+                row: {
+                    name: '',
+                    credit: '',
+                    rem:''
+                }
+            });
+        });
+
+        $("#cancel").click(function () {
+            Datagrid.rejectChanges(dat);
+        });
+
+        function getSubId(id){
+            return id.toString().substring(id.toString().indexOf('_')+1);
+        }
+
+
+        function create(){
+            var insts = Datagrid.getInserted(dat);
+            if(!insts.length) return ;
+            for(var  x in insts){
+                var row = insts[x];
+                if(row['subtype_name'].toString().indexOf('_') >= 0) {
+                    insts[x]['subtype'] = getSubId(row['subtype_name']);
+                }
+            }
+            $.post('__URL__/createDevolopmentCourse',{rows:insts}, function (c) {
+                return Messager.show(c, reload);
+            });
+        }
+
+        function update(){
+            var upds = Datagrid.getUpdated(dat);
+            if(!upds.length) return ;
+            for(var x in upds){
+                var row = upds[x];
+                console.log(row);
+                if(row['subtype_name'].toString().indexOf('_') >= 0) {
+                    upds[x]['subtype'] = getSubId(row['subtype_name']);
+                }
+            }
+            $.post('__URL__/updateDevolopmentCourse',{rows:upds}, function (c) {
+                return Messager.show(c, reload);
+            });
+        }
+
+
+        $("#save").click(function () {
+            Datagrid.endEdit(dat);
+            create();
+            update();
+        });
+
+
+        $("#delete").click(function () {
+            if(Datagrid.hasSelected(dat)){
+                var rows = Datagrid.getSelections(dat);
+                $.post('__URL__/deleteDevolopmentCourse',{rows:rows}, function (c) {
+                    return Messager.show(c,reload);
+                });
+            }
+        });
+
+
+    });
+
+
+    function getComboData(){
+        var listdata = null;
+        $.ajax({
+            async:false,
+            url:'__URL__/pageDevolopmentCourse/reqtag/gettreelist',
+            success: function (data) {
+                listdata = data;
+            },
+            error: function () {
+                return Messager.showWarning('请求失败！');
+            }
+        });
+        return listdata;
+    }
+</script>
+
+
+<body style="background: #fff">
+<div  class="easyui-layout" data-options="fit:true">
+    <div id="tbar">
+        <label for="name">项目名称：</label>
+        <input type="text" id="name" name="name" size="10" value="%" />
+        <a id="search"  href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+        <a id="add"     href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">添加</a>
+        <a id="edit"    href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true">编辑</a>
+        <a id="cancel"  href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-cancel',plain:true">取消添加/编辑</a>
+        <a id="save"    href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-save',plain:true">保存添加/编辑</a>
+        <a id="delete"  href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-remove',plain:true">删除</a>
+        <a id="switch"  href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-reload',plain:true">启/停用</a>
+    </div>
+    <!-- 列表栏 -->
+    <div data-options="region:'center',border:false" style="padding:0;background:#eee;">
+        <table class="easyui-datagrid" id="dat"
+               data-options="
+               url:'__URL__/listDevolopmentCourse',
+               pagination:true,singleSelect:false,fit:true,toolbar:'#tbar'">
+            <thead>
+            <tr>
+                <th data-options="field:'name',width:100,editor:'text'" align="center">项目名称</th>
+                <th data-options="field:'credit',width:300,editor:'text'" align="center">学分</th>
+                <th data-options="field:'subtype_name',width:300,editor:{
+                        type: 'combotree',
+                        options: {
+                            data: getComboData(),
+                            valueField: 'id',
+                            textField: 'name',
+                            editable: false,
+                            required: true
+                            }
+                        }" align="center">类型</th>
+                <th data-options="field:'rem',width:200,editor:'text'" align="center">说明</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+</body>
+

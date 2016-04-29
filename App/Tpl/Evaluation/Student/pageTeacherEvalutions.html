@@ -1,0 +1,63 @@
+<include file=":Include:jqueryHeader" />
+
+<script>
+    var listsource = '__URL__/listTeacherEvalutions';
+    var studentno = "{$studentno}";
+    $(function () {
+        var dgrid = $('#dgrid');
+
+        function reload(){
+            $.post(listsource,{year:GenKits.getParentYear(),term:GenKits.getParentTerm(),studentno:studentno}, function (data) {
+                dgrid.datagrid('loadData',data);
+            });
+        }
+        reload();
+
+        //进入编辑页面
+        $("#edit").click(function () {
+            if(Datagrid.selectSingle(dgrid)){
+                var row = Datagrid.getSelected(dgrid);
+                console.log(row);
+                if('' !== row['scores_detail']){
+                    return Messager.showWarning('无法修改已经输入过的考评!');
+                }else{
+                    openNewTabsWindows('课程详细','__URL__/pageTeacherEvalutionInput/recno/'+row.recno);
+                }
+            }
+        });
+        //刷新页面
+        $("#reload").click(reload);
+    });
+
+</script>
+
+<style>
+    body {
+        background-color: #ffffff;
+    }
+</style>
+<body>
+    <div id="ccc" class="easyui-layout" data-options="fit:true">
+        <div id="tdemo">
+            <a href="javascript:void(0)" class="easyui-linkbutton" id="reload"  data-options="iconCls:'icon-reload' ,plain:true">刷新</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" id="edit"    data-options="iconCls:'icon-goright',plain:true">进入评价</a>
+        </div>
+        <div data-options="region:'center',border:false,split:false" style="padding:0;background:#eee;">
+            <table class="easyui-datagrid" id="dgrid"
+                   data-options="fit:true,singleSelect:true,pagination:false,toolbar:'#tdemo'">
+                <thead>
+                    <tr>
+                        <th data-options="field:'ck',checkbox:true"></th>
+                        <th data-options="field:'teachername',width:100" align="center">教师</th>
+                        <th data-options="field:'coursegroup',width:100" align="center">课号</th>
+                        <th data-options="field:'coursename',width:200" align="center">课程名称</th>
+                        <th data-options="field:'scores_detail',width:300" align="center">得分详细</th>
+                        <th data-options="field:'scores_general',width:100" align="center">得分</th>
+                        <th data-options="field:'input_date',width:100" align="center">保存时间</th>
+                        <th data-options="field:'recno',hidden:true" align="center">recno</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</body>

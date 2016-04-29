@@ -1,0 +1,112 @@
+<include file=":Include:jqueryHeader" />
+<script>
+    $(function () {
+
+        var dat = $("#dat").treegrid({
+            'onDblClickRow': function (row) {
+                dat.treegrid('beginEdit',row['id']);
+            },
+            'onAfterEdit': function (row) {
+                $.post('__URL__/updateDevolopmentCourseType',{id:row['id'],pid:row['pid'],cid:row['cid'],name:row['name']}, function (data) {
+                    if(data.type === 'error'){
+                        return Messager.showWarning(data.message, reload);
+                    }
+                });
+            }
+        });
+        var reload = function () {
+            dat.treegrid('reload');
+        };
+
+        $("#edit").click(function () {
+            if(Datagrid.hasSelected(dat)){
+                var row = dat.treegrid('getSelected');
+                dat.treegrid('beginEdit',row['id']);
+            }
+        });
+
+        $("#cancel").click(reload);
+
+
+        $("#save").click(function () {
+
+            //结束编辑
+            dat.treegrid('selectAll');
+            var rows = dat.treegrid('getSelections');
+            dat.treegrid('unselectAll');
+            for(var x in rows){
+                dat.datagrid("endEdit",rows[x]['id']);
+            }
+
+        });
+
+        $("#add").click(function () {
+            $.messager.prompt('添加', '请输入上级分类名称:', function(r){
+                if (r){
+                    $.post('__URL__/createDevolopmentCourseType',{name:r}, function (data) {
+                        return Messager.show(data,reload);
+                    });
+                }
+            });
+        });
+
+        $("#addsub").click(function () {
+            if(Datagrid.hasSelected(dat)){
+                var row = dat.treegrid('getSelected');
+                if(row['id'].toString().indexOf('_') >= 0){
+                    return Messager.showWarning('无法为子类型添加子类型。');
+                }
+                $.messager.prompt('添加', '确定将要为"'+row['name']+'"添加子选项？', function(r){
+                    if (r){
+                        $.post('__URL__/createDevolopmentCourseType',{name:r,supertype:row['id']}, function (data) {
+                            return Messager.show(data,reload);
+                        });
+                    }
+                });
+            }
+        });
+
+        $("#delete").click(function () {
+            if(Datagrid.hasSelected(dat)){
+                var row = Datagrid.getSelected(dat);
+                return Messager.showConfirm('确定将要删除为"'+row['name']+'？', function(r){
+                    if (r) {
+                        $.post('__URL__/deleteDevolopmentCourseType', {
+                            id: row['id'],
+                            cid: row['cid'],
+                            pid: row['pid']
+                        }, function (c) {
+                            return Messager.show(c, reload);
+                        });
+                    }});
+            }
+        });
+    });
+</script>
+<body style="background: #fff">
+    <div  class="easyui-layout" data-options="fit:true">
+        <div id="tbar">
+            <form id="search_form">
+                <a id="add"     href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">添加</a>
+                <a id="addsub"  href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">添加子类型</a>
+                <a id="edit"    href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true">编辑</a>
+                <a id="save"    href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-save',plain:true">保存</a>
+                <a id="cancel"  href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-cancel',plain:true">撤销修改</a>
+                <a id="delete"  href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-remove',plain:true">删除</a>
+            </form>
+        </div>
+        <div data-options="region:'center',border:false" style="padding:0;background:#eee;">
+            <table id="dat" class="easyui-treegrid"
+                   data-options="url:'__URL__/listDevolopmentCourseType',idField:'id',treeField:'name',toolbar:'#tbar'">
+                <thead>
+                    <tr>
+                        <th data-options="field:'pid',hidden:true,width:180">PID</th>
+                        <th data-options="field:'id',hidden:true,width:200,align:'right'">ID</th>
+                        <th data-options="field:'name',width:200,align:'left',editor:'text'">分类名称</th>
+                        <th data-options="field:'cid',hidden:true,width:80">CID</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</body>

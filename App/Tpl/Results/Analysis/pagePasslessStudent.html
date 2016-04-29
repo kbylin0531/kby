@@ -1,0 +1,77 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/ExtSearcher.js"></script>
+<script>
+    $(function(){
+        var dgrid = $("#dgrid");
+        $("#year").val(GenKits.getParentYear());
+        $("#term").val(GenKits.getParentTerm());
+
+        new ExtSearcher('__APP__/Common/Provider/seacher', ['grade'], 's').start();
+
+        $('#search_one').bind('click',function(){
+            dgrid.datagrid('load',{'_PARAMS_':$("#form").serialize()});
+        });
+        $("#export").click(function(){
+            open('__URL__/pagePasslessStudent/reqtag/export?'+$("#form").serialize());
+        });
+    });
+</script>
+<body>
+
+<div id="cc" class="easyui-layout" data-options="fit:true,border:false">
+    <div id="tdemo">
+        <form id="form">
+            <label for="ES_YEAR">学年:</label><input name="year" size='4' id="ES_YEAR" class="ES_YEAR s" value="2015" />
+            <label for="ES_TERM">学期:</label><input name="term" size='1' id="ES_TERM" class="ES_TERM s" value="1" />
+            <label for="ES_GRADE">年级:</label><select name="grade" id="ES_GRADE" class="ES_GRADE s"></select>
+            <label for="ES_SCHOOL">学部:</label><select name="school" id="ES_SCHOOL" class="ES_SCHOOL s"></select>
+
+            <label for="studentno">学号:</label>
+            <input type="text" name="studentno" id="studentno" value="%" size="9" />
+            <label for="classno">班级号:</label>
+            <input type="text" name="classno" id="classno" value="%" size="9" />
+
+            <label for="scoretype">成绩类型:</label>
+            <select name="scoretype" id="scoretype">
+                <option value="1">期中</option>
+                <option value="2">期末</option>
+                <option value="3">总评</option>
+                <option value="4">补考</option>
+            </select>
+            <label for="courseno">课号:</label>
+            <input type="text" name="courseno" id="courseno" value="%" size="9" />
+            <label for="coursename">课程名称:</label>
+            <input type="text" name="coursename" id="coursename" value="%" size="10" />
+            <a id="search_one" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询课程明细</a>
+            <a id="export" class="easyui-linkbutton" data-options="iconCls:'icon-excel',plain:true">导出</a>
+        </form>
+    </div>
+    <div data-options="region:'center',border:false" style="padding:0;background:#eee;">
+        <div id="wd_TWO" data-options="inline:true" title="">
+        </div>
+        <table class="easyui-datagrid" id="dgrid"
+               data-options="url:'__URL__/listPasslessStudentCourseDetail',pageList:[20,50,100,200,500],fitColumns:true,toolbar:'#tdemo',singleSelect:true,fit:true,pagination:true">
+            <thead>
+                <tr>
+                    <th data-options="field:'year',width:40,hidden:true" align="center">学年</th>
+                    <th data-options="field:'term',width:40,hidden:true" align="center">学期</th>
+                    <th data-options="field:'coursegroup',width:100,align:'right'" align="center">课号</th>
+                    <th data-options="field:'coursename',width:150,align:'right'" align="center">课程名称</th>
+                    <th data-options="field:'studentno',width:100,align:'right'" align="center">学号</th>
+                    <th data-options="field:'studentname',width:100,align:'right'" align="center">姓名</th>
+                    <th data-options="field:'classname',width:100,align:'right'" align="center">班级</th>
+                    <th data-options="field:'schoolname',width:100,align:'right'" align="center">学部</th>
+                    <th data-options="field:'approach',width:100,align:'right'" align="center">选课性质</th>
+
+                    <th data-options="field:'normal_score',width:100,align:'right'" align="center">平时</th>
+                    <th data-options="field:'midterm_score',width:100,align:'right'" align="center">期中</th>
+                    <th data-options="field:'finals_score',width:100,align:'right'" align="center">期末</th>
+                    <th data-options="field:'general_score',width:100,align:'right'" align="center">总评</th>
+                    <th data-options="field:'resit_score',width:100,align:'right'" align="center">补考</th>
+                    <th data-options="field:'retake_score',width:100,align:'right'" align="center">重修</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+</body>

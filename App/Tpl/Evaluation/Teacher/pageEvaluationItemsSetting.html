@@ -1,0 +1,134 @@
+<include file=":Include:jqueryHeader" />
+<script type="text/javascript" src='__ROOT__/thirdparty/jquery/js/datagrid-bufferview.js'> </script>
+<script type="text/javascript" src="__ROOT__/thirdparty/jquery/js/easyui.validate.js"></script>
+<script type="text/javascript" src="__ROOT__/thirdparty/jquery/js/easyui.extend.js"></script>
+<script type="text/javascript" src="__ROOT__/thirdparty/jquery/js/common.js"></script>
+
+<script>
+    $(function () {
+
+        var add = $("#add");
+        var addwin = $("#addwin");
+        var addform = $("#addform");
+        var dgrid = $("#dgrid");
+        addwin.window('close');
+
+
+        GenDataGridEditor.initDatagrid(dgrid,['id','description','score']);
+
+        //添加考评项的窗口的开启和关闭
+        add.click(function () {
+            addwin.window('open');
+        });
+        $("#docancel").click(function () {
+            addwin.window('close');
+        });
+
+
+        //添加考评项
+        $("#doadd").click(function () {
+            var values = addform.serialize();
+            $.post('__URL__/createEvaluationItem',{_PARAMS_:values}, function (data) {
+                return Messager.show(data, function () {
+                    dgrid.datagrid('reload');
+                });
+            });
+        });
+
+        //删除考评项
+        $("#delete").click(function () {
+            if(Datagrid.hasSelected(dgrid)){
+                var rows = Datagrid.getSelections(dgrid);
+                $.post('__URL__/deleteEvaluationItem',{rows:rows}, function (data) {
+                    return Messager.show(data, function () {
+                        dgrid.datagrid('reload');
+                    });
+                });
+            }
+        });
+
+
+        //保存
+        $("#save").click(function () {
+            Datagrid.endEdit(dgrid);
+            var allrows = Datagrid.getAll(dgrid);
+            $.post('__URL__/updateEvaluationItemInBatch',{rows:allrows}, function (data) {
+                return Messager.show(data, function () {
+                    dgrid.datagrid('reload');
+                });
+            });
+        });
+
+
+    });
+</script>
+<style>
+    td.atitle {
+        text-align: right;padding-right: 30px;width: 200px
+    }
+    td.acontent {
+        width: 400px;
+    }
+    #description {
+        width: 300px;
+        height: 100px;
+    }
+</style>
+<body style="background: #fff">
+
+<div id="ccc" class="easyui-layout" data-options="fit:true">
+    <div id="tdemo">
+        <a href="javascript:void(0)" class="easyui-linkbutton" id="add"    data-options="iconCls:'icon-add',plain:true">增加</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" id="delete" data-options="iconCls:'icon-remove',plain:true">删除</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" id="save"   data-options="iconCls:'icon-save',plain:true">保存并激活</a>
+    </div>
+    <div data-options="region:'center',border:false,split:false" style="padding:0;background:#eee;">
+        <table class="easyui-datagrid" id="dgrid"
+               data-options="url:'__URL__/listEvaluationItems',fit:true,singleSelect:false,pagination:false,toolbar:'#tdemo'">
+            <thead>
+                <tr>
+                    <th data-options="field:'ck',checkbox:true"></th>
+                    <th data-options="field:'id',width:100,editor:{type:'numberbox',options:{required:true}}" align="center">排列序号</th>
+                    <th data-options="field:'oid',width:100,hidden:true" align="center">旧的序号</th>
+                    <th data-options="field:'description',width:500,editor:{type:'textarea',options:{required:true}}" align="center">描述</th>
+                    <th data-options="field:'score',width:100,editor:{type:'numberbox',options:{required:true}}" align="center">分值</th>
+                    <th data-options="field:'active',width:100,formatter:function(a){return parseInt(a)?'激活':'未激活';}" align="center">激活状态</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+
+    <div id="addwin" class="easyui-window" title="添加考评项" style="width:500px;height:300px"
+         data-options="iconCls:'icon-save',modal:true">
+        <form id="addform">
+            <table>
+                <tr>
+                    <td class="atitle"><label for="id">序号</label></td>
+                    <td class="acontent">
+                        <input type="text"  name="id" id="id"  class="easyui-numberbox"  data-options="min:0,max:20,precision:0" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="atitle"><label for="description">描述</label></td>
+                    <td  class="acontent"><textarea name="description" id="description"></textarea></td>
+                </tr>
+                <tr>
+                    <td class="atitle"><label for="score">分值</label></td>
+                    <td  class="acontent">
+                        <input type="text" name="score" id="score"  class="easyui-numberbox"  data-options="min:0,max:100,precision:0" />
+                    </td>
+                </tr>
+            </table>
+        </form>
+        <br />
+        <div align="center">
+            <a id="doadd"   href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'">添加</a>&nbsp;&nbsp;
+            <a id="docancel" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'">取消</a>
+
+        </div>
+    </div>
+</div>
+
+
+</body>
+

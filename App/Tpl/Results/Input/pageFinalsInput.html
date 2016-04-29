@@ -1,0 +1,251 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script type="text/javascript" src='__ROOT__/thirdparty/jquery/js/datagrid-bufferview.js'> </script>
+<script type="text/javascript" src="__ROOT__/thirdparty/jquery/js/easyui.validate.js"></script>
+<script type="text/javascript" src="__ROOT__/thirdparty/jquery/js/easyui.extend.js"></script>
+<script type="text/javascript" src="__ROOT__/thirdparty/jquery/js/common.js"></script>
+<script type="text/javascript" src="__ROOT__/thirdparty/jquery/js/modules/results.js"></script>
+<script>
+var year = "{$year_a}";
+var term = "{$term}";
+var scoretype = "{$scoretype}";
+var examtime = "{$courseinfo.examtime}";
+var coursegroup = "{$coursegroup}";
+
+var exception = ['缺考','缓考','违纪'];
+
+var normalscore_weight = parseInt("{$GSPS.normalscore}");
+var midtermscore_weight  = parseInt("{$GSPS.midtermscore}");
+var finalsscore_weight = parseInt("{$GSPS.finalsscore}");
+//编辑列
+var fields = (scoretype === 'ten')?['finals_score','normal_score']:['finals_score','normal_score','general_score'];
+
+
+
+$(function(){
+
+    if ((navigator.userAgent.indexOf('MSIE') >= 0) && (navigator.userAgent.indexOf('Opera') < 0)){
+        Messager.show('检测到你使用的是IE浏览器，为避免遇到兼容性问题，建议使用 <b><a style="text-decoration: underline;color: blue" href="__CHROME__">Chrome浏览器</a></b>！');
+    }
+
+    var datebox_input = $('#datebox_input');
+    var dgrid = $("#dgrid");
+    Formor.setDateBox(datebox_input,examtime);
+
+    //自动生成总评成绩
+    $("#autorefresh").click(function(){
+        if($.trim(scoretype).toLowerCase() !== 'ten' ){
+            return Messager.showWarning("无法针对非百分值进行自动刷新！");
+        }
+        Datagrid.endEdit(dgrid);
+        var rows = Datagrid.getRows(dgrid);
+        for(var x in rows){
+            var row = rows[x];
+            //如果有的行未输入，跳过
+            if(hasEmptySting(row.normal_score,row.finals_score)) continue;
+//            console.log(row.normal_score,row.midterm_score,row.finals_score);return ;
+
+
+            var ms = $.trim(row.midterm_score);
+            var fs = $.trim(row.finals_score);
+            var ns = $.trim(row.normal_score);
+            var exceptions = ['缺考','缓考','违纪',''];//将算作0分的情况
+            if(GenKits.inArray(ms,exceptions)){
+                ms = 0;
+            }
+            if(GenKits.inArray(fs,exceptions)){
+                fs = 0;
+            }
+            if(GenKits.inArray(ns,exceptions)){
+                ns = 0;
+            }
+
+            //如果有违纪的情况，总评算违纪
+//            if(exception.indexOf(row.normal_score) !== -1){
+//                row.general_score = row.normal_score;
+//            }else if(exception.indexOf(row.midterm_score) !== -1){
+//                row.general_score = row.midterm_score;
+//            }else if(exception.indexOf(row.finals_score) !== -1){
+//                row.general_score = row.finals_score;
+//            }else{
+                row.general_score = (ns*normalscore_weight + ms*midtermscore_weight +fs*finalsscore_weight)/100;
+//            }
+
+            dgrid.datagrid('refreshRow', x);
+        }
+        return  Messager.showMessage("生成完成，请保存！");
+    });
+
+    //表格编辑行为
+    initDataGridEditor(dgrid,fields,function(){ return false; },scoretype);
+
+    //保存
+    $('#save2').bind('click', function(){
+//        return Messager.showConfirm('请确认总评成绩已经生成，否则将无法修改！', function (c) {
+//            if(c) {
+                Datagrid.endEdit(dgrid);
+                var examdate = Formor.getDateBox(datebox_input);
+                if (!examdate) {
+                    return Messager.showWarning("请填写考试日期!");
+                }
+//                var fielddata = getDataFromGrid(dgrid, fields);
+                var subdata = [];
+                var rowlist = Datagrid.getRows(dgrid);
+                for(var i = 0;i<rowlist.length;++i){
+                    var row = rowlist[i];
+                    subdata[i] = {};
+                    subdata[i]['_origin'] = row;
+                    subdata[i]['finals_score'] = row.finals_score;
+                    subdata[i]['normal_score'] = row.normal_score;
+                    if(scoretype === 'ten'){
+                        subdata[i]['general_score'] = row.general_score;
+                    }
+                }
+//                for(var x in fielddata){
+//                    if('_origin' in fielddata[x]){
+//                        if(GenKits.inArray(fielddata[x]['_origin']['general_score'],['',undefined])){
+//                            return Messager.showWarning('有总评未生成，请点击自动生成总评按钮！');
+//                        }
+//                        subdata[x] = fielddata[x];
+//                    }
+//                }
+                $.post('__URL__/updateFinalsScoreInBatch',
+                        {'rows':subdata,'examtime':examdate,coursegroup:coursegroup,year:year,term:term},
+                        function(c){
+                            Messager.show(c, function () {
+                                if(c.type === 'info'){
+                                    location.reload();
+                                }
+                            });
+                        });
+//            }
+//        });
+
+
+    });
+
+    //打印成绩单
+    $('#doprint').bind('click',function(){
+        window.open('__URL__/pageFinalsInputForPrint/year/'+year+'/term/'+term+'/courseno/'+coursegroup)
+    });
+
+    //自动加载数据
+    loadDatagrid();
+
+    $("#sync").click(function () {
+        $.post('__URL__/pageFinalsInput/reqtag/sync',{'year':year,'term':term,'coursegroup':coursegroup}, function (data) {
+            return Messager.show(data,loadDatagrid);
+        });
+    });
+
+});
+
+
+function loadDatagrid(){
+    //自动获取列表数据
+    $.post('__URL__/listFinalsInput',{'year':year,'term':term,'courseno':coursegroup},function(c){
+        if(Ajaxor.isMessage(c)){
+            return Messager.showMessage(c);
+        }
+        Datagrid.loadData('dgrid',c);
+    });
+}
+
+
+function unlock(recno){
+    if(parseInt("{$imdean}") > 0){
+        $.post('__URL__/unlockForAdmin',{recno:recno,type:'finals_lock'}, function (data) {
+            return Messager.show(data, loadDatagrid);
+        });
+    }else{
+        return Messager.showWarning('抱歉，只有__DEANNAME__人员才能解锁！');
+    }
+}
+
+
+function operation(value,row,index){
+    return (parseInt(row['finals_lock']) > 0)?
+    '<a style="color: #0000FF" href="javascript:unlock(\''+row['recno']+'\');">解锁</a>':'';
+}
+
+
+
+</script>
+<style>
+    p.statement {
+        line-height: 150%;
+        word-spacing: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+        text-align: left;
+        font-family: 宋体;
+        font-size: 11pt;
+        color: #0000ff;
+    }
+
+</style>
+<style>
+    th {
+        text-align: center;
+    }
+</style>
+
+<body style="background-color: #fff">
+<div id="cc" class="easyui-layout" data-options="" style="height:750px">
+    <div data-options="region:'north',split:false,border:false" style="height:260px;">
+        <p align="center" style="font-size:14px">
+            <b>
+                __SCHOOLNAME__{$year_a}--{$year_b}学年第{$term}学期<php> echo (isset($isretake) and $isretake)? '毕业前补考':'期末'; </php>成绩输入单({$scoretypetext}) </b>
+        </p>
+        <p align="center" style="line-height: 5%">
+            课号:<span style="font-size:10pt"  >{$courseinfo.coursegroup}</span>&nbsp;
+            课名:<span style="font-size:10pt" >{$courseinfo.coursename}</span>&nbsp;
+            教师名称:<span style="font-size:10pt" >{$teachers}</span>&nbsp;
+            学分:<span  style="font-size:10pt" >{$courseinfo.credit}分</span>
+        </p>
+        <p  class="statement">1、百分制输入时成绩应为0-100之间或者使用字母（q、h、w)；</p>
+        <p  class="statement">2、五级制输入时成绩A-E之间或者使用字母（q、h、w)，数字对应成绩如下：A(a)-优秀，B(b)-良好，C(c)-中等，D(d)-及格，E(e)-不及格；</p>
+        <p  class="statement">3、二级制输入时成绩为数值D、E或者使用字母（q、h、w)，D(d)-及格，E(e)-不及格;</p>
+        <p  class="statement">4、字母对应字符如下:q-缺考，h-缓考，w-违纪；</p>
+        <p  class="statement">5、如期末考核缺考，则总评成绩应记为缺考，缓考者在成绩单课程状态中注明。</p>
+        <p  class="statement">6、按Tab键移动光标到下一个输入框.</p>
+        <p  class="statement">7、本课程考试日期为：
+            <input id="datebox_input" name="datebox_input" type="text" class="easyui-datebox" /></p>
+        <p  class="statement">8.当前课程总评成绩计算的百分比(仅对百分制有效！)：<b>平时成绩（{$GSPS.normalscore}%），期中成绩（{$GSPS.midtermscore}%），期末成绩（{$GSPS.finalsscore}%）</b></p>
+    </div>
+    <div data-options="region:'center',split:false,border:false" style="padding:0;background:#FFF;overflow: visible">
+        <div align="center">
+            <table id="dgrid" title="" style="width:960px;height:492px" data-options="view:bufferview,rownumbers:true,singleSelect:true,
+            pageList:[500,1000],autoRowHeight:false,pageSize:800,pagination:false">
+                <thead>
+                <tr>
+                    <th data-options="field:'studentno',width:100">学号</th>
+                    <th data-options="field:'studentname',width:100">姓名</th>
+                    <th data-options="field:'normal_score',width:100,editor:{type:'text'}">平时</th>
+                    <th data-options="field:'midterm_score',width:100,editor:{type:'text'}">期中</th>
+                    <th data-options="field:'finals_score',width:100,editor:{type:'text'}">期末</th>
+
+                    <th data-options="field:'general_score',width:100,editor:{type:'text'}">总评</th>
+                    <th data-options="field:'credit',width:100">获得学分</th>
+                    <th data-options="field:'status',width:100">状态</th>
+                    <th data-options="field:'finals_lock',width:100,hidden:false,formatter:function(a,b,c){
+                        return parseInt(a) > 0 ? '锁定':'-';
+                        }">期末锁</th>
+                    <th data-options="field:'operation',hidden:false,width:100,formatter:operation">管理员操作</th>
+                    <th data-options="field:'recno',hidden:true,width:100">recno</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+</div>
+<div style="margin-top: 30px;margin-bottom: 30px;">
+    <div align="center">
+        <a href="javascript:void(0)" class="easyui-linkbutton" id="sync"        data-options="iconCls:'icon-reload'">同步名单</a>&nbsp;&nbsp;
+        <a href="javascript:void(0)" class="easyui-linkbutton" id="autorefresh" data-options="iconCls:'icon-edit'" >生成总评成绩</a>&nbsp;&nbsp;
+        <a href="javascript:void(0)" class="easyui-linkbutton" id="save2"       data-options="iconCls:'icon-save'" >保存成绩</a>&nbsp;&nbsp;
+        <a href="javascript:void(0)" class="easyui-linkbutton" id="doprint"     data-options="iconCls:'icon-print'">打印成绩单</a>
+    </div>
+</div>
+</body>

@@ -1,0 +1,87 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/ExtSearcher.js"></script>
+<script src="__ROOT__/thirdparty/jquery/js/modules/major.js"></script>
+<script src="__ROOT__/thirdparty/jquery/js/Shadow.js"></script>
+<script>
+
+
+    function pformattern(value,row,index) {
+        var total_credit = parseFloat(row['total_credit']);
+        var passed_credit = parseFloat(row['passed_credit']);
+        var adition_credit = parseFloat(row['adition_credit']);
+//        console.log('----',total_credit,passed_credit,'+++++');
+        return GenKits.formatFloat((passed_credit)/total_credit,2)*100+' %';
+    }
+
+    $(function () {
+        var shadow = new Shadow({'text':'后台处理中...'});
+        new ExtSearcher('__APP__/Common/Provider/seacher',['grade','school']).start();
+        var searchform = $("#searchform");
+        var dgrid = $("#dgrid");
+
+        $("#dosearch").click(function () {
+            var values = searchform.serialize();
+            dgrid.datagrid('load',{_PARAMS_:values});
+        });
+        
+        $("#doreload").click(function () {
+            shadow.show();
+            $.post('__ACTION__/reqtag/refresh',{'year':$("#ES_GRADE").val()}, function (data) {
+                shadow.hide();
+                return Messager.show(data);
+            });
+        });
+        
+        $("#doaudite").click(function () {
+            if(Datagrid.selectSingle(dgrid)){
+                var row = Datagrid.getSelected(dgrid);
+                openNewTabsWindows(row.studentname+'的毕业审核','__URL__/pageStudentDetail/studentno/'+row.studentno+'/curstatus/'+row.status);
+            }
+        });
+
+    });
+</script>
+
+<style>
+    body {
+        background-color: #ffffff;
+    }
+</style>
+<body>
+<div class="easyui-layout" data-options="fit:true,border:false">
+    <div id="tdemo">
+        <form id="searchform">
+            <label for="ES_GRADE">年级:</label><select name="grade" id="ES_GRADE" class="ES_GRADE s"></select>
+            <label for="ES_SCHOOL">学部:</label><select name="schoolno" id="ES_SCHOOL" class="ES_SCHOOL s"></select>
+            <label for="ES_CLASS">班级:</label><select name="classno" id="ES_CLASS" class="ES_CLASS s"></select>
+            <label for="ES_STUDENT">学生:</label><select name="studentno" id="ES_STUDENT" class="ES_STUDENT s"></select>
+            <a id="dosearch" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+            <a id="doreload" class="easyui-linkbutton" data-options="iconCls:'icon-reload',plain:true">刷新学生学分</a>
+            <a id="doaudite" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true">审核选中学生 </a>
+        </form>
+    </div>
+    <div data-options="region:'center',border:false" style="padding:0;background:#eee;">
+        <table class="easyui-datagrid" id="dgrid"
+               data-options="url:'__URL__/listMajorPlans',pageList:[20,50,100,200,500],fitColumns:true,toolbar:'#tdemo',singleSelect:true,fit:true,pagination:true">
+            <thead>
+                <tr>
+                    <th data-options="checkbox:true"></th>
+                    <th data-options="field:'studentno',width:100" align="center">学号</th>
+                    <th data-options="field:'studentname',width:100,align:'right'" align="center">姓名</th>
+                    <th data-options="field:'sexname',width:150,align:'right'" align="center">性别</th>
+                    <!--<th data-options="field:'classname',width:150,align:'right'" align="center">班级名称</th>-->
+                    <th data-options="field:'total_credit',width:150,align:'right'" align="center">应修学分</th>
+                    <th data-options="field:'passed_credit',width:150,align:'right'" align="center">已获学分</th>
+                    <th data-options="field:'graduation_practice_creidt',width:150,align:'right'" align="center">实习学分</th>
+                    <th data-options="field:'classno',width:150,align:'right',formatter:pformattern" align="center">学分比例</th>
+
+                    <th data-options="field:'exp',width:150,align:'right'" align="center">处分信息</th>
+                    <th data-options="field:'status',width:150,align:'right',formatter:statusFormate" align="center">审核状态</th>
+                    <th data-options="field:'auditime',width:150,align:'right'" align="center">审核时间</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+</body>

@@ -1,0 +1,3 @@
+UPDATE TEACHERS SET SEX=:SEX,Birth=CAST(:Birth AS datetime),ID=:ID,Nationality=:Nationality,Party=:Party,Department=:Department,TGROUP=:TGROUP,HeadShip=:HeadShip,
+HDate= CAST(:HDate AS datetime),Profession=:Profession,PDate=CAST(:PDate AS datetime),PSubject=:PSubject,EduLevel=:EduLevel,ESchool=:ESchool,
+Degree=:Degree,DSchool=:DSchool,MOBILE_LONG=:MOBILE_LONG,MOBILE_SHORT=:MOBILE_SHORT,Tel=:Tel,Email=:Email WHERE TEACHERNO = :TEACHERNO

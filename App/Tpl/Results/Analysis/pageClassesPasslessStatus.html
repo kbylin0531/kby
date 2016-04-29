@@ -1,0 +1,49 @@
+<include file=":Include:jqueryHeader" />
+<script>
+    $(function(){
+        var dgrid = $("#dgrid");
+        $("#year").val(GenKits.getParentYear());
+        $("#term").val(GenKits.getParentTerm());
+
+        $('#search_one').bind('click',function(){
+            dgrid.datagrid('load',{'_PARAMS_':$("#form").serialize()});
+        });
+        $("#export").click(function(){
+            open('__URL__/pageClassesPasslessStatus/reqtag/export?'+$("#form").serialize());
+        });
+    });
+</script>
+<body>
+
+<div id="cc" class="easyui-layout" data-options="fit:true,border:false">
+    <div id="tdemo">
+        <form id="form">
+            <label for="year">学年:</label>
+            <input type="text" name="year" id="year" value="" size="4" />
+            <label for="term">学期:</label>
+            <input type="text" name="term" id="term" value="" size="1" />
+            <label for="classname">班级名称:</label>
+            <input type="text" name="classname" id="classname" value="%" size="9" />
+            <label for="coursegroup">课号:</label>
+            <input type="text" name="coursegroup" id="coursegroup" value="%" size="9" />
+            <label for="coursename">课程名称:</label>
+            <input type="text" name="coursename" id="coursename" value="%" size="10" />
+            <a id="search_one" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+            <a id="export" class="easyui-linkbutton" data-options="iconCls:'icon-excel',plain:true">导出</a>
+        </form>
+    </div>
+    <div data-options="region:'center',border:false" style="padding:0;background:#eee;">
+        <table class="easyui-datagrid" id="dgrid"
+               data-options="url:'__URL__/pageClassesPasslessStatus/reqtag/getlist',pageList:[20,50,100,200,500],fitColumns:true,toolbar:'#tdemo',singleSelect:true,fit:true,pagination:true">
+            <thead>
+            <tr>
+                <th data-options="field:'coursegroup',width:100" align="center">课号</th>
+                <th data-options="field:'classname',width:100" align="center">班级</th>
+                <th data-options="field:'coursename',width:100" align="center">课程名称</th>
+                <th data-options="field:'c',align:'right',width:100" align="center">人数</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+</body>

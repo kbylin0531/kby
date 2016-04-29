@@ -1,0 +1,99 @@
+<include file=":Include:jqueryHeader" />
+<include file="./style" />
+<body>
+<div class="easyui-layout"  data-options="border:false,fit:true" >
+    <div id="toobar">
+      <form id="queryForm" action="" target="download" method="post">
+		<label>学年：</label><input value="{$yearTerm.YEAR}" name="year" size="8" maxlength="4">
+		<label>学期：</label><input value="{$yearTerm.TERM}" name="term" size="4" maxlength="1">
+		<label>ISBN：</label><input name="isbn" size="12" value='%'  maxlength="50">
+		<label>教材名：</label><input name="bookname" size="15"  value='%' maxlength="100">
+		<label>学院：</label>
+		<select class="easyui-combobox" name="school" data-options="editable:false">
+			<option value="%">全部</option>
+			<volist name="school" id="s">
+			<option value="{$s.SCHOOL}">{$s.NAME}</option>
+			</volist>
+		</select>
+		<p style="height:4px;padding:0px;margin: 0px;"></p>
+		<label>班号：</label><input name="classno" size="14" value='%'  maxlength="7">
+		<label>学号：</label><input name="studentno" size="14"  value='%' maxlength="9">
+		<label>姓名：</label><input name="name" size="10" value='%'  maxlength="10">
+		<a href="javascript:void(0)" id="searcher">检索</a>
+		<a href="javascript:void(0)" id="ExportBut" class="easyui-linkbutton" data-options="iconCls:'icon-file2',plain:true">导出班级汇总表</a>
+	  </form>
+    </div>
+    <div data-options="region:'center',border:false" style=";background:#eee;">
+    	<div id="datagrid"></div>
+    </div>
+</div>
+<script type="text/javascript">
+var list=null;
+$(function(){
+	//教材发放信息
+	var datagrid = $('#datagrid').datagrid({
+		fitColumns:true,
+        fit:true,
+        striped:true,
+        singleSelect:true,
+        toolbar:'#toobar',
+        columns:[[{field:'classname',title:'班级名称',align:'center',width:40},
+                  {field:'studentno',title:'学号',align:'center',width:40},
+                  {field:'name',title:'姓名',align:'center',width:30},
+                  {field:'isbn',title:'ISBN',align:'center',width:40},
+                  {field:'bookname',title:'教材名称',align:'center',width:150},
+                  {field:'price',title:'单价',align:'center',width:30},
+                  {field:'dis_rate',title:'折扣率',align:'center',width:30},
+                  {field:'dis_price',title:'折扣价',align:'center',width:30}]],
+		pagination:true,
+		pageList:[10,20,30,40,50],
+		pageSize:20});
+	//搜索按钮
+    $('#searcher').linkbutton({iconCls: 'icon-search'});
+    // 条件查询
+    $("#searcher").click(function(){
+    	//验证学年学期是否输入
+    	var year=$.trim($("[name='year']").val());
+    	var term=$.trim($("[name='term']").val());
+
+    	if(year=="" || term==""){
+    		msgShow("系统提示：","请输入要检索的学年与学期！","error");
+    		return;
+    	}
+        datagrid.datagrid("options").url = "__URL__/stuIssueQuery/hasJson/1";
+        datagrid.datagrid("load",getData());
+    });
+    //导出
+	$("#ExportBut").click(function(){
+		var year=$.trim($("[name='year']").val());
+    	var term=$.trim($("[name='term']").val());
+    	if(year=="" || term==""){
+    		msgShow("系统提示：","导出班级汇总表时，学年、学期必填，并且先检索出数据再进行导出","error");
+    		return;
+    	}
+		list=datagrid.datagrid('getRows');
+    	if(list.length){
+    		$("#queryForm").attr("action","__URL__/classNoExport/");
+    		$("#queryForm").submit();
+    	}else{
+    		msgShow("系统提示：","目前并无数据可导出","info");
+    	}
+	});
+});
+//获取检索条件信息
+function getData(){
+	var data={
+        	year:$.trim($("[name='year']").val()),
+        	term:$.trim($("[name='term']").val()),
+        	isbn:$.trim($("[name='isbn']").val()),
+        	bookname:$.trim($("[name='bookname']").val()),
+        	school:$.trim($("[name='school']").val()),
+        	classno:$.trim($("[name='classno']").val()),
+        	studentno:$.trim($("[name='studentno']").val()),
+        	name:$.trim($("[name='name']").val())
+        };
+	return data;
+}
+</script>
+</body>
+</html>

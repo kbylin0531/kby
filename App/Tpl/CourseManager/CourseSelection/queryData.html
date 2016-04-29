@@ -1,0 +1,99 @@
+<include file=":Include:jqueryHeader" />
+
+<script type="text/javascript">
+    var map_color = ['#B4FAFE','#C7FAB9','#6293BB','#F8E3BA','#F9B9BE','#FA86DC'];
+    $(function() {
+        var datagrid = $('#datagrid').datagrid({
+            view: detailview,
+            toolbar: '#toobar',
+            url : "__ROOT__/index.php/{$qlist_url}",
+            queryParams: {$queryParams},
+            frozenColumns:[[{field:'ck',checkbox:true}]],
+            detailFormatter:function(index,row){
+                return '<div style="padding:2px;width:100%"><table width="100%">' +
+                        '<tr><td width="116" height="18">班级</td><td>'+(row.CLASSNONAME == undefined?'':row.CLASSNONAME )+'</td></tr>' +
+                        '<tr><td height="18">教师</td><td>'+(row.TEACHERNONAME == undefined?'':row.TEACHERNONAME )+'</td></tr>' +
+                        '<tr><td height="18">备注</td><td>'+(row.REM == undefined?'':row.REM )+'</td></tr>' +
+                        '<tr><td height="18">课程安排</td><td>'+(row.CURRICULUM == undefined?'':row.CURRICULUM )+'</td></tr>'+
+                        '<tr><td height="18">课程介绍</td><td>'+(row.introduce == undefined?'':row.introduce )+'</td></tr>'+
+                '</table></div>';
+            },
+            onBeforeLoad : function(){
+                $(this).datagrid("uncheckAll");
+                return true;
+            },
+            rowStyler: function(index,row){
+                if(row.LIMITGROUPNO!="0")
+                    return 'background-color:'+map_color[row.LIMITGROUPNO % map_color.length];
+            }
+        });
+
+        //"确认选课" 按钮
+        $('#handlerSave').bind("click",function(){
+            //保存时结束当前编辑的行，自动触发onAfterEdit事件如果要与后台交互可将数据通过Ajax提交后台
+            var checkedItems = datagrid.datagrid("getChecked");
+            var ids = [], examType = [], year='{$Think.request.YEAR}', term ='{$Think.request.TERM}';
+            $.each(checkedItems, function(index, item){
+                ids.push({COURSENOGROUP:item.COURSENOGROUP, EXAM:item.EXAM, LIMITGROUPNO:item.LIMITGROUPNO, LIMITNUM:item.LIMITNUM});
+                //examType.push(item.EXAM);
+            });
+            $.post("__ROOT__/{$save_url}", {ids:ids,examType:examType,YEAR:year,TERM:term}, function(rsp) {
+                if(rsp){
+                    return $.messager.alert("系统消息：", rsp.message, rsp.type, function () {
+//                        if(rsp.type === 'info'){
+                            datagrid.datagrid('reload');
+//                        }
+                    });
+                }
+            },"JSON");
+        });
+        $('#handlerReload').bind("click",function(){
+            datagrid.datagrid("reload");
+        });
+    });
+</script>
+<body class="easyui-layout" style="background: #fff;overflow-y: hidden"  fit="true" split="false"   scroll="no" >
+
+<div id="mainPanle" region="center" border="1" style="background: #fff; padding:3px; " >
+    <table id="datagrid" title="{$Think.session.S_USER_NAME}学生自主选课" iconCls="icon icon-elective" fitColumns="false"
+           width="100%" singleSelect="false" fit="true" idField="COURSENOGROUP"
+           pagination="true" pageSize="50" pageList="[50,100]" striped="true" >
+        <thead>
+        <tr><th data-options="field:'SELECTED', align:'center', formatter:function(value,row,index){if(value){return '&#8730;'}}">已选</th>
+            <th data-options="field:'COURSENOGROUP',width:120" >课号</th>
+            <th data-options="field:'COURSENAME'">课名</th>
+            <th data-options="field:'COURSETYPENAME',align:'center'">课程类别</th>
+            <th data-options="field:'classnum'">本班已选人数</th>
+            <th data-options="field:'classlimit'">本班限制人数</th>
+            <th data-options="field:'ATTENDENTS',width:70,align:'center'">已选总人数</th>
+            <th data-options="field:'total_attendents_limit'">限选总人数</th>
+            <th data-options="field:'LIMITCREDIT'">限选总学分</th>
+            <th data-options="field:'CREDITS',width:40,align:'center'">学分</th>
+            <th data-options="field:'WEEKHOURS',width:50,align:'center'">周学时</th>
+            <th data-options="field:'WEEKEXPEHOURS',width:50,align:'center'">周实验</th>
+            <th data-options="field:'COURSETYPE',width:40,align:'center'">修课</th>
+            <th data-options="field:'EXAMTYPE',width:40,align:'center'">考核</th>
+            <th data-options="field:'LIMITGROUPNO'">限选组号</th>
+            <th data-options="field:'LIMITNUM'">限选条数</th>
+            <th data-options="field:'SCHOOLNAME'">开课学部</th>
+            <th data-options="field:'CLASSNONAME',hidden:true">班级</th>
+            <th data-options="field:'TEACHERNONAME',hidden:true">教师</th>
+            <th data-options="field:'REM',hidden:true">备注</th>
+            <th data-options="field:'CURRICULUM',hidden:true">课程安排</th>
+            <th data-options="field:'EXAM',hidden:true">修课代码</th>
+
+        </tr>
+
+        </thead>
+    </table>
+</div>
+
+<div id="toobar">
+    <a href="__URL__/query" id="handlerAdd" class="easyui-linkbutton" data-options="iconCls:'icon-back',plain:true" >返回筛选</a>
+    <a href="#" id="handlerReload" class="easyui-linkbutton" data-options="iconCls:'icon-reload',plain:true">刷新</a>
+    <a href="#" id="handlerSave" class="easyui-linkbutton" data-options="iconCls:'icon-ok',plain:true">确认选课</a>
+    <a href="#" id="handlerYearTerm" class="easyui-linkbutton" data-options="plain:true" style="color: #ff0000">{$Think.request.YEAR}学年第{$Think.request.TERM}学期可选课程</a>
+</div>
+
+</body>
+</html>

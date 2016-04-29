@@ -1,0 +1,70 @@
+<include file=":Include:jqueryHeader" />
+
+<body style="background: #FFFFFF">
+    
+
+
+    <table align=center border="2" width="77%" style="border-collapse:collapse;margin-top:10px" bordercolor="#000000" >
+        <tr>
+            <td width="15%" align="right" height="23">教师号：</td>
+            <td width="35%" height="23">
+                {$teacher.TEACHERNO}
+            </td>
+            <td width="15%" align="right" height="28" >教师名：</td>
+            <td width="35%" height="28">
+                {$teacher.TEACHERNAME}
+            </td>
+        </tr>
+    </table>
+
+    <table align=center border="2" width="77%" style="border-collapse:collapse;margin-top:10px" bordercolor="#000000" >
+
+<tr>
+<th>学年</th>
+<th>学期</th>
+<th>奖励名称</th>
+<th>奖励类别</th>
+<th>奖励级别</th>
+<th>奖励分数</th>
+<th>审核状态</th>
+<th>审核日期</th>
+</tr>
+
+<volist name="rewards" id="reward">
+<tr>
+<td>{$reward.YEAR}</td>
+<td>{$reward.TERM}</td>
+<td>
+
+<a title="查看具体信息" href="javascript:dorowview('{$reward.ID}');">{$reward.REWARDSNAME}</a>
+
+</td>
+<td>{$reward.REWARDSSORT}</td>
+<td>{$reward.REWARDSGRADE}</td>
+<td>{$reward.REWARDSSCORE}</td>
+<td>
+
+    <eq name="reward.STATUS" value="2">通过</eq>
+    <eq name="reward.STATUS" value="3">不通过</eq>
+    
+</td>
+<td>{$reward.VERIFY_TIME}</td>
+</tr>
+</volist>
+
+</table>
+
+
+<script type="text/javascript">
+
+function dorowview(id){   
+	var url="__URL__/view/id/" + id;
+    openTabsWindows("教师奖励信息查看",url);    
+	
+}
+
+</script>
+
+</body>
+</html>
+

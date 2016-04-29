@@ -1,0 +1,163 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script>
+
+
+    $(function(){
+        var year_input = $("#year");
+        var term_input = $("#term");
+        var classno_input = $("#classno");
+        var coursegroup_input = $("#coursegroup");
+        var schoolno_input = $("#schoolno");
+        var statistic_grid=$('#statistic_grid');
+        var form = $("#form");
+        var dgrid=$('#dgrid');
+        var search_button = $('#search');
+
+        year_input.val(GenKits.getParentYear());
+        term_input.val(GenKits.getParentTerm());
+
+        function getQuery(){
+            return {
+                'year':year_input.val().trim(),
+                'term':term_input.val().trim(),
+                'classno':classno_input.val().trim(),
+                schoolno:schoolno_input.val().trim(),
+                coursegroup:coursegroup_input.val().trim(),
+                scoretype:$("#scoretype").val(),
+                isMusable:0
+            };
+        }
+
+        function loadData(){
+            search_button.unbind('click'); // 防止重复点击
+            var query = getQuery();
+
+            $.ajax({
+                type: 'POST',
+                url: '__URL__/listAnaliseClassScores',
+                data: query,
+                success: function (data) {
+                    dgrid.datagrid('loadData',data);
+                },
+                dataType: 'JSON',
+                async:false
+            });
+            search_button.bind('click',loadData);
+        }
+
+        search_button.click(loadData);
+
+        $("#export").click(function () {
+            var query = form.serialize();
+            open('__URL__/exportAnaliseClassScores?'+query);
+        });
+    });
+</script>
+
+<body style="background: #fff">
+<div class="easyui-layout" data-options="fit:true">
+    <div id="tdemo">
+        <form id="form">
+            <input type="hidden" name="isMusable" value="0" />
+            <label for="year">学年：</label>
+            <input type="text" name="year" id="year" size="4" >&nbsp;
+            <label for="term">学期：</label>
+            <input type="text" name="term" id="term" size="1">&nbsp;
+            <label for="classno">班号：</label>
+            <input type="text" name="classno" id="classno" value="%" size=9 />&nbsp;
+            <label for="coursegroup">课号</label>
+            <input type="text" name="coursegroup" id="coursegroup" value="%" size="9" />
+            <label for="scoretype">成绩类型</label>
+            <select name="scoretype" id="scoretype">
+                <option value="1">期中</option>
+                <option value="2">期末</option>
+                <option value="3">总评</option>
+            </select>
+            <label for="schoolno">学部</label>
+            <select name="schoolno" id="schoolno">
+                <option value="%">全部</option>
+                <volist name="schools" id="v">
+                    <option value="{$v.SCHOOL}">{$v.NAME}</option>
+                </volist>
+            </select>
+            <a href="javascript:void(0);" id="search" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+            <a href="javascript:void(0);" id="export" class="easyui-linkbutton" data-options="iconCls:'icon-excel',plain:true">导出</a>
+        </form>
+    </div>
+    <!-- 上表格 -->
+    <div data-options="region:'center',split:false,border:false" style="padding:0;background:#eee;">
+        <table class="easyui-datagrid" id="dgrid" data-options="fit:true,singleSelect:true,pagination:true,toolbar:'#tdemo'">
+            <thead frozen="true">
+            <tr>
+                <th data-options="field:'coursegroup',width:80" align="center">课号</th>
+                <th data-options="field:'coursename',width:120" align="center">课名</th>
+                <th data-options="field:'teachername',width:80" align="center">教师</th>
+                <th data-options="field:'attendents',width:60" align="center">选课人数</th>
+                <th data-options="field:'classsum',width:60" align="center">班级人数</th>
+                <th data-options="field:'realattendents',width:60" align="center">实际参加人数</th>
+
+            </tr>
+            </thead>
+            <thead frozen="false">
+            <tr>
+                <th data-options="field:'class_scores_sum',width:60" align="center">班级总分</th>
+                <th data-options="field:'class_scores_avg',width:60" align="center">平均分</th>
+                <th data-options="field:'class_scores_top',width:60" align="center">最高分</th>
+                <th data-options="field:'class_scores_buttom',width:60" align="center">最低分</th>
+
+                <th data-options="field:'AC',width:60" align="center">优秀人数</th>
+                <th data-options="field:'BC',width:60" align="center">良好人数</th>
+                <th data-options="field:'CC',width:60" align="center">中等人数</th>
+                <th data-options="field:'DC',width:60" align="center">及格人数</th>
+                <th data-options="field:'EC',width:70"  align="center">不及格人数</th>
+
+                <th data-options="field:'AP',width:60" align="center">优秀比例</th>
+                <th data-options="field:'BP',width:60" align="center">良好比例</th>
+                <th data-options="field:'CP',width:60" align="center">中等比例</th>
+                <th data-options="field:'DP',width:60" align="center">及格比例</th>
+                <th data-options="field:'EP',width:70" align="center">不及格比例</th>
+
+                <th data-options="field:'ABC',width:60" align="center">缺考人数</th>
+                <th data-options="field:'ABP',width:60" align="center">缺考比例</th>
+                <th data-options="field:'PP',width:60" align="center">通过比例</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+    <!-- 下表格 -->
+    <!--<div data-options="region:'south',title:'',split:false,border:false" style="height:100px;">-->
+        <!--<table class="easyui-datagrid" id="statistic_grid"-->
+               <!--data-options="fit:true,singleSelect:true">-->
+            <!--<thead frozen="true">-->
+            <!--<tr>-->
+                <!--<th data-options="field:'coursegroup',width:80" align="center">课号</th>-->
+                <!--<th data-options="field:'coursename',width:120" align="center">课名</th>-->
+            <!--</tr>-->
+            <!--</thead>-->
+            <!--<thead frozen="false">-->
+            <!--<tr>-->
+                <!--<th data-options="field:'class_scores_top',width:60" align="center">最高分</th>-->
+                <!--<th data-options="field:'class_scores_buttom',width:60" align="center">最低分</th>-->
+
+                <!--<th data-options="field:'AC',width:60" align="center">优秀人数</th>-->
+                <!--<th data-options="field:'BC',width:60" align="center">良好人数</th>-->
+                <!--<th data-options="field:'CC',width:60" align="center">中等人数</th>-->
+                <!--<th data-options="field:'DC',width:60" align="center">及格人数</th>-->
+                <!--<th data-options="field:'EC',width:70"  align="center">不及格人数</th>-->
+
+                <!--<th data-options="field:'AP',width:60" align="center">优秀比例</th>-->
+                <!--<th data-options="field:'BP',width:60" align="center">良好比例</th>-->
+                <!--<th data-options="field:'CP',width:60" align="center">中等比例</th>-->
+                <!--<th data-options="field:'DP',width:60" align="center">及格比例</th>-->
+                <!--<th data-options="field:'EP',width:70" align="center">不及格比例</th>-->
+
+                <!--<th data-options="field:'ABC',width:60" align="center">缺考人数</th>-->
+                <!--<th data-options="field:'ABP',width:60" align="center">缺考比例</th>-->
+                <!--<th data-options="field:'PP',width:60" align="center">通过比例</th>-->
+            <!--</tr>-->
+            <!--</thead>-->
+        <!--</table>-->
+    <!--</div>-->
+</div>
+</body>

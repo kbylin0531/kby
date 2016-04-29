@@ -1,0 +1,99 @@
+<include file=":Include:jqueryHeader"/>
+<script src="__ROOT__/thirdparty/jquery/js/ExtSearcher.js"></script>
+<script>
+
+    var sourse_url = "__ROOT__/Common/Provider/seacher";
+
+    $(function () {
+        var classnoInput = $("#ES_CLASS");
+        var newClassInput = $("#ES_CLASS2");
+        var dgrid = $("#dgrid");
+
+        $("#search").click(function () {
+            dgrid.datagrid('load', {
+                year: $("#ES_YEAR").val(),
+                term: $("#ES_TERM").val(),classno: classnoInput.val()});
+        });
+
+        //两个搜寻框，用两个对象进行管理
+
+        new ExtSearcher(sourse_url, true, 's').start();
+        new ExtSearcher(sourse_url, true, 'd').start();
+
+        $("#distri").click(function () {
+            var newclassno = newClassInput.val();
+            var newclasstext = newClassInput.find('option:selected').text();
+            var rows = Datagrid.getSelections(dgrid);
+            if (rows && rows.length) {
+                return Messager.showConfirm('确认转班学年为' + $("#ES_YEAR").val()+',学期为'+$("#ES_TERM").val(), function (r) {
+                    if(r){
+                        return Messager.showConfirm('确认将' + rows.length + '个学生转到' + newclasstext, function (r) {
+                            if (r) {
+                                return Messager.showConfirm('学生转班，牵涉教学计划的绑定，需要重新设置教学计划绑定学生操作，勿忘！',
+                                    function (r) {
+                                        if (r) {
+                                            $.post('__URL__/distriStudentClass', {
+                                                rows: rows,
+                                                year: $("#ES_YEAR").val(),
+                                                term: $("#ES_TERM").val(),
+                                                newclassno: newclassno
+                                            }, function (data) {
+                                                return Messager.show(data, function () {
+                                                    dgrid.datagrid('reload');
+                                                });
+                                            });
+                                        }
+                                    });
+                            }
+                        });
+                    }
+                });
+            } else {
+                return Messager.showWarning('请选择学生！');
+            }
+        });
+    });
+</script>
+<body style="background-color: white">
+<div id="ccc" class="easyui-layout" data-options="fit:true">
+    <div id="tdemo">
+        <label for="ES_YEAR">学年:</label><input name="year" size='4' id="ES_YEAR" class="ES_YEAR s" value="{$yearterm.YEAR}" />
+        <label for="ES_TERM">学期:</label><input name="term" size='1' id="ES_TERM" class="ES_TERM s" value="{$yearterm.TERM}" />
+
+        <!-- searcher插件JS+HTML部分 开始 -->
+        <label for="ES_GRADE">年级:</label><select name="grade" id="ES_GRADE" class="ES_GRADE s"></select>
+        <label for="ES_SCHOOL">学部:</label><select name="schoolno" id="ES_SCHOOL" class="ES_SCHOOL s"></select>
+        <label for="ES_CLASS">班级:</label><select name="classno" id="ES_CLASS" class="ES_CLASS s"></select>
+        <!-- searcher插件JS+HTML部分 结束 -->
+
+        <a href="javascript:void(0)" class="easyui-linkbutton" id="search" data-options="iconCls:'icon-search'">查询</a>&nbsp;&nbsp;&nbsp;
+       <a href="javascript:void(0)" class="easyui-linkbutton" id="distri"
+           data-options="iconCls:'icon-goright',plain:true">转班到</a>
+
+        <label for="ES_GRADE2">年级:</label><select name="grade" id="ES_GRADE2" class="ES_GRADE d"></select>
+        <label for="ES_SCHOOL2">学部:</label><select name="schoolno" id="ES_SCHOOL2" class="ES_SCHOOL d"></select>
+        <label for="ES_CLASS2">班级:</label><select name="classno" id="ES_CLASS2" class="ES_CLASS d"></select>
+        <!--<script> $(function () {new ExtSearcher("__ROOT__/Common/Provider/seacher",true,'d'); }); </script>-->
+    </div>
+
+    <div data-options="region:'center',border:false,split:false" style="padding:0;background:#eee;">
+        <table class="easyui-datagrid" id="dgrid" data-options="url:'__URL__/listClasesStudentForDistributary',pageList:[20,50,100,200,500],fit:true,
+                   singleSelect:false,pagination:false,toolbar:'#tdemo'">
+            <thead>
+            <tr>
+                <th data-options="field:'ck',checkbox:true"></th>
+                <th data-options="field:'studentno',width:100" align="center">学号</th>
+                <th data-options="field:'studentname',width:100" align="center">姓名</th>
+                <th data-options="field:'year',width:100" align="center">分流学年</th>
+                <th data-options="field:'term',width:100" align="center">分流学期</th>
+                <th data-options="field:'origin_classno',width:100" align="center">分流前班号</th>
+                <th data-options="field:'origin_classname',width:200" align="center">分流前班级</th>
+                <th data-options="field:'change_date',width:100" align="center">转班时间</th>
+                <th data-options="field:'cur_classno',width:100" align="center">当前班号</th>
+                <th data-options="field:'cur_classname',width:200" align="center">当前班名</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+</body>

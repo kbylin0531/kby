@@ -1,0 +1,186 @@
+<include file=":Include:jqueryHeader" />
+<script type="text/javascript">
+    $.extend($.fn.datagrid.methods, {
+        addEditor : function(jq, param) {
+            if (param instanceof Array) {
+                $.each(param, function(index, item) {
+                    var e = $(jq).datagrid('getColumnOption', item.field);
+                    e.editor = item.editor;
+                });
+            } else {
+                var e = $(jq).datagrid('getColumnOption', param.field);
+                e.editor = param.editor;
+            }
+        },
+        removeEditor : function(jq, param) {
+            if (param instanceof Array) {
+                $.each(param, function(index, item) {
+                    var e = $(jq).datagrid('getColumnOption', item);
+                    e.editor = {};
+                });
+            } else {
+                var e = $(jq).datagrid('getColumnOption', param);
+                e.editor = {};
+            }
+        }
+    });
+
+    var datagrid = null; //数据表
+    var pd=false;
+    var indexrow=undefined;             //保存索引键的变量
+    $(function() {
+        //todo 初始化数据表
+        datagrid = $('#datagrid').datagrid({
+            toolbar : '#toobar',
+            url : '__ROOT__/Moral/PenaltyClauses/qlist/hasJson/true',
+            onBeforeLoad : function(){
+                $(this).datagrid("unselectAll");
+                return true;
+            }
+        });
+
+        //todo 查询
+        $("#event_searcher").bind("click",function(){
+            datagrid.datagrid("reload",{queryStr:$("#queryStr").val(),moralType:$("#moralType").val()});
+        });
+
+        //todo 添加事件
+        $("#event_add").bind("click",function(){
+            if(!pd){
+                datagrid.datagrid('addEditor',{field:'CODE',  editor : {type : 'validatebox', options : {required:true, validType:'length[1,3]'}}});
+                datagrid.datagrid('insertRow',{index:0, row:{}});
+                datagrid.datagrid('beginEdit',0);
+                indexrow=0;
+            }
+            pd=true;
+        });
+
+        //todo 编辑事件
+        $("#event_edit").bind("click",function(){
+            var rowList=datagrid.datagrid('getSelections');              //获取所有被选中的
+            datagrid.datagrid('removeEditor','CODE');
+            if(rowList.length>1){
+                msgShow("系统提示：","请选择一条进行编辑,不能选多条","error");  //用户选了多行编辑
+            }else if(rowList.length<1){
+                msgShow("系统提示：","请选择要编辑的数据","error");   //用户没选择行
+            }else{
+                if(indexrow!=undefined){
+                    datagrid.datagrid('endEdit',indexrow);
+                }
+
+                var row3 = datagrid.datagrid('getSelected');                 //获得被选中的索引
+                var index3 = datagrid.datagrid('getRowIndex', row3);
+                datagrid.datagrid('beginEdit', index3);
+                indexrow=index3;
+            }
+
+        });
+
+        //todo 撤消事件
+        $("#event_undo").bind("click",function(){
+            $.messager.confirm("系统提示：", "真的要撤消所有的变化数据吗？",function(b){
+                if(b) {
+                    pd = false;
+                    datagrid.datagrid('rejectChanges');
+                    indexrow = undefined;
+                    return true;
+                }
+            });
+        });
+
+        //todo 删除事件
+        $('#event_del').bind('click',function(){
+            if(pd){
+                msgShow('系统提示：',"列表数据有改变，请先保存或者撤消，然后再进行删除！","info");
+                return;
+            }
+            var row2 = datagrid.datagrid('getSelections');
+            if (row2.length){
+                $.messager.confirm('系统提示：','您确定要删除吗',function(b){
+                    if(b){
+                        var infoarr=[];     //存储删除信息的数组
+                        for(var i=0;i<row2.length;i++) infoarr[i]=row2[i].CODE;
+                        $.ajax({
+                            url:'/Moral/PenaltyClauses/del/hasJson/true/',
+                            data:{'CODES':infoarr},
+                            type:'POST',
+                            success:function(C){
+                                if(C){
+                                    $.messager.alert('系统提示：', C.message, C.type);
+                                    datagrid.datagrid('reload');
+                                }else{
+                                    $.messager.alert('系统提示：','删除时发生未知错误','?');
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+
+        });
+
+        $('#event_save').bind('click',function(){
+            datagrid.datagrid('endEdit',indexrow);
+            indexrow=undefined;
+            pd=false;
+
+            var rows = datagrid.datagrid('getChanges');
+            if(!rows || rows.length==0) return;
+            $.ajax({
+                url:'/Moral/PenaltyClauses/save/hasJson/true/',
+                data:{'DATAS':rows},
+                type:'POST',
+                success:function(rep){
+                    if(rep){
+                        $.messager.alert('系统提示：', rep.message, rep.type);
+                        datagrid.datagrid('reload');
+                    }else{
+                        $.messager.alert('系统提示：','删除时发生未知错误','?');
+                    }
+                }
+            });
+        })
+
+    });
+</script>
+
+<body class="easyui-layout" style="background: #fff;padding:0px;overflow-y: hidden"  fit="true" split="false" scroll="no" >
+
+<!-- 主页面 -->
+<div id="mainPanle" region="center" border="1" style="background: #fff; padding:3px; " >
+    <table id="datagrid" fitColumns="false" width="100%" singleSelect="false" fit="true" idField="CODE"
+           pagination="true" pageSize="20" pageList="[20,40,60]" striped="true" >
+        <thead>
+        <tr><th data-options="field:'CODE',width:160,editor:{type:'validatebox', options:{required:true}}">细则代码(长度3位)</th>
+            <th data-options="field:'NAME',width:220,editor:{type:'validatebox', options:{required:true}}">细则名称</th>
+            <th data-options="field:'VALUE',width:100,editor:{type:'numberbox', options:{required:true,missingMessage:'只能输入数字'}}">分值</th>
+            <th data-options="field:'MORAL_TYPE',width:180,editor:{type:'numberbox', options:{required:true}}">类型(1=扣分 2=加分 3=处分)</th></tr>
+        </thead>
+    </table>
+</div>
+
+<!-- 主页面工具条 -->
+<div id="toobar">
+    <span class="datagrid-btn-separator-area">
+        <label for="queryStr">
+            细则代码或名称:<input type="text" id="queryStr" size="30"  value='' class="easyui-validatebox">
+            <select id="moralType" name="moralType">
+                <option value="">所有类型</option>
+                <option value="1">扣分</option>
+                <option value="2">加分</option>
+                <option value="3">处分</option>
+            </select>
+        </label>
+        <a id="event_searcher" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true">搜索</a>
+    </span>
+    <a class="datagrid-btn-separator"></a>
+    <a id="event_add" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true" >添加</a>
+    <a id="event_del" class="easyui-linkbutton" data-options="iconCls:'icon-cut',plain:true">删除</a>
+    <a id="event_edit" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true">编辑</a>
+    <a id="event_undo" class="easyui-linkbutton" data-options="iconCls:'icon-undo',plain:true">撤消</a>
+    <a id="event_save" class="easyui-linkbutton" data-options="iconCls:'icon-save',plain:true">保存</a>
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,322 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script>
+    var year=parent.$('#YEAR').val();                    //todo:当前学年学期
+    var term=parent.$('#TERM').val();
+    var workload_arr={}                             //todo:保存工作量
+    $(function(){
+        $('#ttype').bind('click',function(){
+            var arr={}
+            var rowList=$('#apply_dat').datagrid('getSelections')
+            for(var i=0;i<rowList.length;i++){
+                arr[rowList[i]['Courseno']]=rowList[i]['Courseno']
+            }
+            ajiakesi('__URL__/setType2',{bind:arr,type:$('#type').val()},function(c){
+                $.messager.alert('提示',c)
+            })
+
+        })
+
+        var gongzuol_dat=$('#apply_dat');              //todo:信息列表页面的 datagrid
+        //todo:点击搜搜哦
+        $('#ss').bind('click',function(){
+            var year=parent.$('#YEAR').val()     //todo:学年
+            var term=parent.$('#TERM').val()      //todo;学期
+            gongzuol_dat.datagrid('load',{'Sqlpath':{'select':'Workload/New_total_select.SQL','count':'Workload/New_total_count.SQL'},'bind':{
+               ':COURSENO':$('[name=courseno]').val(),':CLASSNO':$('[name=classno]').val(),
+                ':TEACHERNO':$.trim($('[name=teacherno]').val()),':CODE':$.trim($('[name=workload_type]').val()),':SCHOOL':$('[name=SCHOOL]').val()
+               }})
+        })
+
+        /*
+
+         {'Sqlpath':{'select':'Workload/Two_one_select_gongzuol.SQL','count':'Workload/Two_one_count_gongzuol.SQL'},'bind':{
+         ':YONE':year,':TONE':term,':YTWO':year,':TTWO':term,':YTHREE':year,':TTHREE':term,':COURSENO':$('[name=courseno]').val(),':CLASSNO':$('[name=classno]').val(),
+         ':TEACHERNO':$('[name=teacherno]').val(),':CODE':$('[name=workload_type]').val(),':SCHOOL':$('[name=SCHOOL]').val()}}
+
+         */
+        //todo:提交分解
+       /* var time=
+        var_dump()*/
+        $('#wc').bind('click',function(){
+            var year=parent.$('#YEAR').val()
+            var term=parent.$('#TERM').val()
+            if('{$is_time}'=='false'){
+                return $.messager.alert('提示','现在不在分解时间范围内,无法做分解操作')
+            }
+            $.messager.confirm('提示','您确定要提交当前学期的工作总量核定吗',function(c){
+                if(c){
+                    ajiakesi('__URL__/total/hasJson/1',{'Sqlpath':{'select':'Workload/Two_one_select_gongzuol2.SQL','count':'Workload/Two_one_count_gongzuol.SQL'},'bind':{
+                        ':yyi':year,':tyi':term,':yer':year,':ter':term,':YONE':year,':TONE':term,':YTWO':year,':TTWO':term,':YTHREE':year,':TTHREE':term,':COURSENO':$('[name=courseno]').val(),':CLASSNO':$('[name=classno]').val(),
+                        ':TEACHERNO':$('[name=teacherno]').val(),':code':$('[name=workload_type]').val(),':SCHOOL':$('[name=SCHOOL]').val()},':year':year,':term':term},function(c){
+                        $.messager.alert('提示',c)
+                    })
+                 }
+            })
+
+        })
+
+
+        //todo:修改标准版
+        $('#xiugai_bzb').bind('click',function(){
+            if($('[name=bzb_number]').val()==""){
+                return $.messager.alert('提示','请填写一个正确的标准班人数,不能为空或非数字')
+            }
+        /*    ajiakesi('__URL__/Total_update_class',{'Sqlpath':{'select':'Workload/Two_one_select_gongzuol2.SQL','count':'Workload/Two_one_count_gongzuol.SQL'},'bind':{
+                ':YONE':parent.$('#YEAR').val(),':TONE':parent.$('#TERM').val(),':COURSENO':$('[name=courseno]').val(),':CLASSNO':$('[name=classno]').val(),
+                ':TEACHERNO':$('[name=teacherno]').val(),':CODE':$('[name=workload_type]').val(),':SCHOOL':$('[name=SCHOOL]').val()},':year':parent.$('#YEAR').val(),':term':parent.$('#TERM').val(),'bzb':$('[name=bzb_number]').val()},function(c){
+                $.messager.alert('提示','操作成功');
+                gongzuol_dat.datagrid('load')
+            })*/
+
+        })
+
+
+        $('#apply_dat').datagrid({
+           /* onDblClickCell:function(index,filed,value){
+                $('#apply_dat').datagrid('beginEdit',index)
+            },*/
+            onSelect:function(rowIndex, rowData){
+
+                $('#apply_dat').datagrid("selectRecordByKey",{currIndex:rowIndex,keyField:"Courseno"});
+             /*  var List=$('#apply_dat').datagrid('getRows');
+               for(var i=0;i<List.length;i++){
+                   if(List[i].Courseno==rowData.Courseno){
+                       $('#apply_dat').datagrid('selectRow',i)
+                   }
+               }*/
+            },
+            onUnselect:function(rowIndex, rowData){
+
+
+                $('#apply_dat').datagrid("unSelectRecordByKey",{currIndex:rowIndex,keyField:"Courseno"});
+             /*   var List=$('#apply_dat').datagrid('getRows');
+                for(var i=0;i<List.length;i++){
+
+                    if(List[i].Courseno==rowData.Courseno){
+
+                        $('#apply_dat').datagrid('unselectRow',i)
+                    }
+                }*/
+
+            }
+
+        })
+
+        $('#e_save').bind('click',function(){
+            var row=$('#apply_dat').datagrid('getSelected')
+            $('#apply_dat').datagrid('endEdit',$('#apply_dat').datagrid('getRowIndex',row))
+
+            ajiakesi('__URL__/saveWEEKS',{'bind':row,'year':parent.$('#YEAR').val(),'term':parent.$('#TERM').val(),'totalwork_id':row.Totalwork_id},function(c){
+            /*    var year=parent.$('#YEAR').val()         //todo:学年
+                var term=parent.$('#TERM').val()         //todo;学期*/
+
+                $.messager.alert('提示',c)
+                gongzuol_dat.datagrid('reload',{'Sqlpath':{'select':'Workload/New_total_select.SQL','count':'Workload/New_total_count.SQL'},'bind':{
+                    ':COURSENO':$('[name=courseno]').val(),':CLASSNO':$('[name=classno]').val(),
+                    ':TEACHERNO':$.trim($('[name=teacherno]').val()),':CODE':$.trim($('[name=workload_type]').val()),':SCHOOL':$('[name=SCHOOL]').val()
+                }})
+
+            })
+
+        })
+
+        function eedit(){
+            var yi=yitiao($('#apply_dat'),'请选择一条数据,不能选择多条','请选择一条数据')
+            if(yi){
+                var row2=$('#apply_dat').datagrid('getRows')
+                for(var i=0;i<row2.length;i++){
+                    $('#apply_dat').datagrid('cancelEdit',$('#apply_dat').datagrid('getRowIndex',row2[i]))
+                }
+                var row=$('#apply_dat').datagrid('getSelected')
+                var index=$('#apply_dat').datagrid('getRowIndex',row)
+                $('#apply_dat').datagrid('beginEdit',index);
+            }
+        }
+
+
+
+
+        $('#e_edit').bind('click',eedit)
+        $('#admin_edit').bind('click',eedit);
+
+
+
+        function edel(){
+            $.messager.confirm('提示','您确定要删除吗',function(cc){
+                if(cc){
+                    var rowlist=$('#apply_dat').datagrid('getSelections')
+
+                    ajiakesi('__URL__/total_delete2/hasJon/1',{bind:rowlist},function(c){
+                        $.messager.alert('提示',c)
+                        gongzuol_dat.datagrid('load',{'Sqlpath':{'select':'Workload/New_total_select.SQL','count':'Workload/New_total_count.SQL'},'bind':{
+                            ':COURSENO':$('[name=courseno]').val(),':CLASSNO':$('[name=classno]').val(),
+                            ':TEACHERNO':$.trim($('[name=teacherno]').val()),':CODE':$.trim($('[name=workload_type]').val()),':SCHOOL':$('[name=SCHOOL]').val()
+                        }})
+                    })
+                }
+            })
+
+        }
+
+        $('#e_del').bind('click',edel);
+
+
+        $('#e_back').bind('click',function(){
+            $('#apply_dat').datagrid('rejectChanges');
+        })
+
+    })
+
+
+    //todo:保留小数点
+    function formatFloat(src, pos){
+        return Math.round(src*Math.pow(10, pos))/Math.pow(10, pos);
+
+    }
+
+
+</script>
+<style>
+    #apply_info td{border:1px #95B8E7 solid;
+    }
+    #aplly_Details td{border:1px #95B8E7 solid;height:20px
+    }
+    #apply_info input{height:23px;vertical-align:middle;}
+    .bt{height:35px;width:70px;background-color:#E0ECFF;border:1px #95B8E7 solid; }
+    #zhuyao{width:90%;height:120%;resize: none;background:transparent;border-style:none;}
+</style>
+<!--todo: 进来的默认页面-->
+<body >
+<div id="cc" class="easyui-layout" data-options="fit:true,border:false">
+  <!--  <div data-options="region:'north',title:'',border:false,split:false" style="height:62px;background-color: #E0ECFF">
+
+    </div>-->
+    <div id="tdemo">
+                    <b>班号:</b>
+                    <input type="text" name="classno" size="10" value="%">
+                    &nbsp
+                    <b>课号:</b>
+                    <input type="text" name="courseno" size="10" value="%">
+                    &nbsp
+                    <b>教师号:</b>
+                    <input type="text" name="teacherno" size="10" value="%">
+                    &nbsp
+                    <b>工作量类型:</b>
+                    <select name="workload_type" class="easyui-combobox">
+                        <option value="%">全部</option>
+                        <volist name="workloadtype" id="w">
+                            <option value="{$w.worktype_code}">{$w.worktype_code}{$w.worktype_name}</option>
+                        </volist>
+                    </select>
+
+                    <b>开课学部:</b>
+                    <select name="SCHOOL" class="easyui-combobox">
+                        <option value="%">全部</option>
+                        <volist name="schools" id="s">
+                            <option value="{$s.SCHOOL}">{$s.NAME}</option>
+                        </volist>
+                    </select>
+                    <a href="javascript:void(0)" id="ss" class="easyui-linkbutton">搜索</a>
+<!--        <br>
+
+          对符合检索条件的数据批量修改标准班人数：<input type="text" name="bzb_number" size="7" >
+        <a href="javascript:void(0)" id="xiugai_bzb" class="easyui-linkbutton">设定</a>-->
+
+            <br>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-save"  id="e_save" plain=true>保存</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit"  id="e_edit" plain=true>编辑</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-back"  id="e_back" plain=true>取消编辑</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-stop"  id="e_del" plain=true>删除</a>
+        <a href="javascript:void(0)" id="wc" class="easyui-linkbutton" plain=true iconCls="icon-cut">总量核定完成提交分院分解</a>
+        <a href="javascript:void(0)" id="ttype" class="easyui-linkbutton">将选中课程设置为:</a>
+        <select id="type">
+            <volist name="workcoursetype" id="c">
+            <option value="{$c.type}">{$c.name}</option>
+            </volist>
+        </select>
+
+    </div>
+    <div data-options="region:'center',title:'',split:false,inline:true,border:false" >
+
+
+                <table id="apply_dat"  class="easyui-datagrid"
+                       data-options="url:'__APP__/Status/Status/Squery/hasJson/1',fit:true,pagination:true,toolbar:'#tdemo',border:false,pageList:[20,50,100]">
+                    <thead frozen="true">
+                    <tr>
+                        <th data-options="checkbox:true">选中</th>
+                        <th align="center" data-options="field:'Courseno',width:70">课号</th>
+                        <th align="center" data-options="field:'Coursename',width:300">课名</th>
+
+                    </tr>
+                    </thead>
+                    <thead>
+                    <tr>
+
+                        <th align="center" data-options="field:'Standard',width:60">标准班</th>
+                        <th align="center" data-options="field:'code',width:60">教学代码</th>
+                        <th align="center" data-options="field:'work',width:60">工作量</th>
+                        <th align="center" data-options="field:'Attendent',editor:{type:'text'},width:60,formatter:function(a,b,c){
+                                    if(a==''){
+                                        return 0;
+                                    }else{
+                                        return a;
+                                    }
+                                }">实际人数</th>
+                        <th align="center" data-options="field:'W_number',width:60,editor:{type:'text'}">周数</th>
+                        <th align="center" data-options="field:'xkl2',width:100,formatter:function(a,b,c){
+                          if($.trim(b.code)=='M1'){
+                                    if(b.Attendent==''||b.Attendent==0){
+                                    return 0;
+                                    }
+                                    return Math.round((1+(b.Attendent-b.Standard)/b.Attendent)*100)/100
+                                }else{
+                                    return ' '
+                                }
+
+
+
+                        }">班型系数</th>
+
+                        <th align="center" data-options="field:'jiaozhengxishu',width:60">校正系数</th>
+                        <th align="center" data-options="field:'total',width:60">总课时</th>
+                        <th align="center" data-options="field:'mzks',width:100,formatter:function(a,b,c){
+
+                                if(typeof a!='string'){
+                                    return 0.0
+                                }else{
+                                    return a
+                                }
+                            }">每周课时</th>
+                        <th align="center" data-options="field:'credit',width:40">学分</th>
+                        <th align="center" data-options="field:'xklx',width:60">修课</th>
+                        <th align="center" data-options="field:'kclx',width:60">类型</th>
+                        <th align="center" data-options="field:'Estimate',width:60,align:'right'">预计人数</th>
+                        <th align="center" data-options="field:'classname',width:200">上课班级</th>
+                        <th align="center" data-options="field:'teachername',width:100">教师姓名</th>
+                    </tr>
+                    </thead>
+                </table>
+
+            </div>
+
+    </div>
+</div>
+</body>
+</html>
+
+<!--
+,formatter:function(a,b,c){
+
+if(($.trim(b.xklx)=='必修'||$.trim(b.xklx)=='模块')&&(1+(b.Attendent-b.Standard)/b.Attendent)<1){
+return 1
+}else if([1+(b.Attendent-b.Standard)/b.Attendent]<0.9){
+
+return 0.9
+
+}else if([1+(b.Attendent-b.Standard)/b.Attendent]>1.6){
+return 1.6
+}else{
+return Math.round([1+(b.Attendent-b.Standard)/b.Attendent]*100)/100
+}
+}-->

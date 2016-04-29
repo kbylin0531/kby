@@ -1,0 +1,96 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script src="__ROOT__/thirdparty/jquery/js/ExtSearcher.js"></script>
+<script src="__ROOT__/thirdparty/jquery/js/modules/results.js"></script>
+<script>
+    var school='{$school}';
+    var teacherno='{$teacherno}';
+
+    $(function(){
+        var year_input = $("#year_input");
+        var term_input = $("#term_input");
+        var school_input = $("#school_input");
+        var dgrid = $("#dgrid");
+        var searchform = $("#searchform");
+        school_input.val(school);
+        year_input.val(GenKits.getParentYear());
+        term_input.val(GenKits.getParentTerm());
+
+        new ExtSearcher('__APP__/Common/Provider/seacher',['grade','school']).start();
+
+        //查询
+        $('#search_one').click(function(){
+            dgrid.datagrid('load',{_PARAMS_:searchform.serialize()});
+        });
+
+        var loadCourse = function (type) {
+            if(Datagrid.selectSingle(dgrid)){
+                var row = Datagrid.getSelected(dgrid);
+//                if(parseInt(row.lock) > 0){
+//                    return Messager.showWarning("课程已经锁定！");
+//                }
+                open('__URL__/'+type+'/year/'+year_input.val()+'/term/'+term_input.val()
+                        +'/coursegroup/'+row.courseno+'/scoretype/'+row['score_type']);
+            }
+        };
+
+        //开启补考成绩输入界面
+        $('#openinputpageMidterm').bind('click',function(){ loadCourse('pageMidtermInput'); });
+        $('#openinputpageFinals').bind('click',function(){ loadCourse('pageFinalsInput'); });
+        $('#openinputpageResit').bind('click',function(){ loadCourse('pageResitInputNV'); });
+    });
+</script>
+<body style="background: #fff">
+    <div class="easyui-layout" data-options="fit:true">
+        <div id="tdemo">
+            <form id="searchform">
+                <label for="year_input">学年:</label><input name="year" size='4' id="year_input" class="ES_YEAR s" value="2015" />
+                <label for="term_input">学期:</label><input name="term" size='1' id="term_input" class="ES_TERM s" value="1" />
+                <label for="ES_GRADE">年级:</label><select name="grade" id="ES_GRADE" class="ES_GRADE s"></select>
+                <label for="school_input">学部:</label><select name="schoolno" id="school_input" class="ES_SCHOOL s"></select>
+                <label for="ES_CLASS">班级:</label><select name="classno" id="ES_CLASS" class="ES_CLASS s"></select>
+                <label for="teacherno_input">教师名称:</label><input size="5" name="teachername" value="%" id="teacherno_input" />
+                <label for="courseno_input">课程名称:</label><input size="5" name="coursename" value="%" id="courseno_input" />
+
+                <a id="search_one" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+
+                <a href="javascript:void(0);" id="openinputpageMidterm" class="easyui-linkbutton"
+                   data-options="iconCls:'icon-edit',plain:true">期中成绩输入</a>
+                <a href="javascript:void(0);" id="openinputpageFinals" class="easyui-linkbutton"
+                   data-options="iconCls:'icon-edit',plain:true">期末成绩输入</a>
+                <a href="javascript:void(0);" id="openinputpageResit" class="easyui-linkbutton"
+                   data-options="iconCls:'icon-edit',plain:true">补考成绩输入</a>
+            </form>
+        </div>
+
+        <div data-options="region:'center',border:false,split:false" style="padding:0;background:#eee;">
+            <table class="easyui-datagrid" id="dgrid"
+                   data-options="url:'__URL__/pageResitSelect/reqtag/getlist',fitColumns:true,pageList:[20,50,100,200,500],fit:true,singleSelect:true,pagination:true,toolbar:'#tdemo'">
+                <thead>
+                    <tr>
+                        <th data-options="field:'courseno',width:100" align="center">课号</th>
+                        <th data-options="field:'coursename',width:100" align="center">课程名称</th>
+                        <th data-options="field:'teachername',width:100" align="center">任课教师</th>
+                        <th data-options="field:'schoolname',width:100" align="center">课程所属学部</th>
+                        <th data-options="field:'schoolno',width:100,hidden:true" align="center">学部编号</th>
+                        <th data-options="field:'score_type',width:100,formatter:scoreTypeFormatter" align="center">分制</th>
+                        <th data-options="field:'num',width:100" align="center">选课人数</th>
+                        <th  align="center" data-options="field:'midterm_lock',width:100">期中锁定人数</th>
+                        <th  align="center" data-options="field:'finals_lock',width:100">期末锁定人数</th>
+                        <th  align="center" data-options="field:'resit_lock',width:100">补考锁定人数</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+
+
+</body>
+
+
+
+
+
+
+

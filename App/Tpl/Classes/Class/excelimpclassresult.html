@@ -1,0 +1,38 @@
+<include file=":Include:jqueryHeader" />
+
+<body style="background: #FFFFFF">
+    
+
+
+<div>成功导入{$succount}条记录</div>
+<div>以下{$failcount}条记录由于多种原因没有成功导入</div>
+<table>
+<tr>
+<th>在excel中所在的行号</th>
+<th>在excel中的旧班号</th>
+<th>在excel中的新班号</th>
+<th>在excel中的班级名称</th>
+<th>原因</th>
+</tr>
+
+<volist name="result" id="iresult">
+<tr>
+<td>{$iresult.row}</td>
+<td>{$iresult.priclassno}</td>
+<td>{$iresult.classno}</td>
+<td>{$iresult.classname}</td>
+<td>{$iresult.content}</td>
+</tr>
+</volist>
+
+</table>
+
+<div align=center>
+<input onclick="history.back();" type="button" value="返回" />
+</div>
+
+</body>
+
+
+</html>
+

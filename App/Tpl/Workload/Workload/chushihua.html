@@ -1,0 +1,40 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script>
+    $(function(){
+        $('#csh').bind('click',function(){
+            $.messager.confirm('提示','您确定要初始化数据吗？',function(aa){
+                 if(aa){
+                    ajiakesi('__URL__/chushihua/hasJson/1',{':year':parent.$('#YEAR').val(),':term':parent.$('#TERM').val()},function(c){
+                        $.messager.alert('提示',c)
+                    })
+                 }
+
+            }
+            )
+        })
+
+                $('#zrx').bind('click',function(){
+                    $.messager.confirm('提示','您确定要载入没有初始化过的课程吗？',function(aa){
+                                if(aa){
+                                    ajiakesi('__URL__/zairuxin/hasJson/1',{':year':parent.$('#YEAR').val(),':term':parent.$('#TERM').val()},function(c){
+                                        $.messager.alert('提示',c)
+                                    })
+                                }
+
+                            }
+                    )
+                })
+
+            }
+    )
+</script>
+<body style="background: #fff">
+<div >
+    备注:初始化会先把工作量未存档的数据清空,然后再将指定学年学期要计算的课程导入.<br>
+    <a href="javascript:void(0)" id="csh" class="easyui-linkbutton">初始化数据</a><br><br>
+
+    备注:会载指定学年学期未初始化过的课程<br>
+    <a href="javascript:void(0)" id="zrx" class="easyui-linkbutton">载入新课程</a>
+</div>
+</body>

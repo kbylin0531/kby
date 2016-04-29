@@ -1,0 +1,190 @@
+<include file=":Include:jqueryHeader" xmlns="http://www.w3.org/1999/html"/>
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script>
+    var year='{$shuju.YEAR}'
+    var term='{$shuju.TERM}'
+    var courseno='{$shuju.COURSENO}'
+    var kaoshiriqi=''                       //todo:考试日期
+    var R1='{$shuju.R1}'
+    var qhw={q:'缺考',h:'缓考',w:'违纪'}
+    var wuji={1:'优秀',2:'良好',3:'中等',4:'及格',5:'不及格'}                                //todo:五级制
+
+    var lock=0;             //todo:锁
+
+    $(function(){
+        $('#demo').datagrid({
+            onDblClickRow:function(index,data){
+                  var row=$('#demo').datagrid('getSelected')
+                  $('#demo').datagrid('beginEdit',$("#demo").datagrid('getRowIndex',row))
+            }
+
+        })
+
+
+
+                ajiakesi('__URL__/Three_BKCJSR_StudentList/hasJson/1',{'Sqlpath':{'select':'Results/Three_one_two_StudentList_select.SQL',
+                    'count':'Results/Three_one_two_StudentList_count.SQL'
+                },'bind':{':year':year,':term':term,':courseno':courseno}},function(c){
+
+                    $('#demo').datagrid('loadData',c)
+                    if(lock){
+                        $.messager.alert('提示',"课程已被锁定，请先联系开课学院开放。\n开放后请务必刷新本页面，否则无法提交。")
+                    }
+                })
+
+
+      /*  update scores
+        set examscore2=:examscore,testscore2=:testscore
+        from scores inner join makeup on makeup.courseno=scores.courseno and scores.year=makeup.year
+        and scores.term=makeup.term and scores.studentno=makeup.studentno
+        where scores.RECNO=:recno and makeup.lock=0;
+        update makeup
+        set lock=1,edate=:edate,date=getdate()
+        where courseno=:courseno and year=:year and term=:term AND STUDENTNO=:studentno*/
+
+
+
+        //todo:最终提交
+        $('#sub').bind('click',function(){
+             $('#demo').datagrid('rejectChanges');
+            var rowList=$('#demo').datagrid('getRows');
+            ajiakesi('__URL__/Three_two_sub',{':ID':'EXE','exe':'Results/Three_two_daying_sub.SQL','bind':{
+                    'rows':rowList,
+                    'Sqlpath':'Three_two_daying_sub.SQL'
+                },'year':year,
+                'term':term,
+                'kaoshiriqi':kaoshiriqi,
+                'courseno':courseno},function(c){
+
+                $.messager.alert('提示',c)
+            })
+
+        })
+
+
+        //todo:打印成绩单
+        $('#daying').bind('click',function(){
+            window.open('__URL__/Four_one_daying_youbian/YEAR/'+year+'/TERM/'+term+'/COURSENO/'+courseno)
+        })
+
+
+
+
+    })
+</script>
+<body style="overflow-y:scroll;margin:0px;padding: 0px;background-color: #fff">
+<div class="easyui-panel" title=""
+     data-options="iconCls:'icon-save',closable:false,closed:false,
+                collapsible:false,minimizable:false,maximizable:false,height:1050,border:false" style="margin:0px;padding: 0px">
+<div id="cc" class="easyui-layout" data-options="fit:true">
+    <div data-options="region:'north',split:false,border:false" style="height:260px;">
+        <p align="center"><font size="5" face="隶书" color="#0000FF">__SCHOOLNAME__<SPAN datasrc="#dsoCOURSE" datafld=year>{$TT.year}</SPAN>--<SPAN datasrc="#dsoCOURSE" datafld=year2>{$TT.year2}</SPAN>学年第<SPAN datasrc="#dsoCOURSE" datafld=term>{$TT.term}</SPAN>学期学期初补考成绩输入单</font></p>
+        <p align="center" style="line-height: 5%"><font face="宋体" color="#0000FF" size="2">
+            课号：<SPAN STYLE="font-size:10pt"  datasrc="#dsoCOURSE" datafld="课号">{$TT.kh}</SPAN>
+            &nbsp;课名:<SPAN STYLE="font-size:10pt" datasrc="#dsoCOURSE" datafld="课程名称">{$TT.km}</SPAN>
+            &nbsp;开课学院:<SPAN STYLE="font-size:10pt" datasrc="#dsoCOURSE" datafld="开课学院">{$TT.kkxy}</SPAN>
+            &nbsp;选课人数:<LABEL datasrc="#dsoCOURSE" datafld="xkrs">{$TT.xkrs}</LABEL></font>
+        </p>
+        <p style="line-height: 150%; word-spacing: 0; margin-top: 0; margin-bottom: 0" align="left"><font face="宋体" color="#0000ff" size="2">说明：1、平时、期末成绩</font><font face="宋体" color="#FF0000" size="2">必须使用相同的计分制</font><font face="宋体" color="#0000ff" size="2">，总评成绩由电脑根据平时成绩所占比例自动计算；</font></p>
+        <p style="line-height: 150%; word-spacing: 0; margin-top: 0; margin-bottom: 0" align="left"><font face="宋体" color="#0000ff" size="2">2、百分制输入时平时成绩数值在0-100之间，期末成绩0-100之间或者使用字母（q、h、w)；</font></p>
+        <p style="line-height: 150%; word-spacing: 0; margin-top: 0; margin-bottom: 0" align="left"><font face="宋体" color="#0000ff" size="2">3、五级制输入时平时成绩数值在1-5之间，期末成绩1-5之间或者使用字母（q、h、w)，数字对应成绩如下：</font><font face="宋体" color="#FF0000" size="2">1-优秀，2-良好，3-中等，4-及格，5-不及格</font><font face="宋体" color="#0000ff" size="2">；</font></p>
+        <p style="line-height: 150%; word-spacing: 0; margin-top: 0; margin-bottom: 0" align="left"><font face="宋体" color="#0000ff" size="2">4、二级制输入时仅输入期末成绩，数值0-1或者使用字母（q、h、w)，</font><font face="宋体" color="#FF0000" size="2">1-合格，0-不合格</font><font face="宋体" color="#0000ff" size="2">；</font></p>
+        <p style="line-height: 150%; word-spacing: 0; margin-top: 0; margin-bottom: 0" align="left"><font color="#0000ff" size="2">5、</font><font face="宋体" color="#0000ff" size="2">字母对应字符如下:
+        </font><font color="#FF0000"><font face="宋体" size="2"> q-</font><font face="宋体" size="2">缺考，</font><font face="宋体" size="2">h-缓考，w-违纪</font></font><font face="宋体" color="#ff0000" size="2">
+        </font><font face="宋体" color="#0000ff" size="2">；</font></p>
+        <p style="line-height: 150%; word-spacing: 0; margin-top: 0; margin-bottom: 0" align="left"><font face="宋体" color="#0000ff" size="2">6、如期末考核缺考，则总评成绩记为缺考，缓考者在成绩单课程状态中注明。</font></p>
+        <p style="line-height: 150%; word-spacing: 0; margin-top: 0; margin-bottom: 0" align="left"><font face="宋体" color="#0000ff" size="2">7、按Tab键移动光标到下一个输入框，</font><font face="宋体" color="#FF0000" size="2">如有“平时成绩”，必须首先输入，然后输入“期末成绩”，否则程序将无法正常计算总评成绩。</font></p>
+        <p style="line-height: 150%; word-spacing: 0; margin-top: 0; margin-bottom: 0" align="left"><font face="宋体" color="#0000ff" size="2">8、本课程总评成绩中平时成绩所占比例&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <!--webbot bot="Validation" s-data-type="Number" s-number-separators=",." -->
+            <input type="text" id="BiLi" name="BiLi" size="3" onblur="return BiLiCheck()" tabindex="1" value="0" readonly>%，一般平时所占比例在20%-40%之间。
+        </font></p>
+        <p style="line-height: 150%; word-spacing: 0; margin-top: 0; margin-bottom: 0" align="left"><font face="宋体" color="#0000ff" size="2">9、本课程考试日期为：</font><font face="宋体" color="#0000ff" size="2"><input type="text" id="RiQi" name="RiQi" size="10" onchange="return RiQiCheck()" tabindex="1">（格式为：2006-07-03）<br>
+        </font></p>
+    </div>
+
+    <div data-options="region:'center'" style="padding:0px;background:#eee;">
+        <table class="easyui-datagrid" id="demo"
+               data-options="fitColumns:true,singleSelect:true,border:false,pagination:true,fit:true,toolbar:[{
+                text:'保存成绩',
+                iconCls:'icon-save',
+                handler:function(){
+
+                 var row=$('#demo').datagrid('getSelected')
+                    var index=$('#demo').datagrid('getRowIndex',row);
+
+                    var hang=$('#demo').datagrid('getRows')[$('#demo').datagrid('getRowIndex',row)]
+
+                    var ceshi=$('#demo').datagrid('getEditors',index)
+
+                    if(ceshi[0].target.val()=='q'||ceshi[0].target.val()=='h'||ceshi[0].target.val()=='w'){
+                                 $(ceshi[0].target).val(qhw[ceshi[0].target.val()]);
+                                 $(ceshi[1].target).val(0);
+
+                                   $('#demo').datagrid('endEdit',index)
+                    return
+
+                    }
+                   else if(R1=='ten'){
+
+                    if(isNaN(parseInt(ceshi[0].target.val()))||parseInt(ceshi[0].target.val())<0||parseInt(ceshi[0].target.val())>100){
+                        return $.messager.alert('提示','百分制请输入0-100的数字')
+                       }
+
+                   }else if(R1=='five'){        //todo:五年制
+                            $(ceshi[0].target).val(wuji[ceshi[0].target.val()]);
+                            $(ceshi[1].target).val(wuji[ceshi[0].target.val()]);
+                        if(ceshi[0].target.val()>5||ceshi[0].target.val()<1){
+
+
+                            return $.messager.alert('提示','五年制输入成绩1-5之间或者 使用字母(q、h、w)')
+                        }
+
+                  }
+
+
+
+
+
+                    $(ceshi[1].target).val(ceshi[0].target.val());
+                    $('#demo').datagrid('endEdit',index)
+
+                    $('#demo').datagrid('acceptChanges')
+
+                }}
+               ]">
+            <thead>
+            <tr>
+                <th data-options="field:'xh',width:100,align:'center',formatter:function(a,b,c){
+                     kaoshiriqi=b.ksrq
+                     $('#RiQi').val(kaoshiriqi)
+                     return a;
+
+                }">学号</th>
+                <th data-options="field:'xm',width:100,align:'center'">姓名</th>
+                <th data-options="field:'pscj',width:100,align:'center'">平时</th>
+                <th data-options="field:'qmcj',width:100,align:'center',editor:{type:'text'}">期末</th>
+                <th data-options="field:'zpcj',width:100,align:'center',editor:{type:'text'}">总评</th>
+                <th data-options="field:'lock',width:100,align:'center',hidden:true,formatter:function(a,b,c){
+                    if(a){
+                        $('#sub').html('课程已被锁定')
+                        $('#sub').attr('disabled',true)
+                        lock=1
+                    }
+                }">锁</th>
+
+            </tr>
+            </thead>
+        </table>
+    </div>
+    <style>
+        #sub,#daying{width:100px;height:35px;background-color: #cccccc}
+    </style>
+    <div data-options="region:'south',split:false,border:false" style="height:50px;">
+        <center>
+            <button id="sub">最终提交</button>&nbsp&nbsp&nbsp&nbsp&nbsp
+            <button id="daying">打印成绩单</button>
+        </center>
+    </div>
+</div>
+</div>
+</body>

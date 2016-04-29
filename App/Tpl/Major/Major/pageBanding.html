@@ -1,0 +1,65 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/ExtSearcher.js"></script>
+<script>
+    $(function(){
+        var dgrid = $("#dgrid");
+        $("#year").val(GenKits.getParentYear());
+        $("#term").val(GenKits.getParentTerm());
+
+        new ExtSearcher('__APP__/Common/Provider/seacher', ['grade','major','majoritem'], 's').start();
+
+        function reload(){
+            dgrid.datagrid('load',{'_PARAMS_':$("#form").serialize()});
+        }
+
+        $('#search_one').bind('click',reload);
+
+        $('#bind').click(function () {
+            $.post('__URL__/pageBanding/reqtag/bind',{'_PARAMS_':$("#form").serialize()}, function (data) {
+                return Messager.show(data,reload);
+            });
+        });
+
+    });
+</script>
+<body>
+
+<div id="cc" class="easyui-layout" data-options="fit:true,border:false">
+    <div id="tdemo">
+        <form id="form">
+
+            <label for="ES_GRADE">年级:</label><select name="grade" id="ES_GRADE" class="ES_GRADE s"></select>
+            <label for="ES_SCHOOL">学部:</label><select name="school" id="ES_SCHOOL" class="ES_SCHOOL s"></select>
+            <label for="ES_CLASS">班级:</label><select name="classno" id="ES_CLASS" class="ES_CLASS s"></select>
+            <label for="ES_STUDENT">学生:</label><select name="studentno" id="ES_STUDENT" class="ES_STUDENT s"></select>
+            <a id="search_one" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+
+            <br />
+
+            <label for="ES_MAJOR">专业:</label><select name="majorno" id="ES_MAJOR" class="ES_MAJOR s"></select>
+            <label for="ES_MAJORITEM">专业方向:</label><select name="majoritemno" id="ES_MAJORITEM" class="ES_MAJORITEM s"></select>
+            <a id="bind" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true">绑定到查询到的所有学生</a>
+
+        </form>
+    </div>
+    <div data-options="region:'center',border:false" style="padding:0;background:#eee;">
+        <div id="wd_TWO" data-options="inline:true" title="">
+        </div>
+        <table class="easyui-datagrid" id="dgrid"
+               data-options="url:'__URL__/pageBanding/reqtag/getlist',pageList:[20,50,100,200,500],fitColumns:true,toolbar:'#tdemo',singleSelect:true,fit:true,pagination:true">
+            <thead>
+            <tr>
+                <th data-options="field:'studentno',width:100,align:'right'" align="center">学号</th>
+                <th data-options="field:'studentname',width:100,align:'right'" align="center">姓名</th>
+                <th data-options="field:'classname',width:100,align:'right'" align="center">班级</th>
+                <th data-options="field:'schoolname',width:100,align:'right'" align="center">学部</th>
+                <th data-options="field:'sexname',width:100,align:'right'" align="center">性别</th>
+
+                <th data-options="field:'majorname',width:100,align:'right'" align="center">专业</th>
+                <th data-options="field:'classnature',width:100,align:'right'" align="center">专业方向</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+</body>

@@ -1,0 +1,204 @@
+<include file=":Include:jqueryHeader"/>
+<script src="__ROOT__/thirdparty/jquery/js/ExtSearcher.js"></script>
+<SCRIPT>
+    $(function () {
+
+        new ExtSearcher('__APP__/Common/Provider/seacher', ['grade'], 's').start();
+
+
+        var student_grid = $("#datgrid");
+        var person_grid = $("#datgrid2");
+        var queryForm = $("#queryForm");
+
+        function loadStudents(){
+            student_grid.datagrid('load',{_PARAMS_:queryForm.serialize()});
+            $('#w_one').panel({closed: false});
+            $('#w_two').panel({closed: true});
+        }
+
+        function loadPersons(){
+            person_grid.datagrid('load',{_PARAMS_:queryForm.serialize()});
+            $('#w_one').panel({closed: true});
+            $('#w_two').panel({closed: false});
+        }
+
+        function exportStudents(){
+            open('__URL__/StatusRegGate/reqtag/exports?'+queryForm.serialize());
+        }
+
+        $('#searchStudents').bind('click', loadStudents);
+        $('#searchPerson').bind('click', loadPersons);
+
+
+        function openRegisterPage(studentno){
+            openTabsWindows('学生注册', '__URL__/xueshengzhuce/studentno/' + studentno, '', true)
+        }
+
+        function lookInfo(datagrid){
+            if(Datagrid.selectSingle(datagrid)){
+                var obj = datagrid.datagrid('getSelected');
+                openRegisterPage(obj.studentno);
+            }
+        }
+
+        var dat = student_grid.datagrid({
+            onRowContextMenu: function (e, rowindex) {
+                dat.datagrid('rejectChanges');
+                var tt = $('#datgrid');
+                e.preventDefault();  //该方法将通知 Web 浏览器不要执行与事件关联的默认动作（如果存在这样的动作）
+                tt.datagrid('selectRow', rowindex);
+                $('#menu').menu('show', {
+                    left: e.pageX,
+                    top: e.pageY
+                });
+            },
+            toolbar: [{
+                    text: '刷新',
+                    iconCls: 'icon-reload',
+                    handler: loadStudents
+                }, '-', {
+                    text: '查看学生个人信息',
+                    iconCls: 'icon-personal',
+                    handler: function () {
+                        lookInfo(student_grid);
+                    }
+                }, '-', {
+                    text: '导出',
+                    iconCls: 'icon-excel',
+                    handler: exportStudents
+                }, '-', {
+                    text: 'excel导入',
+                    iconCls: 'icon-ok',
+                    handler: function () {
+                        openTabsWindows("学籍信息excel导入", "__URL__/excelimpstatusedit");
+                    }
+                }
+            ]
+        });
+
+        person_grid.datagrid({
+            striped: true,
+            onRowContextMenu: function (e, rowindex) {
+                person_grid.datagrid('rejectChanges');
+                var tt = $('#datgrid2');
+                e.preventDefault();  //该方法将通知 Web 浏览器不要执行与事件关联的默认动作（如果存在这样的动作）
+                tt.datagrid('selectRow', rowindex);
+                $('#menu2').menu('show', {
+                    left: e.pageX,
+                    top: e.pageY
+                });
+            },
+            pagination: true,
+            pageList: [10, 20, 30, 40, 50],
+            pageSize: 30,
+            toolbar: [{
+                text: '刷新',
+                iconCls: 'icon-reload',
+                handler: loadPersons
+            }, '-', {
+                text: '查看学生个人信息',
+                iconCls: 'icon-personal',
+                handler: function () {
+                    lookInfo(person_grid);
+                }
+            }
+            ]
+        });
+
+        //右键菜单操作
+        var addregister = function (datagrid) {
+            var row = Datagrid.getSelected(datagrid);
+            openNewTabsWindows('学籍异动记录路添加','__APP__/Status/Status/addxuejiyidong/studentno/'+row.studentno);
+        };
+        $("#addregister").click(function () {
+            addregister(student_grid);
+        });
+        $("#addregister2").click(function () {
+            addregister(person_grid);
+        });
+    });
+
+</SCRIPT>
+
+<div id='cc' class="easyui-layout" data-options="border:false,fit:true" style="display: block">
+
+    <div id="menu" class="easyui-menu" style="width:150px;">
+        <div id="addregister">添加异动记录</div>
+    </div>
+    <div id="menu2" class="easyui-menu" style="width:150px;">
+        <div id="addregister2">添加异动记录</div>
+    </div>
+
+    <div data-options="region:'north',split:false,border:false" style="background:rgb(244, 244, 244)">
+        <form id="queryForm" method="post">
+            <label for="ES_GRADE">年级:</label><select name="grade" id="ES_GRADE" class="ES_GRADE s"></select>
+            <label for="ES_SCHOOL">学部:</label><select name="school" id="ES_SCHOOL" class="ES_SCHOOL s"></select>
+            <label for="ES_CLASS">班级:</label><select name="classno" id="ES_CLASS" class="ES_CLASS s"></select>
+            学号：<input type="text" name="studentno" id="STUDENTNO" size="9" maxlength="9" value="%">
+            学生姓名：<input type="text" name="studentname" id='NAME' size="10" maxlength="20" value="%">
+            <!--学籍状态：<select size="1" name="status" id="STATUS">-->
+            <!--<option selected value="%">所有情况</option>-->
+            <!--<volist name="statusoptions" id="v">-->
+                <!--<option value="{$v.NAME}">{$v.VALUE}</option>-->
+            <!--</volist>-->
+        <!--</select>-->
+            <script>
+                $(function () {
+                    $('#SCHOOL').val('%');
+                });
+            </script>
+            <a href="javascript:void(0)" style="margin-top: 5px;" name="B1" id="searchStudents" class="easyui-linkbutton">检索学籍情况</a>&nbsp;
+            <a href="javascript:void(0)" style="margin-top: 5px;" name="B2" id="searchPerson" class="easyui-linkbutton">检索学生个人情况</a>
+        </form>
+
+        <input type="hidden" name=page value="1">
+        <input type="hidden" name=pagename value="StatusListTemplate_ByClassNo.htm">
+
+    </div>
+    <div data-options="region:'center',border:false" style=";background:#eee;">
+        <div id="w_one" class="easyui-panel" title=""
+             data-options="iconCls:'icon-save',closable:false,fit:true,closed:false,border:false,
+                collapsible:false,minimizable:false,maximizable:false">
+            <table class="easyui-datagrid" id="datgrid"
+                   data-options="url:'__URL__/StatusRegGate/reqtag/getlist',pageList:[20,50,100,200,500],fitColumns:true,toolbar:'#tdemo',singleSelect:true,fit:true,pagination:true">
+                <thead>
+                    <tr>
+                        <th data-options="field:'studentno',width:100,align:'right'" align="center">学号</th>
+                        <th data-options="field:'studentname',width:100,align:'right'" align="center">姓名</th>
+                        <th data-options="field:'sexname',width:100,align:'right'" align="center">性别</th>
+                        <th data-options="field:'classname',width:100,align:'right'" align="center">班级</th>
+
+                        <th data-options="field:'status',width:100,align:'right'" align="center">学籍状态</th>
+                        <th data-options="field:'warn',width:100,align:'right'" align="center">退学警告次数</th>
+                        <th data-options="field:'taken',width:100,align:'right'" align="center">选课学分</th>
+                        <th data-options="field:'passed',width:100,align:'right'" align="center">完成学分</th>
+                        <th data-options="field:'schoolname',width:100,align:'right'" align="center">所在学部</th>
+                    </tr>
+
+                </thead>
+            </table>
+
+        </div>
+        <div id="w_two" class="easyui-panel" title=""
+             data-options="iconCls:'icon-save',closable:false,fit:true,closed:true,border:false,
+                collapsible:false,minimizable:false,maximizable:false">
+            <table class="easyui-datagrid" id="datgrid2"
+                   data-options="url:'__URL__/StatusRegGate/reqtag/getplist',pageList:[20,50,100,200,500],fitColumns:true,toolbar:'#tdemo',singleSelect:true,fit:true,pagination:true">
+                <thead>
+                    <tr>
+                        <th data-options="field:'studentno',width:100,align:'right'" align="center">学号</th>
+                        <th data-options="field:'studentname',width:100,align:'right'" align="center">姓名</th>
+                        <th data-options="field:'grade',width:100,align:'right'" align="center">年级</th>
+                        <th data-options="field:'majorname',width:100,align:'right'" align="center">专业</th>
+                        <th data-options="field:'majoritemname',width:100,align:'right'" align="center">专业方向</th>
+
+                        <th data-options="field:'birthday',width:100,align:'right'" align="center">出生日期</th>
+                        <th data-options="field:'nationality',width:100,align:'right'" align="center">民族</th>
+                        <th data-options="field:'party',width:100,align:'right'" align="center">政治面貌</th>
+                        <th data-options="field:'telephone',width:100,align:'right'" align="center">联系电话</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>

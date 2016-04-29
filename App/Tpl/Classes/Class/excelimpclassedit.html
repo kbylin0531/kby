@@ -1,0 +1,96 @@
+<include file=":Include:jqueryHeader" />
+<script type="text/javascript" src='__ROOT__/thirdparty/jquery/js/taskMonitor.js'></script>
+
+<body style="background: #FFFFFF">
+    <div id="content" title="" data-options="closable:false,collapsible:false">
+	  <form action="__URL__/excelimpclasssave" id="form_edit" name="form_edit" enctype="multipart/form-data" method="post" target="sysc_hiddenIframe" >
+		<table align="center" border="0"style="margin-top: 50px">
+		 
+		 
+		 <tr height="50">
+		   <th align="right" width="18%">excel导入文件路径：</th>
+		   <td width="30%">
+		   
+		   
+		   <input type="file" id="afile" name="afile" size="40"  />
+		   
+		   
+		   <font color="red">*</font></td>		   
+		 </tr>
+		 <tr height="50">
+		   <th align="right" width="22%">excel导入模板下载：</th>
+		   <td>
+		   
+		   
+      <a href="/res/templates/classes_class_import.xls" title="excel导入模板下载" style="color:#FF0000;" >
+        <img src='/res/img/excel.gif' border="0">班级信息excel导入模板.xls
+      </a>
+		   
+		   
+		   </td>
+		 </tr>
+
+		 <tr style="height: 50px">
+		   <td align="center" colspan="2"><a href="javascript:void(0)" id="btnSave">确&nbsp;认</a></td>
+		 </tr>
+		</table>
+	  </form>
+	</div>
+	
+<iframe name="sysc_hiddenIframe" frameborder="0"  border="0" style="display:none;width:0px;height:0px;"></iframe>	
+	
+</body>
+
+<script type="text/javascript">
+$(function(){
+	//按钮样式设置
+	$('#btnSave').linkbutton({iconCls: 'icon-ok'});
+	
+	//提交及验证教师信息
+	$("#btnSave").click(function(){
+		var bool = true;		
+		
+		var reg = /^.*\.(?:xls|xlsx)$/;		
+		
+		if(!check($("[name='afile']"),false,reg,"请选择excel格式文件","excel导入文件路径")) bool=false;
+		
+		
+		//开始提交
+		if(bool){
+			$("#form_edit").submit();
+			
+			$.taskMonitor('{$Think.session.S_USER_NAME}',"班级信息excel导入",{successCallback : function () {window.location="__URL__/excelimpclassresult";}});
+		}
+	});
+	
+	//子窗口
+	$("#content").window({
+        height:520,
+        width:820,
+        modal:true,
+        minimizable:false,
+        maximizable:false,
+        closable:false,
+        collapsible:false,
+        draggable:false,
+        resizable:false,
+        modal:false
+    });
+});
+
+function check(ele,isNull,reg,str,name){
+	var value=$.trim(ele.val());
+	if(value=="" && !isNull){
+		ele.next().html(name+"不能为空");return false;
+	}else{
+		if(reg!=null && !reg.test(value)){
+			ele.next().html(str);return false;
+		}else ele.next().html("*");
+	}
+	return true;
+}
+
+
+</script>
+</html>
+

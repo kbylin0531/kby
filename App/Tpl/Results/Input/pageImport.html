@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>成绩导入</title>
+    <script type="text/javascript" src="__ROOT__/thirdparty/jquery/js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="__ROOT__/thirdparty/jquery/js/Shadow.js"></script>
+</head>
+<body>
+<div align="center" >
+    <form action="__URL__/pageImport/reqtag/midtermimport" enctype ="multipart/form-data" method='post'>
+        <label>期中成绩导入</label><input type="file" name="file"  />
+        <a target="_blank" href="__ROOT__/res/templates/midterm_score_input.xlsx">下载导入模板</a>
+        <input type="submit" value="提交" />
+    </form>
+    <br />
+    <form action="__URL__/pageImport/reqtag/finalsimport" enctype ="multipart/form-data" method='post'>
+        <label>期末成绩导入</label><input type="file" name="file"  />
+        <a target="_blank" href="__ROOT__/res/templates/finals_score_input.xlsx">下载导入模板</a>
+        <input type="submit" value="提交" />
+    </form>
+    <br />
+    <form action="__URL__/pageImport/reqtag/resitimport" enctype ="multipart/form-data" method='post'>
+        <label>补考成绩导入</label><input type="file" name="file"  />
+        <a target="_blank" href="__ROOT__/res/templates/resit_score_input.xlsx">下载导入模板</a>
+        <input type="submit" value="提交" />
+    </form>
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,889 @@
+<include file=":Include:jqueryHeader" />
+<script type="text/javascript" src='__ROOT__/thirdparty/jquery/js/taskMonitor.js'></script>
+<script type="text/javascript" src='__ROOT__/thirdparty/jquery/js/lazertager.min.js'></script>
+<style>
+    li.lt-tagc{
+        width: auto;
+        border-color: rgb(196, 0, 0);
+        border-left-radius: 2px;
+        border-right-radius: 2px;
+        border-style: dotted;
+        border-width: 1px;
+        color: darkblue;
+        /*padding-top: 1px;*/
+        padding-left: 4px;
+        /*padding-bottom: 1px;*/
+        display: list-item;
+        float: left;
+        font-family: tahoma, arial, 'Hiragino Sans GB', 微软雅黑, 宋体, sans-serif;
+        font-size: 12px;
+        font-style: normal;
+        font-variant: normal;
+        font-weight: normal;
+        height: 22px;
+        line-height: 21px;
+        text-align: left;
+        zoom: 1;
+        margin-left: 3px;
+        margin-right: 3px;
+    }
+    .lt-innertext{
+        cursor: pointer;
+        font-family: tahoma, arial, 'Hiragino Sans GB', 微软雅黑, 宋体, sans-serif;
+        font-size: 12px;
+        font-style: normal;
+        font-variant: normal;
+        font-weight: normal;
+        color: darkblue;
+        text-align: left;
+        text-decoration: none;
+    }
+
+    li.lt-tagc a.lt-text{
+        width: 20px;
+        height:20px;
+        line-height: 20px;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    li.lt-tagc a.lt-close{
+        color: red;
+        width: 20px;
+        height:20px;
+        line-height: 20px;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    li.lt-addtag a{
+        cursor: pointer;
+        font-family: tahoma, arial, 'Hiragino Sans GB', 微软雅黑, 宋体, sans-serif;
+        font-size: 19px;
+        color: red;
+        font-style: normal;
+        font-variant: normal;
+        font-weight:bold;
+        cursor: pointer;
+        text-decoration: none;
+    }
+</style>
+<script type="text/javascript">
+function do_saveTeacher(index,recno,iteacher) {    
+	var doYEAR = $.trim($('#do_TEACHERTASK_YEAR_' + recno + '_' + iteacher).val());
+	var doTERM = $.trim($('#do_TEACHERTASK_TERM_' + recno + '_' + iteacher).val());
+	var doTEACHERNO = $.trim($('#do_TEACHERTASK_TEACHERNO_' + recno + '_' + iteacher).combobox('getValue'));
+	var doTEACHERNAME = $.trim($('#do_TEACHERTASK_TEACHERNO_' + recno + '_' + iteacher).combobox('getText'));
+	var doUNIT = $.trim($('#do_TEACHERTASK_UNIT_' + recno + '_' + iteacher).val());
+	var doUNITTEXT = $.trim($('#do_TEACHERTASK_UNIT_' + recno + '_' + iteacher).find("option:selected").text());
+	var doTASK = $.trim($('#do_TEACHERTASK_TASK_' + recno + '_' + iteacher).val());
+	var doTASKTEXT = $.trim($('#do_TEACHERTASK_TASK_' + recno + '_' + iteacher).find("option:selected").text());
+	var doHOURS = $.trim($('#do_TEACHERTASK_HOURS_' + recno + '_' + iteacher).val());
+	var doREM = $.trim($('#do_TEACHERTASK_REM_' + recno + '_' + iteacher).val());
+	var doTOSCHEDULE = $.trim($('#do_TEACHERTASK_TOSCHEDULE_' + recno + '_' + iteacher).val());
+	var doTOSCHEDULETEXT = $.trim($('#do_TEACHERTASK_TOSCHEDULE_' + recno + '_' + iteacher).find("option:selected").text());
+	
+    var rowset = {
+            YEAR : doYEAR,
+            TERM : doTERM,
+            MAP : recno,
+            TEACHERNO : doTEACHERNO,
+            UNIT : doUNIT,
+            TASK : doTASK,
+            HOURS : doHOURS,
+            REM : doREM,
+            TOSCHEDULE : doTOSCHEDULE
+        }  
+    
+    if (doTEACHERNO)
+    {    	
+    }
+    else
+    {
+    	$.messager.alert('提示','请输入教师！');
+    	return;
+    }
+    
+    var url = "__ROOT__ /CoursePlan/Timetable/teacherSave/hasJson/true";
+    $.post(url, rowset, function(rsp) {
+        if(rsp){
+            $.messager.alert("系统消息：", rsp.message, rsp.type);
+            if(rsp.type=="info"){
+            	
+            	var INSERTID = rsp.insertId;
+            	
+            	var row = $('#do_TEACHERTASK_row_' + recno + '_' + iteacher); 
+            	
+            	row.find("td").eq(0).text(doTEACHERNAME);
+            	row.find("td").eq(1).text(doUNITTEXT);
+            	row.find("td").eq(2).text(doTASKTEXT);
+            	row.find("td").eq(3).text(doHOURS);
+            	row.find("td").eq(4).text(doTOSCHEDULETEXT);
+            	row.find("td").eq(5).text(doREM);
+            	row.find("td").eq(6).html('<li class="lt-addtag" style="list-style-type:none;" ><a title="删除教师" href="javascript:void(0)" onclick="do_deleteTeacher(' + index + ',' + INSERTID + ',' + recno + ',' + iteacher + ');">X</a></li>');
+
+            }
+        }
+    },"JSON");
+	
+	
+}
+
+function do_deleteTeacher(index,recno,i1,i2) {    	
+	if (recno)
+	{
+		$.messager.confirm('提示', '确认要删除', function (r) {
+            if (r) {
+                $.post('__URL__/qlist/tag/delteacher',{'recno':recno}, function (data) {
+                    if($.trim(data) == 'success'){
+                        $.messager.alert('提示','删除成功！');
+                        
+                        $('#do_TEACHERTASK_row_' + i1 + '_' + i2).remove(); 
+                        
+                    }else{
+                        return $.messager.alert('提示','删除失败！'+data);
+                    }
+                });
+
+            }
+        });
+	}
+	else
+	{
+		$('#do_TEACHERTASK_row_' + i1 + '_' + i2).remove(); 
+	} 
+	
+	$('#datagrid').datagrid('fixDetailRowHeight',index);
+}
+
+function do_addTeacher(index,recno,year,term) {
+	var iteacher = $('#do_TEACHERTASK_iteacher_' + recno).val();
+	iteacher++;
+	$('#do_TEACHERTASK_iteacher_' + recno).val(iteacher);
+	
+	var table = $('#do_TEACHERTASK_' + recno); 
+	var row = $('<tr id="do_TEACHERTASK_row_' + recno + '_' + iteacher + '"></tr>'); 	
+	var td = $('<td align="center"></td>'); //TEACHERNO / TEACHERNAME
+	td.append($('<select style="width:160px;" id="do_TEACHERTASK_TEACHERNO_' + recno + '_' + iteacher + '" name="TEACHERNO" class="easyui-combobox"><option value="">请选择</option></select>')); 
+	row.append(td); 
+	
+	td = $('<td align="center"></td>'); //UNITNAME
+	td.append($('<select style="width:80px;" id="do_TEACHERTASK_UNIT_' + recno + '_' + iteacher + '" name="UNIT"><option value="1" selected>单课时</option><option value="2">双课时</option><option value="3">三课时</option><option value="4">四课时</option></select>')); 
+	row.append(td); 
+	
+	td = $('<td align="center"></td>'); //TASKNAME
+	td.append($('<Cwebs:sqlselect style="width:80px;" id="do_TEACHERTASK_TASK_' + recno + '_' + iteacher + '" name="TASK" value="CODE" title="NAME" selected="L" file="common/taskOptions.sql" />')); 
+	row.append(td); 
+	
+	td = $('<td align="center"></td>'); //HOURS
+	td.append($('<input type="text" style="width:80px;" id="do_TEACHERTASK_HOURS_' + recno + '_' + iteacher + '" name="HOURS" value="1.0" >')); 
+	row.append(td); 	
+	
+	td = $('<td align="center"></td>'); //TOSCHEDULE
+	td.append($('<select style="width:80px;" id="do_TEACHERTASK_TOSCHEDULE_' + recno + '_' + iteacher + '" name="TOSCHEDULE"><option value="1" >是</option><option value="0">否</option></select>')); 
+	row.append(td); 
+	
+	td = $('<td></td>'); //REM
+	td.append($('<input type="text" style="width:200px;" id="do_TEACHERTASK_REM_' + recno + '_' + iteacher + '" name="REM">')); 
+	row.append(td); 
+	
+	td = $('<td align="center"></td>'); 
+	td.append($('<input type="hidden" id="do_TEACHERTASK_YEAR_' + recno + '_' + iteacher + '" name="YEAR" value="' + year + '"><input type="hidden" id="do_TEACHERTASK_TERM_' + recno + '_' + iteacher + '" name="TERM" value="' + term + '"><li class="lt-addtag" style="list-style-type:none;" ><a title="保存教师" href="javascript:void(0)" onclick="do_saveTeacher(' + index + ',' + recno + ',' + iteacher + ');">√</a>&nbsp;&nbsp;<a title="删除教师" href="javascript:void(0)" onclick="do_deleteTeacher(' + index + ',null,' + recno + ',' + iteacher + ');">X</a></li>')); 
+	row.append(td); 
+	
+	table.append(row); 
+	
+	$('#do_TEACHERTASK_TEACHERNO_' + recno + '_' + iteacher).combobox({    
+	    url:'__ROOT__ /CoursePlan/Timetable/get_teacher_list/hasJson/true',   
+	    editable:true,
+	    mode:'remote',
+	    valueField:'id',    
+	    textField:'text'   
+	});  
+	
+	$('#datagrid').datagrid('fixDetailRowHeight',index);
+}
+
+
+    function dakai(recno){
+
+        var url='__ROOT__ /CoursePlan/Timetable/teacher/RECNO/'+recno
+        openTabsWindows("查看编辑教师", url,'',true);
+    }
+
+    function deleteTeacher(recno) {
+        $.messager.confirm('提示', '确认要删除', function (r) {
+            if (r) {
+                $.post('__URL__/qlist/tag/delteacher',{'recno':recno}, function (data) {
+                    if(data == 'success'){
+                        $.messager.alert('提示','删除成功！');
+                        return $('#datagrid').datagrid('reload');
+                    }else{
+                        return $.messager.alert('提示','删除失败！'+data);
+                    }
+                });
+
+            }
+        });
+    }
+
+    var syear,sterm,srecno,erecno;
+    
+    function addTeacher(recno){
+        $.post('__URL__/qlist/tag/schedulepandetail',{'recno':recno}, function (data) {
+            if(data.length == 0){
+                return $.messager.alert('提示','查询过程出现错误！');
+            }
+            $("#wYEAR").html(data['scheduleplan']['YEAR']);
+            $("#wTERM").html(data['scheduleplan']['TERM']);
+
+            syear = data['scheduleplan']['YEAR'];
+            sterm = data['scheduleplan']['TERM'];
+            srecno = data['scheduleplan']['RECNO'];
+            erecno = recno;
+
+            $("#editForms").css("display","");
+            $("#editForms").window({title:"添加上课教师"});
+            $("#editForms").window("open");
+        });
+
+    }
+    function getFormVal(){
+        return {
+            YEAR : syear,
+            TERM : sterm,
+            MAP : srecno,
+            TEACHERNO : $("#wTEACHERNO").val(),
+            HOURS : $("#wHOURS").val(),
+            UNIT : $("#wUNIT").val(),
+            REM : $("#wREM").val(),
+            TASK : $("#wTASK").val(),
+            AMOUNT : $("#wAMOUNT").val(),
+            TOSCHEDULE : $("#wTOSCHEDULE").val(),
+            RECNO : erecno
+        }
+    }
+    function checkData(row){
+        if($.trim(row.HOURS)==""){
+            msgShow("系统提示：","<br />每周课时不能为空！","error");
+            return false;
+        }else if(isNaN($.trim(row.HOURS))){
+            $.messager.alert('系统提示','每周课时必须是数字')
+            return false;
+        }
+        return true;
+    }
+    $(function() {
+        $("#efCancel").bind("click",function(){
+            $("#editForms").window("close");
+        });
+
+        $('#handlerQuery').bind('click',function(){
+            $('#quanTeacher').window({
+                closed:false
+            })
+        });
+
+        $('#quan_dat').datagrid({
+            toolbar:'#tdemo'
+        });
+        $("#quan_search").bind('click',function(){
+            $('#quan_dat').datagrid('options').url='__APP__/Status/Status/Squery';
+            $('#quan_dat').datagrid('load',{
+                Sqlpath:{'select':'CoursePlan/select_teacher.SQL','count':'CoursePlan/count_teacher.SQL'},bind:{
+                    ':TEACHERNAME':$('#quan_teachername').val(),':TEACHERNO':$('#quan_teacherno').val(),':SCHOOL':$('#school').val()
+                }
+            })
+        });
+        $('#add_teacher').bind('click',function(){
+            var row=$('#quan_dat').datagrid('getSelected');
+
+            $('#wTEACHERNO').val(row.TEACHERNO);
+            $('#quanTeacher').window({closed:true})
+        });
+        $("#efOK").bind("click",function(){
+            var row = getFormVal();
+            var url = "__ROOT__ /CoursePlan/Timetable/teacherSave/hasJson/true";
+//            if($.trim(row.RECNO)!="") url = "__ROOT__ /CoursePlan/Timetable/teacherUpdate/hasJson/true";
+            $.post(url, row, function(rsp) {
+                if(rsp){
+                    $.messager.alert("系统消息：", rsp.message, rsp.type);
+                    if(rsp.type=="info"){
+//                        $.messager.alert('提示','删除成功！');
+                        return $('#datagrid').datagrid('reload');
+                    }
+                }
+            },"JSON");
+        });
+        //数据初始化
+        var datagrid = $('#datagrid').datagrid({
+            view: detailview,
+            toolbar: '#toobar',
+            url:"__ROOT__ /CoursePlan/Timetable/qlist/hasJson/true",
+            queryParams:{$queryParams},
+            frozenColumns:[[{field:'ck',checkbox:true}]],
+            onRowContextMenu:function(e,rowindex,row){
+                datagrid.datagrid('rejectChanges');
+                datagrid.datagrid('unselectAll');
+                var tt=$('#datagrid');
+
+                e.preventDefault();  //该方法将通知 Web 浏览器不要执行与事件关联的默认动作（如果存在这样的动作）
+                tt.datagrid('selectRow',rowindex);
+                $('#admin_access_menu').menu('show',{
+                    left: e.pageX,
+                    top: e.pageY
+                });
+            },
+            detailFormatter:function(index,row){
+//                var taskdoc = '<ul  style="list-style: none;margin-top: 1px;margin-bottom: 1px;margin-left: 2px;" > ';
+//                if($.trim( row.TEACHERTASK) != ""){
+//                    var teachertasks = row.TEACHERTASK.split(' ; ');
+//                    for(var task in teachertasks){
+//                        var arr = teachertasks[task].split('#$');
+//                        taskdoc += '<li class="lt-tagc"  ><a class="lt-text lt-innertext">'+arr[1]+
+//                        '</a><a class="lt-close lt-innertext" href="javascript:void(0)" onclick="deleteTeacher('+arr[0]+')">&nbsp;X&nbsp; </a></li>';
+//                    }
+//                }
+//                taskdoc += '<li class="lt-addtag"  ><a class="lt_inneraddli" href="javascript:void(0)" onclick="addTeacher('+row.RECNO+')">+</a></li></ul>';
+                var iteacher = -1;
+                var taskdoc = '<table id="do_TEACHERTASK_' + row.RECNO + '" border="1" >'
+                			+ '<tr><th width="160px" align="center">教师号 / 教师姓名</th><th width="80px" align="center">排课单位</th><th width="80px" align="center">课堂教学</th><th width="80px" align="center">每周课时</th><th width="80px" align="center">是否纳入排课</th><th width="200px" align="center">备注</th><th width="80px" align="center">操作</th></tr>';
+                if($.trim( row.do_TEACHERTASK) != "")
+                {
+                	var teachertasks = row.do_TEACHERTASK.split(' ; ');
+                	for(var task in teachertasks){
+                		iteacher++;
+
+// console.log('AAA',typeof teachertasks[task]);
+// 20160324 split called in function object
+//                        if('function' === typeof teachertasks[task]) continue;
+if('string' !== typeof teachertasks[task]) continue;
+
+
+                        var arr = teachertasks[task].split('#$');
+                        var RECNO = arr[0];
+                        var MAP = arr[1];
+                        var TEACHERNO = arr[2];
+                        var TEACHERNAME = arr[3];
+                        var SCHOOL = arr[4];
+                        var SCHOOLNAME = arr[5];
+                        var TGROUP = arr[6];
+                        var TGROUPNAME = arr[7];
+                        var UNIT = arr[8];
+                        var UNITNAME = arr[9];
+                        var TASK = arr[10];
+                        var TASKNAME = arr[11];
+                        var HOURS = arr[12];
+                        var TOSCHEDULE = arr[13];
+                        var TOSCHEDULETXT = "否";
+                		if (TOSCHEDULE == 1)
+                		{
+                			TOSCHEDULETXT = "是";
+                		}
+                		var REM = arr[14];
+                		
+                		taskdoc += '<tr id="do_TEACHERTASK_row_' + row.RECNO + '_' + iteacher + '"><td align="center">'+TEACHERNO+' / '+TEACHERNAME+'</td><td align="center">'+UNITNAME+'</td><td align="center">'+TASKNAME+'</td><td align="center">'+HOURS+'</td><td align="center">'+TOSCHEDULETXT+'</td><td>'+REM+'</td><td align="center">'
+                		        +  '<li class="lt-addtag" style="list-style-type:none;" ><a title="删除教师" href="javascript:void(0)" onclick="do_deleteTeacher(' + index + ',' + RECNO + ',' + row.RECNO + ',' + iteacher + ');">X</a></li>'
+                		        +  '</td></tr>';
+                    }
+                }			
+                taskdoc += '</table>';
+
+                return '<div style="padding:2px;width:100%"><table width="100%">' +
+                        '<tr><td height="18">'+row.SCHOOLNAME+'</td><td>时段要求：'+row.TIME+'</td>' +
+                        '<td>教室要求：'+row.EMPROOM+'</td><td>统一排考：'+row.FINALEXAM+'</td>' +
+                        '<td>排课天数：'+row.DAYS+'</td><td>指定实验室：'+row.EMPROOM+'</td>' +
+                        '<td>预计人数：'+row.ESTIMATE+'</td><td>实际人数：'+row.ATTENDENTS+'</td>' +
+                        '<td>备注：'+row.REM+'</td></tr>' +
+                        '<tr><td height="18" colspan="9">上课班级：'+row.CLASS+'</td></tr>' +
+                        '<tr><td height="18" colspan="1"><a href="javascript:void(0)" onclick="dakai('+row.RECNO+')" style="color:blue;text-decoration:underline">教师</a>' + 
+                        
+                        '<li class="lt-addtag" style="list-style-type:none;"  ><a title="增加教师" href="javascript:void(0)" onclick="do_addTeacher(' + index + ',' + row.RECNO + ',' + row.YEAR + ',' + row.TERM + ');">+</a></li>' + 
+                        '<input type="hidden" id="do_TEACHERTASK_iteacher_' + row.RECNO + '" value="' + iteacher + '">' + 
+                        
+                        '</td><td height="18" colspan="8">'+
+                        
+                        taskdoc+
+                        
+                        '</td></tr>' +
+                        '<tr><td height="18" colspan="9">课程安排：'+row.CLASSTIME+'</td></tr></table></div>';
+            },
+            onBeforeLoad:function(){
+                $(this).datagrid("unselectAll");
+                return true;
+            },
+            rowStyler: function(index,row){
+                return 'background-color:#6293BB;color:#fff;';
+            },
+            onLoadSuccess : function(data){
+                var this_datagrid = $(this);
+                $.each(data.rows, function(i,o){
+                    this_datagrid.datagrid('expandRow',i);
+                });
+            }
+        });
+
+
+        function onee(){
+            var rows = datagrid.datagrid("getSelections");
+            if(rows == null || rows.length==0){
+                msgShow("系统提示：","<br />没有选可操作的数据！","error");
+                return;
+            }else if(rows.length>1){
+                msgShow("系统提示：","<br />只能选择一行数据进行编辑！","error");
+                return;
+            }
+            var url = "__ROOT__ /CoursePlan/Timetable/update/YEAR/"+rows[0].YEAR+"/TERM/"+rows[0].TERM+"/COURSENO/"+rows[0].COURSENO+"/GROUP/"+rows[0].GROUP;
+            openTabsWindows("查看编辑排课计划", url,'',true);
+        }
+        //编辑排课计划
+        $("#handlerEdit").bind("click",onee);
+        $('#admin_one').bind('click',onee);
+
+
+
+        function threee(){
+            var rows = datagrid.datagrid("getSelections");
+            if(rows == null || rows.length==0){
+                msgShow("系统提示：","<br />没有选择可操作的数据！","error");
+                return;
+            }
+            var arr = new Array();
+            if(rows!=null && rows.length>0){
+                $.each(rows, function(index,row){
+                    if({$isdean} || ("{$user_school}"==row.SCHOOLNO)) {
+                        arr.push(row.YEAR+','+row.TERM+','+row.COURSENO+','+row.GROUP+','+row.SCHOOLNO);
+                    }
+                });
+            }
+            if(arr.length==0){
+                msgShow("系统提示：","<br />只有__DEANNAME__人员或者本学部人员才可以删除开课记录！","error");
+                return;
+            }
+
+            $.messager.confirm('系统消息：','你真的确定要删除选中的项？',function(r){
+                if (r){
+                    $.post("__ROOT__ /CoursePlan/Timetable/delete/hasJson/true", {ITEM:arr}, function(rsp) {
+                        if(rsp){
+                            $.messager.alert("系统消息：", rsp.message, rsp.type);
+                            datagrid.datagrid("reload");
+                        }
+                    },"JSON");
+                }
+            });
+        }
+        //删除排课计划
+        $("#handlerDelete").bind("click",threee);
+        $('#admin_three').bind('click',threee)
+
+
+        function twoo(){
+            var rows = datagrid.datagrid("getSelections");
+            if(rows == null || rows.length==0){
+                msgShow("系统提示：","<br />没有选可操作的数据！","error");
+                return;
+            }else if(rows.length>1){
+                msgShow("系统提示：","<br />只能选择一行数据进行编辑！","error");
+                return;
+            }
+            var url = "__ROOT__ /CoursePlan/Timetable/teacher/RECNO/"+rows[0].RECNO;
+            openTabsWindows("查看编辑教师", url,'',true);
+        }
+        //查看编辑教师
+        $("#teacherEdit").bind("click",twoo)
+        $('#admin_two').bind('click',twoo)
+
+
+        //Excel报表
+        $("#handlerExcel1").bind("click",function(){
+            msgShow("系统提示：","<br />数据较多请耐心等待，请不要重复点击！","info");
+            $("#hiddenForm").attr("action","__ROOT__ /CoursePlan/Export/Excel1/hasJson/true?"+ getParamData());
+            $('#ct').val({$queryParams})
+            $("#hiddenForm").submit();
+        });
+
+        //Excel报表(横排)
+        $("#handlerExcel2").bind("click",function(){
+            msgShow("系统提示：","<br />数据较多请耐心等待，请不要重复点击！","info");
+            $("#hiddenForm").attr("action","__ROOT__ /CoursePlan/Export/Excel2/hasJson/true?"+ getParamData());
+            $("#hiddenForm").submit();
+        });
+
+        //Excel报表(工作量)
+        $("#handlerExcel3").bind("click",function(){
+            msgShow("系统提示：","<br />数据较多请耐心等待，请不要重复点击！","info");
+            $("#hiddenForm").attr("action","__ROOT__ /CoursePlan/Export/Excel3/hasJson/true?"+ getParamData());
+            $("#hiddenForm").submit();
+        });
+
+
+        $('#e_excelexpGXKBclass').bind('click',function(){        	
+        	
+        	var queryParams = {$queryParams};        	
+        	
+            $('[name=SEARCHTYPE]').val(1); 
+            $('[name=YEAR]').val(queryParams.YEAR); 
+            $('[name=ROOMTYPE]').val(queryParams.ROOMTYPE); 
+            $('[name=TERM]').val(queryParams.TERM); 
+            $('[name=LOCK]').val(queryParams.LOCK); 
+            $('[name=COURSENO]').val(queryParams.COURSENO); 
+            $('[name=ESTIMATEUP]').val(queryParams.ESTIMATEUP); 
+            $('[name=GROUP]').val(queryParams.GROUP); 
+            $('[name=ESTIMATEDOWN]').val(queryParams.ESTIMATEDOWN); 
+            $('[name=SCHOOL]').val(queryParams.SCHOOL); 
+            $('[name=ATTENDENTSUP]').val(queryParams.ATTENDENTSUP); 
+            $('[name=COURSETYPE]').val(queryParams.COURSETYPE); 
+            $('[name=ATTENDENTSDOWN]').val(queryParams.ATTENDENTSDOWN); 
+            $('[name=SCHEDULED]').val(queryParams.SCHEDULED); 
+            $('[name=EXAM]').val(queryParams.EXAM); 
+            $('[name=TEACHERNO]').val(queryParams.TEACHERNO); 
+            $('[name=EXAMTYPE]').val(queryParams.EXAMTYPE); 
+            $('[name=DAYS]').val(queryParams.DAYS); 
+            $('[name=CLASSNO]').val(queryParams.CLASSNO); 
+            $('[name=XCTYPE]').val(queryParams.XCTYPE); 
+            $('[name=TGROUP]').val(queryParams.TGROUP); 
+            
+            $("#form_excelexpGXKB").attr("action","__URL__/excelexpGXKBclass");
+    		$("#form_excelexpGXKB").submit();
+    		
+    		$.taskMonitor('{$Think.session.S_USER_NAME}',"excel导出用于更欣课表的精准班级名单",{dialogOptions : {modal:true, closable:false, width:400,height:140}, successCallback : function () {}});
+        });
+
+        $('#e_excelexpGXKBcourse').bind('click',function(){        	
+        	
+        	var queryParams = {$queryParams};        	
+        	
+            $('[name=SEARCHTYPE]').val(1); 
+            $('[name=YEAR]').val(queryParams.YEAR); 
+            $('[name=ROOMTYPE]').val(queryParams.ROOMTYPE); 
+            $('[name=TERM]').val(queryParams.TERM); 
+            $('[name=LOCK]').val(queryParams.LOCK); 
+            $('[name=COURSENO]').val(queryParams.COURSENO); 
+            $('[name=ESTIMATEUP]').val(queryParams.ESTIMATEUP); 
+            $('[name=GROUP]').val(queryParams.GROUP); 
+            $('[name=ESTIMATEDOWN]').val(queryParams.ESTIMATEDOWN); 
+            $('[name=SCHOOL]').val(queryParams.SCHOOL); 
+            $('[name=ATTENDENTSUP]').val(queryParams.ATTENDENTSUP); 
+            $('[name=COURSETYPE]').val(queryParams.COURSETYPE); 
+            $('[name=ATTENDENTSDOWN]').val(queryParams.ATTENDENTSDOWN); 
+            $('[name=SCHEDULED]').val(queryParams.SCHEDULED); 
+            $('[name=EXAM]').val(queryParams.EXAM); 
+            $('[name=TEACHERNO]').val(queryParams.TEACHERNO); 
+            $('[name=EXAMTYPE]').val(queryParams.EXAMTYPE); 
+            $('[name=DAYS]').val(queryParams.DAYS); 
+            $('[name=CLASSNO]').val(queryParams.CLASSNO); 
+            $('[name=XCTYPE]').val(queryParams.XCTYPE); 
+            $('[name=TGROUP]').val(queryParams.TGROUP); 
+            
+            $("#form_excelexpGXKB").attr("action","__URL__/excelexpGXKBcourse");
+    		$("#form_excelexpGXKB").submit();
+    		
+    		$.taskMonitor('{$Think.session.S_USER_NAME}',"excel导出用于更欣课表的精准课程名单",{dialogOptions : {modal:true, closable:false, width:400,height:140}, successCallback : function () {}});
+        });
+        
+        $('#e_excelexpGXKBarchive').bind('click',function(){
+        	
+        	var queryParams = {$queryParams};        	
+        	
+            $('[name=SEARCHTYPE]').val(1); 
+            $('[name=YEAR]').val(queryParams.YEAR); 
+            $('[name=ROOMTYPE]').val(queryParams.ROOMTYPE); 
+            $('[name=TERM]').val(queryParams.TERM); 
+            $('[name=LOCK]').val(queryParams.LOCK); 
+            $('[name=COURSENO]').val(queryParams.COURSENO); 
+            $('[name=ESTIMATEUP]').val(queryParams.ESTIMATEUP); 
+            $('[name=GROUP]').val(queryParams.GROUP); 
+            $('[name=ESTIMATEDOWN]').val(queryParams.ESTIMATEDOWN); 
+            $('[name=SCHOOL]').val(queryParams.SCHOOL); 
+            $('[name=ATTENDENTSUP]').val(queryParams.ATTENDENTSUP); 
+            $('[name=COURSETYPE]').val(queryParams.COURSETYPE); 
+            $('[name=ATTENDENTSDOWN]').val(queryParams.ATTENDENTSDOWN); 
+            $('[name=SCHEDULED]').val(queryParams.SCHEDULED); 
+            $('[name=EXAM]').val(queryParams.EXAM); 
+            $('[name=TEACHERNO]').val(queryParams.TEACHERNO); 
+            $('[name=EXAMTYPE]').val(queryParams.EXAMTYPE); 
+            $('[name=DAYS]').val(queryParams.DAYS); 
+            $('[name=CLASSNO]').val(queryParams.CLASSNO); 
+            $('[name=XCTYPE]').val(queryParams.XCTYPE); 
+            $('[name=TGROUP]').val(queryParams.TGROUP); 
+
+            $("#form_excelexpGXKB").attr("action","__URL__/excelexpGXKBarchive");
+    		$("#form_excelexpGXKB").submit();
+    		
+    		$.taskMonitor('{$Think.session.S_USER_NAME}',"excel导出用于更欣课表的精准老师名单",{dialogOptions : {modal:true, closable:false, width:400,height:140}, successCallback : function () {}});
+        });
+        
+        $('#e_excelexpGXKBroom').bind('click',function(){
+        	
+        	var queryParams = {$queryParams};        	
+        	
+            $('[name=SEARCHTYPE]').val(1); 
+            $('[name=YEAR]').val(queryParams.YEAR); 
+            $('[name=ROOMTYPE]').val(queryParams.ROOMTYPE); 
+            $('[name=TERM]').val(queryParams.TERM); 
+            $('[name=LOCK]').val(queryParams.LOCK); 
+            $('[name=COURSENO]').val(queryParams.COURSENO); 
+            $('[name=ESTIMATEUP]').val(queryParams.ESTIMATEUP); 
+            $('[name=GROUP]').val(queryParams.GROUP); 
+            $('[name=ESTIMATEDOWN]').val(queryParams.ESTIMATEDOWN); 
+            $('[name=SCHOOL]').val(queryParams.SCHOOL); 
+            $('[name=ATTENDENTSUP]').val(queryParams.ATTENDENTSUP); 
+            $('[name=COURSETYPE]').val(queryParams.COURSETYPE); 
+            $('[name=ATTENDENTSDOWN]').val(queryParams.ATTENDENTSDOWN); 
+            $('[name=SCHEDULED]').val(queryParams.SCHEDULED); 
+            $('[name=EXAM]').val(queryParams.EXAM); 
+            $('[name=TEACHERNO]').val(queryParams.TEACHERNO); 
+            $('[name=EXAMTYPE]').val(queryParams.EXAMTYPE); 
+            $('[name=DAYS]').val(queryParams.DAYS); 
+            $('[name=CLASSNO]').val(queryParams.CLASSNO); 
+            $('[name=XCTYPE]').val(queryParams.XCTYPE); 
+            $('[name=TGROUP]').val(queryParams.TGROUP); 
+
+            $("#form_excelexpGXKB").attr("action","__URL__/excelexpGXKBroom");
+    		$("#form_excelexpGXKB").submit();
+    		
+    		$.taskMonitor('{$Think.session.S_USER_NAME}',"excel导出用于更欣课表的精准场地名单",{dialogOptions : {modal:true, closable:false, width:400,height:140}, successCallback : function () {}});
+        });
+
+        $('#e_excelexpGXKBscheduleplan').bind('click',function(){
+        	
+        	var queryParams = {$queryParams};    
+        	
+        	var url="__URL__/excelexpGXKBeditscheduleplan/SEARCHTYPE/1";
+        	if (queryParams.YEAR)
+        	{
+        		url += "/YEAR/" + queryParams.YEAR;
+        	}
+        	if (queryParams.ROOMTYPE)
+        	{
+        		url += "/ROOMTYPE/" + queryParams.ROOMTYPE;
+        	}
+        	if (queryParams.TERM)
+        	{
+        		url += "/TERM/" + queryParams.TERM;
+        	}
+        	if (queryParams.LOCK)
+        	{
+        		url += "/LOCK/" + queryParams.LOCK;
+        	}
+        	if (queryParams.COURSENO)
+        	{
+        		url += "/COURSENO/" + queryParams.COURSENO;
+        	}
+        	if (queryParams.ESTIMATEUP)
+        	{
+        		url += "/ESTIMATEUP/" + queryParams.ESTIMATEUP;
+        	}
+        	if (queryParams.GROUP)
+        	{
+        		url += "/GROUP/" + queryParams.GROUP;
+        	}
+        	if (queryParams.ESTIMATEDOWN)
+        	{
+        		url += "/ESTIMATEDOWN/" + queryParams.ESTIMATEDOWN;
+        	}
+        	if (queryParams.SCHOOL)
+        	{
+        		url += "/SCHOOL/" + queryParams.SCHOOL;
+        	}
+        	if (queryParams.ATTENDENTSUP)
+        	{
+        		url += "/ATTENDENTSUP/" + queryParams.ATTENDENTSUP;
+        	}
+        	if (queryParams.COURSETYPE)
+        	{
+        		url += "/COURSETYPE/" + queryParams.COURSETYPE;
+        	}
+        	if (queryParams.ATTENDENTSDOWN)
+        	{
+        		url += "/ATTENDENTSDOWN/" + queryParams.ATTENDENTSDOWN;
+        	}
+        	if (queryParams.SCHEDULED)
+        	{
+        		url += "/SCHEDULED/" + queryParams.SCHEDULED;
+        	}
+        	if (queryParams.EXAM)
+        	{
+        		url += "/EXAM/" + queryParams.EXAM;
+        	}
+        	if (queryParams.TEACHERNO)
+        	{
+        		url += "/TEACHERNO/" + queryParams.TEACHERNO;
+        	}
+        	if (queryParams.EXAMTYPE)
+        	{
+        		url += "/EXAMTYPE/" + queryParams.EXAMTYPE;
+        	}
+        	if (queryParams.DAYS)
+        	{
+        		url += "/DAYS/" + queryParams.DAYS;
+        	}
+        	if (queryParams.CLASSNO)
+        	{
+        		url += "/CLASSNO/" + queryParams.CLASSNO;
+        	}
+        	if (queryParams.XCTYPE)
+        	{
+        		url += "/XCTYPE/" + queryParams.XCTYPE;
+        	}
+        	if (queryParams.TGROUP)
+        	{
+        		url += "/TGROUP/" + queryParams.TGROUP;
+        	}
+        	url = encodeURI(url);
+            
+        	openTabsWindows("excel导出用于更欣课表的班级教学计划",url);  
+        });
+        
+        
+        
+        function getParamData(){
+            return $.param({$queryParams});
+        }
+    });
+</script>
+
+<body>
+
+<div  class="easyui-layout"  data-options="border:false,fit:true" >
+    <div data-options="region:'center',border:false" style=";background:#eee;">
+        <table id="datagrid" title="<center>第{$Think.request.YEAR}学年，第{$Think.request.TERM}学期的排课计划列表</center>"  fitColumns="false"
+               width="100%" singleSelect="false" fit="true" idField="RECNO"
+               pagination="true" pageSize="20" pageList="[20,50,100]" striped="true" >
+            <thead>
+            <tr><th data-options="field:'COURSENO',align:'center',width:100" >课号</th>
+                <th data-options="field:'GROUP',align:'center',width:60">组号</th>
+                <th data-options="field:'COURSENAME',align:'center',width:300">课名</th>
+                <th data-options="field:'COURSETYPEVALUE',align:'center',width:80">修课</th>
+                <th data-options="field:'EXAMTYPEVALUE',align:'center',width:80">考核</th>
+                <th data-options="field:'CREDITS',align:'center',width:80">学分</th>
+                <th data-options="field:'LHOURS',align:'center',width:80">周讲课</th>
+                <th data-options="field:'EHOURS',align:'center',width:80">周实验</th>
+                <th data-options="field:'WEEKS',align:'center',width:150">周次</th></tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+
+<div id="toobar">
+	<div>
+    <a href="#" id="handlerEdit" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true" style="float: left;">查看编辑排课计划</a>
+    <a href="#" id="teacherEdit" class="easyui-linkbutton" data-options="iconCls:'icon-studentList',plain:true" style="float: left;">查看编辑教师</a>
+    <a href="#" id="handlerDelete" class="easyui-linkbutton" data-options="iconCls:'icon-cut',plain:true" style="float: left;">删除排课计划</a>
+<!-- 
+    <a class="datagrid-btn-separator"></a>
+ -->
+    <a href="#" id="handlerExcel1" class="easyui-linkbutton" data-options="iconCls:'icon-excel',plain:true">Excel报表</a>
+    <a href="#" id="handlerExcel2" class="easyui-linkbutton" data-options="iconCls:'icon-excel',plain:true" >Excel报表(横排)</a>
+    <a href="#" id="handlerExcel3" class="easyui-linkbutton" data-options="iconCls:'icon-excel',plain:true" >Excel报表(工作量)</a>
+    </div>
+    <div>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-excel"  id="e_excelexpGXKBclass" plain=true>excel导出用于更欣课表的班级名单</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-excel"  id="e_excelexpGXKBcourse" plain=true>excel导出用于更欣课表的课程名单</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-excel"  id="e_excelexpGXKBarchive" plain=true>excel导出用于更欣课表的老师名单</a>
+    <!--<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-excel"  id="e_excelexpGXKBroom" plain=true>excel导出用于更欣课表的场地名单</a>-->
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-excel"  id="e_excelexpGXKBscheduleplan" plain=true>excel导出用于更欣课表的班级教学计划</a>
+    </div>
+</div>
+
+
+<div id="admin_access_menu" class="easyui-menu" style="width:100px;">
+    <div id='admin_one'>查看编辑排课计划</div>
+    <div id='admin_two'>查看编辑教师</div>
+    <div id='admin_three'>删除排课计划</div>
+</div>
+<form id="hiddenForm" method="post" name="hiddenForm" target="hiddenFrame" />
+    <input type="hidden" id="ct" value="">
+
+</form>
+
+
+
+	  <form action="" id="form_excelexpGXKB" name="form_excelexpGXKB" method="post" target="hiddenFrame" >
+	    <input type="hidden" name="SEARCHTYPE">
+	    <input type="hidden" name="YEAR">
+	    <input type="hidden" name="ROOMTYPE">
+	    <input type="hidden" name="TERM">
+	    <input type="hidden" name="LOCK">
+	    <input type="hidden" name="COURSENO">
+	    <input type="hidden" name="ESTIMATEUP">
+	    <input type="hidden" name="GROUP">
+	    <input type="hidden" name="ESTIMATEDOWN">
+	    <input type="hidden" name="SCHOOL">
+	    <input type="hidden" name="ATTENDENTSUP">
+	    <input type="hidden" name="COURSETYPE">
+	    <input type="hidden" name="ATTENDENTSDOWN">
+	    <input type="hidden" name="SCHEDULED">
+	    <input type="hidden" name="EXAM">
+	    <input type="hidden" name="TEACHERNO">
+	    <input type="hidden" name="EXAMTYPE">
+	    <input type="hidden" name="DAYS">
+	    <input type="hidden" name="CLASSNO">
+	    <input type="hidden" name="XCTYPE">
+	    <input type="hidden" name="TGROUP">
+
+	  </form>
+
+
+<iframe name="hiddenFrame" id="hiddenFrame" style="display:none;width:0;height:0"></iframe>
+
+
+<!-- 编辑界面 -->
+<div id="editForms" class="easyui-window" style="width:520px;height:260px;display:none" data-options="iconCls:'icon-edit',modal:true,closed:true,minimizable:false,maximizable:false,collapsible:false,resizable:false">
+    <div class="easyui-layout" fit="true">
+        <div region="center" border="false" style="overflow: hidden;padding: 10px; background: #fff; border: 1px solid #ccc;">
+            <table cellpadding=3 border="0" cellspacing="0">
+                <tr><th align="right">学年：</th><td><div id="wYEAR" /></td>
+                    <th align="right">排课单位：</th><td>
+                        <select size="1" name="UNIT" id="wUNIT">
+                            <option value="1">单课时</option>
+                            <option value="2" selected>双课时</option>
+                            <option value="3">三课时</option>
+                            <option value="4">四课时</option>
+                        </select></td></tr>
+                <tr><th align="right">学期：</th><td><div id="wTERM" /></td>
+                    <th align="right">课堂教学：</th><td><Cwebs:sqlselect id="wTASK" name="TASK" value="CODE" title="NAME" selected="L" file="common/taskOptions.sql" /></td></tr>
+                <tr><th align="right">教师号：</th><td colspan="3">
+                    <input id="wTEACHERNO" type="text" size="12" />
+                    本学部：<select id="SELFTEACHER" style="width:120px" onchange="$('#wTEACHERNO').val(this.value);">
+                    <volist name="selfTeachers" id="item">
+                        <option value="{$item.CODE}">{$item.NAME}</option>
+                    </volist>
+                </select>
+                    <a href="#" id="handlerQuery" title="检索其它学部教师号" class="easyui-linkbutton" data-options="iconCls:'icon-personal',plain:true" /></td>
+                    <!--          <th align="right">工作量课时：</th><td><input id="wAMOUNT" type="text" size="2" /></td>--></tr>
+                <tr><th align="right">每周课时：</th><td><input id="wHOURS" type="text" size="2" /></td><th align="right">是否纳入排课：</th><td><select name="TOSCHEDULE" id="wTOSCHEDULE"><option value="1" selected>是</option><option value="0">否</option></select></td></tr>
+                <tr><th align="right">备注：</th><td colspan="3"><input id="wREM" type="text" style="width:320px" /></td></tr>
+            </table>
+            <input type="hidden" id="wRECNO" />
+        </div>
+        <div region="south" border="false" style="text-align: right; height: 30px; line-height: 30px;">
+            <a id="efOK" class="easyui-linkbutton" icon="icon-ok" >
+                确定</a> <a id="efCancel" class="easyui-linkbutton" icon="icon-cancel">取消</a>
+        </div>
+    </div>
+</div>
+<div id="tdemo">
+    教师名:<input type="text" id="quan_teachername" value="%">&nbsp;&nbsp;&nbsp;
+    教师号:<input type="text" id="quan_teacherno" value="%">&nbsp;
+    所在学部:<select id="school"><option value="%">所有学部</option><volist name="schools" id="s"><option value="{$s.SCHOOL}">{$s.NAME}</volist></select>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" id="quan_search">检索</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="javascript:void(0)" id="add_teacher" iconCls='icon-add' class="easyui-linkbutton" plain="true">添加该教师</a>
+</div>
+<div id="quanTeacher" title=" " class="easyui-window" data-options="width:750,height:500,minimizable:false,maximizable:false,collapsible:false,closed:true">
+    <table class="easyui-datagrid" id="quan_dat"
+           data-options="fitColumns:true,singleSelect:true,fit:true,pagination:true,pageList:[30,50,100]">
+        <thead>
+        <tr>
+            <th data-options="field:'TEACHERNO',width:100,align:'center'">教师号</th>
+            <th data-options="field:'NAME',width:100,align:'center'">姓名</th>
+            <th data-options="field:'SCHOOL',width:100,align:'center'">所在学部</th>
+        </tr>
+        </thead>
+    </table>
+</div>
+
+</body>
+
+</html>
+

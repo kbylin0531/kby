@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>__TITLE__</title>
+    <link href="__ROOT__/res/css/css.css" type="text/css" rel="stylesheet" />
+    <script type="text/javascript" src="__ROOT__/res/js/jquery-1.10.2.min.js"></script>
+</head>
+
+<body>
+<script language="JavaScript">
+    if(top!=this) {
+        top.location=this.location;
+    }
+    $(function() {
+        $('#verifyImg').click(function(){
+            $('#verifyImg').attr("src",'__ROOT__/index.php?m=Login&a=verify&'+(new Date().getTime()));
+        });
+        <if condition="$errorMsg neq null">alert("{$errorMsg}");</if>
+    });
+</script>
+<div class="head"></div>
+<div class="banner">
+    <form action="__ROOT__/index.php?m=Login&a=login" method="post" name="jvform" id="jvform">
+    <table width="100%" height="420" border="0" cellpadding="0" cellspacing="0" style="margin-top:30px;">
+        <tr>
+            <td width="503" height="316" align="left" valign="top"><img src="__ROOT__/res/img/banner-bg2.jpg"></td>
+            <td width="408" align="left" valign="top">
+                <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                    <tr>
+                        <td width="12" height="316" align="left" valign="top" ><img src="__ROOT__/res/img/login-bg3.jpg"></td>
+                        <td width="385" align="left" valign="top" background="__ROOT__/res/img/login-bg6.jpg">
+                            <table width="96%" height="240" border="0" cellpadding="0" cellspacing="0" style="margin:0px auto; margin-top:35px;">
+                                <tr>
+                                    <td height="41" colspan="4" align="left" valign="top"><img src="__ROOT__/res/img/login-top.jpg"></td>
+                                </tr>
+                                <tr>
+                                    <td width="23" height="40" align="center" valign="middle"><img src="__ROOT__/res/img/b1.jpg" /></td>
+                                    <td width="59" height="40" align="center" valign="middle" style="white-space:nowrap">用户名：</td>
+                                    <td width="158"  height="40" align="left" valign="middle"><input type="text" name="userName" class="style-input"></td>
+                                    <td width="129" height="40" align="left" valign="middle" class="blue" style="padding-left:5px;">用户名区分大小写</td>
+                                </tr>
+                                <tr>
+                                    <td width="23" height="40" align="center" valign="middle"><img src="__ROOT__/res/img/b2.jpg"></td>
+                                    <td height="40" align="center" valign="middle" style="white-space:nowrap">密　码：</td>
+                                    <td width="158" height="40" align="left" valign="middle"><input type="password" name="password" class="style-input"></td>
+                                    <td height="40" align="left" valign="middle" class="blue" style="padding-left:5px;">密码区分大小写，请转换大小写后输入</td>
+                                </tr>
+                                <gt name="Think.session.S_LOGIN_COUNT" value="3">
+                                <tr>
+                                    <td width="23" height="40" align="center" valign="middle"><img src="__ROOT__/res/img/b3.jpg"></td>
+                                    <td height="40" align="center" valign="middle">验证码：</td>
+                                    <td height="40" colspan="2" align="left" valign="middle"><input type="text" name="checkCode" class="style-input" style="width:100px; vertical-align:top"> <img src="__ROOT__/index.php?m=Login&a=verify" style="vertical-align:top;cursor:pointer;" id="verifyImg" title="点击刷新验证码"></td>
+                                </tr>
+                                </gt>
+                                <tr>
+                                    <td height="40">&nbsp;</td>
+                                    <td height="40">&nbsp;</td>
+                                    <td height="40" align="center" valign="middle"><input type="image" src="__ROOT__/res/img/but1.jpg"/>&nbsp;&nbsp;  <img id="resetImg" src="__ROOT__/res/img/but2.jpg" style="cursor:pointer;"/></td>
+                                    <td height="40" align="center"><a href="/Teacher/Cas/login">单点登录</a></td>
+                                </tr>
+                            </table>
+
+                        </td>
+                        <td width="12" height="316"><img src="__ROOT__/res/img/login-bg5.jpg"></td>
+                    </tr>
+                </table>
+
+            </td>
+            <td width="91" align="right" valign="top" background="__ROOT__/res/img/banner-bg7.jpg"><img src="__ROOT__/res/img/banner-bg6.jpg"></td>
+        </tr>
+    </table>
+        <table width="100%"  border="0" cellpadding="0" cellspacing="0" style="margin-top:0px;" >
+            <tr><td height="30px" colspan="7">
+                <p style="padding-bottom: 10px;">推荐使用以下浏览器访问本站,可以获得最佳、最快体验效果，点击图标可下载软件。（由于360浏览器存在安全性问题，请尽量不要使用。）</p>
+            </td></tr>
+            <tr class="support" align="center">
+                <td width="15%"><a href="__ROOT__/soft/chrome_41.exe"><img src="__ROOT__/soft/icon/chrome.png" alt="chrome"></a><br/>谷歌</td>
+                <td width="14%"><a href="__ROOT__/soft/IE8-WindowsXP-x86-CHS.exe"><img src="__ROOT__/soft/icon/ie11.png" alt=IE8 for XP"></a><br />IE8 For XP</td>
+                <td width="14%"><a href="__ROOT__/soft/mx.exe"><img src="__ROOT__/soft/icon/mx.png" alt="mx"></a><br />遨游</td>
+                <td width="14%"><a href="__ROOT__/soft/firefox.exe"><img src="__ROOT__/soft/icon/firefox.png" alt="firefox"><br />火狐</a></td>
+                <td width="14%"><a href="__ROOT__/soft/opera.exe"><img src="__ROOT__/soft/icon/opera.png" alt="opera"></a><br />欧朋</td>
+                <td width="14%"><a href="__ROOT__/soft/safari.exe"><img src="__ROOT__/soft/icon/safari.png" alt="safari"></a><br />苹果</td>
+                <td width="15%"><a href="__ROOT__/soft/ie11.exe"><img src="__ROOT__/soft/icon/ie11.png" alt=ie11"></a><br />IE11</td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="footer">__COPYRIGHT__</div>
+</body>
+</html>
+

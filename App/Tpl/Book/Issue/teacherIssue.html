@@ -1,0 +1,63 @@
+<include file=":Include:jqueryHeader" />
+<include file="./style" />
+<body class="easyui-layout">
+<div data-options="region:'center',border:false" style="padding:3px;">
+    <table id="datagrid" fitColumns="true" width="100%" fit="true"
+           pagination="true" pageSize="20" pageList="[20,40,60,80,100]" striped="true">
+        <thead>
+        <tr><th data-options="field:'teacherno',align:'center',width:20">教师号</th>
+            <th data-options="field:'name',align:'center',width:20">姓名</th>
+            <th data-options="field:'schoolname',align:'center',width:30">教师学部</th>
+            <th data-options="field:'num',align:'center',width:20">领用教材数</th>
+            <th data-options="field:'price',align:'center',width:20">折扣价总计</th>
+            <th data-options="field:'cz',align:'center',width:20,formatter:getFormat">操作</th></tr>
+        </thead>
+    </table>
+</div>
+<div id="toobar">
+    <form id="queryForm" method="post">
+        <label>学部：</label>
+        <select class="easyui-combobox" name="school" data-options="editable:false">
+            <option value="%">全部</option>
+            <volist name="school" id="s">
+                <option value="{$s.SCHOOL}">{$s.NAME}</option>
+            </volist>
+        </select>
+		<label>教师号：</label><input name="teacherno" value='%'  size="14">
+		<label>教师姓名：</label><input name="name" value='%'  size="14">
+		<a href="javascript:void(0)" id="searcher" class="easyui-linkbutton" data-options="iconCls:'icon-search'">检索</a>
+    </form>
+</div>
+<script type="text/javascript">
+$(function(){
+	//教师发放信息
+	datagrid = $('#datagrid').datagrid({toolbar:'#toobar'});
+    // 条件查询
+    $("#searcher").click(function(){
+    	//验证学年学期是否输入
+        datagrid.datagrid("options").url = "__URL__/teacherIssue/hasJson/1";
+        datagrid.datagrid("load",getData());
+    });
+});
+//获取检索条件信息
+function getData(){
+	var data={
+        "year":getYear(),"term":getTerm(),
+        school:$.trim($("#toobar [name='school']").val()),
+        teacherno:$.trim($("#toobar [name='teacherno']").val()),
+        name:$.trim($("#toobar [name='name']").val())
+    };
+	return data;
+}
+//返回操作格式化值
+function  getFormat(val,row){
+    return "<a href=\"javascript:void(0)\" onclick=\"issue('"+row.teacherno+"')\">查看发放</a>";
+}
+//发放查看
+function issue(teacherno){
+    var url="__ROOT__/Book/Issue/issueByTeacher/year/"+getYear()+"/term/"+getTerm()+"/teacherno/"+teacherno;
+    openTabsWindows("教师个人发放清单",url);
+}
+</script>
+</body>
+</html>

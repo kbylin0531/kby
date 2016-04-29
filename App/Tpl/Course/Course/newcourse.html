@@ -1,0 +1,174 @@
+﻿<include file=":Include:jqueryHeader" />
+<script>
+    $(function(){
+        var panduan=false;                                  //判断用户的课号是否合法
+        var button=$('#bt').linkbutton({
+            text:'添加',
+            iconCls:'icon-add'
+        })
+
+        var button2=$('#bt2').linkbutton({
+            text:'重置',
+            iconCls:'icon-back'
+        })
+
+        button.bind('click',function(){
+            $('#COURSENO').blur()
+            var t = setTimeout(function(){
+                if(panduan){
+                    $('#biaodan').form('submit',{
+                        url:'__URL__/courseyz',
+                        onSubmit:function(){
+                            var pd=true;
+                            var one=$('#COURSENO').val().length;
+
+                            if(one!=7){
+                                pd=false;
+                                $.messager.alert('提示','<font color="red">课号需要7位数</font>');
+                            }
+                            if($('#COURSENAME').val()==""){
+                                pd=false;
+                                $.messager.alert('提示','<font color="red">课程名称不能为空！</font>')
+                            }
+                            var zz=/^\d{1,2}$/;
+                            var pd2=true;
+
+
+                            return pd
+                        },
+                        success:function(data){
+                            if(data!='false'){
+                                $.messager.alert('提示','添加成功');
+
+                            }else{
+                                $.messager.alert('提示','添加失败,课号有重复')
+                            }
+                        }
+                    })
+                }
+                clearTimeout(t);
+            },300);
+        })
+
+
+        button2.bind('click',function(){               //≡≡≡≡重置≡≡≡≡≡
+            $('#COURSENO').val('');                 //课号
+            $('#COURSENAME').val('');                 //课名
+            $('#SCHOOL').val('');                    //学部
+            $('#TGROUP').val('');                    //教研组
+            $('#TYPE').val('');
+            $('#TYPE2').val('');
+            $('#SYLLABUS').val('');
+            $('#REM').val('');
+            $('#INTRODUCE').val('');
+        });
+
+
+        $('#COURSENO').blur(function(){
+            $.ajax({
+                url:'__URL__/numberyz',
+                type:'POST',
+                data:{
+                    COURSENO:this.value
+                },
+                success:function(data){
+                    if(data=='false'){
+                        $.messager.alert('提示','课号已经存在')
+                        panduan=false;
+                    }else if(data=='sev'){
+                        $.messager.alert('提示','课号长度需要7位')
+                        panduan=false;
+                    }else{
+                        $('#ct').html('<font color="green">可以使用的课号√</font>')
+                        panduan=true;
+                    }
+                }
+
+            })
+
+        });
+    })
+</script>
+<body>
+<div class="easyui-panel" title="" data-options="fit:true,closable:false">
+    <form action="__URL__/courseyz" method="POST" id="biaodan">
+    <table><tr><td>
+        <table style="margin-left:15px;margin-top:10px" align="left" border="0" cellspacing="8">
+            <tr><td align="right" width="120">课号:</td><td><input type="text" name="COURSENO" size="7" maxlength="7" id="COURSENO">&nbsp&nbsp<b><font color="red">*</font></b><span id="ct">&nbsp&nbsp课号为7位</span></td></tr>
+            <tr><td align="right" width="120">课名:</td><td  colspan="3"><input type="text" name="COURSENAME" id="COURSENAME" size="30" maxlength="120"></td></tr>
+            <tr>
+                <td align="right" width="120">教研组：</td>
+                <td>
+
+                        <select name="TGROUP" style="width:180px" id="TGROUP" class="easyui-combobox">
+                            <option value="%">请选择</option>
+                            <volist name="tgroup" id="v">
+                                <option value="{$v.TGROUP}" <if condition="$v.TGROUP eq $user_tgroup">selected</if> >{$v.NAME}</option>
+                            </volist>
+                        </select>
+
+                </td>
+            </tr>
+            <tr>
+                <td align="right" width="120">学部：</td>
+                <td>
+
+                        <select name="SCHOOL" style="width:180px" id="SCHOOL" class="easyui-combobox">
+                            <option value="%">请选择</option>
+                            <volist name="school" id="v">
+                                <option value="{$v.SCHOOL}" <if condition="$v.SCHOOL eq $user_school">selected</if> >{$v.NAME}</option>
+                            </volist>
+                        </select>
+
+                </td>
+            </tr>
+
+            <tr>
+                <td width="120" align="right" height="23">课程类别：</td>
+                <td>
+                    <select name="TYPE" style="width:100px" id="TYPE" class="easyui-combobox">
+                        <volist name="coursetype" id="v">
+                            <option value="{$v.NAME}">{$v.VALUE}</option>
+                        </volist>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td width="120" align="right" height="23">课堂模式：</td>
+                <td>
+                    <select name="TYPE2"style="width:100px" id="TYPE2" class="easyui-combobox">
+                        <volist name="coursetype2" id="v2">
+                            <option value="{$v2.NAME}">{$v2.VALUE}</option>
+                        </volist>
+                    </select>
+                </td>
+            </tr>
+            <tr><td align="right">教学大纲网址：</td><td><input type="text" id="SYLLABUS" name="SYLLABUS" size="30" maxlength='99' value=""></td></tr>
+            <tr><td align="right">备注：</td><td><input type="text" name="REM" id="REM" size="30" maxlength="40" maxlength='99' value=""></td></tr>
+
+            <tr><td align="right">课程介绍:</td> <td><textarea rows="10"  name="INTRODUCE" id="INTRODUCE" cols="40" maxlength='750' style="resize:none;overflow: hidden"> </textarea></td></tr>
+
+
+            <tr><td colspan="2" align="left" width="80" style="color: red">注：课号为:2位教研组代码+1位专业代码+1位课程类型+2位课号+1位版本号 </td></tr>
+            <tr><td colspan="2" align="left" width="80" style="color: red">   课号应该为7位，最后一位表示相同课程，但教学大纲或学分不同。</td></tr>
+            <tr><td colspan="2" align="center" height="80">
+
+            <a href="javascript:void(0)" id="bt">添加</a>&nbsp;&nbsp;&nbsp;
+            <a href="javascript:void(0)" id="bt2">重置</a>
+            
+            </td></tr>
+        </table>
+        
+        </td><td valign="top">
+        
+        <table style="margin-top:10px" align="left"  width='200' border="0" cellspacing="8">
+        <tr><td>
+        <img src="/res/img/course_dm.png" width="600" height="500">
+        </td></tr>
+        </table>
+        
+        </td></tr></table>
+    </form>
+</div>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script src="__ROOT__/thirdparty/jquery/js/ExtSearcher.js"></script>
+<script src="__ROOT__/thirdparty/jquery/js/Shadow.js"></script>
+<style>
+
+    body {
+        background-color: #ffffff;
+    }
+
+    table.imagetable {
+        font-family: verdana,arial,sans-serif;
+        font-size:11px;
+        color:#666666;
+        border: 1px solid #999999;
+        border-collapse: collapse;
+        margin: 4px;
+    }
+    table.imagetable th {
+        background:#b5cfd2;
+        border: 1px solid #999999;
+        padding: 5px;
+    }
+    table.imagetable td {
+        background:#ffffff;
+        border: 1px solid #999999;
+        padding: 5px;
+    }
+    .red{
+        color:red;
+    }
+    .wd{
+        width:40px;;
+    }
+    .wd1{
+        width:25px;;
+    }
+
+</style>
+<script>
+    /**********************************change by zqq @2016.2.6*****************************************************************/
+    function createtable(data1){
+        var data = data1;
+        var table=document.createElement("table");
+        table.setAttribute("id","reportTable");
+        table.setAttribute("class","imagetable");
+        table.setAttribute("freezeRowNum","2");
+        table.setAttribute("freezeColumnNum","4");
+
+        var tr=document.createElement("tr");
+        var th=document.createElement("th");
+        th.setAttribute("rowspan","2");
+        th.setAttribute("width","50");
+        th.innerHTML ="学号";
+        tr.appendChild(th);
+        var th=document.createElement("th");
+        th.setAttribute("rowspan","2");
+        th.setAttribute("width","40");
+        th.innerHTML ="姓名";
+        var div=document.createElement("div");
+        div.setAttribute("class","wd");
+        th.appendChild(div);
+        tr.appendChild(th);
+        var th=document.createElement("th");
+        th.setAttribute("rowspan","2");
+        th.setAttribute("width","25");
+        th.innerHTML ="选课学分";
+        tr.appendChild(th);
+        var th=document.createElement("th");
+        th.setAttribute("rowspan","2");
+        th.setAttribute("width","25");
+        th.innerHTML ="获得学分";
+        tr.appendChild(th);
+        var stu = data.rows[0];
+        if(stu){
+            var courses =  stu.courses;
+            for(var o in courses)
+            {
+                var th=document.createElement("th");
+                th.setAttribute("colspan","4");
+                th.innerHTML =courses[o].coursename+" （"+courses[o].credit+"）";
+                tr.appendChild(th);
+            }
+        }
+        table.appendChild(tr);
+        var tr=document.createElement("tr");
+        var stu = data.rows[0];
+        if(stu){
+            var courses =  stu.courses;
+            for(var o in courses)
+            {
+                var th=document.createElement("th");
+                th.innerHTML ="平时";
+                var div=document.createElement("div");
+                div.setAttribute("class","wd1");
+                th.appendChild(div);
+                tr.appendChild(th);
+
+                var th=document.createElement("th");
+                th.innerHTML ="期中";
+                var div=document.createElement("div");
+                div.setAttribute("class","wd1");
+                th.appendChild(div);
+                tr.appendChild(th);
+
+                var th=document.createElement("th");
+                th.innerHTML ="期末";
+                var div=document.createElement("div");
+                div.setAttribute("class","wd1");
+                th.appendChild(div);
+                tr.appendChild(th);
+
+                var th=document.createElement("th");
+                th.innerHTML ="总评";
+                var div=document.createElement("div");
+                div.setAttribute("class","wd1");
+                th.appendChild(div);
+                tr.appendChild(th);
+            }
+        }
+        table.appendChild(tr);
+
+        for(var i=0;i<data.rows.length;i++){
+            var tr=document.createElement("tr");
+            var td=document.createElement("td");
+            var stu = data.rows[i];
+            if (stu) {
+                td.innerHTML = stu['studentno'];
+            }
+            tr.appendChild(td);
+            var td=document.createElement("td");
+            if (stu) {
+                td.innerHTML = stu['studentname'];
+            }
+            tr.appendChild(td);
+            var td=document.createElement("td");
+            if (stu) {
+                td.innerHTML = stu['totalcredit'];
+            }
+            tr.appendChild(td);
+            var td=document.createElement("td");
+            if (stu) {
+                td.innerHTML = stu['passedcredit'];
+            }
+            tr.appendChild(td);
+
+            if(stu){
+                var courses =  stu.courses;
+                for(var o in courses)
+                {
+
+                    var td=document.createElement("td");
+                    if(stu[o+"_3"] !== null) {
+                        td.innerHTML = stu[o + "_3"];
+                        if(stu[o+"_3"]<60)
+                            td.setAttribute("class","red");
+                    }
+                    tr.appendChild(td);
+                    var td=document.createElement("td");
+                    if(stu[o+"_0"] !== null) {
+                        td.innerHTML = stu[o + "_0"];
+                        if(stu[o+"_0"]<60)
+                            td.setAttribute("class","red");
+                    }
+                    tr.appendChild(td);
+                    var td=document.createElement("td");
+                    if(stu[o+"_1"] !== null) {
+                        td.innerHTML = stu[o + "_1"];
+                        if(stu[o+"_1"]<60)
+                            td.setAttribute("class","red");
+                    }
+                    tr.appendChild(td);
+                    var td=document.createElement("td");
+                    if(stu[o+"_2"] !== null) {
+                        td.innerHTML = stu[o + "_2"];
+                        if(stu[o+"_2"]<60)
+                            td.setAttribute("class","red");
+                    }
+                    tr.appendChild(td);
+                }
+            }
+            table.appendChild(tr);
+        }
+        document.getElementById("d1").innerHTML="";
+        document.getElementById("d1").appendChild(table);
+    }
+    $(function(){
+        var dgrid = $('#dgrid');
+        var year_input = $("#year");
+        var term_input = $("#term");
+        var classno_input = $("#classno");
+        var approach_input = $("#approach");
+
+        year_input.val(GenKits.getParentYear());
+        term_input.val(GenKits.getParentTerm());
+
+        var shadow = new Shadow({'text':'查询中...'});
+        new ExtSearcher('__APP__/Common/Provider/seacher',['grade','school','class']).start();
+
+
+        function getQuery(){
+            return {
+                year : year_input.val(),
+                term : term_input.val(),
+                classno : classno_input.val(),
+                approach: approach_input.val()
+            };
+        }
+
+        //打印
+        $("#print").click(function(){
+            var query = getQuery();
+            open('__URL__/exportClassStudentScores/classno/'+query.classno+'/year/'+query.year+'/term/'+query.term+'/approach/'+encodeURIComponent(query.approach));
+        });
+
+        //查询
+        $('#search').click(function(){
+            shadow.show();
+            var query = getQuery();
+            $.post('__URL__/listClassStudentScores',query, function (data) {
+
+
+                if(Messager.isMessage(data)) return Messager.show(data);
+                if(data.total === 0) return Messager.showInfo("查询不到第"+query.year+"学年第"+query.term
+                +"学期班级号为"+query.classno+"的学生成绩信息!");
+
+                createtable(data);
+
+               /* var columns = [[],[]];
+                var sample = data.rows[0]['courses'];
+                for(var x in sample){
+                    columns[0].push({"title":sample[x]['coursename']+'('+sample[x]['credit']+'分)',"colspan":4});
+                    columns[1].push({"field":x+"_3","title":"平时","rowspan":1});
+                    columns[1].push({"field":x+"_0","title":"期中","rowspan":1});
+                    columns[1].push({"field":x+"_1","title":"期末","rowspan":1});
+                    columns[1].push({"field":x+"_2","title":"总评","rowspan":1});
+                }
+                dgrid.datagrid({
+                    fit:false,
+                    rownumbers:true,
+                    singleSelect:true,
+                    frozenColumns:[[
+                            {field:'studentno',title:'学号',align:'center',width:100},
+                            {field:'studentname',title:'姓名',align:'center',width:100},
+                            {field:'passedcredit',title:'获取学分',align:'center',width:100},
+                            {field:'totalcredit',title:'选课学分',align:'center',width:100}
+                        ]],
+                    columns:columns
+                });
+
+                dgrid.datagrid('loadData',data);*/
+                shadow.hide();
+            });
+        });
+
+        //初始化表格
+        dgrid.datagrid({});
+    });
+</script>
+<body>
+    <div id="cc" class="easyui-layout" data-options="fit:true">
+        <div id="tdemo">
+
+            <label for="year">学年:</label><input name="year" size='4' id="year" class="ES_YEAR s" value="2015" />
+            <label for="term">学期:</label><input name="term" size='1' id="term" class="ES_TERM s" value="1" />
+            <label for="ES_GRADE">年级:</label><select name="grade" id="ES_GRADE" class="ES_GRADE s"></select>
+            <label for="school_input">学部:</label><select name="schoolno" id="school_input" class="ES_SCHOOL s"></select>
+            <label for="classno">班级:</label><select name="classno" id="classno" class="ES_CLASS s"></select>
+
+
+            <label for="approach">修课方式:</label>
+            <select name="approach" id="approach">
+                <option value="%">全部</option>
+                <option value="M">必修</option>
+                <option value="E">选修</option>
+            </select>
+
+            <a href="javascript:void(0);" id="search" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:false">查询</a> &nbsp;
+            <a href="javascript:void(0);" id='print' class="easyui-linkbutton" data-options="iconCls:'icon-excel',plain:true">导出Excel</a>
+        </div>
+        <div data-options="region:'center',border:false" style="padding:0;background:#Fff;">
+            <div id="dgrid" toolbar="#tdemo"></div>
+            <div id="d1" style="width:100%">
+
+            </div>
+        </div>
+
+    </div>
+
+</body>

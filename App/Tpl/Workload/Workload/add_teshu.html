@@ -1,0 +1,143 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+
+<script>
+    var year='{$timearr.year}';
+    var term='{$timearr.term}';
+    var start1='{$timearr.begintime}'
+    var end1='{$timearr.endtime}'
+    var status='{$timearr.status}'
+    $(function(){
+        $('[name=year]').val(year);
+        $('[name=term]').val(term);
+        $("[name=status][value='{$timearr.status}']").attr('checked',true)
+
+        var wd=$('#wd').window(new wind(600,500,false,false,false,false,false));        //todo:默认的页面
+          //todo:邦定change
+        $('[name=course]').bind('change',function(){
+
+            $('[name=courseno]').val($('[name=course]').val().substring(0,7))
+            $('[name=code]').val($('[name=course]').val().substring(7))
+
+        })
+
+
+        $('#tianjia').bind('click',function(){
+            if($('[name=courdeno]').val()==''){
+                return $.messager.alert('提示','选择一门课程')
+            }
+            ajiakesi('__URL__/add_teshu/hasJson/1',{'year':parent.$('#YEAR').val(),term:parent.$('#TERM').val(),'gzl':$('[name=workload]').val(),
+                'teacherno':$('[name=teacher]').val(),renshu:$('#Attend').val(),'code':$('[name=code]').val(),'courseno':$('[name=courseno]').val()},function(c){
+                $.messager.alert('提示',c)
+            })
+
+        })
+
+
+        $('#handlerQuery').bind('click',function(){
+            $('#quanTeacher').window({
+                closed:false
+            })
+        })
+
+        $('#quan_dat').datagrid({
+            toolbar:'#tdemo'
+        })
+
+
+        $("#quan_search").bind('click',function(){
+            $('#quan_dat').datagrid('options').url='__APP__/Status/Status/Squery'
+            $('#quan_dat').datagrid('load',{
+                Sqlpath:{'select':'CoursePlan/select_teacher.SQL','count':'CoursePlan/count_teacher.SQL'},bind:{
+                    ':TEACHERNAME':$('#quan_teachername').val(),':TEACHERNO':$('#quan_teacherno').val(),':SCHOOL':$('#school').val()
+                }
+            })
+        })
+
+
+        $('#add_teacher').bind('click',function(){
+            var rowList=$('#quan_dat').datagrid('getSelections')
+            for(var i=0;i<rowList.length;i++){
+                $('[name=teacher]').val($.trim($('[name=teacher]').val())+$.trim(rowList[i].TEACHERNO)+',')
+            }
+           $('#quanTeacher').window({closed:true})
+        })
+    })
+</script>
+<style>
+    td{border:1px #95B8E7 solid;
+    }
+
+
+
+</style>
+<!--todo: 进来的默认页面-->
+<body style="background-color: #ffffff">
+<div id="wd" title="特殊类型课程添加">
+    <table border="0"  width="456" style="margin-top: 80px" align="center">
+        <tr>
+            <td width="107" bgcolor="#E0ECFF" height="25">
+                <p align="right"><b>课程名称：</b></td>
+            <td width="209" height="25">
+                <select name="course">
+                    <volist name="courses" id="c">
+                        <option value="{$c.COURSENO}{$c.REM}">{$c.COURSENAME}</option>
+                    </volist>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td width="107" bgcolor="#E0ECFF" height="25">
+                <p align="right"><b>课号：</b></td>
+            <td width="209" height="25"><input type="text" disabled name="courseno" size="8" value="">&nbsp;&nbsp;&nbsp;选择一门课程自动获取</td>
+        </tr>
+        <tr>
+            <td width="107" bgcolor="#E0ECFF" height="25">
+                <p align="right"><b>实际人数：</b></td>
+            <td width="209" height="25"><span><input id="Attend" type="text" name="birthday" size="4"></span></td>
+        </tr>
+        <tr>
+            <td width="107" bgcolor="#E0ECFF" height="25">
+                <p align="right"><b>工作量：</b></td>
+            <td width="209" height="25"><input type="text" name="workload"></td>
+        </tr>
+        <tr>
+            <td width="107" bgcolor="#E0ECFF" height="25">
+                <p align="right"><b>上课老师：</b></td>
+            <td width="209" height="25"><input type="text" name="teacher"  size=30>
+                <a href="javascript:void(0)" id="handlerQuery" iconCls="icon-personal" plain='true' class="easyui-linkbutton">选择教师</a></td>
+
+        </tr>
+        <tr><td style="border:0px;" height="5" align="center" colspan="2"></td></tr>
+        <tr>
+            <td style="border:0px;" height="25" align="center" colspan="2">
+                <input type="hidden" name="code">
+                <a href="javascript:void(0)" id="tianjia" class="easyui-linkbutton">添加</a> </td>
+        </tr>
+    </table>
+</div>
+
+
+<div id="tdemo">
+    教师名:<input type="text" id="quan_teachername" value="%">&nbsp;&nbsp;&nbsp;
+    教师号:<input type="text" id="quan_teacherno" value="%">&nbsp;
+    所在学部:<select id="school"><option value="%">所有学部</option><volist name="schools" id="s"><option value="{$s.SCHOOL}">{$s.NAME}</volist></select>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" id="quan_search">检索</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="javascript:void(0)" id="add_teacher" iconCls='icon-add' class="easyui-linkbutton" plain="true">添加该教师</a>
+</div>
+
+
+<div id="quanTeacher" title=" " class="easyui-window" data-options="width:750,height:500,minimizable:false,maximizable:false,collapsible:false,closed:true">
+    <table class="easyui-datagrid" id="quan_dat"
+           data-options="fitColumns:true,fit:true,pagination:true,pageList:[30,50,100]">
+        <thead>
+        <tr>
+            <th data-options="field:'TEACHERNO',width:100,align:'center'">教师号</th>
+            <th data-options="field:'NAME',width:100,align:'center'">姓名</th>
+            <th data-options="field:'SCHOOL',width:100,align:'center'">所在学部</th>
+        </tr>
+        </thead>
+    </table>
+</div>
+</body>
+</html>

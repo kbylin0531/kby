@@ -1,0 +1,101 @@
+<include file=":Include:jqueryHeader" />
+
+
+<script>
+
+    var recno = "{$recno}";
+    $(function () {
+
+        $("#submit").click(function () {
+            return Messager.showConfirm('提交后将无法修改，请确认！', function (r) {
+                if(r){
+                    $.post('__URL__/updateTeacherEvalution',{recno:recno,subdata:$("#subform").serialize()}, function (data) {
+                        return Messager.show(data);
+                    });
+                }
+            });
+        });
+
+    });
+
+    
+</script>
+
+<style>
+    body {
+        background-color: #ffffff;
+    }
+
+    table.imagetable {
+        font-family: verdana,arial,sans-serif;
+        font-size:11px;
+        color:#666666;
+        border: 1px solid #999999;
+        border-collapse: collapse;
+        width: 100%;
+    }
+    table.imagetable th {
+        background:#b5cfd2;
+        border: 1px solid #999999;
+        padding: 8px;
+    }
+    table.imagetable td {
+        background:#ffffff;
+        border: 1px solid #999999;
+        padding: 8px;
+    }
+
+</style>
+
+<body>
+
+<div align="center">
+
+    <!-- 课程名称和教室名称 -->
+<p>{$evaluation_detail.coursename}  {$evaluation_detail.teachername}</p>
+
+
+    <form id="subform">
+        <table class="imagetable">
+            <thead>
+                <th width="50px">序号</th>
+                <th width="350px">考评内容</th>
+                <th width="50px">分值</th>
+                <th width="350px">选择</th>
+            </thead>
+            <tbody>
+                <volist name="evaluation_items" id="v">
+                    <tr class="{$v.id}">
+                        <td>{$v.id}</td>
+                        <td>{$v.description}</td>
+                        <td>{$v.score}</td>
+                        <td>
+                            <label>很好</label><input type="radio" value="1.0" name="CK[{$v.id}]" />
+                            <label>好</label><input type="radio" value="0.8" name="CK[{$v.id}]" />
+                            <label>一般</label><input type="radio" value="0.6" name="CK[{$v.id}]" />
+                            <label>不好</label><input type="radio" value="0.4" name="CK[{$v.id}]" />
+                            <label>差</label><input type="radio" value="0.2" name="CK[{$v.id}]" />
+                        </td>
+                    </tr>
+                </volist>
+
+                <tr>
+                    <td colspan="2">总分</td>
+                    <td colspan="2">100</td>
+                </tr>
+
+                <tr>
+                    <td colspan="2" rowspan="2" ><label for="remark">备注:对该老师发表自己的意见</label></td>
+                    <td colspan="2" rowspan="2">
+                        <textarea id="remark" name="remark" style="width: 100%;height: 50px;"></textarea>
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+
+        <br />
+        <a id="submit" href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-edit'">提交</a>
+    </form>
+</div>
+</body>

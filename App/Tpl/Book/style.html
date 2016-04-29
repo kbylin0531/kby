@@ -1,0 +1,20 @@
+<script type="text/javascript" src='__ROOT__/thirdparty/jquery/js/taskMonitor.js'> </script>
+<script type="text/javascript">
+    var list=null;
+    var datagrid=null;
+    var userKey="{$Think.session.S_USER_NAME}";
+    function getYear(){
+        return parent.$("#YEAR").val();
+    }
+    function getTerm(){
+        return parent.$("#TERM").val();
+    }
+</script>
+<style>
+    #toobar{padding:5px 0px 2px;}
+    #toobar label{padding-left:10px;}
+    #addForm table{margin:15px auto;border-collapse:collapse;}
+    #addForm td,#addForm th{border-bottom:dashed 1px #CCC;height:40px;}
+    #queryForm table{margin:15px auto;border-collapse:collapse;}
+    #queryForm td,#queryForm th{border-bottom:dashed 1px #CCC;height:40px;}
+</style>

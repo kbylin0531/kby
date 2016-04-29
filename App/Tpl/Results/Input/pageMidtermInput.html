@@ -1,0 +1,176 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script type="text/javascript" src='__ROOT__/thirdparty/jquery/js/datagrid-bufferview.js'> </script>
+<script type="text/javascript" src="__ROOT__/thirdparty/jquery/js/easyui.validate.js"></script>
+<script type="text/javascript" src="__ROOT__/thirdparty/jquery/js/easyui.extend.js"></script>
+<script type="text/javascript" src="__ROOT__/thirdparty/jquery/js/common.js"></script>
+<script type="text/javascript" src="__ROOT__/thirdparty/jquery/js/modules/results.js"></script>
+<script>
+    var year = "{$year_a}";
+    var term = "{$term}";
+    var scoretype = "{$scoretype}";
+    var examtime = "{$courseinfo.midterm_exam_date}";
+    var coursegroupno = "{$coursegroup}";
+
+    var editable_fields = ['midterm_score'];
+
+    $(function(){
+
+
+        if ((navigator.userAgent.indexOf('MSIE') >= 0) && (navigator.userAgent.indexOf('Opera') < 0)){
+            Messager.show('检测到你使用的是IE浏览器，为避免遇到兼容性问题，建议使用 <b><a style="text-decoration: underline;color: blue" href="__CHROME__">Chrome浏览器</a></b>！');
+        }
+
+        var datebox_input = $('#datebox_input');
+        var dgrid = $("#dgrid");
+        Formor.setDateBox(datebox_input,examtime);
+
+        //表格编辑行为
+        initDataGridEditor(dgrid,editable_fields, function (index,field) {
+            return false;
+        },scoretype);
+
+        $('#save2').bind('click', function () {
+            Datagrid.endEdit(dgrid);
+            var examdate = Formor.getDateBox(datebox_input);
+            if(!examdate){
+                return Messager.showWarning("请填写考试日期!");
+            }
+//            var subdata = getDataFromGrid(dgrid,editable_fields);
+
+            var subdata = [];
+            var rowlist = Datagrid.getRows(dgrid);
+            for(var i = 0;i<rowlist.length;++i){
+                var row = rowlist[i];
+                subdata[i] = {};
+                subdata[i]['_origin'] = row;
+                subdata[i]['midterm_score'] = row.finals_score;
+            }
+
+            $.post('__URL__/updateMidtermScoreInBatch',
+                    {year:year,term:term,courseno:coursegroupno,'rows':subdata,'examtime':examdate},
+                    function(c){
+                        Messager.showMessage(c, function () {
+                            location.reload();
+                        });
+                    }
+            );
+        });
+
+        //打印成绩单
+        $('#doprint').bind('click',function(){
+            window.open('__URL__/pageMidtermInputForPrint/year/'+year+'/term/'+term+'/courseno/'+coursegroupno);
+        });
+
+        //自动加载数据
+        loadDatagrid();
+        
+        $("#sync").click(function () {
+            $.post('__URL__/pageMidtermInput/reqtag/sync',{'year':year,'term':term,'coursegroup':coursegroupno}, function (data) {
+                return Messager.show(data,loadDatagrid);
+            });
+        });
+        
+    });
+
+    function loadDatagrid(){
+        //自动获取列表数据
+        $.post('__URL__/listFinalsInput',{'year':year,'term':term,'courseno':coursegroupno},function(c){
+            if(Ajaxor.isMessage(c)){
+                return Messager.showMessage(c);
+            }
+            Datagrid.loadData('dgrid',c);
+        });
+    }
+
+    function unlock(recno){
+        if(parseInt("{$imdean}") > 0){
+            $.post('__URL__/unlockForAdmin',{recno:recno,type:'midterm_lock'}, function (data) {
+                return Messager.show(data, loadDatagrid);
+            });
+        }else{
+            return Messager.showWarning('抱歉，只有__DEANNAME__人员才能解锁！');
+        }
+    }
+
+    function operation(value,row,index){
+        return (parseInt(row['midterm_lock']) > 0)?
+            '<a style="color: #0000FF" href="javascript:unlock(\''+row['recno']+'\');">解锁</a>':'';
+    }
+
+</script>
+<style>
+    p.statement {
+        line-height: 150%;
+        word-spacing: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+        text-align: left;
+        font-family: 宋体;
+        font-size: 11pt;
+        color: #0000ff;
+    }
+</style>
+<style>
+    th {
+        text-align: center;
+    }
+</style>
+
+<body style="background-color: #fff">
+<div class="easyui-layout" data-options="" style="height:750px">
+    <div data-options="region:'north',split:false,border:false" style="height:260px;">
+
+        <p align="center" style="font-size:14px">
+            <b>
+                __SCHOOLNAME__{$year_a}--{$year_b}学年第{$term}学期
+                期中成绩输入单({$scoretypetext}) </b>
+        </p>
+        <p align="center" style="line-height: 5%">
+            课号：<span style="font-size:10pt"  >{$courseinfo.coursegroup}</span>&nbsp;
+            课名:<span style="font-size:10pt" >{$courseinfo.coursename}</span>&nbsp;
+            教师名称:<span style="font-size:10pt" >{$teachers}</span>&nbsp;
+            选课人数:<span id="xuanke"></span>
+        </p>
+        <p  class="statement">1、百分制输入时成绩应为0-100之间或者使用字母（q、h、w)；</p>
+        <p  class="statement">2、五级制输入时成绩A-E之间或者使用字母（q、h、w)，数字对应成绩如下：A(a)-优秀，B(b)-良好，C(c)-中等，D(d)-及格，E(e)-不及格；</p>
+        <p  class="statement">3、二级制输入时成绩为数值D、E或者使用字母（q、h、w)，D(d)-及格，E(e)-不及格;</p>
+        <p  class="statement">4、字母对应字符如下:q-缺考，h-缓考，w-违纪；</p>
+        <p  class="statement">5、如期末考核缺考，则总评成绩应记为缺考，缓考者在成绩单课程状态中注明。</p>
+        <p  class="statement">6、按Tab键移动光标到下一个输入框.</p>
+        <p  class="statement">7、本课程考试日期为：
+            <input id="datebox_input" name="datebox_input" type="text" class="easyui-datebox" />
+        </p>
+    </div>
+    <div data-options="region:'center',split:false,border:false" style="padding:0;background:#FFF;overflow: visible">
+        <div align="center">
+            <table id="dgrid" title="" style="width:666px;height:492px" data-options="view:bufferview,rownumbers:true,singleSelect:true,
+            pageList:[500,1000],autoRowHeight:false,pageSize:800,pagination:false">
+                <thead>
+                    <tr>
+                        <th data-options="field:'studentno',width:100">学号</th>
+                        <th data-options="field:'studentname',width:100">姓名</th>
+                        <th data-options="field:'midterm_score',width:100,editor:{type:'text'}">期中成绩</th>
+                        <th data-options="field:'midterm_status',width:100,hidden:false">考试状态</th>
+                        <th data-options="field:'recno',hidden:true,width:100">recno</th>
+                        <th data-options="field:'midterm_lock',width:100,hidden:false,formatter:function(a,b,c){
+                                return parseInt(a) > 0 ? '锁定':'-';
+                                }">期中锁</th>
+                        <th data-options="field:'operation',hidden:false,width:100,formatter:operation">管理员操作</th>
+                        <th data-options="field:'recno',hidden:true,width:100">recno</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+</div>
+<div style="margin-top: 30px;margin-bottom: 30px;">
+    <div align="center">
+        <a href="javascript:void(0)" class="easyui-linkbutton" id="save2" data-options="iconCls:'icon-save'">提交数据</a>&nbsp;&nbsp;
+        <a href="javascript:void(0)" class="easyui-linkbutton" id="sync" data-options="iconCls:'icon-reload'">同步名单</a>&nbsp;&nbsp;
+        <a href="javascript:void(0)" class="easyui-linkbutton" id="doprint" data-options="iconCls:'icon-print'">打印成绩单</a>
+    </div>
+</div>
+
+</body>

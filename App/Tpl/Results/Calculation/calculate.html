@@ -1,0 +1,79 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/ExtSearcher.js"></script>
+<script src="__ROOT__/thirdparty/jquery/js/Shadow.js"></script>
+<script>
+    var shadow = new Shadow({'text':'后台处理中...'});
+    $(function(){
+        $("#ES_YEAR").val(GenKits.getParentYear());
+        $("#ES_TERM").val(GenKits.getParentTerm());
+        var dgrid = $('#dgrid');
+        var search_from = $("#search_from");
+
+        new ExtSearcher('__APP__/Common/Provider/seacher', ['grade','school','class'], 's').start();
+
+        var reload  = function(){
+            dgrid.datagrid('load',{_PARAMS_:search_from.serialize()});
+        };
+
+        $('#search').click(reload);
+        
+        $("#refresh").click(function () {
+            shadow.show();
+            $.post('__URL__/calculate/reqtag/refresh',{_PARAMS_:search_from.serialize()}, function (data) {
+                shadow.hide();
+                return Messager.show(data, reload);
+            });
+        });
+
+        $("#refreshAll").click(function () {
+            return Messager.showWarning('本功能留空待完善！');
+            shadow.show();
+            $.post('__URL__/calculate/reqtag/refreshAll',{_PARAMS_:search_from.serialize()}, function (data) {
+                shadow.hide();
+                return Messager.show(data, reload);
+            });
+        });
+
+    });
+</script>
+<body>
+<div id="cc" class="easyui-layout" data-options="fit:true">
+    <div id="tdemo">
+        <form id="search_from">
+            <label for="ES_YEAR">学年:</label><input name="year" size='4' id="ES_YEAR" class="ES_YEAR s" value="2015" />
+            <label for="ES_TERM">学期:</label><input name="term" size='1' id="ES_TERM" class="ES_TERM s" value="1" />
+            <label for="ES_GRADE">年级:</label><select name="grade" id="ES_GRADE" class="ES_GRADE s"></select>
+            <label for="ES_SCHOOL">学部:</label><select name="schoolno" id="ES_SCHOOL" class="ES_SCHOOL s"></select>
+            <label for="ES_CLASS">班级:</label><select name="classno" id="ES_CLASS" class="ES_CLASS s"></select>
+            <label for="ES_STUDENT">学生:</label><select name="studentno" id="ES_STUDENT" class="ES_STUDENT s"></select>
+
+            <label for="coursegroup">课号(最多九位)：</label>
+            <input type="text" name="coursegroup" id="coursegroup" size="10" value="%">
+
+            <a id="search"  class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+            <a id="refresh"  class="easyui-linkbutton" data-options="iconCls:'icon-reload',plain:true">刷新当前学生学分</a>
+            <a id="refreshAll"  class="easyui-linkbutton" data-options="iconCls:'icon-reload',plain:true">计算本学期全部学生</a>
+        </form>
+    </div>
+    <div data-options="region:'center',border:false" style="padding:0;background:#eee;">
+        <table class="easyui-datagrid" id="dgrid" data-options="url:'__URL__/calculate/reqtag/list',toolbar:'#tdemo',fitColumns:true,fit:true,pagination:true,pageList:[20,50,100,200,500]" >
+            <thead>
+                <tr>
+                    <th data-options="field:'ck',checkbox:true" ></th>
+                    <th data-options="field:'coursegroup',width:100,align:'center'">课号</th>
+                    <th data-options="field:'coursename',width:100,align:'center'">课程名称</th>
+                    <th data-options="field:'studentno',width:100,align:'center'">学号</th>
+                    <th data-options="field:'studentname',width:100,align:'center'">姓名</th>
+                    <th data-options="field:'classname',width:100,align:'center'">班级</th>
+                    <th data-options="field:'normal_score',width:100,align:'center'">平时</th>
+                    <th data-options="field:'midterm_score',width:100,align:'center'">期中</th>
+                    <th data-options="field:'finals_score',width:100,align:'center'">期末</th>
+                    <th data-options="field:'general_score',width:100,align:'center'">总评</th>
+                    <th data-options="field:'credit',width:100,align:'center'">学分</th>
+                    <th data-options="field:'point',width:100,align:'center'">绩点</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+</body>

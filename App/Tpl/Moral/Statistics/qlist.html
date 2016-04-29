@@ -1,0 +1,178 @@
+<include file=":Include:jqueryHeader" />
+<script type="text/javascript">
+    var datagrid = null; //数据表
+    var MTYPE = null;
+    $(function() {
+        //todo 初始化数据表
+        datagrid = $('#datagrid').datagrid({
+            toolbar : '#toobar',
+            frozenColumns:[[{field:'ck',checkbox:true}]],
+            onBeforeLoad : function(){
+                $(this).datagrid("unselectAll");
+                return true;
+            },
+            onSelect : function(index,row){
+                if(MTYPE == null) return;
+                getCount(row, MTYPE);
+            }
+        });
+
+        //todo 查询
+        $("#event_searcher").bind("click",function(){
+            $(".easyui-linkbutton").linkbutton("enable");
+            $(".easyui-layout").layout('collapse','south');
+            MTYPE = null;
+
+            datagrid.datagrid("options").url = '__ROOT__/Moral/Statistics/qlist/hasJson/true'
+            var p = {
+                YEAR:$("#YEAR").val(),
+                TERM:$("#TERM").val(),
+                NAME:$("#SNAME").val(),
+                STUDENTNO:$("#SNO").val(),
+                STATUS:$("#STATUS").val(),
+                CLASSNAME:$("#CLASSNAME").val(),
+                SUMVAL:$("#SUMVAL").val()
+            }
+            datagrid.datagrid("reload",p);
+        });
+
+
+
+
+        //todo 扣分明细
+        $("#event_count1").bind("click",function(){
+            $(".easyui-linkbutton").linkbutton("enable");
+            $("#event_count1").linkbutton('disable');
+            MTYPE = 1;
+
+            var rows = datagrid.datagrid("getSelections");
+            if(rows && rows.length==1) getCount(rows[0], MTYPE);
+        });
+
+        //todo 加分明细
+        $("#event_count2").bind("click",function(){
+            $(".easyui-linkbutton").linkbutton("enable");
+            $("#event_count2").linkbutton('disable');
+            MTYPE = 2;
+
+            var rows = datagrid.datagrid("getSelections");
+            if(rows && rows.length==1) getCount(rows[0], MTYPE);
+        });
+
+        //todo 处分明细
+        $("#event_count3").bind("click",function(){
+            $(".easyui-linkbutton").linkbutton("enable");
+            $("#event_count3").linkbutton('disable');
+            MTYPE = 3;
+
+            var rows = datagrid.datagrid("getSelections");
+            if(rows && rows.length==1) getCount(rows[0], MTYPE);
+        });
+
+        function getCount(row, mtype){
+            var _params = {YEAR:row.YEAR, TERM:row.TERM, STUDENTNO:row.STUDENTNO, MType:mtype};
+            var _columns = [[{field:'YEAR',title:'学年', width:80},
+                {field:'TERM',title:'学期', width:80},
+                {field:'CLASSNAME',title:'班级', width:100},
+                {field:'NAME',title:'姓名', width:100},
+                {field:'STUDENTNO',title:'学号', width:100}]];
+
+            if(mtype==1){
+                _columns[0].push({field:'DETAILS',title:'扣分细则', width:180});
+                _columns[0].push({field:'DETAIL_VALUE',title:'扣分分值', width:80});
+                _columns[0].push({field:'TEACHER_NAME',title:'操作教师', width:100});
+            }else if(mtype==2){
+                _columns[0].push({field:'DETAILS',title:'加分原因', width:180});
+                _columns[0].push({field:'DETAIL_VALUE',title:'加分分值', width:80});
+                _columns[0].push({field:'TEACHER_NAME',title:'操作教师', width:100});
+            }else if(mtype==3){
+                _columns[0].push({field:'DETAILS',title:'处分状态', width:180});
+                _columns[0].push({field:'REM',title:'处分原因', width:260});
+                _columns[0].push({field:'TEACHER_NAME',title:'申请教师', width:100});
+            }
+
+            $(".easyui-layout").layout('expand','south');
+            $("#detailData").datagrid({
+                url : "/Moral/Statistics/detail/hasJson/true",
+                queryParams : _params,
+                columns : _columns
+            });
+        }
+        
+        //删除
+        $("#delete").click(function () {
+            if(Datagrid.hasSelected(datagrid)){
+                var selections = Datagrid.getSelections(datagrid);
+                $.post('__URL__/qlist/reqtag/delete',{rows:selections}, function (data) {
+                    return Messager.show(data, function () {
+                        datagrid.datagrid('reload');
+                    });
+                });
+            }
+        });
+
+        //TODO:添加待完成
+        $("#add").click(openWindow);
+        function openWindow(){
+            $("#win").window('open');
+        }
+        function closeWindow(){
+            $("#win").window('close');
+        }
+        
+    });
+</script>
+
+<body class="easyui-layout" style="background: #fff;padding:0px;overflow-y: hidden"  fit="true" split="false" scroll="no" >
+
+<!-- 主页面 -->
+<div id="mainPanle" region="center" border="1" style="background: #fff; padding:3px; " >
+    <table id="datagrid" fitColumns="true" width="100%" singleSelect="true" fit="true" idField="ID"
+           pagination="true" pageSize="15" pageList="[15,30,60]" striped="true" >
+        <thead>
+        <tr><th data-options="field:'YEAR',width:60">学年</th>
+            <th data-options="field:'TERM',width:60">学期</th>
+            <th data-options="field:'CLASSNAME',width:100">班级</th>
+            <th data-options="field:'STUDENTNO',width:80">学号</th>
+            <th data-options="field:'NAME',width:80">姓名</th>
+            <th data-options="field:'COUNT2',width:120">加分总数</th>
+            <th data-options="field:'COUNT1',width:60">扣分总分数</th>
+            <th data-options="field:'SUMVAL',width:80">分差</th>
+            <th data-options="field:'COUNT3',width:80">处分次数</th></tr>
+        </thead>
+    </table>
+</div>
+<div id="detailPanle" region="south" collapsed=true border="1" style="background: #fff; padding:3px; height:200px">
+    <div id="detailData" fitColumns="false" width="100%" singleSelect="true" fit="true" idField="ID"
+           pagination="false" pageSize="20" pageList="[20,40,60]" striped="true" >
+    </div>
+</div>
+
+<!-- 主页面工具条 -->
+<div id="toobar">
+    <span class="datagrid-btn-separator-area">
+        <label for="YEAR">学年:<input type="text" id="YEAR" size="10"  value='{$YearTerm.YEAR}' class="easyui-validatebox"></label>
+        <label for="TERM">学期:<input type="text" id="TERM" size="10"  value='{$YearTerm.TERM}' class="easyui-validatebox"></label>
+        <label for="CLASSNAME">班级:<input type="text" id="CLASSNAME" size="10"  value='%' class="easyui-validatebox"></label>
+        <label for="SNAME">姓名:<input type="text" id="SNAME" size="12"  value='%' class="easyui-validatebox"></label>
+        <label for="SNO">学号:<input type="text" id="SNO" size="10"  value='%' class="easyui-validatebox"></label>
+        <label for="SUMVAL">分差:<input type="text" id="SUMVAL" size="4"  value=''></label>
+        <a id="event_searcher" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true">搜索</a>
+        <!--<a id="add" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">添加</a>-->
+        <a id="delete" class="easyui-linkbutton" data-options="iconCls:'icon-remove',plain:true">删除</a>
+    </span>
+    <a class="datagrid-btn-separator"></a>
+    <a id="event_count1" class="easyui-linkbutton" data-options="iconCls:'icon-tanchu',plain:true" >扣分明细</a>
+    <a id="event_count2" class="easyui-linkbutton" data-options="iconCls:'icon-tanchu',plain:true">加分明细</a>
+    <a id="event_count3" class="easyui-linkbutton" data-options="iconCls:'icon-tanchu',plain:true">处分明细</a>
+</div>
+<div id="win" class="easyui-window" title="添加" style="width:600px;height:400px"
+     data-options="iconCls:'icon-save',modal:true,closed:true">
+
+
+
+
+
+</div>
+
+</body>

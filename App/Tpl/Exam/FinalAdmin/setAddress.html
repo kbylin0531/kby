@@ -1,0 +1,264 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script>
+        var field=''
+        var index=0;
+        var row=''
+ /*   function dakai(obj){
+       // alert($(obj).attr('index'))
+        field=$(obj).attr('field');
+        index=$(obj).attr('index');
+        row=$(obj).attr('row');
+      //  alert()
+
+        $('#wd4').window({closed:false})
+    }*/
+
+    $(function(){
+
+        $('#bt2').linkbutton({
+            'text':'检索',
+            'iconCls':'icon-search'
+        }).bind('click',function(){
+                    $('#dat2').datagrid('options').url='__APP__/Status/Status/Squery'
+                    $('#dat2').datagrid('load',{
+                        'Sqlpath':{'select':'exam/setAddress_select_ROOM.SQL','count':'exam/setAddress_count_ROOM.SQL'
+                        },'bind':{':ROOMNO':$('[name=roomno2]').val().trim(),':ROOMNAME':$('[name=roomname2]').val().trim(),
+                            ':MENPAI':'%'}
+                    })
+                })
+
+        $('#wd4').window(new wind(700,500,false,false,true,false,false,false))
+        $('#wd4').window({
+            closable:true
+        })
+        $("[name=year]").val(parent.$("#YEAR").val());
+        $("[name=term]").val(parent.$("#TERM").val());
+        var arr=[];
+        var wd=$('#wd').window(new wind(600,500,false,false,false,false,false));        //todo:默认的页面
+        var course_wd=$('#course_wd').window(new wind(0,0,false,false,false,false,true));
+        var examtype='{$type}'
+        var base=''
+
+
+
+        var dat=$('#daaa').datagrid({
+            fit:true,
+            singleSelect:true,
+            pagination:true,
+            pageList:[10,20,30,40],
+            pageSize:20,
+            onRowContextMenu:function(e,rowindex,row){
+                dat.datagrid('rejectChanges')
+                var tt=$('#daaa');
+
+                e.preventDefault();  //该方法将通知 Web 浏览器不要执行与事件关联的默认动作（如果存在这样的动作）
+                tt.datagrid('selectRow',rowindex);
+                $('#admin_access_menu').menu('show',{
+                    left: e.pageX,
+                    top: e.pageY
+                });
+            },
+            onClickCell:function(rowIndex,fielda,value){
+              // alert('123');
+                if(fielda.substring(0,3)!='kcc')return $.messager.alert('提示','请选择"考场"单元格')
+                field=fielda
+                index=rowIndex
+                var rowA=$('#daaa').datagrid('getRows')
+                row=rowA[rowIndex].kh;
+
+                $('#wd4').window({closed:false})
+                $('#dat2').datagrid('unselectAll')
+            },
+            columns:[[
+                {field:'kh',title:'课号',width:80,align:'center'},
+                {field:'km',title:'课名',width:100,align:'center'},
+                {field:'xkrs',title:'选课人数',width:80,align:'center'},
+                {field:'kcc1',title:'考场1',align:'center',width:80,formatter:function(a,b,kk){
+            return a;
+/*
+                    return "<a field='kcc1' href=\"javascript:void(0)\"  onclick=\"dakai(this)\" index="+kk+" row="+b.kh+">"+a+"</a>";*/
+                }},
+                {field:'kw1',title:'考位1',width:30,align:'center'},
+                {field:'kcc2',title:'考场2',align:'center',width:80,formatter:function(a,b,kk){
+                    return a;
+                    //return "<a field='kcc2' href=\"javascript:void(0)\" onclick=\"dakai(this)\" index="+kk+" row="+b.kh+">"+a+"</a>";
+                }},
+                {field:'kw2',title:'考位2',width:30,align:'center'},
+                {field:'kcc3',title:'考场3',width:80,formatter:function(a,b,kk){
+                    return a;
+                    //return "<a field='kcc3' href=\"javascript:void(0)\" onclick=\"dakai(this)\" index="+kk+" row="+b.kh+">"+a+"</a>";
+                }},
+                {field:'kw3',title:'考位3',width:40,align:'center'},
+                {field:'kssj',title:'考试时间',width:180,align:'center'},
+                {field:'bj',title:'班级',width:380,align:'center'}
+            ]],
+            toolbar:'#tdemo'/*[{'text':'安排监考教师',
+             'iconCls':'icon-personal',
+             handler:function(){
+             var List=$('#daaa').datagrid('getSelections')
+             if(List.length==0){
+             return $.messager.alert('提示','请您选择一条进行操作哦')
+             }
+             openTabsWindows('监考安排','__URL__/jiankaoanpai/YEAR/'+$('[name=year]').val()+'/TERM/'+$('[name=term]').val()+'/examtype/'+examtype+'/COURSENO/'+List[0].kh+'/R15/'+List[0]['R15'],'',true)
+             }
+
+             }
+             ]*//*,
+            view: detailview,
+            detailFormatter: function(rowIndex, rowData){
+                arr[rowData.row]=rowData;
+                return "<div id=a"+rowData.row+" style='width:500px;height:91px'>"+rowData.row+"</div>"
+            },
+            onExpandRow:function(index,row){
+                $('#a'+row.row).html('<table width="880" cellspacing="0" style="border:1px solid #eee"><tr><td  align="center"  style="border:1px solid #aaa;height:25px" width="100" bgcolor="#E0ECFF" ><font size="2">考试时间</font></td><td align="left" colspan="3" style="border:1px solid #aaa"><font size="2">'+arr[row.row]['kssj']+'</font></td></tr><tr id=SLAVE><td  align="center"   bgcolor="#E0ECFF" style="border:1px solid #aaa"><font size="2">监考老师</font></td><td align="left" style="border:1px solid #aaa"><font size="2">考场1:'+arr[row.row]['ST1']+'</font></td><td align="left" style="border:1px solid #aaa"><font size="2">考场2:'+arr[row.row]['ST2']+'</font></td><td align="left" style="border:1px solid #aaa"><font size="2">考场3:'+arr[row.row]['ST3']+'</font></td></tr><tr id=SLAVE><td  align="center" style="border:1px solid #aaa;height:25px"  bgcolor="#E0ECFF"><font size="2">备注</font></td><td align="left" colspan="3" style="border:1px solid #aaa"><font size="2">'+arr[row.row]['rem']+'</font></td></tr></table>')
+            }*/
+        });
+
+
+        $('#e_excel').bind('click',function(){
+            $('[name=e_year]').val($('[name=year]').val())
+            $('[name=e_term]').val($('[name=term]').val())
+            $('#e_form').submit();
+
+
+
+        })
+
+
+
+
+        var daaa=$('#daaa')
+        $('#bt').linkbutton({
+            'text':'检索',
+            'iconCls':'icon-search'
+        }).bind('click',function(){
+                    daaa.datagrid('options').url='__APP__/Status/Status/Squery'
+                    daaa.datagrid('load',{'Sqlpath':{'select':'exam/Two_one_select.SQL','count':'exam/Two_one_count.SQL'},
+                        bind:{':COURSESCHOOL':'%',':YEAR':$('[name=year]').val(),':TERM':$('[name=term]').val(),':CLASSSCHOOL':'%',
+                         ':CLASSNO':'%',':CHANGCI':'%',':COURSENO':'%',':examType':'M'}
+                    })
+
+
+
+
+                })
+
+        function apjk(){
+            var List=$('#daaa').datagrid('getSelections')
+            if(List.length==0){
+                return $.messager.alert('提示','请您选择一条进行操作哦')
+            }
+            openTabsWindows('监考安排','__URL__/jiankaoanpai/YEAR/'+$('[name=year]').val()+'/TERM/'+$('[name=term]').val()+'/examtype/'+examtype+'/COURSENO/'+List[0].kh+'/R15/'+List[0]['R15'],'',true)
+
+        }
+        $('#e_save').bind('click',apjk)
+        $('#admin_save').bind('click',apjk)
+    })
+</script>
+
+
+<style>
+
+
+    span{border:0px solid red;;vertical-align:middle;}
+
+</style>
+<body style="background-color: #fff">
+
+<form action="__APP__/CourseManager/Excel/roomExcel" method="POST" id="e_form">
+    <input type="hidden" name="e_year">
+    <input type="hidden" name="e_term">
+</form>
+
+
+<div id="cc" class="easyui-layout" data-options="fit:true">
+    <div id="tdemo">
+        <b>学年:</b>
+        <input name="year" type="text" size='4' value=""></td>
+        &nbsp &nbsp
+        <b>学期:</b>
+        <input type="text" name="term" size="1" value=""></td>
+        &nbsp &nbsp   &nbsp &nbsp
+        <a href='javascript:void(0)' id="bt">核对并输入监考教师</a>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href="javascript:void(0)" id="e_excel" class="easyui-linkbutton" iconCls="icon-excel" plain="true">导出Excel</a>
+    </div>
+    <div data-options="region:'center',border:false" style="padding:0px;background:#eee;">
+        <div id="daaa" >
+        </div>
+    </div>
+
+</div>
+<!--todo:点击添加教室弹出的窗口-->
+<div id="wd4" title=" " data-options="">
+    <div id="ccc" class="easyui-layout" data-options="fit:true">
+        <div data-options="region:'north',split:false,border:false" style="height:50px;background:#E0ECFF;">
+            <table border="0" id="tb2" width="55%" style="margin-top: 2px" align="left"cellspacing="0" cellpadding="0" singleSelect="true">
+                <tr>
+
+                    <td   height="10">
+                        <p align="right"><b>教室号：</b></td>
+                    <td  height="10" style="border:0px">
+                        <input type="text" name="roomno2" size="7" value="%">
+                    </td>
+                    <td   height="10">
+                        <p align="right"><b>教室名：</b></td>
+                    <td  height="10" style="border:0px">
+                        <input type="text" name="roomname2" size="7" value="%">
+                    </td>
+
+                    <td style="border:0px;" height="10" align="center" colspan="4">
+                        <a href="javascript:void(0)" id="bt2">检索</a>
+                    </td>
+
+                </tr>
+            </table><p align="center">
+        </div>
+        <div data-options="region:'center',border:false" style="padding:0px;background:#eee;">
+
+            <table class="easyui-datagrid" id="dat2"
+                   data-options="fit:true,pagination:true,pageList:[20,50,100,500,1000],toolbar:[
+               {'text':'设为考场',
+               'iconCls':'icon-add',
+               handler:function(){
+                    var List=$('#dat2').datagrid('getSelections')
+                    if(List.length==0){
+                        return $.messager.alert('提示','您还没选择数据哦')
+                    }
+                    var rowa=$('#dat2').datagrid('getSelected')
+
+
+                    ajiakesi('__URL__/setRoom',{'kh':row,'field':field,'room':rowa,'year':parent.$('#YEAR').val(),
+                    'term':parent.$('#TERM').val()},function(c){
+                          $.messager.alert('提示',c)
+                    })
+
+                        $('#daaa').datagrid('reload',{'Sqlpath':{'select':'exam/Two_one_select.SQL','count':'exam/Two_one_count.SQL'},
+                        bind:{':COURSESCHOOL':'%',':YEAR':$('[name=year]').val(),':TERM':$('[name=term]').val(),':CLASSSCHOOL':'%',
+                         ':CLASSNO':'%',':CHANGCI':'%',':COURSENO':'%',':examType':'M'}
+                    })
+
+                     $('#wd4').window({closed:true})
+               }
+               }]">
+                <thead>
+                <tr>
+                    <th data-options="field:'row',checkbox:true">选择</th>
+                    <th data-options="field:'jsh',width:100,align:'right'" align="center">教室号</th>
+                    <th data-options="field:'kws',width:100,align:'right'" align="center">考位数</th>
+                    <th data-options="field:'lh',width:100,align:'right'" align="center">楼号</th>
+                    <th data-options="field:'mph',width:100,align:'right'" align="center">门牌号</th>
+                    <th data-options="field:'jsmc',width:100,align:'right'" align="center">教室名称</th>
+
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+<div id="admin_access_menu" class="easyui-menu" style="width:100px;">
+    <div id='admin_save'>安排监考老师</div>
+</div>
+</html>

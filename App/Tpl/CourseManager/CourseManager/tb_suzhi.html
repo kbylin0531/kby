@@ -1,0 +1,73 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/Shadow.js"></script>
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+        <style>
+            table {
+                overflow: scroll;
+                width: 100%;
+                height: auto;
+                background: azure;
+            }
+            tr td{
+                height: 50px;
+            }
+        </style>
+<script>
+    $(function(){
+
+        var shadow = new Shadow({'text':'后台处理中...'});
+
+        var notice_table = $("#notice_table");
+        var notice_div = $("div#notice_div");
+        var parentYearInput = parent.$('[name=YEAR]');
+        var parentTERMInput = parent.$('[name=TERM]');
+
+        $('#bixiu').bind('click',function(){
+            var year = parentYearInput.val();
+            var term = parentTERMInput.val();
+
+            return $.messager.confirm('提示',"你确定要同步第"+year+"学年第"+term+"学期的学生必修课与模块课吗？",function(c){
+                if(c){
+                    shadow.show();
+                    $.post('__URL__/bixiu',{'year':year,'term':term},function(c){
+                        shadow.hide();
+                        if(c.message instanceof Array){
+                            notice_div.css('display','');
+                            for(var x in c.message){
+                                notice_table.append(
+                                    $('<tr><td>'+c.message[x].studentno+'</td><td>'+c.message[x].courseno+'</td></tr>')
+                                );
+                            }
+                            return  $.messager.alert('提示', '发生了错误，同步过程中断！', 'error');
+                        }else{
+                            notice_div.css('display','none');
+                            return  $.messager.alert('提示', c.message, c.type);
+                        }
+                    });
+                }
+            })
+
+        })
+    })
+</script>
+<body style="background: #fff">
+    <p>
+        <a href="javascript:void(0)"  id="bixiu" class="easyui-linkbutton">给所有学生选必修课</a>
+    </p>
+    <input type="hidden" name="MID" value="CG06" />
+    <input type="hidden" name="SQL" value="UPDATECREDIT.SQL" />
+    <input type="hidden" name="XML" value=" " />
+
+    <p><font face="黑体" size="3" >本操作将为所有学生选必修课与模块课（根据开课计划中的属性），休学、延长学业学生除外，专业选修课除外。</font></p>
+
+    <div id="notice_div" style="display: none">
+        <br /><br /><br />
+        <p><b style="color: red">因课程重复而无法同步的学生与课程信息如下：</b></p>
+        <table id="notice_table">
+            <thead>
+                <td>学号</td>
+                <td>课程号</td>
+            </thead>
+        </table>
+    </div>
+</body>

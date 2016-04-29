@@ -1,0 +1,423 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script>
+    $.extend($.fn.treegrid.methods, {
+        addEditor : function(jq, param) {
+            if (param instanceof Array) {
+                $.each(param, function(index, item) {
+                    var e = $(jq).treegrid('getColumnOption', item.field);
+                    e.editor = item.editor;
+                });
+            } else {
+                var e = $(jq).treegrid('getColumnOption', param.field);
+                e.editor = param.editor;
+            }
+        },
+        removeEditor : function(jq, param) {
+            if (param instanceof Array) {
+                $.each(param, function(index, item) {
+                    var e = $(jq).treegrid('getColumnOption', item);
+                    e.editor = {};
+                });
+            } else {
+                var e = $(jq).treegrid('getColumnOption', param);
+                e.editor = {};
+            }
+        }
+    });
+
+
+
+
+
+	$(function() {
+		var appendRowId = undefined;
+		var hang = false; //判断是否有点过增加(我们给它限制了 只有一行)
+		var indexrow = undefined; //保存索引键的变量
+		var dat = $('#scinfo').treegrid({
+			url : '__URL__/school/hasJson/1',
+			idField : 'rowId',
+			treeField : 'NAME',
+			columns : [ [ {
+				checkbox : true
+			}, {
+				field : 'NAME',
+				title : '名称',
+				width : 250,
+				sortable : true,
+				align : 'left',
+				editor : {
+					type : 'validatebox',
+					options : {
+						required : true
+					}
+				},
+				formatter : function(a, b, c) {
+					return $.trim(a);
+
+				}
+			}, {
+				field : 'SCHOOL',
+				title : '编号',
+				width : 50,
+				sortable : true,
+				align : 'center',
+				editor : {
+					type : 'validatebox',
+					options : {
+						required : true
+					}
+				}
+			}, {
+				field : 'PARENT',
+				title : '父级编号',
+				width : 300,
+				sortable : true,
+				align : 'center',
+				editor : {
+					type : 'combotree',
+					options : {
+						valueField : 'id',
+						textField : 'text',
+						lines : true,
+						editable : true
+					}
+				},
+				formatter : function(a, b, c) {
+					return $.trim(a);
+
+				}
+			}, {
+				field : 'ORDERBY',
+				title : '顺序',
+				width : 100,
+				sortable : true,
+				align : 'center',
+				editor : {
+					type : 'numberbox'
+				}
+			}, {
+				field : 'PATH',
+				title : '路径',
+				width : 250,
+				sortable : true,
+				align : 'left'
+			} ] ],
+			sortName : 'SCHOOL', //排序用的
+			sortOrder : 'asc',
+			pagination : false,
+			pageList : [ 10, 20, 30, 40, 50 ],
+			pageSize : 30,
+			toolbar : '#tdemo',
+			onContextMenu : function(e, row) {
+				dat.treegrid('rejectChanges')
+				var tt = $('#scinfo');
+
+				e.preventDefault(); //该方法将通知 Web 浏览器不要执行与事件关联的默认动作（如果存在这样的动作）
+				tt.treegrid('select', row.rowId);
+				$('#admin_access_menu').menu('show', {
+					left : e.pageX,
+					top : e.pageY
+				});
+			},
+			onExpand : function(row) {
+				updatestate(row, 'open');
+			},
+			onCollapse : function(row) {
+				updatestate(row, 'closed');
+			},
+			onDblClickRow : function(row) {
+				if (!hang) {
+					dat.treegrid('removeEditor', 'SCHOOL');
+					if (indexrow != undefined) {
+						dat.treegrid('cancelEdit', indexrow);
+						indexrow = undefined;
+					}
+
+					if (indexrow == undefined) {
+						dat.treegrid('beginEdit', row.rowId);
+						indexrow = row.rowId;
+					}
+				}
+			},
+			onAfterEdit : function(row, changes) { //当完成编辑的时候 触发此方法
+				hang = false;
+				var Purl = ''; //保存请求的URL地址的
+
+				if (row._isinsert) {
+					Purl = '__URL__/inserted';
+				} else if (itObjIsNull(changes)) {
+					Purl = '__URL__/updated';
+				} else {
+					return $.messager.alert('提示', '未作修改！');
+				}
+				$.ajax({
+					url : Purl,
+					type : 'POST',
+					data : row,
+					success : function(content) {
+						if (content == 'true') {
+							$.messager.alert('提示', '操作成功');
+							indexrow = undefined;
+							dat.treegrid('reload');
+						} else {
+							alert(content);
+							dat.treegrid('reload');
+						}
+					}
+				});
+			}
+		});
+		$('#dtnfo').layout({
+
+		})
+
+		//搜索方法
+		$('#searcher').bind("click", function() {
+			hang = false;
+			$('#scinfo').treegrid('load', {
+				SCHOOL : $('#sname').val(),
+				NAME : $('#snumber').val()
+			})
+		})
+
+		$('#e_add')
+				.bind(
+						'click',
+						function() {							
+							var row3 = dat.treegrid('getSelected');
+							if (row3) {
+								adminadd(1);
+							}
+							else
+							{
+								adminadd(null);
+							}
+						})
+
+		function ddel() {
+			var row2 = dat.treegrid('getSelections');
+
+			if (row2.length) {
+				$.messager.confirm('提示', '您确定要删除吗', function(b) {
+					if (b) {
+						var infoarr = []; //存储删除信息的数组
+						for (var i = 0; i < row2.length; i++) {
+							infoarr[i] = row2[i].SCHOOL;
+						}
+
+						$.ajax({
+							url : '__URL__/deleted',
+							data : {
+								'in' : infoarr
+							},
+							type : 'POST',
+							success : function(C) {
+								var result = C.result;
+								var msgStr = C.msgStr;								
+								
+								if (result) {
+									dat.treegrid('load');
+									if (msgStr)
+									{
+										$.messager.alert('提示', msgStr, '?');
+									}
+									
+								} else {
+									var str = '删除失败';
+									if (msgStr)
+									{
+										str += "<br>" + msgStr;
+									}
+									$.messager.alert('提示', str, '?');
+								}
+							}
+						})
+					}
+				});
+			}
+		}
+		
+		$('#admin_add_0').bind('click', adminadd0);		
+		function adminadd0() {
+			adminadd(0);
+		}		
+		$('#admin_add_1').bind('click', adminadd1);
+		function adminadd1() {
+			adminadd(1);
+		}
+		function adminadd(isit) {
+			if (!hang) {
+				if (appendRowId == undefined) {
+					$
+							.ajax({
+								url : '__URL__/getschoolcount/hasJson/1',
+								type : 'POST',
+								async : false,
+								success : function(data) {
+									appendRowId = data;
+								}
+							})
+				}
+
+				appendRowId++;
+				
+				dat.treegrid('cancelEdit', indexrow);
+
+				var rowId = appendRowId;
+				var parentRowId = undefined;
+				var parentId = undefined;
+				
+				var row3 = dat.treegrid('getSelected');
+				if (row3) {					
+					if (isit == 1)
+					{
+						//添加下级
+						parentRowId = row3.rowId;
+						parentId = row3.SCHOOL;	
+					}
+					else if (isit == 0)
+					{
+						//添加同级
+						parentRowId = row3.parentRowId;
+						parentId = row3.PARENT;
+					}
+				}
+
+				var _data = {
+					"rowId" : rowId,
+					"PARENT" : parentId,
+					"_isinsert" : true
+				};
+
+				dat.treegrid('append', {
+					parent : parentRowId,
+					data : [ _data ]
+				});
+				dat.treegrid('addEditor', {
+					field : 'SCHOOL',
+					editor : {
+						type : 'validatebox',
+						options : {
+							required : true
+						}
+					}
+				});
+
+				dat.treegrid('beginEdit', rowId);
+
+				var ed = $('#scinfo').treegrid('getEditor', {
+					id : rowId,
+					field : 'PARENT'
+				});
+
+				if (!(ed == "" || ed == undefined || ed == null || ed === null)) {
+					ed.target.combotree('reload',
+							'__URL__/getjsonschools/hasJson/1');
+
+					ed.target.combotree('tree').tree("collapseAll");
+				}
+
+				indexrow = rowId;
+				hang = true;
+
+			}
+		}
+
+		$('#e_del').bind('click', ddel)
+		$('#admin_del').bind('click', ddel)
+		function eedit() {
+			if (!hang) {
+				dat.treegrid('removeEditor', 'SCHOOL'); //删除SCHOOL编辑框
+				var rowList = dat.treegrid('getSelections'); //获取所有被选中的
+				if (rowList.length > 1) {
+					alert('请选择一条进行编辑,不能选多条'); //用户选了多行编辑
+				} else if (rowList.length < 1) {
+					alert('请选择要编辑的数据'); //用户没选择行
+				} else {
+					if (indexrow != undefined) {
+						dat.treegrid('endEdit', indexrow);
+					}
+					var row3 = dat.treegrid('getSelected');
+
+					//获得被选中的索引
+					dat.treegrid('beginEdit', row3.rowId);
+
+					var ed = $('#scinfo').treegrid('getEditor', {
+						id : row3.rowId,
+						field : 'PARENT'
+					});
+
+					if (!(ed == "" || ed == undefined || ed == null || ed === null)) {
+						ed.target.combotree('reload',
+								'__URL__/getjsonschools/hasJson/1/selfId/'
+										+ row3.SCHOOL);
+
+						ed.target.combotree('tree').tree("collapseAll");
+					}
+
+					indexrow = row3.rowId;
+
+				}
+			}
+		}
+
+		$('#e_edit').bind('click', eedit)
+		$('#admin_edit').bind('click', eedit);
+
+		$('#e_back').bind('click', function() {
+			hang = false;
+			dat.treegrid('cancelEdit', indexrow);
+			indexrow = undefined;
+		})
+
+		$('#e_save').bind('click', function() {
+			dat.treegrid('endEdit', indexrow);
+			indexrow = undefined;
+
+		})
+		
+		function updatestate(row, state) {
+			$.ajax({
+				url : '__URL__/updateschoolstate/hasJson/1/selfId/' + row.SCHOOL,
+				type : 'POST',
+				data : {'state':state},
+				success : function(content) {
+				}
+			});
+		}
+		
+
+	})
+</script>
+
+<body>
+<div  class="easyui-layout"  data-options="border:false,fit:true" >
+    <div data-options="region:'center',border:false" style=";background:#eee;">
+        <div id="scinfo" data-options="fit:true"></div>
+    </div>
+
+</div>
+
+<div id="tdemo">
+    <label for="sname">编号:</label>
+    <input type="text" id="sname" size="10"  value="%">&nbsp;
+    <label for="snumber">名称:</label>
+    <input type="text" id="snumber" size="10" value='%' >
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search"  id="searcher">搜索</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add"  id="e_add" plain=true>添加</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cut"  id="e_del" plain=true>删除</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit"  id="e_edit" plain=true>编辑</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-back"  id="e_back" plain=true>取消编辑</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-save"  id="e_save" plain=true>保存</a>
+
+
+</div>
+<div id="admin_access_menu" class="easyui-menu" style="width:100px;">
+    <div id='admin_add_0'>添加本条目同级</div>
+    <div id='admin_add_1'>添加本条目下级</div>
+    <div id='admin_del'>删除本条目</div>
+    <div id='admin_edit'>编辑本条目</div>
+</div>
+</body>
+</html>

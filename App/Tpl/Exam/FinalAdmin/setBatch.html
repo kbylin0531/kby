@@ -1,0 +1,99 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script>
+    var eqno=09321;
+    $(function(){
+        var  dat = $('#dat');
+        dat.datagrid('load',{})
+        dat.datagrid({
+            onLoadSuccess:function(data){
+                eqno=09321;
+            },
+            onDblClickRow: function (rowIndex, rowData) {
+                $(this).datagrid('beginEdit', rowIndex);
+            }
+        });
+
+
+        $("#add").click(function () {
+            ajiakesi('__URL__/setBatch/tag/addbatch',{
+                'YEAR':parent.$('#YEAR').val(),
+                'TERM':parent.$('#TERM').val()
+            },function(c){
+                //$.messager.alert('提示',''+c);
+                $('#dat').datagrid('reload');
+            })
+        });
+        $("#save").click(function () {
+            var dat = $('#dat');
+            var rowList = dat.datagrid('getRows');
+            for(var i=0;i<rowList.length;i++){
+                dat.datagrid('endEdit',i);
+            }
+            $.post('__URL__/setBatch/tag/updatebatch',{rows:rowList},function(data){
+                if(data == 'success'){
+                    return $.messager.alert('提示','更新成功');
+                }else{
+                    return $.messager.alert('提示','更新失败'+data);
+                }
+            });
+
+        }
+        });
+        $("#edit").click(function () {
+
+            var row=$('#dat').datagrid('getSelections')
+            if(0==row.length){
+                return $.messager.alert('提示','请选择要编辑的数据')
+            }
+            var index=$('#dat').datagrid('getRowIndex',row[0])
+
+
+            if(eqno!=09321&&eqno!=index){
+                $.messager.confirm('提示','您还有正在编辑的未保存,点击&quot确定&quot结束编辑吗(不做保存)',function(c){
+                    if(c){
+                        $('#dat').datagrid('rejectChanges')
+                        $('#dat').datagrid('beginEdit',index)
+                        $('#dat').datagrid('selectRow',index);
+                        eqno=index;
+                    }else{
+                        $('#dat').datagrid('unselectAll')
+                        $('#dat').datagrid('selectRow',eqno);
+                    }
+                })
+
+                return;
+            }
+            $('#dat').datagrid('beginEdit',index)
+            eqno=index;
+        });
+        $("#cancel").click(function () {
+            eqno=09321
+            $('#dat').datagrid('acceptChanges')
+        });
+
+    })
+</script>
+<div id="cc" class="easyui-layout" data-options="fit:true">
+
+    <div id="tbar">
+        <a id="add" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'">添加批次</a>
+        <a id="save" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-save'">保存时间</a>
+        <a id="edit" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-edit'">编辑</a>
+        <a id="cancel" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'">取消编辑</a>
+    </div>
+
+    <div data-options="region:'center',border:false" style="padding:0px;background:#eee;">
+        <table class="easyui-datagrid" id="dat"
+               data-options="url:'__URL__/setBatch/hasJson/1',fit:true,pagination:true,striped:true,singleSelect:true,pageList:[20,50,100,500,1000],toolbar:'#tbar'">
+            <thead>
+            <tr>
+                <th data-options="field:'row',checkbox:true">选择</th>
+                <th data-options="field:'cc',width:100,align:'right'" align="center">场次</th>
+                <th data-options="field:'sjsz',width:320,align:'right',editor:{type:'text'}" align="center">时间设置</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+
+</div>

@@ -1,0 +1,150 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/ExtSearcher.js"></script>
+
+<script>
+    $(function () {
+        new ExtSearcher('__APP__/Common/Provider/seacher',['ES_COMPETITION_LEVEL'],'s').start();
+
+        var dat = $("#dat").datagrid({
+            'onDblClickRow': function (rowIndex) {
+                dat.datagrid('beginEdit',rowIndex);
+            }
+        });
+        var search_form = $("#search_form");
+
+        var reload = function () {
+            dat.datagrid('load',{_PARAMS_:search_form.serialize()});
+        };
+        reload();
+
+        var comptype = $("#comptype").change(reload);
+        $("#complevel").change(reload);
+
+        $("#edit").click(function () {
+            Datagrid.editSelections(dat);
+        });
+
+        $("#add").click(function () {
+            dat.datagrid('insertRow',{
+                index: 0,
+                row: {}
+            });
+        });
+
+        $("#cancel").click(function () {
+            Datagrid.rejectChanges(dat);
+        });
+
+        function inserts(){
+            var insts = Datagrid.getInserted(dat);
+            if(0 === insts.length) return;
+            $.post('__URL__/createCompetitionReward',{rows:insts,type:comptype.val()}, function (c) {
+                return Messager.show(c, reload);
+            });
+        }
+        function updates(){
+            var upds = Datagrid.getUpdated(dat);
+            if(0 === upds.length) return;
+            $.post('__URL__/updateCompetitionReward',{rows:upds}, function (c) {
+                return Messager.show(c, reload);
+            });
+        }
+
+
+        $("#save").click(function () {
+            Datagrid.endEdit(dat);
+            inserts();
+            updates();
+        });
+
+
+        $("#delete").click(function () {
+            if(Datagrid.hasSelected(dat)){
+                var rows = Datagrid.getSelections(dat);
+                $.post('__URL__/deleteCompetitionReward',{rows:rows}, function (c) {
+                    return Messager.show(c,reload);
+                });
+            }
+        });
+
+
+    });
+
+    function getComboData(type){
+        var listdata = null;
+        var url = null;
+        if(1 === type){
+            url = '__URL__/pageCompetitionReward/reqtag/getlevels/type/'+$("#comptype").val();
+        }else{
+            url = '__URL__/pageCompetitionReward/reqtag/getranks/type/'+$("#comptype").val();
+        }
+        $.ajax({
+            async:false,
+            url:url,
+            success: function (data) {
+                listdata = data;
+            },
+            error: function () {
+                return Messager.showWarning('请求失败！');
+            }
+        });
+        return listdata;
+    }
+
+</script>
+
+<body style="background: #fff">
+<div  class="easyui-layout" data-options="fit:true">
+    <div id="tbar">
+        <form id="search_form">
+            <label for="comptype">竞赛类型</label>
+            <select id="comptype" name="type" class="ES_COMPETITION_TYPE s">
+                <option value="C">体育竞赛</option>
+                <option value="S">学科理论和技能竞赛</option>
+            </select>
+            <label for="complevel"></label><select id="complevel" name="lid" class="ES_COMPETITION_LEVEL s"></select>
+
+            <a id="add"     href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">添加</a>
+            <a id="edit"    href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true">编辑</a>
+            <a id="cancel"  href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-cancel',plain:true">取消添加/编辑</a>
+            <a id="save"    href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-save',plain:true">保存添加/编辑</a>
+            <a id="delete"  href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-remove',plain:true">删除</a>
+        </form>
+    </div>
+    <!-- 列表栏 -->
+    <div data-options="region:'center',border:false" style="padding:0;background:#eee;">
+        <table class="easyui-datagrid" id="dat"
+               data-options="
+               url:'__URL__/listCompetitionReward',
+               pagination:false,singleSelect:false,fit:true,toolbar:'#tbar'">
+            <thead>
+                <tr>
+                    <th data-options="field:'lname',width:100,editor: {
+                        type: 'combobox',
+                        options: {
+                            data: getComboData(1),
+                            valueField: 'id',
+                            textField: 'name',
+                            editable: false,
+                            required: true
+                            }
+                        }" align="center">比赛等级</th>
+                    <th data-options="field:'rname',width:300,editor: {
+                        type: 'combobox',
+                        options: {
+                            data: getComboData(2),
+                            valueField: 'id',
+                            textField: 'name',
+                            editable: false,
+                            required: true
+                            }
+                        }" align="center">获奖等级</th>
+                    <th data-options="field:'credit',width:200,editor:'text'" align="center">学分</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+</body>
+

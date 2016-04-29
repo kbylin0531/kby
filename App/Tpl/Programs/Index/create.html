@@ -1,0 +1,103 @@
+﻿<include file=":Include:jqueryHeader" />
+
+<body bgcolor="#FFFFFF" style="background: #ffffff">
+
+<SCRIPT>
+
+    $(function(){
+        var msg = "{$message}";
+        if($.trim(msg) !== ""){
+            $.messager.alert('提示',msg);
+        }
+    });
+
+function onSubmit() {
+    var programno = $("#ProgramNO");
+    var programname = $("#ProgramName");
+
+    if($.trim(programno.val())=="" || ($.trim(programname.val())=="")){
+        msgShow("系统提示：","带*号的必须填写！","error");
+        return false;
+    }
+    if(programno.val().length!=7 && programno.val().length!=8){
+        msgShow("系统提示：","教学计划编号必须是7位！","error");
+        return false;
+    }
+    return true;
+}
+</SCRIPT>
+
+
+<form method="POST" action="__URL__/newSave" id="NewForm" name="NewForm" onsubmit="return onSubmit()">
+<table border="1" width="77%" height="286">
+    <tr><td width="47%" align="right" height="23">教学计划编号：</td>
+        <td width="66%" height="23">
+            <input type="text" name="CTD_PROGRAMNO" id="ProgramNO" size="7" maxlength="7" />
+            *&nbsp;2位年级+1位学期+2位教研组+2位编号</td></tr>
+    <tr><td width="47%" align="right" height="28">教学计划名称：</td>
+        <td width="66%" height="28">
+            <input type="text" name="CTD_PROGNAME" id="ProgramName" size="20" style="width:400px;" />
+            * </td></tr>
+    <tr><td width="47%" align="right" height="23">制定日期：</td>
+        <td width="66%" height="23">
+            <input type="text" name="CTD_DATE" value="<php>echo date('Y-m-d');</php>" size="20" />
+            如：2000-3-14</td></tr>
+    <tr><td width="47%" align="right" height="23">备注：</td>
+        <td width="66%" height="23">
+            <input type="text" name="CTD_REM" size="50" />
+        </td></tr>
+    <tr><td width="47%" align="right" height="23">教学计划网址：</td>
+        <td width="66%" height="23">
+            <input type="text" name="CTD_URL" size="50" />
+        </td></tr>
+    <tr><td width="47%" align="right" height="23">有效：</td>
+        <td width="66%" height="23">
+            <select name="CTD_VALID">
+                <option value="1" selected>有效</option>
+                <option value="0">无效</option>
+            </select>
+        </td>
+    </tr>
+    <tr><td width="47%" align="right" height="23">执行学部：</td>
+        <td width="66%" height="23">
+            <select name="CTD_SCHOOL">
+                <!--<option value="%">全校</option>-->
+                <volist name="schools" id="v">
+                    <option value="{$v.SCHOOL}">{$v.NAME}</option>
+                </volist>
+            </select>
+        </td>
+    </tr>
+    <tr><td width="47%" align="right" height="23">教学计划类型：</td>
+        <td width="66%" height="23">
+            <select id="wType" name="CTD_TYPE">
+                <volist name="programList" id="v">
+                    <option value="{$v.value}">{$v.text}</option>
+                </volist>
+            </select>
+        </td>
+    </tr>
+</table>
+<P ALIGN=CENTER><input type="submit" value="提交" name="insert" id="insert"></P>
+<input type="hidden" name="teacherSCHOOL" value="{$theacher.SCHOOL}">
+</form>
+
+<p><font color="#FF0000">教学计划编号应该为7位，不能为空。</font><br>
+    <font color="#FF0000">带*号的的不能为空。</font></p>
+</body>
+
+</html>           
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+

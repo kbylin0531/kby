@@ -1,0 +1,83 @@
+<include file=":Include:jqueryHeader" />
+
+<script type="text/javascript">
+    $(function() {
+        $("#YEAR").val(parent.$("#YEAR").val());
+        $("#TERM").val(parent.$("#TERM").val());
+
+        $("#BtArrangTest").bind("click",function(){
+            $.post("__ROOT__ /Exam/ArrangeTest/arrangeTest/hasJson/true", {maxBatch:$("#maxBatch").val(),maxRs:$("#maxRs").val(),
+                'pici':$('[name=pici]').val()}, function(rsp) {
+                if(rsp){
+                    //$.messager.alert("系统消息：", rsp.message, rsp.type);
+                    $("#info").html(rsp.message);
+                }
+            },"JSON");
+        })
+
+        //todo;导入到TestPlan
+       $('#import').bind('click',function(){
+           $.post("__ROOT__/Exam/ArrangeTest/import",
+                   {'examtype':$('[name=examType]').val(),
+                       'importtype':$('[name=reExp]').val(),
+                       'year':$('#YEAR').val(),
+                       'term':$('#TERM').val()},
+                   function(c){
+               $.messager.alert('提示',c)
+           })
+       });
+
+
+        //todo:自动分配考场
+        $('#fenpei').bind('click',function(){
+            $.post("__URL__/anpai",{'type':$('[name=priority]:checked').val(),'year':$('#YEAR').val(),'term':$('#TERM').val(),'examtype':$('[name=examType]').val()},function(c){
+                $.messager.alert('提示',c)
+            })
+        })
+
+
+
+    });
+</script>
+
+<body>
+<div  class="easyui-layout"  data-options="border:false,fit:true" >
+    <div data-options="region:'north',split:false,border:false" style="height:200px;background:#E0ECFF;overflow: hidden">
+        <table style="margin-left:20px" height="200" cellspacing="0" cellpadding="0" >
+            <tr><th align="left">
+                学年：<input type="text" id="YEAR"/> 学期：<input type="text" id="TERM"/><br />
+        当前排考科目：{$dataInfo.totalCourse}门；考生：{$dataInfo.totalStudent}人次；考场：{$dataInfo.totalRoom}个；
+                考位：{$dataInfo.totalKw}个；批次：{$dataInfo.totalBatch}次；<br />
+        统计得出最小批次为：<input id="maxBatch" type="text" value="{$dataInfo.maxBatch}" />；<br />
+        最大单科考生为：{$dataInfo.maxStudent}，允许单场最大人数：<input type="text" id="maxRs" value="<php>echo ($dataInfo['maxStudent']+500);</php>" />；<br />
+                <input type="radio" name="redo" value="1" checked>全部重排 <input type="radio" name="redo" value="2">未排课程
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                批次:
+                <select name="pici">
+                    <option value="1">正常</option>
+                    <option value="2">新生</option>
+                    <option value="3">老生</option>
+                </select>
+                <a href="#" id="BtArrangTest" class="easyui-linkbutton" data-options="iconCls:'icon-add'">开始排考</a><br />
+
+                <input type="radio" name="reExp" value="1" checked>全新导入 <input type="radio" name="reExp" value="2">未导入课程导入
+                <select name="examType"><option value="M">期末考试</option><option value="C">期初补考</option><option value="B">毕业重修</option></select>
+                <a href="#" id='import' class="easyui-linkbutton" data-options="iconCls:'icon-add'">将排考结果导入到考试计划</a><br />
+
+                <input type="radio" name="priority" value="1" checked>课程班级优先 <input type="radio" name="priority" value="2">考场座位优先
+                <a href="#" id="fenpei" class="easyui-linkbutton" data-options="iconCls:'icon-add'">自动分配考场</a>
+            </th></tr>
+        </table>
+    </div>
+    <div data-options="region:'center',border:false" style=";background:#eee;">
+        <table style="background: #ffffff" height="100%" width="100%" cellspacing="0" cellpadding="4"  >
+            <tr><td id="info" valign="top"></td></tr>
+        </table>
+
+    </div>
+</div>
+
+</body>
+
+</html>
+

@@ -1,0 +1,312 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script>
+    eval('codeList=\'{$sjson4}\'')              //todo:列表页面的 教学工作代码下拉选项
+    $(function(){
+        var year=parent.$('#YEAR').val()
+        //  alert(year)
+        var term=parent.$('#TERM').val()
+
+
+
+        var rowss,rowindex                            //todo:判断正在编辑哪一行
+        //     var wd=$('#wd').window(new wind(500,400,false,false,false,false,false));//todo:默认检索的窗口
+
+        //  var wd2=$('#wd2').window(new wind(0,0,false,false,true,true,true));//todo:课程列表的窗口
+        //   wd2.window({collapsible:false,closable:false})
+        //    wd.window({closable:false})
+
+        var course_dat=$('#course_dat');                                     //todo:课程列表datagrid
+        $('#bt').linkbutton({
+            text:'检索并预览'
+        }).bind('click',function(){
+                    course_dat.datagrid('load',{'Sqlpath':{'select':'Workload/New_Setcode_select.SQL','count':'Workload/New_Setcode_count.SQL'},'bind':{
+                        ':courseno':$('[name=COURSENO]').val().trim(),':coursename':$('[name=COURSENAME]').val().trim(),
+                        ':kclx':$('[name=COURSETYPE]').val().trim(),
+                        ':xklx':$('[name=APPROACHES]').val().trim(),':school':$('[name=SCHOOL]').val().trim(),':code':$('[name=workloadtype]').val().trim()}
+                    })
+                })
+        //,':YEAR':parent.$('#YEAR').val().trim(),':TERM':parent.$('#TERM').val().trim()
+        /* Courseno like :courseno and Coursename like coursename and kclx like :kclx and xklx like :xklx
+         and school like :school) as b where b.row between :start and :end*/
+
+
+        //todo:绑定单条修改的事件
+        var dddt=$('#course_dat').datagrid({
+            onAfterEdit:function(rowIndex,rowData,changes){
+                if($.trim(rowData.bzb)==''){
+                    $('#course_dat').datagrid('rejectChanges')
+                    return $.messager.alert('提示','标准班不能为空')
+
+                }
+                if(isNaN(rowData.bzb)){
+
+                    $('#course_dat').datagrid('rejectChanges')
+                    return $.messager.alert('提示','标准班请填写数字')
+                }
+
+                ajiakesi('__URL__/insert_standard_class_one',{'row':rowData,'numb':rowData.bzb},function(c){
+                    $.messager.alert('提示','操作成功')
+                })
+            },
+            onDblClickRow:function(index,rowdata){
+                var row=$('#course_dat').datagrid('getRows')
+                for(var i=0;i<row.length;i++){
+                    $('#course_dat').datagrid('cancelEdit',$('#course_dat').datagrid('getRowIndex',row[i]))
+                }
+                $('#course_dat').datagrid('beginEdit',index)
+                rowss=rowdata;
+                rowindex=index;
+            },toolbar:'#tdemo',
+            onRowContextMenu:function(e,rowindex,row){
+                dddt.datagrid('rejectChanges')
+                var tt=$('#course_dat');
+
+                e.preventDefault();  //该方法将通知 Web 浏览器不要执行与事件关联的默认动作（如果存在这样的动作）
+                tt.datagrid('selectRow',rowindex);
+                $('#admin_access_menu').menu('show',{
+                    left: e.pageX,
+                    top: e.pageY
+                });
+            }
+
+        })
+
+
+
+        /*   //todo:批量设定标准班人数
+         $('#sd').bind('click',function(){
+         if($('[name=personal_number]').val()==""){
+         return $.messager.alert('提示','要批量设定标准人数,请填写一个数字,不能为空')
+         }
+         ajiakesi('__URL__/insert_standard_class',{'Sqlpath':{'select':'Workload/One_one_selectCourse2.SQL','count':'Workload/One_one_countCourse.SQL'},'bind':{
+         ':COURSENO':$('[name=COURSENO]').val().trim(),':COURSENAME':$('[name=COURSENAME]').val().trim(),':COURSETYPE':$('[name=COURSETYPE]').val().trim(),
+         ':XIUKETYPE':$('[name=APPROACHES]').val(),':YEAR':parent.$('#YEAR').val(),':TERM':parent.$('#TERM').val(),':CSCHOOL':$('[name=SCHOOL]').val().trim()},'numb':$('[name=personal_number]').val().trim(),'code':$('[name=workloadtype]').val().trim()},function(c){
+         $.messager.alert('提示',c)
+         course_dat.datagrid('reload')
+         })
+         })*/
+
+
+
+
+
+
+
+
+
+
+        function eedit(){
+            /*     var yi=yitiao($('#course_dat'),'请选择一条数据,不能选择多条','请选择一条数据')
+             if(yi){
+             var row2=$('#course_dat').datagrid('getRows')
+             for(var i=0;i<row2.length;i++){
+             $('#course_dat').datagrid('cancelEdit',$('#course_dat').datagrid('getRowIndex',row2[i]))
+             }
+             var row=$('#course_dat').datagrid('getSelected')
+             var index=$('#course_dat').datagrid('getRowIndex',row)
+
+             rowss=row;
+             rowindex=index
+             $('#course_dat').datagrid('beginEdit',index);
+
+             }*/
+            var rowList=$('#course_dat').datagrid('getSelections')
+            if(rowList==''){
+                return $.messager.alert('提示','请选择数据')
+            }
+            ajiakesi('__URL__/standard_class/hasJson/1',{bind:rowList,snumber:$('[name=bzb_number]').val()},function(c){
+                $.messager.alert('提示',c)
+                course_dat.datagrid('load',{'Sqlpath':{'select':'Workload/New_Setcode_select.SQL','count':'Workload/New_Setcode_count.SQL'},'bind':{
+                    ':courseno':$('[name=COURSENO]').val().trim(),':coursename':$('[name=COURSENAME]').val().trim(),
+                    ':kclx':$('[name=COURSETYPE]').val().trim(),
+                    ':xklx':$('[name=APPROACHES]').val().trim(),':school':$('[name=SCHOOL]').val().trim()}
+                })
+            })
+
+        }
+
+        $('#e_edit').bind('click',eedit)
+        // $('#admin_edit').bind('click',eedit);
+
+        $('#e_back').bind('click',function(){
+            $('#course_dat').datagrid('rejectChanges');
+        })
+
+        $('#e_save').bind('click',function(){
+            $('#course_dat').datagrid('endEdit',rowindex)
+        })
+
+
+        $('#e_fanhui').bind('click',function(){
+            wd.window({closed:false})
+            $('#wd2').panel({closed:true})
+        })
+
+
+
+
+    })
+</script>
+
+<style>
+    #wd td{border:1px #95B8E7 solid;
+    }
+
+    span{border:0px solid red;;vertical-align:middle;}
+
+</style>
+<!--todo: 进来的默认页面-->
+<body style="background-color: #ffffff">
+
+
+<!--todo:课程列表datagrid-->
+<!--todo:教师列表页的 window-->
+<div id="wd2" class="easyui-panel" title=""
+     data-options="iconCls:'icon-save',closable:true,
+                collapsible:false,fit:true,minimizable:false,maximizable:false,closed:false">
+    <div id="cc" class="easyui-layout" data-options="fit:true,border:false">
+        <!--<div data-options="region:'north',title:'',split:false,border:false" style="height:30px;padding-top:5px;background-color:#fff">
+
+        </div>-->
+        <div id="tdemo">
+            <!--            &nbsp&nbsp&nbsp<b>对以下检索结果统一设定标准班人数:<input type="text" size="3" name="personal_number">人</b><a href="javascript:void(0)" id="sd" class="easyui-linkbutton">设定</a>
+
+                        &nbsp&nbsp&nbsp<b>教学工作代码设定</b>:
+                        <br>
+                        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit"  id="e_edit" plain=true>编辑</a>
+                        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-back"  id="e_back" plain=true>取消编辑</a>
+                        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-save"  id="e_save" plain=true>保存</a>
+
+                        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-goleft"  id="e_fanhui" plain=true>返回</a>-->
+
+
+            <b>课号：</b><input name="COURSENO" type="text" size='20' maxlength="9" value="%">
+            <b>课名：</b><input type="text" name="COURSENAME" size="20" value="%">
+            <b>课程类型：</b>
+            <select name="COURSETYPE" class="easyui-combobox">
+                <option value="%">全部</option>
+                <volist name="coursetypeoptions" id="c">
+                    <option value="{$c.NAME}">{$c.VALUE}</option>
+                </volist>
+            </select>
+            </span>
+            <b>修课方式：</b>
+             <span>
+                <select name="APPROACHES" class="easyui-combobox">
+                    <option value="%">全部</option>
+                    <volist name="courseapproaches" id="c">
+                        <option value="{$c.NAME}">{$c.VALUE}</option>
+                    </volist>
+                </select>
+            </span>
+            <b>学部：</b>
+         <span >
+                <select name="SCHOOL" class="easyui-combobox">
+                    <option value="%">全部</option>
+                    <volist name="schools" id="c">
+                        <option value="{$c.SCHOOL}">{$c.NAME}</option>
+                    </volist>
+                </select>
+          </span>
+            教学代码:
+            <select name="workloadtype">
+                    <option value="%">全部</option>
+                <volist name="workloadtype" id="w">
+
+                    <option value="{$w.worktype_code}">{$w.worktype_code}---{$w.worktype_name}</option>
+                </volist>
+            </select>
+            <div>
+            <a href="javascript:void(0)" id="bt">检索并预览</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+                <a href="javascript:void(0)" class="easyui-linkbutton"  id="e_edit" >设定选中条目标准班设为</a>：
+                <input type="text" name="bzb_number" value="" size="4">
+
+            </div>
+
+        </div>
+        <div data-options="region:'center',title:'',split:false,border:false" style="padding:0px;background:#eee;">
+            <table class="easyui-datagrid"  id="course_dat"
+                   data-options="url:'__APP__/Status/Status/Squery/hasJson/1',fitColumns:false,fit:true,pagination:true,pageList:[20,50,100,200,500],pageSize:20">
+                <thead data-options="frozen:true">
+                <tr>
+                    <th data-options="field:'checkbox',checkbox:true">选中</th>
+                    <th data-options="field:'Courseno',width:70" align="center">课号</th>
+                    <th data-options="field:'group',width:30" align="center">组号</th>
+                    <th data-options="field:'Coursename',width:380" align="center">课名</th>
+                </tr>
+                </thead>
+                <thead>
+                <tr>
+
+                    <th data-options="field:'Standard',width:100,align:'center',editor:{type:'text'}">标准班</th>
+                    <th data-options="field:'code',width:100,align:'center',sortable:true,editor:{type:'combobox',options:{
+                        data:eval(codeList)
+                    }}">教学工作代码</th>
+                    <th data-options="field:'kclx',width:100,align:'center'">课程类型</th>
+                    <th data-options="field:'credit',width:50,align:'center'">学分</th>
+                    <th data-options="field:'school',width:80,align:'center'">开课学部</th>
+                    <th data-options="field:'mzks',width:70,align:'center',formatter:function(a,b,c){
+
+                        if(a=='.0'){
+                            return 0
+                        }
+                        return a
+                    }">每周课时</th>
+                    <!--                    <th data-options="field:'zjk',width:50,align:'center',formatter:function(a,b,c){
+
+                                            if(a=='.0'){
+                                                return 0
+                                            }
+                                            return a
+                                        }">周讲课</th>
+                                        <th data-options="field:'zsy',width:50,align:'center',formatter:function(a,b,c){
+
+                                            if(a=='.0'){
+                                                return 0
+                                            }
+                                            return a
+                                        }">周实验</th>
+                                        <th data-options="field:'zsj',width:50,align:'center',formatter:function(a,b,c){
+
+                                            if(a=='.0'){
+                                                return 0
+                                            }
+                                            return a
+                                        }">周上机</th>
+                                        <th data-options="field:'zsx',width:50,align:'center',formatter:function(a,b,c){
+
+                                            if(a=='.0'){
+                                                return 0
+                                            }
+                                            return a
+                                        }">周实训</th>
+                                        <th data-options="field:'ztl',width:50,align:'center',formatter:function(a,b,c){
+
+                                            if(a=='.0'){
+                                                return 0
+                                            }
+                                            return a
+                                        }">周讨论</th>
+                                        <th data-options="field:'zzx',width:50,align:'center',formatter:function(a,b,c){
+
+                                            if(a=='.0'){
+                                                return 0
+                                            }
+                                            return a
+                                        }">周自学</th>-->
+                    <th data-options="field:'xklx',width:100,align:'center'">修课方式</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="admin_access_menu" class="easyui-menu" style="width:100px;">
+
+    <div id='admin_edit'>编辑本条目</div>
+</div>
+</body>
+</html>

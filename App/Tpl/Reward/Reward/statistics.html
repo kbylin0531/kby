@@ -1,0 +1,190 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script type="text/javascript" src='__ROOT__/thirdparty/jquery/js/taskMonitor.js'></script>
+
+<style>
+.query{}
+legend{margin-left: 20px;}
+.query label{font-weight: bold;margin-left:20px;}
+#searcher{margin-left: 20px;}
+</style>
+<body>
+<div class="easyui-layout"  data-options="border:false,fit:true" >
+    <div id="tdemo" class="query">
+		<div>
+			   <label>学年：</label>
+			   
+			   <input value="{$yearTerm.YEAR}" name="Qyear" size="6">
+			   
+			   <label>学期：</label>
+			   
+			   <input value="{$yearTerm.TERM}" name="Qterm" size="2">
+		
+			   <label>学部：</label>
+			   <select class="easyui-combotree" id="Qschool" name="Qschool" style="width:120px;" data-options="url:'__URL__/getjsonschools/hasJson/1',required:false,lines:true,editable:false">
+	
+			   </select>
+			   
+			   <label>审核状态：</label>
+			   
+               <select name="Qstatus" >
+                 <option value="%">全部</option>
+                 <option value="2" selected>通过</option>
+                 <option value="3">不通过</option>
+               </select>               
+            </div>
+		<div>			   
+			   <label>教师号：</label>
+			   
+			   <input name="Qteacherno" size="10"  value='%'  maxlength="10">
+			   
+			   <label>教师名：</label>
+			   
+               <input name="Qteachername" size="10" value='%' />     
+                         
+			   <label>奖励类别：</label>
+			   
+               <input name="Qrewardssort" size="10" value='%' />               
+			   
+			   <label>奖励级别：</label>
+			   
+               <input name="Qrewardsgrade" size="10" value='%' />               
+               
+			   <a href="javascript:void(0)" id="searcher">检索</a>
+            </div>
+	</div>
+    <div data-options="region:'center',border:false" style=";background:#eee;">
+        <div id="content"></div>
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+$(function(){	
+	$('#Qschool').combotree('setValue', 0);
+		
+    var indexrow=undefined;
+    var dat=$('#content').datagrid({
+		fit:true,
+		striped:true,
+        fitColumns:true,
+        columns:[[{field:'YEAR',title:'学年', width:60,align:'center'},
+                  {field:'TERM',title:'学期', width:60,align:'center'},
+                  {field:'TEACHERNO',title:'教师号',width:100,align:'center'},
+                  {field:'TEACHERNAME',title:'教师名',width:100,align:'center'},
+                  {field:'SCORE',title:'奖励总分数',width:60,align:'center',formatter:function(value,row,index){
+                	  
+                	  var result = '<a title="查看具体清单" href="javascript:dorowview(' + row.YEAR + ',' + row.TERM + ',\\'' + row.TEACHERNO + '\\');">' + row.SCORE + '</a>';
+                	  return result;
+           	    	
+  		          }}]],
+		pagination:true,
+		pageList:[10,20,30,40,50],
+		pageSize:20,
+		toolbar:'#tdemo'
+    })
+
+    /*
+     * 条件查询开始
+     */
+    $('#searcher').linkbutton({iconCls: 'icon-search'});//搜索按钮
+    $('#searcher').click(function(){
+    	$('#content').datagrid("options").url = "__URL__/statistics/hasJson/1";
+    	$('#content').datagrid('load',{
+    		Qyear:$.trim($(".query [name='Qyear']").val()),
+    		Qterm:$.trim($(".query [name='Qterm']").val()),
+    		Qschool:(($.trim($(".query [name='Qschool']").val())=="0")?"%":$.trim($(".query [name='Qschool']").val())),    		
+    		Qteacherno:$.trim($(".query [name='Qteacherno']").val()),
+    		Qteachername:$.trim($(".query [name='Qteachername']").val()),
+    		Qrewardssort:$.trim($(".query [name='Qrewardssort']").val()),
+    		Qrewardsgrade:$.trim($(".query [name='Qrewardsgrade']").val()),
+    		Qstatus:$.trim($(".query [name='Qstatus']").val())     		
+        })
+    })
+    
+    var e_viewlist_grid=$('#e_viewlist_grid').datagrid({
+		fit:true,
+		striped:true,
+        fitColumns:true,
+        columns:[[{field:'YEAR',title:'学年', width:60,align:'center'},
+                  {field:'TERM',title:'学期', width:60,align:'center'},
+                  {field:'REWARDSNAME',title:'奖励名称', width:60,align:'center'},
+                  {field:'REWARDSSORT',title:'奖励类别', width:60,align:'center'},
+                  {field:'REWARDSGRADE',title:'奖励级别', width:60,align:'center'},
+                  {field:'REWARDSSCORE',title:'奖励分数', width:60,align:'center'},               
+                  {field:'STATUS',title:'审核状态', width:60,align:'center',formatter:function(value,row,index){
+                	  if (row.STATUS == 2)
+                	  {
+                		  return "通过";
+                	  }
+                	  else if (row.STATUS == 3)
+                	  {
+                		  return "不通过";
+                	  }
+                	  
+  		          }},
+                  {field:'VERIFY_TIME',title:'审核日期',width:100,align:'center'}]],
+       onLoadSuccess:function(data){
+    	   
+    	   var teacher = data.teacher;
+    	   
+    	   $('#e_viewlist_TEACHERNO').text(teacher.TEACHERNO);
+    	   $('#e_viewlist_TEACHERNAME').text(teacher.TEACHERNAME);
+
+        },
+		pagination:false
+    })
+
+    
+    
+});
+
+
+function dorowview(year,term,teacherno){   
+	if (teacherno)
+	{
+//		var url="__URL__/viewlist/Qyear/" + year + "/Qterm/" + term + "/Qteacherno/" + teacherno;
+//	    openTabsWindows("教师奖励信息清单",url);    
+		
+		$('#e_viewlist').window({closed:false});
+		
+		$('#e_viewlist_grid').datagrid("options").url = "__URL__/viewlist/hasJson/1";
+		$('#e_viewlist_grid').datagrid('load',{
+			Qyear:year,
+			Qterm:term,
+			Qteacherno:teacherno
+	    })
+	
+	}
+	
+}
+
+</script>
+
+<div id="e_viewlist" class="easyui-window" title="教师奖励信息清单" style="width:700px;height:400px; overflow:auto;"
+     data-options="iconCls:'icon-save',modal:true,minimizable:false,maximizable:false,closable:true,collapsible:false,closed:true">
+
+    <table align=center border="2" width="100%" style="border-collapse:collapse;margin-top:10px" bordercolor="#000000" >
+        <tr>
+            <td width="15%" align="right" height="23">教师号：</td>
+            <td width="35%" height="23">
+                <span id="e_viewlist_TEACHERNO"></span>
+            </td>
+            <td width="15%" align="right" height="28" >教师名：</td>
+            <td width="35%" height="28">
+                <span id="e_viewlist_TEACHERNAME"></span>
+            </td>
+        </tr>
+    </table>
+
+ 
+             <table id="e_viewlist_grid" fitColumns="true" width="100%" >
+
+            </table>
+    
+   
+</div>
+
+</body>
+</html>

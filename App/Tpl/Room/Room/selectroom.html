@@ -1,0 +1,976 @@
+<include file=":Include:jqueryHeader" />
+<script type="text/javascript" src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script type="text/javascript" src='__ROOT__/thirdparty/jquery/js/taskMonitor.js'></script>
+
+<script>
+var upanduan=false;                 //判断添加的时候用户是否有正确填写教室号用
+var purpose=false;                      //判断用户的借用目的有没有写
+var back_bool=false
+function qxpanduan(id,url){
+    var quanxianpd=false;
+    ajiakesi2(url,{':ID':'QUERY','exe':'status/query_Metods.SQL',bind:{':ID':id}},function(c){
+
+        eval('var o='+c)
+        for(var i=0;i<o[0]['rl'].length;i++){
+
+            var zz=new RegExp(o[0]['rl'].charAt(i))
+            var bool=zz.test(quanxian)
+
+            if(bool){
+                quanxianpd=true
+                return;
+            }
+        }
+    })
+
+    return quanxianpd;
+}
+
+function xquzhi(data,two,one,url){              //获取用户对借用教室 添加  或  修改的值
+    var ct={};
+    for(var i=0;i<two.length;i++){
+        ct[two[i].name]=two[i].value;
+    }
+    var zhouci={};                  //周次
+    for(var i=0;i<one.length;i++){
+        if(one[i].checked){
+            zhouci[one[i].name]=1;
+        }else{
+            zhouci[one[i].name]=0;
+        }
+    }
+    ct['zhouci']=zhouci;
+    ct['DAY']=$(data).find("[name='DAY']").val()
+    ct['TIME']=$(data).find("[name='TIME']").val()
+    ct['OEW']=$(data).find("[name='OEW']").val()
+    ct['RECNO']=$('#RECNO').val();
+    $.ajax({
+        url:'__URL__/'+url,
+        type:'post',
+        data:ct,
+        success:function(data){
+            $.messager.alert('提示',data);
+        }
+    })
+}
+
+var quanxian='{$quanxian}'
+    $(function(){
+        $('#ADD_ROOMNO').bind('blur',roomnoyz);
+        function roomnoyz(){
+
+            if(back_bool){
+                return
+            }
+            if(this.value==""){
+                $('#ADD_ROOMNO').css('background','red');
+                $('#ct2').html('<font color="red">不能为空！</font>')
+                return;
+            }
+            $.ajax({
+                url:'__URL__/roomnoyz',
+                async : false,
+                type:'POST',
+                data:{
+                    ROOMNO:this.value
+                },
+                success:function(data){
+
+                    if(data=='false'){
+                        $('#ct2').html('<font color="red">号码无法使用！</font>')
+                        $('#ADD_ROOMNO').css('background','red');
+                        upanduan=false;
+                    }else{
+                        $('#ADD_ROOMNO').css('background','');
+                        $('#ct2').html('<font color="green">可以使用√</font>')
+                        upanduan=true;
+                    }
+
+                    back_bool=false
+                }
+            })
+        }
+        $('#PURPOSE').bind('blur',purposefc);
+        function purposefc(){
+            if(this.value==""){
+                $('#PURPOSE').css('background','red');
+                purpose=false;
+
+            }else{
+                $('#PURPOSE').css('background','');
+                purpose=true;
+
+            }
+        }
+
+        var cz=$('#back2').linkbutton({                      //重置按钮
+            text:'重置',
+            iconCls:'icon-back'
+        }).bind('click',function(){
+                    $('#room_dengji')[0].reset()
+
+                })
+
+        var add=$('#add').linkbutton({              //添加按钮
+            text:'添加',
+            iconCls:'icon-add'
+        }).bind('click', function tianjia(){                         //点击添加按钮时候触发的事件
+                 //   return $.messager.alert('提示','10点半之前弄好,老师们稍等下.')
+                    $('#PURPOSE').blur();
+                    $('#ADD_ROOMNO').blur();
+                    if(!upanduan){
+                        $.messager.alert('提示','请填写正确的教室号');
+                        $('#ADD_ROOMNO').focuc();
+                        return;
+                    }
+                    if(!purpose){
+                        $.messager.alert('提示','请填写借用目的');
+                        $('#PURPOSE').focuc();
+                        return;
+                    }
+                    var two=$('#wdd :text');
+                    var one=$('#wdd :checkbox');
+                    xquzhi('#wdd',two,one,'addjieyong')
+                    $('#room_dengji')[0].reset()
+
+                });
+
+        var wdd=$('#wdd').window({
+            modal:true,
+            height:350,
+            width:600,
+            minimizable:false,
+            maximizable:false,
+            closed:true
+        })                  //window弹窗之    教室添加
+        //todo:
+        $('#e_add2').bind('click',function(){
+            var row=$('#scinfo').datagrid('getSelections')
+            if(row!='')$('#ADD_ROOMNO').val(row[0].ROOMNO)
+
+            wdd.window({
+                closed:false
+            })
+        })
+
+        var indexrow=undefined;             //保存索引键的变量
+        var  dat=$('#scinfo').datagrid({
+            striped:true,
+            url:'__URL__/selectroom/hasJson/1',
+            frozenColumns:[[{checkbox:true},
+                {field:'ROOMNO',title:'教室号',width:100,formatter:function(a2,b,c){
+                    var str=a2
+                    return "<a href='javascript:void(0)' onclick='weekbiao(\""+a2+"\")' style='color:blue;text-decoration:underline'>"+a2+"</a>"
+                },sortable:true,align:'center',
+                    editor:{type:'validatebox',options:{required:true}}
+                }]],
+            columns:[[
+                {field:'NO',title:'房间号',width:100,sortable:true,align:'center'
+                },
+                {field:'JSN',title:'简称',align:'center',width:100,sortable:true
+                },
+                {field:'BUILDING',title:'楼名',align:'center',width:100,sortable:true
+                },
+                {field:'AREAVALUE',title:'校区',align:'center',width:100,sortable:true
+                },
+                {field:'SEATS',title:'座位数',align:'center',width:100,sortable:true
+                },
+                {field:'TESTERS',title:'考位数',align:'center',width:100,sortable:true
+                },
+                {field:'EQUIPMENTVALUE',title:'设施',align:'center',width:100,sortable:true
+                },
+
+                {field:'SCHOOLNAME',title:'优先学部',align:'center',width:100,sortable:true
+                },
+                {field:'USAGEVALUE',title:'排课约束',align:'center',width:100,sortable:true
+                },
+                {field:'RESERVED',title:'是否保留',align:'center',width:100,sortable:true,formatter:function(a,b,c){
+                    if(a=='1'){
+                        return '是'
+                    }else{
+                        return '否'
+                    }
+                }
+                }
+            ]],
+            pagination:true,
+            pageList:[10,20,30,40,50],
+            pageSize:20,
+            toolbar:'#tdemo',onRowContextMenu:function(e,rowindex,row){
+                dat.datagrid('rejectChanges')
+                var tt=$('#scinfo');
+
+                e.preventDefault();  //该方法将通知 Web 浏览器不要执行与事件关联的默认动作（如果存在这样的动作）
+                tt.datagrid('selectRow',rowindex);
+                $('#admin_access_menu').menu('show',{
+                    left: e.pageX,
+                    top: e.pageY
+                });
+            },onDblClickRow:function(keyrow,dataRow){                                       //双击时候也能触发弹窗
+                $.ajax({
+                    type:'POST',
+                    url:'__URL__/editroom',                                        //做ajax请求获取数据
+                    data:{
+                        ROOMNO:dataRow.ROOMNO
+                    },
+                    success:function(content2){
+                       fuzhi(content2);
+                    }
+                })
+            }})
+        $('#dtnfo').layout({
+
+        })
+        //显示搜索弹窗的按钮
+        var bt=$('#searcher').linkbutton({
+            text:'点击按条件搜索',
+            iconCls:'icon-search'
+        })
+
+        bt.bind('click',function(){
+            $('#wd').window({
+                closed:false,
+                modal:true,
+                minimizable:false,
+                maximizable:false,
+                collapsible:false
+            })
+        })
+
+
+        var button=$('#sousuo').linkbutton({
+            text:'搜索',                                              //用户点击搜索按钮触发的方法
+            iconCls:'icon-search'
+        })
+
+        var button2=$('#back').linkbutton({
+            text:"重置",                                              //用户点击重置时候的按钮
+            iconCls:'icon-back'
+        }).bind('click',chongzhi);
+
+        function chongzhi(){
+            $('#SEATSDOWN').val("0");
+            $('#TESTERSDOWN').val("0");                          //初始化(重置)
+            $('#EQUIPMENT').val("");
+            $('#STATUS').val("2");
+            $('#ttPRIORITY').combotree('setValue', 0);
+            $('#RESERVED').val('2');
+            $("#radio").attr('checked','checked');
+            $('#USAGE').val('');
+            $('#SEATSUP').val("1000");
+            $('#TESTERUP').val("1000");
+            $('#ROOMNO').val('');
+            $('#NO').val('');
+            $('#BUILDING').val('');
+            $('#AREA').val('');
+            $('#ROOM_AREA').val('');
+        }
+
+        var button4=$('#revision').linkbutton({
+            text:'修改',                                              //用户点击修改按钮触发的方法
+            iconCls:'icon-edit'
+        })
+
+        var content='';                                             //存储表单的值
+
+        button.bind('click',function(){  
+        
+        	//点击完搜索所触发的事件
+            var one=$("#biaodan2 input");
+            var two=$('#biaodan2 select');
+             var content= quzhi(one,two,ck);
+
+            dat.datagrid('load',content);
+        })
+
+        button4.bind('click',function(){                                //修改完 教室信息所触发的事件
+            if(parseInt($('#TESTERS').val())>parseInt($('#SEATS').val())){
+                $.messager.alert('提示','<font color="red">考位数不能大于座位数</font>')
+                return;
+            }
+            var one=$("#editroom input");
+            var two=$('#editroom select');
+            var content=quzhi(one,two,ck2);
+
+            $.ajax({
+                url:'__URL__/updateroom',                                        //
+                type:'POST',
+                data:content,
+                success:function(c){
+                    return $.messager.alert('提示', c.message, c.type, function () {
+                        dat.datagrid('load');
+                    });
+                }
+            });
+        });
+
+
+        function wdchuang(height,width)
+        {
+            this.closed=false;
+            this.height=height;
+            this.width=width;
+            this.modal=true
+        }
+        var wdobj=new wdchuang(420,700)
+        //▲▲▲▲两个WINDOW弹窗对象▲▲▲▲▲▲
+        var ck=$('#wd').window(wdobj)
+        wdobj.closed=true
+        var ck2=$('#wd2').window(wdobj)
+        var wdobj2=new wdchuang(0,0)
+        wdobj2.closed=true
+        wdobj2.fit=true
+
+        var course_wd=$('#zhoucourse').window(wdobj2)
+
+
+        //▲▲▲▲▲▲赋值▲▲▲▲▲▲▲▲▲
+        function fuzhi(data){
+            eval("var one2="+data)
+            var one=$("#editroom input");
+            var two=$('#editroom select')
+            var nm='';
+            for(var i=0;i<one.length;i++){
+                nm=one[i].name;
+                one[i].value=one2[nm];
+            }
+            for(var i=0;i<two.length;i++){
+                nm=two[i].name;
+                $("#editroom [name="+nm+"]").val(one2[nm]);
+            }
+
+            $('#wd2').window({
+                closed:false,
+                modal:true,
+                minimizable:false,
+                maximizable:false
+            })
+        }
+
+        //▲▲▲▲▲▲▲取值▲▲▲▲▲▲▲
+        function quzhi(one,two,wd){
+            var nm={};
+            var objnm="";
+            for(var i=0;i<one.length;i++){
+                objnm=one[i].name;
+                
+                if(objnm=='SORT'){
+                    if(one[i].checked){
+
+                        nm[objnm]=one[i].value;
+                    }else{                                          //获取到input的值
+                        continue;
+                    }
+                }
+                else if(objnm=='PRIORITY'){                	
+                	nm[objnm] = (($.trim($("ttPRIORITY").val())=="0" || $.trim($("ttPRIORITY").val())==0 || $.trim($("ttPRIORITY").val())==="0" || $.trim($("ttPRIORITY").val())===0)?"%":$.trim($("ttPRIORITY").val()));
+                }
+                else
+                {
+                	nm[objnm]=one[i].value;
+                }
+                
+            }
+            for(var i=0;i<two.length;i++){
+                objnm=two[i].name;
+                nm[objnm]=two[i].value;                                  //获取到select的值
+
+            }
+
+
+            wd.window({
+                closed:true
+            })
+            return nm;
+        }
+
+        $('#USERNAME').blur(function(){
+            $.ajax({
+                url:'__URL__/useryz',
+                type:'POST',
+                data:{
+                    NAME:this.value
+                },
+                success:function(data){
+                    if(data=='false'){
+                        $('#ct').html('<font color="red">账号已经存在</font>')
+                        upanduan=false;
+                    }else if(data=='sev'){
+                        $('#ct').html('<font color="red">不能为空！</font>')
+                        upanduan=false;
+                    }else{
+                        $('#ct').html('<font color="green">可以使用的账号√</font>')
+                        upanduan=true;
+                    }
+                }
+            })
+        })
+
+        $('#e_excelimp').bind('click',function(){
+        	var url="__URL__/excelimproomedit";
+        	openTabsWindows("教室信息excel导入",url);    	
+        })
+
+        $('#e_add').bind('click',function(){
+            openTabsWindows('添加教室','__URL__/addroom','',true)
+        })
+
+
+        function ddel(){
+            var row2 = dat.datagrid('getSelections');
+            if (row2.length){
+                $.messager.confirm('提示','您确定要删除吗',function(b){
+                    if(b){
+                        var infoarr = [];                                                //存储删除信息的数组
+                        for(var i=0;i<row2.length;i++){
+                            infoarr[i]=row2[i].ROOMNO;
+                        }
+                        $.ajax({
+                            url:'__URL__/deleteroom/hasJson/1',
+                            data:{'in':infoarr},
+                            type:'POST',
+                            success:function(C){
+                                if(C=='true'){
+                                    $.messager.alert('提示','删除成功','?');
+                                }else{
+                                    $.messager.alert('提示','删除失败','?');
+                                }
+                                dat.datagrid('load');
+                            }
+                        })
+                    }
+                });
+            }
+        }
+
+        $('#e_del').bind('click',ddel)
+        $('#admin_del').bind('click',ddel)
+
+        function eedit(){
+            var rowList=dat.datagrid('getSelections');              //获取所有被选中的
+            if(rowList.length>1){
+                alert('请选择一条进行编辑,不能选多条');                         //用户选了多行编辑
+            }else if(rowList.length<1){
+                alert('请选择要编辑的数据');                         //用户没选择行
+            }else{
+                var row3 = dat.datagrid('getSelected');                 //获得被选中的索引
+                $.ajax({
+                    type:'POST',
+                    url:'__URL__/editroom/hasJson/1',                                        //做ajax请求获取数据
+                    data:{
+                        ROOMNO:row3.ROOMNO
+                    },
+                    success:function(content2){
+                        fuzhi(content2);
+                    }
+                })
+                indexrow=row3;
+            }
+        }
+
+        $('#e_edit').bind('click',eedit)
+        $('#admin_edit').bind('click',eedit);
+
+
+        function llook(){
+            var yi=yitiao(dat,'请选择一条查看,不能选择多条','请选择一条要查看的数据')
+            if(yi){
+                var row=dat.datagrid('getSelected')
+                var obj={}
+                obj['arr']={'year':$('#courseYEAR').val(),'term':$('#courseTERM').val(),'roomno':row.ROOMNO}
+              /*  ajiakesi('__URL__/RoomjieyongCourse',obj,function(c){
+                    $('#course_content').html(c)
+                    course_wd.window({
+                        closed:false
+                    })
+                })*/
+            }
+            open("__APP__/Room/Room/roomWeek/roomno/"+row.ROOMNO+"/year/"+$('#courseYEAR').val()+'/term/'+$('#courseTERM').val())
+        }
+        $('#e_look').bind('click',llook);
+        $('#admin_look').bind('click',llook)
+
+        
+        $('#e_excelexpGXKB').bind('click',function(){
+
+        	var one=$("#biaodan2 input");
+            var two=$('#biaodan2 select');
+            var content= quzhi(one,two,ck); 
+        	
+        	$('[name=AREA]').val(content.AREA); 
+        	$('[name=BUILDING]').val(content.BUILDING); 
+        	$('[name=EQUIPMENT]').val(content.EQUIPMENT); 
+        	$('[name=NO]').val(content.NO); 
+        	$('[name=PRIORITY]').val(content.PRIORITY); 
+        	$('[name=RESERVED]').val(content.RESERVED); 
+        	$('[name=ROOMNO]').val(content.ROOMNO); 
+        	$('[name=SEATSDOWN]').val(content.SEATSDOWN); 
+        	$('[name=SEATSUP]').val(content.SEATSUP); 
+        	$('[name=SORT]').val(content.SORT); 
+        	$('[name=STATUS]').val(content.STATUS); 
+        	$('[name=TESTERSDOWN]').val(content.TESTERSDOWN); 
+        	$('[name=TESTERSUP]').val(content.TESTERSUP); 
+        	$('[name=USAGE]').val(content.USAGE);
+
+    		$("#form_excelexpGXKB").submit();
+    		
+    		$.taskMonitor('{$Think.session.S_USER_NAME}',"excel导出用于更欣课表的场地名单",{dialogOptions : {modal:true, closable:false, width:400,height:140}, successCallback : function () {}});
+        });
+
+        
+    })
+
+    function closedWD3(){
+
+        $('#zhoucourse').window({
+            closed:true
+        })
+    }
+</script>
+<body>
+<div id="wd" title="按条件浏览教室" maximizable="false" minimizable="false" collapsible="false">
+    <form method="POST" id="biaodan2" >
+        <table border="0" style="margin-top:20px;margin-left:30px" width="600" align="center" cellspacing="8">
+            <tr>
+                <td width="16%" align="right"><font size="2">教室代号：</font></td>
+                <td width="21%"><input type="text" id='ROOMNO' name="ROOMNO" size="9" maxlength="9" value="%"></td>
+                <td width="24%" align="right"><font size="2">房间号：</font></td>
+                <td width="45%"><input type="text" name="NO" id="NO" size="6" maxlength='6' value="%"></td>
+            </tr>
+            <tr>
+                <td width="16%" align="right"><font size="2">楼名：</font></td>
+                <td width="21%"><input type="text" name="BUILDING" id="BUILDING" size="20" value="%"></td>
+                <td width="24%" align="right">
+                    <if condition="(SCHOOL_CODE eq 'yzzj')">
+                        <font size="2">校区：</font>
+                        <else />
+                        &nbsp;
+                    </if>
+                </td>
+                <td width="45%">
+
+                    <if condition="(SCHOOL_CODE eq 'yzzj')">
+                        <select name="AREA" id="AREA">
+                            <volist name="area" id="v">
+                                <option value="{$v.NAME}">{$v.VALUE}</option>
+                            </volist>
+                        </select>
+                        <else />
+                        &nbsp;
+                        <select name="AREA" id="AREA" style="display: none">
+                            <option value="0">未知</option>
+                        </select>
+                    </if>
+                </td>
+            </tr>
+            <tr>
+                <td width="16%" align="right"><font size="2">座位数：</font></td>
+                <td width="21%"><font size="2">
+                
+                <input type="text" name="SEATSDOWN" size="4" value="0" id="SEATSDOWN">小于<input type="text" name="SEATSUP" size="4" value="1000" id="SEATSUP">
+                
+                </font></td>
+                <td width="24%" align="right"><font size="2">考位数：</font></td>
+                <td width="45%">
+                
+                <input type="text" name="TESTERSDOWN" size="4" maxlength="4" value="0" id="TESTERSDOWN">小于<input type="text" name="TESTERSUP" size="4" value="1000" id="TESTERUP">
+                
+                </td>
+            </tr>
+            <tr>
+                <td width="16%" align="right"><font size="2">设施：</font></td>
+                <td width="21%">
+                
+                    <select name="EQUIPMENT" id="EQUIPMENT">
+                            <option value="%">所有情况</option>
+                        <volist name="roomoption" id="v">
+                            <option value="{$v.NAME}">{$v.VALUE}</option>
+                        </volist>
+                    </select>
+                    
+                </td>
+                <td width="24%" align="right"><font size="2">可用不可用：</font></td>
+                <td width="45%">
+                
+                <select size="1" name="STATUS" id="STATUS">
+                    <option selected value="2">所有情况</option>
+                    <option value="1">是</option>
+                    <option value="0">否</option>
+                </select>
+                
+                </td>
+
+            </tr>
+            <tr>
+                <td width="16%" align="right"><font size="2">优先学部：</font></td>
+                <td width="21%">
+                
+ 			   	<select class="easyui-combotree" id="ttPRIORITY" name="PRIORITY" style="width:180px;"
+                                                 data-options="url:'__URL__/getjsonschools/hasJson/1/select/1',required:false,editable:false">
+                    <!--
+                                       <option value="%">全部</option>
+                                       <volist name="school" id="v">
+                                           <option value="{$v.SCHOOL}">{$v.NAME}</option>
+                                       </volist>
+                     -->
+                </select>
+                
+                </td>
+                <td width="24%" align="right"><font size="2">排课约束：</font></td>
+                <td width="45%">
+                
+                <select size="1" name="USAGE" id="USAGE">
+                    <option selected value="%">所有情况</option>
+                    <option value="P">人数限制  </option>
+                    <option value="C">授课限制  </option>
+                    <option value="N">无限制    </option>
+                </select>
+                
+                </td>
+            </tr>
+            <tr>
+                <td width="16%" align="right"><font size="2">是否保留：</font></td>
+                <td width="21%">
+                
+                <select size="1" name="RESERVED" id="RESERVED">
+                    <option selected value="2">所有情况</option>
+                    <option value="1">是</option>
+                    <option value="0">否</option>
+                </select>
+                
+                </td>
+
+            </tr>
+            <tr>
+                <td width="16%" align="right"><font size="2">排序方式：</font></td>
+                <td width="90%" colspan="3">
+                    <p align="left">
+                    
+                    <input type="radio" value="ROOMNO" checked name="SORT" id="radio"><font size="2">教室代号；<input type="radio" name="SORT" value="SEATS">座位数；<input type="radio" name="SORT" value="EQUIPMENT">设施。</font>
+                    
+                    </td>
+            </tr>
+            <tr>
+                <td colspan="4" align="center">
+                    <a href="javascript:void(0)" id="sousuo">搜索</a>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<a href="javascript:void(0)" id="back">重置</a>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" align="left">
+                    <font color="red">备注:你可以点击 查看教室周课表 查看指定学年学期的教室课程安排</font>
+                </td>
+            </tr>
+
+        </table>
+    </form>
+</div>
+                            <!--两个窗口的分割线-->
+<div id="wd2" title="编辑教室" collapsible="false">
+    <form method="POST" id="editroom" >
+        <table border="0" style="margin-top:20px;margin-left:30px" width="600" align="center" cellspacing="8">
+            <tr>
+                <td width="16%" align="right"><font size="2">教室代号：</font></td>
+                <td width="21%">
+                
+                <input type="text" name="ROOMNO" size="9" maxlength="9" value="" disabled="true ">
+                
+                </td>
+                <td width="24%" align="right"><font size="2">房间号：</font></td>
+                <td width="45%">
+                
+                <input type="text" name="NO" size="4" maxlength="4" value="">
+                
+                </td>
+            </tr>
+            <tr>
+                <td width="16%" align="right"><font size="2">楼名：</font></td>
+                <td width="21%">
+                
+                <input type="text" name="BUILDING" size="20" value="">
+                
+                </td>
+                <td width="24%" align="right">
+                    <if condition="(SCHOOL_CODE eq 'yzzj')">
+                    <font size="2">校区：</font>
+                    <else />
+                    &nbsp;
+                </if>
+                </td>
+                <td width="45%">
+
+                    <if condition="(SCHOOL_CODE eq 'yzzj')">
+                        <select name="AREA">
+                            <volist name="area" id="v">
+                                <option value="{$v.NAME}">{$v.VALUE}</option>
+                            </volist>
+                        </select>
+                        <else />
+                        &nbsp;
+                        <select name="AREA" style="display: none">
+                            <option value="0">未知</option>
+                        </select>
+                    </if>
+                    
+                </td>
+            </tr>
+            <tr>
+                <td width="16%" align="right"><font size="2">设施：</font></td>
+                <td width="21%">
+                
+                    <select name="EQUIPMENT">
+                        <option value="">请选择</option>
+                        <volist name="roomoption" id="v">
+                            <option value="{$v.NAME}">{$v.VALUE}</option>
+                        </volist>
+                    </select>
+                    
+                </td>
+                <td width="24%" align="right"><font size="2">教室面积：</font></td>
+                <td width="45%">
+                
+                <input type="text" name="ROOM_AREA" id="ROOM_AREA" size="4" maxlength="5">
+                
+                </td>
+            </tr>
+            <tr>
+                <td width="16%" align="right"><font size="2">座位数：</font></td>
+                <td width="21%">
+                
+                <input type="text" name="SEATS" id="SEATS" size="4">
+                
+                </td>
+                <td width="14%" align="right"><font size="2">考位数：</font></td>
+                <td width="55%">
+                
+                <input type="text" name="TESTERS" id="TESTERS" size="4" maxlength="4">
+                
+                </td>
+            </tr>
+            <tr>
+                <td width="24%" align="right"><font size="2">可用不可用：</font></td>
+                <td width="45%">
+                
+                <select size="1" name="STATUS">
+                    <option value="1">是</option>
+                    <option value="0">否</option>
+                </select>
+                
+                </td>
+                <td width="16%" align="right"><font size="2">优先学部：</font></td>
+                <td width="21%">
+                
+                <select name="PRIORITY">
+                    <option value="">请选择</option>
+                    <volist name="school" id="v">
+                        <option value="{$v.SCHOOL}">{$v.NAME}</option>
+                    </volist>
+                </select>
+                
+                </td>
+            </tr>
+            <tr>
+                <td width="24%" align="right"><font size="2">排课约束：</font></td>
+                <td width="45%">
+                
+                <select size="1" name="USAGE">
+                    <option value="P">人数限制  </option>
+                    <option value="C">授课限制  </option>
+                    <option value="N">无限制    </option>
+                </select>
+                
+                </td>
+                <td width="16%" align="right"><font size="2">是否保留：</font></td>
+                <td width="21%">
+                
+                <select size="1" name="RESERVED">
+                    <option value="1">是</option>
+                    <option value="0">否</option>
+                </select>
+                
+                </td>
+            </tr>
+            <tr>
+                <td width="16%" align="right"><font size="2">简称：</font></td>
+                <td width="21%">
+                
+                <input type="text" name="JSN" size="20" value="">
+                
+                </td>
+                <td width="14%" align="right"><font size="2">备注：</font></td>
+                <td width="55%"><input type="text" name="REM" size="20" value="    "></td>
+            </tr>
+
+            <tr>
+                <td colspan="4" align="center">
+                    <br />
+                    <a href="javascript:void(0)" id="revision">修改</a>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div  class="easyui-layout"  data-options="border:false,fit:true" >
+    <div id="tdemo">
+        学年<input type="text" id="courseYEAR" size="4" value="{$yearTerm.YEAR}">学期：<input type="text" id="courseTERM" size="1" value="{$yearTerm.TERM}"></font>
+        &nbsp&nbsp&nbsp<a href="javascript:void(0)"  id="searcher"></a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search"  id="e_look" plain=true>查看教室周课表</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-room" id="e_add2" plain=true>借用教室登记</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cut"  id="e_del" plain=true>删除</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit"  id="e_edit" plain=true>编辑</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok"  id="e_excelimp" plain=true>excel导入</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add"  id="e_add" plain=true>添加教室</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-excel"  id="e_excelexpGXKB" plain=true>excel导出用于更欣课表的场地名单</a>
+    </div>
+    <div data-options="region:'center',border:false" style=";background:#eee;">
+        <div id="scinfo" data-options="fit:true"></div>
+    </div>
+</div>
+<div align="center" id="wdd" title="借用教室登记">
+    <center>
+        <form id="room_dengji">
+            <table border="0" cellpadding="0" cellspacing="10" width="100%" style="margin-top:10px">
+                <tr>
+                    <td width="25%" align="right"><font size="2">学年：</font></td>
+                    <td width="30%" align="left"><input type="text" name="YEAR" size="4" value="2014" id="YEAR"></td>
+                    <td width="13%" align="right"><font size="2">学期：</font></td>
+                    <td width="32%" align="left"><input type="text" name="TERM" size="2" value="1" id="TERM"></td>
+                </tr>
+                <tr>
+                    <td width="25%" align="right"><font size="2">教室号（9位）：</font></td>
+                    <td width="30%" align="left"><input type="text" name="ROOMNO" size="9" id="ADD_ROOMNO" maxlength="9" ><span id="ct2"></span></td>
+                    <td width="13%" align="right"><font size="2">日期：</font></td>
+                    <td width="32%" align="left"><select size="1" name="DAY" id="DAY">
+                        <option value="1">星期一</option>
+                        <option value="2">星期二</option>
+                        <option value="3">星期三</option>
+                        <option value="4">星期四</option>
+                        <option value="5">星期五</option>
+                        <option value="6">星期六</option>
+                        <option value="7">星期日</option>
+                    </select></td>
+                </tr>
+                <tr>
+                    <td width="25%" align="right"><font size="2">时段：</font></td>
+                    <td width="30%" align="left"><font size="2">
+                        <select size="1" name="TIME" id="TIME">
+                            <option value="%">全部</option>
+                            <volist name="timesectors" id="one">
+                                <option value="{$one.NAME}">{$one.VALUE}</option>
+                            </volist>
+                        </select>
+                    </font></td>
+                    <td width="13%" align="right"><font size="2">单双周：</font></td>
+                    <td width="32%" align="left"><select size="1" name="OEW" id="OEW">
+                        <option value="B">单双周</option>
+                        <option value="O">单周</option>
+                        <option value="E">双周</option>
+                    </select></td>
+                </tr>
+                <tr>
+                    <td width="25%" align="right"><font size="2">借用目的<font color="#FF0000">（必须）</font>：</font></td>
+                    <td width="75%" align="left" colspan="3"><font size="2"><input type="text" name="PURPOSE" id="PURPOSE" size="50" maxlength="50">最多25字</font></td>
+                </tr>
+                <tr>
+                    <td width="25%" align="right"><font size="2">周次：</font></td>
+                    <td width="75%" align="left" colspan="3" id="zc">
+                    
+                    <font size="2">
+                    1:<input type="checkbox" name="C1" value="ON">
+                    2:<input type="checkbox" name="C2" value="ON">
+                    3:<input type="checkbox" name="C3" value="ON">
+                    4:<input type="checkbox" name="C4" value="ON" >
+                    5:<input type="checkbox" name="C5" value="ON">
+                    6:<input type="checkbox" name="C6" value="ON">
+                    7:<input type="checkbox" name="C7" value="ON">
+                    8:<input type="checkbox" name="C8" value="ON">
+                    9:<input type="checkbox" name="C9" value="ON" >
+                    10:<input type="checkbox" name="C10" value="ON" >
+                    </font>
+                    <p>
+                    <font size="2">
+                    11:<input type="checkbox" name="C11" value="ON">
+                    12:<input type="checkbox" name="C12" value="ON">
+                    13:<input type="checkbox" name="C13" value="ON">
+                    14:<input type="checkbox" name="C14" value="ON">
+                    15:<input type="checkbox" name="C15" value="ON">
+                    16:<input type="checkbox" name="C16" value="ON">
+                    17:<input type="checkbox" name="C17" value="ON">
+                    18:<input type="checkbox" name="C18" value="ON">
+                    19:<input type="checkbox" name="C19" value="ON">
+                    </font>
+                    <p>
+                    <font size="2">
+                    20:<input type="checkbox" name="C20" value="ON">
+                    21:<input type="checkbox" name="C21" value="ON">
+                    22:<input type="checkbox" name="C22" value="ON">
+                    23:<input type="checkbox" name="C23" value="ON">
+                    </font>
+                    
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" align="center">
+                        <a href="javascript:void(0)" id="add">添加</a>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<a href="javascript:void(0)" id="back2">重置</a>
+                    </td>
+
+                </tr>
+            </table>
+        </form>
+    </center>
+</div>
+<div id="zhoucourse" title="周课表" collapsible="false" maximizable="false" minimizable="false" closable="false">
+    <div id="course_content"></div>
+</div>
+<div id="admin_access_menu" class="easyui-menu" style="width:100px;">
+    <div id='admin_del'>删除本条目</div>
+    <div id='admin_edit'>编辑本条目</div>
+    <div id="admin_look">查看教室周课表</div>
+</div>
+
+
+
+	  <form action="__URL__/excelexpGXKBroom" id="form_excelexpGXKB" name="form_excelexpGXKB" method="post" target="sysc_hiddenIframe" >
+	    <input type="hidden" name="AREA">
+	    <input type="hidden" name="BUILDING">
+	    <input type="hidden" name="EQUIPMENT">
+	    <input type="hidden" name="NO">
+	    <input type="hidden" name="PRIORITY">
+	    <input type="hidden" name="RESERVED">
+	    <input type="hidden" name="ROOMNO">
+	    <input type="hidden" name="SEATSDOWN">
+	    <input type="hidden" name="SEATSUP">
+	    <input type="hidden" name="SORT">
+	    <input type="hidden" name="STATUS">
+	    <input type="hidden" name="TESTERSDOWN">
+	    <input type="hidden" name="TESTERSUP">
+	    <input type="hidden" name="USAGE">
+	  </form>
+	
+<iframe name="sysc_hiddenIframe" frameborder="0"  border="0" style="display:none;width:0px;height:0px;"></iframe>	
+
+<script>
+    function weekbiao(str){
+       /* var row=$('#scinfo').datagrid('getSelected')
+        var obj={}
+        obj['arr']={'year':$('#courseYEAR').val(),'term':$('#courseTERM').val(),'roomno':str}
+        ajiakesi('__URL__/RoomjieyongCourse',obj,function(c){
+            $('#course_content').html(c)
+            $('#zhoucourse').window({
+                closed:false
+            })
+        })*/
+        open("__APP__/Room/Room/roomWeek/roomno/"+str+"/year/"+$('#courseYEAR').val()+'/term/'+$('#courseTERM').val())
+    }
+    
+    
+    
+$(function(){	    
+    $('#ttPRIORITY').combotree('setValue', 0);
+});        
+    
+</script>
+</body>
+</html>
+
+
+

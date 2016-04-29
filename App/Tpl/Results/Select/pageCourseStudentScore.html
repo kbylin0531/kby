@@ -1,0 +1,63 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script>
+    $(function(){
+        var year_input = $("#year");
+        var term_input = $("#term");
+        var classno_input = $("#classno");
+        var studentno_input = $("#studentno");
+        var search_form = $("#search_form");
+
+        year_input.val(GenKits.getParentYear());
+        term_input.val(GenKits.getParentTerm());
+
+        $('#search').click(function(){
+            $('#dgrid').datagrid('load',{ '_PARAMS_':search_form.serialize() });
+        });
+        $('#printExcel').bind('click',function(){
+            window.open('__URL__/exportCourseStudentScore?'+search_form.serialize());
+        });
+    })
+</script>
+<body>
+<div id="cc" class="easyui-layout" data-options="fit:true">
+    <div id="tdemo">
+        <form id="search_form">
+            <label for="year">学年：</label>
+            <input type="text" name="year" id="year" size="4" >&nbsp;&nbsp;
+            <label for="term">学期：</label>
+            <input type="text" name="term" id="term" size="1">&nbsp;&nbsp;
+            <label for="courseno">课号:</label>
+            <input type="text" name="courseno" id='courseno' value="%" size=9>&nbsp;&nbsp;
+            <label for="studentno">学号:</label>
+            <input type="text" name="studentno" id='studentno' value="%" size="9">&nbsp;&nbsp;
+
+            <a href="javascript:void(0);" id="search" class="easyui-linkbutton" data-options="iconCls:'icon-search'"> 查询</a>
+            <a href="javascript:void(0);" id="printExcel" class="easyui-linkbutton" data-options="iconCls:'icon-excel',plain:true">导出Excel</a>
+        </form>
+    </div>
+    <div data-options="region:'center'" style="padding:0;background:#eee;">
+
+        <table class="easyui-datagrid" id="dgrid"
+               data-options="url:'__URL__/listCourseStudentScore',toolbar:'#tdemo',fitColumns:true,singleSelect:true,fit:true,pagination:true,pageList:[20,50,100,200,500]">
+            <thead>
+                <tr>
+                    <th data-options="field:'coursegroup',width:230" align="center">课号</th>
+                    <th data-options="field:'coursename',width:450" align="center">课名</th>
+                    <th data-options="field:'studentname',width:150,align:'right'" align="center">学号</th>
+                    <th data-options="field:'studentno',width:100,align:'right'" align="center">姓名</th>
+                    <th data-options="field:'credit',width:100,align:'right'" align="center">学分</th>
+                    <th data-options="field:'approach',width:100,align:'right'" align="center">修课方式</th>
+                    <th data-options="field:'normal_score',width:100,align:'right'" align="center">平时</th>
+                    <th data-options="field:'midterm_score',width:100,align:'right'" align="center">期中</th>
+                    <th data-options="field:'finals_score',width:100,align:'right'" align="center">期末</th>
+                    <th data-options="field:'general_score',width:100,align:'right'" align="center">总评</th>
+                    <th data-options="field:'resit_score',width:100,align:'right'" align="center">补考</th>
+                    <th data-options="field:'retake_score',width:100,align:'right'" align="center">重修</th>
+                </tr>
+            </thead>
+        </table>
+
+    </div>
+</div>
+</body>

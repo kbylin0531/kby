@@ -1,0 +1,60 @@
+<include file=":Include:jqueryHeader" />
+
+<script>
+    
+    $(function () {
+
+        var yearInput = $("#year");
+        var termInput = $("#term");
+
+        yearInput.val(GenKits.getParentYear());
+        termInput.val(GenKits.getParentTerm());
+
+        function doAjax(url,text,clear){
+            return Messager.showConfirm(text, function (r) {
+                if(r){
+                    $.post(url,{year:yearInput.val(),term:termInput.val(),clear:clear}, function (data) {
+                        return Messager.show(data);
+                    });
+                }
+            });
+        }
+
+        $('#initTeachers').click(function () {
+            return doAjax('__URL__/initEvaluationTeachers','本操作将追加形式初始化，不会清空之前的数据.',0);
+        });
+        $('#initTeachersWithClear').click(function () {
+            return doAjax('__URL__/initEvaluationTeachers','本操作将清空之前的记录，请确认操作！！',1);
+        });
+        $('#initStudents').click(function () {
+            return doAjax('__URL__/initEvaluationStudents','本操作将追加形式初始化，不会清空之前的数据.',0);
+        });
+        $('#initStudentsWithClear').click(function () {
+            return doAjax('__URL__/initEvaluationStudents','本操作将清空之前的记录，请确认操作！！',1);
+        });
+
+    });
+</script>
+<style>
+    body {
+        background-color: #ffffff;
+    }
+</style>
+<body>
+    <br /><br />
+
+    <div align="center">
+        <label for="year">学年</label><input type="text" name="year" id="year" size="4" />&nbsp;
+        <label for="term">学期</label><input type="text" name="term" id="term" size="1" />&nbsp;
+
+        <br /><br />
+
+        <a id="initTeachers" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-ok'">初始化教师考评表</a>&nbsp;
+        <a id="initTeachersWithClear" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-ok'">清空并初始化教师考评表</a>
+
+        <br /><br />
+
+        <a id="initStudents" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-ok'">初始化学生考评表</a>&nbsp;
+        <a id="initStudentsWithClear" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-ok'">清空并初始化学生考评表</a>
+    </div>
+</body>

@@ -1,0 +1,50 @@
+<include file=":Include:jqueryHeader" />
+
+<script>
+
+    $(function () {
+        var year_input = $("#year");
+        var term_input = $("#term");
+        var coursegroupno_input = $("#coursegroupno");
+
+        year_input.val(GenKits.getParentYear());
+        term_input.val(GenKits.getParentTerm());
+
+        $("#initfinals").click(function () {
+            $.post('__URL__/initCourseFinalsInput',{year:year_input.val(),term:term_input.val(),coursegroupno:coursegroupno_input.val()}, function (data) {
+                return Messager.showMessage(data);
+            });
+        });
+        $("#initresit").click(function () {
+            $.post('__URL__/initCourseResitInput',{year:year_input.val(),term:term_input.val(),coursegroupno:coursegroupno_input.val()}, function (data) {
+                return Messager.showMessage(data);
+            });
+        });
+    });
+</script>
+
+<body style="background-color: white">
+<label for="year" >学年</label>
+<input id="year" type="text" size="4" />
+
+<label for="term" >学期</label>
+<input id="term" type="text" size="1" />
+
+<label for="coursegroupno" >课号(可以带组号)</label>
+<input id="coursegroupno" type="text" size="9" />
+
+<a id="initfinals" href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-ok'">期末成绩输入 初始化</a>
+<a id="initresit" href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-ok'">补考成绩输入 初始化</a>
+<br /><br />
+
+<p>
+    说明:
+</p>
+<p>
+    1."期末成绩输入初始化"的操作是将生成相关课程的学生列表
+</p>
+<p>
+    2."补考成绩输入初始化"的操作是将学生成绩表中筛选出不及格的或者需要补考的学生
+</p>
+
+</body>

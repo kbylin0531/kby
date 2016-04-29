@@ -1,0 +1,116 @@
+<include file=":Include:jqueryHeader"/>
+<script src="__ROOT__/thirdparty/jquery/js/ExtSearcher.js"></script>
+<style type="text/css">
+    table.gridtable {
+        font-family: verdana, arial, sans-serif;
+        font-size: 11px;
+        color: #333333;
+        border-width: 1px;
+        border-color: #666666;
+        border-collapse: collapse;
+    }
+
+    table.gridtable th {
+        border-width: 1px;
+        padding: 8px;
+        border-style: solid;
+        border-color: #666666;
+        background-color: #dedede;
+    }
+
+    table.gridtable td {
+        border-width: 1px;
+        padding: 8px;
+        border-style: solid;
+        border-color: #666666;
+        background-color: #ffffff;
+    }
+</style>
+<script>
+    $(function () {
+        $("#year").val(GenKits.getParentYear());
+        $("#term").val(GenKits.getParentTerm());
+
+        new ExtSearcher('__APP__/Common/Provider/seacher', ['ES_CLASS','ES_STUDENT'], 's').start();
+        var subform = $("#subform");
+
+
+        function submit(){
+            var values = subform.serialize();
+            $.post('__URL__/createEncourageOfAddition',{_PARAMS_:values}, function (data) {
+                return Messager.show(data);
+            });
+        }
+
+        $("#sub").click(function () {
+            if(($("#projectname").val() === '' ) || ($("#credit").val() === '' )){
+                return Messager.showInfo('请完整填写表单内容' ,'info');
+            }
+            if($("#ES_STUDENT").val() === '%'){
+                return Messager.showConfirm('请确认是否按班级添加？', function (r) {
+                    if(r){
+                        submit();
+                    }else{
+                        return Messager.showInfo("请选择学生！",'info')
+                    }
+                });
+            }else{
+                submit();
+            }
+        });
+
+        $("#import").click(function () {
+            openNewTabsWindows('Excel导入','__URL__/pageImport/reqtag/importEncourageOfAddition/dvlptype/{$dvlptype}')
+        });
+    });
+</script>
+<body style="background-color: #ffffff">
+
+<div align="center">
+    <form id="subform">
+        <table class="gridtable">
+            <tr>
+                <td><label for="ES_YEAR">学年:</label></td>
+                <td>
+                    <input name="year" size='4' id="ES_YEAR" class="ES_YEAR s" value="2015"/></td>
+            </tr>
+            <tr>
+                <td><label for="ES_TERM">学期:</label></td>
+                <td><input name="term" size='1' id="ES_TERM" class="ES_TERM s" value="1"/></td>
+            </tr>
+            <tr>
+                <td><label >学生 </label></td>
+                <td>
+                    <label for="ES_GRADE">年级:</label><select name="grade" id="ES_GRADE" class="ES_GRADE s"></select>
+                    <label for="ES_SCHOOL">学部:</label><select name="schoolno" id="ES_SCHOOL" class="ES_SCHOOL s"></select>
+                    <label for="ES_CLASS">班级:</label><select name="classno" id="ES_CLASS" class="ES_CLASS s"></select>
+                    <label for="ES_STUDENT">学生:</label><select name="studentno"  id="ES_STUDENT" class="ES_STUDENT s"></select>
+                </td>
+            </tr>
+            <tr>
+                <td><label>项目名称:</label></td>
+                <td>
+                    <input name="projectname" id="projectname" />
+                </td>
+            </tr>
+            <tr>
+                <td><label>学分:</label></td>
+                <td>
+                    <input name="credit" id="credit" />
+                </td>
+            </tr>
+            <tr>
+                <td><label >备注:</label></td>
+                <td><textarea name="rem"></textarea></td>
+            </tr>
+        </table>
+
+        <input type="hidden" name="dvlptype" value="{$dvlptype}">
+    </form>
+</div>
+
+<div align="center">
+    <a id="sub" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-ok'">提交</a>
+    <a id="import" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-excel'">批量导入</a>
+</div>
+</body>

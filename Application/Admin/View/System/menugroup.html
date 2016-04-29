@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+<style>
+    html, body, ul, li { margin:0; padding:0; }
+    ul, li { list-style-type:none; color:#b5e853; border:1px solid #3f3f3f; }
+    ul{ padding:0; background-color:#151515; }
+    ul.sTree2 li{ padding-left:50px; margin:5px; border:1px solid #3f3f3f; background-color:#3f3f3f; }
+    li div { padding:7px; background-color:#222; }
+    li, ul, div { border-radius: 3px; }
+    #sTree2 { margin:10px auto; }
+    .open,.close { font: bold 12pt/14pt Times, serif ;cursor: pointer}
+</style>
+
+    <script src="{$smarty.const.PUBLIC_URI}assets/js/jquery-1.12.0.min.js"></script>
+    <script src="{$smarty.const.PUBLIC_URI}assets/plugins/SortableList/js/jquery-sortable-lists.min.js"></script>
+    <script src="{$smarty.const.PUBLIC_URI}assets/js/genkits.js"></script>
+    <script>
+        $(function () {
+            var stree = $("#sTree2");
+            stree.sortableLists( {
+                placeholderCss: { 'background-color': '#ff8'},/*拖动时即将空缺的位置的背景色*/
+                hintCss: { 'background-color':'red'},/*拖动时即将放入的位置的背景色*/
+                ignoreClass: 'clickable', /* 点击时默认的行为是收获焦点而不是准备移动 */
+                isAllowed: function(){ /*是否允许拖动*/
+                    return true;
+                },
+                opener: {
+                    active: true,
+                    as: 'html',  // or "class" or skip if using background-image url
+                    close: '<b class="open">+</b>', // or 'fa fa-minus' or './imgs/Remove2.png'
+                    open: '<b class="close">-</b>', // or 'fa fa-plus' or './imgs/Add2.png'
+                    openerCss: {
+                        'display': 'inline-block', // Default value
+                        'float': 'left', // Default value
+                        'width': '18px',
+                        'height': '18px',
+                        'margin-left': '-35px',
+                        'margin-right': '5px',
+                        'background-position': 'center center', // Default value
+                        'background-repeat': 'no-repeat' // Default value
+                    },
+                    // or like a class. Note that class can not rewrite default values. To rewrite defaults you have to do it through css object.
+                    openerClass: 'yourClassName'
+                },
+                onChange: function () {
+                    console.log(stree.sortableListsToArray());
+                    console.log(stree.sortableListsToHierarchy());
+                }
+            });
+            
+            $("#save").click(function () {
+                var list =  stree.sortableListsToArray();
+                $.iPost("{$smarty.const.__CONTROLLER__}/updateMenuGroup",{ 'list':list}, function (data) {
+                    console.log(data);
+                }, function (data) {
+                    if('_type' in data && data['_type'] == 0){
+                        alert(data['_message']);
+                    }
+                });
+            });
+            $("#reset").click(function () {
+
+            });
+
+        });
+    </script>
+</head>
+<body>
+<div>
+    <button id="save">保存</button>
+    <button id="reset">重置</button>
+</div>
+<div>
+    <ul class="sTree2 listsClass" id="sTree2">
+        {$menus}{* 调用了递归，模板中难以实现，解决办法是程序中操作返回HTML并分配到模板中 π.π *}
+    </ul>
+</div>
+</body>
+</html>

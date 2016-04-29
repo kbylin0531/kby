@@ -1,0 +1,147 @@
+<include file=":Include:jqueryHeader" />
+<script type="text/javascript">
+    var datagrid = null; //数据表
+    var _rowData=null;
+    $(function() {
+        //todo 初始化数据表
+        datagrid = $('#datagrid').datagrid({
+            toolbar : '#toobar',
+            frozenColumns:[[{field:'ck',checkbox:true}]],
+            onBeforeLoad : function(){
+                $(this).datagrid("unselectAll");
+                return true;
+            },
+            onDblClickRow : function(index,row){
+                _rowData = row;
+                setFormData();
+                $('#win').window('open');
+            }
+        });
+
+        //todo 查询
+        $("#event_searcher").bind("click",function(){
+            if(!checkBZL()) return false;
+            datagrid.datagrid("options").url = '__ROOT__/Moral/Comments/qlist/hasJson/true'
+            datagrid.datagrid("reload",{YEAR:$("#YEAR").val(), TERM:$("#TERM").val(), SNAME:$("#SNAME").val(), SNO:$("#SNO").val()});
+        });
+
+        //todo 评语事件
+        $("#event_comment").bind("click",function(){
+            if(!checkBZL()) return false;
+            var rowList=datagrid.datagrid('getSelections');              //获取所有被选中的
+            if(rowList.length>1){
+                msgShow("系统提示：","请选择一条进行编辑,不能选多条","error");  //用户选了多行编辑
+            }else if(rowList.length<1){
+                msgShow("系统提示：","请选择要编辑的数据","error");   //用户没选择行
+            }else{
+                _rowData = rowList[0]
+                setFormData();
+                $('#win').window('open');
+            }
+        });
+
+        //todo 取消编辑
+        $("#wfCancel").bind("click",function(){
+            $('#win').window('close');
+        });
+
+        //todo 保存事件
+        $('#wfOK').bind('click',function(){
+            if(!checkBZL()) return false;
+            if(checkDoPost()==false) return;
+            _rowData.COMMENT = $("#wCOMMENT").val();
+            $.post("/Moral/Comments/save/hasJson/true",_rowData,function(rep){
+                if(rep){
+                    if(rep.type!="error") {
+                        $('#win').window('close');
+                        datagrid.datagrid("reload");
+                    }
+                    msgShow("系统提示：", rep.message, rep.type);
+                }else msgShow("系统提示：", "发生未知错误！", "error");
+            });
+        });
+
+        function setFormData(row){
+            if(!_rowData || _rowData==null ) return;
+//            console.log(_rowData);
+            $("#wCOMMENT").val('');
+            $("#wCLASSNAME").html(_rowData['CLASSNAME']);
+            $("#wYEAR").html(_rowData['YEAR']);
+            $("#wTERM").html(_rowData['TERM']);
+            $("#wSTUDENTNO").html(_rowData.NAME + "(" + _rowData.STUDENTNO + ")");
+            $("#wCOMMENT").val(_rowData.COMMENT);
+        }
+        function checkDoPost(){
+            if(!_rowData || _rowData==null || _rowData.YEAR=='' || _rowData.TERM=='' || _rowData.STUDENTNO==null){
+                msgShow("系统提示：","没有选择一名学生进行评语！","error");
+                return false;
+            }
+            return true;
+        }
+
+        function checkBZL(){
+        <empty name="classes">
+            msgShow("系统提示：","您不是班主任没有可操作的相应班级！","error");
+            return false;
+        </empty>
+            return true;
+        }
+    });
+</script>
+
+<body class="easyui-layout" style="background: #fff;padding:0px;overflow-y: hidden"  fit="true" split="false" scroll="no" >
+
+<!-- 主页面 -->
+<div id="mainPanle" region="center" border="1" style="background: #fff; padding:3px; " >
+    <table id="datagrid" fitColumns="false" width="100%" singleSelect="true" fit="true" idField="ROW_NUMBER"
+           pagination="true" pageSize="20" pageList="[50,100,200]" striped="true" >
+        <thead>
+        <tr><th data-options="field:'YEAR',width:60">学年</th>
+            <th data-options="field:'TERM',width:60">学期</th>
+            <th data-options="field:'CLASSNAME',width:100">班级</th>
+            <th data-options="field:'STUDENTNO',width:80">学号</th>
+            <th data-options="field:'NAME',width:80">姓名</th>
+            <th data-options="field:'COMMENT',width:320,
+            formatter:function(value,row,index){if(row.COMMENT && row.COMMENT!=''){return '已评语'}else{return '未评语'}},
+            styler:function(value,row,index){if(row.COMMENT && row.COMMENT!=''){return 'color:black;'}else{return 'color:red;'}}">评语</th></tr>
+        </thead>
+    </table>
+</div>
+
+<!-- 主页面工具条 -->
+<div id="toobar">
+    <span class="datagrid-btn-separator-area">
+        当前班级：<empty name="classes"><font color="red">无任课班级</font><else /><font color="blue">{$classes.CLASSNAME}({$classes.CLASSNO})</font></empty>
+        <label for="YEAR">学年:<input type="text" id="YEAR" size="10"  value='{$YearTerm.YEAR}' class="easyui-validatebox"></label>
+        <label for="TERM">学期:<input type="text" id="TERM" size="10"  value='{$YearTerm.TERM}' class="easyui-validatebox"></label>
+        <label for="SNAME">姓名:<input type="text" id="SNAME" size="12"  value='%' class="easyui-validatebox"></label>
+        <label for="SNO">学号:<input type="text" id="SNO" size="10"  value='%' class="easyui-validatebox"></label>
+        <a id="event_searcher" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true">搜索</a>
+    </span>
+    <a class="datagrid-btn-separator"></a>
+    <a id="event_comment" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true" >班主任评语</a>
+</div>
+
+<!-- 添加修改界面 -->
+<div id="win" class="easyui-window" style="width:360px;height:260px" title="评语" data-options="minimizable:false,maximizable:false,collapsible:false,modal:true,closed:true">
+    <div class="easyui-layout" data-options="fit:true">
+        <div region="center" border="false" style="overflow: hidden;padding: 10px; background: #fff; border:0px;border-bottom:1px solid #ccc;">
+            <form id="wDataForm">
+                <table cellpadding=3>
+                    <tr><th align="right">班级：</th><td><span id="wCLASSNAME"></span></td></tr>
+                    <tr><th align="right">学年：</th><td><span id="wYEAR"></span></tr>
+                    <tr><th align="right">学期：</th><td><span id="wTERM"></span></td></tr>
+                    <tr><th align="right">学生：</th><td><span id="wSTUDENTNO"></span></td></tr>
+                    <tr><th align="right">评语：</th><td><textarea id="wCOMMENT" style="width:260px;height:70px;" maxlength="500"></textarea></td></tr>
+                </table>
+            </form>
+        </div>
+        <div region="south" border="false" style="text-align: right; height: 30px; line-height: 30px;">
+            <a id="wfOK" class="easyui-linkbutton" icon="icon-ok" >
+                确定</a> <a id="wfCancel" class="easyui-linkbutton" icon="icon-cancel">取消</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

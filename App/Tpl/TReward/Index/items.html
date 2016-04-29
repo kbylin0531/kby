@@ -1,0 +1,116 @@
+<include file=":Include:jqueryHeader" />
+<script type="text/javascript">
+    var datagrid = null;     //数据表
+    var editRowId=null;  //保存索引键的变量
+    var insertRowId=-1; //新增行ID索引
+    $(function() {
+        //todo 项目顶级分类
+        $("#itemCate").combobox({
+            onSelect : function(record){
+                datagrid.treegrid("reload",{PID:record.value});
+            }
+        });
+
+        //todo 初始化数据表
+        datagrid = $('#datagrid').treegrid({
+            toolbar : '#toobar',
+            url : '__ROOT__/TReward/Index/items/hasJson/true',
+            queryParams: {PID: $("#itemCate").combobox("getValue")},
+            onClickRow : function(row){
+                if($.trim(row.PID)=="") {
+                    if(editRowId!=null){
+                        datagrid.treegrid('endEdit', editRowId);
+                        datagrid.treegrid('cancelEdit',editRowId);
+                    }
+                    return;
+                }
+                datagrid.treegrid('beginEdit', row.ITEMID);
+            },
+            onBeforeEdit : function(row){
+                if(editRowId!=null){
+                    datagrid.treegrid('endEdit', editRowId);
+                    datagrid.treegrid('cancelEdit',editRowId);
+                }
+                editRowId = row.ITEMID;
+            },
+            onAfterEdit : function (row, changes) {
+                if(!changes || Object.keys(changes).length==0) return;
+                $.post("__ROOT__/TReward/Index/itemsSave/hasJson/true", {DATA:row}, function(rep){
+                    if(rep.type!="info") {
+                        msgShow("系统提示：", rep.message, rep.type);
+                        return;
+                    }
+                    if(rep.OLDID<0){ //更新ITEMID
+                        datagrid.treegrid("remove",rep.OLDID); //删除临时ID数据
+                        datagrid.treegrid('append',{parent:rep.row.PID,data:[rep.row]}); //重新加入新数据
+                    }
+                });
+            }
+        });
+
+        //todo 新增一项
+        $("#event_add").bind("click",function(){
+            var node  = datagrid.treegrid('getSelected');
+            if(!node) {
+                msgShow("系统提示：","请选择一项进行新增！","warning");
+                return;
+            }
+
+            datagrid.treegrid('append',{parent:node.PID,data:[{PID:node.PID,ITEMID:insertRowId,NAME:"",SORT:0}]});
+            datagrid.treegrid('select',insertRowId);
+            datagrid.treegrid('beginEdit',insertRowId);
+            insertRowId--;
+        });
+
+        //todo 新增一个子项
+        $('#event_addsub').bind("click",function(){
+            var node  = datagrid.treegrid('getSelected');
+            if(!node) {
+                msgShow("系统提示：","请选择一项进行新增子项！","warning");
+                return;
+            }
+
+            datagrid.treegrid('append',{parent:node.ITEMID,data:[{PID:node.ITEMID,ITEMID:insertRowId,NAME:"",SORT:0}]});
+            datagrid.treegrid('select',insertRowId);
+            datagrid.treegrid('beginEdit',insertRowId);
+            insertRowId--;
+        });
+
+        //todo 刷新事件
+        $("#event_reload").bind("click",function(){
+            datagrid.treegrid('reload');
+        });
+    });
+</script>
+
+<body class="easyui-layout" style="background: #fff;padding:0px;overflow-y: hidden"  fit="true" split="false" scroll="no" >
+
+<!-- 主页面 -->
+<div id="mainPanle" region="center" border="1" style="background: #fff; padding:3px; " >
+    <table id="datagrid" fitColumns="false" width="100%" singleSelect="true" fit="true" idField="ITEMID"
+           pagination="false" pageSize="20" pageList="[20,40,60]" striped="true" treeField="NAME" >
+        <thead>
+        <tr><th data-options="field:'NAME',width:360,editor:{type:'validatebox', options:{required:true}}">项目名称</th>
+            <th data-options="field:'WEIGHTS',align:'center',width:100,editor:{type:'numberbox', options:{required:false,missingMessage:'只能输入数字'}}">权重值</th>
+            <th data-options="field:'SORT',align:'center',width:80,editor:{type:'numberbox', options:{required:false,missingMessage:'只能输入数字'}}">排序</th>
+        </tr>
+        </thead>
+    </table>
+</div>
+
+<!-- 主页面工具条 -->
+<div id="toobar">
+    <span class="datagrid-btn-separator-area">
+        <label>
+            奖励项目分类：<select id="itemCate"><volist name="rootItems" id="item"><option value="{$item.ITEMID}">{$item.NAME}</option></volist></select>
+        </label>
+    </span>
+    <a class="datagrid-btn-separator"></a>
+        <a id="event_reload" class="easyui-linkbutton" data-options="iconCls:'icon-reload',plain:true">刷新</a>
+        <a id="event_add" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">新增一行</a>
+        <a id="event_addsub" class="easyui-linkbutton" data-options="iconCls:'icon-xiangqing',plain:true">新增一个子集</a>
+</div>
+
+
+</body>
+</html>

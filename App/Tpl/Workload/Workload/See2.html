@@ -1,0 +1,280 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script>
+    /*    var year='{$yearterm.YEAR}'
+     var term='{$yearterm.TERM}'*/
+    var workload_arr={}                             //todo:保存工作量
+    var Totalrow;                                   //todo:保存 单条总量的row
+    var ss;                     //todo:保存教师号的数组
+    var school='{$myschool.SCHOOL}'             //todo:操作用户所在学部
+
+    $(function(){
+
+        var wd=$('#wd2').window(new wind(0,0,false,false,true,true,true))
+        $('#excel_two').bind('click',function(){
+           $('[name=e_name]').val($('[name=s_name]').val())
+           $('[name=e_code]').val($('[name=s_code]').val())
+           $('[name=e_school]').val($('[name=SCHOOL]').val())
+            $('#e_form').submit();
+
+        })
+
+                [{text:'导出excel表',iconCls:'icon-edit',handler:function(){
+
+        }
+        }]
+
+
+
+
+        //todo:点击搜索的时候
+        $('#ss').bind('click',function(){
+            $('#apply_dat').datagrid('load',{'Sqlpath':{'select':'Workload/Two_Five_select.SQL','count':'Workload/Two_Five_count.SQL'},
+                'bind':{':code':$('[name=s_code]').val(),':name':$('[name=s_name]').val(),':school':$('[name=SCHOOL]').val()}
+            })
+            /*
+             ,':CLASSNO':$('[name=s_kh]').val(),':COURSENO':$('[name=s_bh]').val(),':TEACHERNO':$('[name=s_jsh]').val(),':CODE':$.trim($('[name=s_code]').val()),
+             ':SCHOOL':$('[name=SCHOOL]').val()*/
+        })
+
+
+
+
+
+
+    })
+
+
+
+
+
+</script>
+<style>
+    #apply_info td{border:1px #95B8E7 solid;
+    }
+    #aplly_Details td{border:1px #95B8E7 solid;height:20px
+    }
+    #apply_info input{height:23px;vertical-align:middle;}
+    .bt{height:35px;width:70px;background-color:#E0ECFF;border:1px #95B8E7 solid; }
+    #zhuyao{width:90%;height:120%;resize: none;background:transparent;border-style:none;}
+</style>
+<!--todo: 进来的默认页面-->
+<body >
+
+<div id="cc" class="easyui-layout" data-options="fit:true,border:false">
+    <div id="tdemo">
+
+        <b>教师名:</b>
+        <input type="text" name="s_name" size="10" value="%">
+        &nbsp
+        <b>工作量类型:</b>
+        <select name="s_code" class="easyui-combobox">
+            <option value="%">全部</option>
+            <volist name="workloadtype" id="w">
+                <option value="{$w.worktype_code}">{$w.worktype_code}---{$w.worktype_name}</option>
+            </volist>
+        </select>
+
+        &nbsp&nbsp&nbsp
+        <b>教师所在学部:</b>
+        <select name="SCHOOL" class="easyui-combobox">
+            <option value="%">全部</option>
+            <volist name="schools" id="c">
+                <option value="{$c.SCHOOL}">{$c.NAME}</option>
+            </volist>
+        </select>
+
+        &nbsp&nbsp
+
+        <a href="javascript:void(0)" id="ss" class="easyui-linkbutton">检索</a>&nbsp&nbsp
+
+        <a href="javascript:void(0)" id="excel_two" class="easyui-linkbutton" plain="true" iconCls="icon-excel">导出汇总Excel</a>
+
+    </div>
+    <div data-options="region:'center',title:'',split:false,inline:true,border:false" >
+        <div id="cc2" class="easyui-layout" data-options="fit:true,border:false">
+            <div data-options="region:'center',title:'',border:false,split:false">
+
+                <table id="apply_dat"  class="easyui-datagrid"
+                       data-options="url:'__APP__/Status/Status/Squery/hasJson/1',fit:true,pagination:true,pageList:[20,50,100,200,500],singleSelect:true,toolbar:'#tdemo'">
+
+                    <thead>
+
+
+                    <tr>
+                        <th align="center" data-options="checkbox:true,width:100">选中</th>
+                        <th align="center" data-options="field:'teachername',width:100">姓名</th>
+                        <th align="center" data-options="field:'teacherno',width:100">教师号</th>
+                        <th align="center" data-options="field:'work',width:100">工作量</th>
+                        <th align="center" data-options="field:'tname',width:100,align:'center'">教师所在学部</th>
+                        <th align="center" data-options="field:'cname',width:100,align:'center'">上课学部</th>
+                        <th align="center" data-options="field:'zc',width:100,align:'center'">职称</th>
+                        <th align="center" data-options="field:'gwlx',width:100,align:'center'">岗位类型</th>
+
+                        <!--           <th align="center" data-options="field:'Year',width:100">学年</th>
+                                   <th align="center" data-options="field:'Term',width:100,align:'center'">学期</th>
+                                   <th align="center" data-options="field:'TeacherNo',width:100,align:'center'">教师号</th>
+                                   <th align="center" data-options="field:'TeacherName',width:100,align:'center'">教师名</th>
+                                   <th align="center" data-options="field:'CourseNo',width:100,align:'center'">课号</th>
+                                   <th align="center" data-options="field:'CourseName',width:100,align:'center'">课名</th>
+                                   <th align="center" data-options="field:'Work',width:100,align:'center'">工作量</th>
+                                   <th align="center" data-options="field:'Attendent',width:100,align:'center',formatter:function(a,b,c){
+
+                                       if(a==''){
+                                           return 0
+                                       }
+                                       return 0;
+                                  }">人数</th>
+                                   <th align="center" data-options="field:'ClassName',width:100,align:'center'">班级名称</th>
+
+                                &lt;!&ndash;   <th align="center" data-options="field:'work',width:100,align:'center'">工作量</th>
+                        <th align="center" data-options="field:'cfgzl',width:100,align:'center'">重复工作量</th>
+                        <th align="center" data-options="field:'skbj',width:200,align:'center'">上课班级</th>
+                        <th align="center" data-options="field:'jsxm',width:100,align:'center'">教师姓名</th>&ndash;&gt;-->
+                    </tr>
+                    </thead>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--todo:点击单条分解 所弹出的窗口-->
+<div id="wd2" title="">
+    <div id="cccc" class="easyui-layout" data-options="fit:true">
+        <div data-options="region:'north',title:'',split:false,border:true" style="height:300px;">
+            <br>
+            <table border="1" style="border:1px solid #E0ECFF" width="80%" style="" align="center" >
+                <tr>
+                    <td width="187" bgcolor="#E0ECFF" height="25">
+                        <p align="right"><b>课号：</b></td>
+                    <td width="180" align="center" height="25"><span id="look_kh"></span></td>
+                    <td bgcolor="#E0ECFF" width="187">
+                        <p align="right"><b>课名：</b></td>
+                    </td>
+                    <td width="180" align="center" height="25"><span id="look_km"></span></td>
+                    <td bgcolor="#E0ECFF" width="187">
+                        <p align="right"><b>学分：</b></td>
+                    </td>
+                    <td width="180" align="center" height="25"><span id="look_xf"></span></td>
+                </tr>
+                <tr>
+                    <td width="187" bgcolor="#E0ECFF" height="25">
+                        <p align="right"><b>预计人数：</b></td>
+                    <td width="180" align="center" height="25"><span id="look_yjrs"></span></td>
+                    <td bgcolor="#E0ECFF" width="187">
+                        <p align="right"><b>实际人数：</b></td>
+                    </td>
+                    <td width="180" align="center" height="25"><span id="look_sjrs"></span></td>
+                    <td bgcolor="#E0ECFF" width="187">
+                        <p align="right"><b>标准班：</b></td>
+                    </td>
+                    <td width="180" align="center" height="25"><span id="look_bzb"></span></td>
+                </tr>
+                <tr>
+                    <td width="187" bgcolor="#E0ECFF" height="25">
+                        <p align="right"><b>周数：</b></td>
+                    <td width="180" align="center" height="25"><span id="look_zs"></span></td>
+                    <td bgcolor="#E0ECFF" width="187">
+                        <p align="right"><b>每周课时：</b></td>
+                    </td>
+                    <td align="center">
+                        <span id="look_mzks" width="180" ></span>
+                    </td>
+                    <td></td><td></td>
+
+                </tr>
+                <tr>
+                    <td width="187" bgcolor="#E0ECFF" height="25">
+                        <p align="right"><b>修课：</b></td>
+                    <td align="center">
+                        <span id="look_xk" width="180" align="center"></span>
+                    </td>
+                    <td width="187" bgcolor="#E0ECFF" height="25">
+                        <p align="right"><b>类型：</b></td>
+                    <td width="360px" align="center"><span id="look_lx" ></span></td>
+                    <td width="187" bgcolor="#E0ECFF" height="25">
+                        <p align="right"><b>
+                            类别：</b></td>
+                    <td  width="360px" align="center">
+                        <span id="look_lb"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="187" bgcolor="#E0ECFF" height="25">
+                        <p align="right"><b>班型系数：</b></td>
+                    <td  width="360px" align="center"><span id="look_bxxs" width="180" align="center"></span></td>
+                    <td width="187" bgcolor="#E0ECFF" height="25">
+                        <p align="right"><b>
+                            校正系数：</b></td>
+                    <td  width="360px">
+                        <span id="look_jzxs"></span>
+                    </td>
+                    <td width="187" bgcolor="#E0ECFF" height="25">
+                        <p align="right"><b>
+                            工作总量：</b></td>
+                    <td  width="360px" align="center">
+                        <span id="look_gzzl" align="center" width="180"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="187" bgcolor="#E0ECFF" height="25">
+                        <p align="right"><b>上课班级：</b></td>
+                    <td colspan="2" width="360px" align="center"><span id="look_skbj"></span></td>
+                    <td width="187" bgcolor="#E0ECFF" height="25" >
+                        <p align="right"><b>
+                            教师姓名：</b></td>
+                    <td colspan="2" width="360px" align="center">
+                        <span id="look_jsxm"></span>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+        <div data-options="region:'center',title:''" >
+            <br>
+            工作量分解新增，输入教师号：<input type="text" id="teacherno" size="9">  <button id="xinzeng">新增</button>
+            <br>
+            <table class="easyui-datagrid" id="teacher_dat"
+                   data-options="url:'__APP__/Status/Status/Squery',fitColumns:true,singleSelect:true,toolbar:[{
+                       text:'返回上一页',
+                       iconCls:'icon-goleft',
+                       handler:function(){
+                          $('#wd2').window({closed:true})
+                            $('#teacher_dat').datagrid('load',{})
+                       }
+                   }]">
+                <thead>
+                <tr>
+                    <th data-options="field:'jsh',width:100">教师号</th>
+                    <th data-options="field:'jsxm',width:100">教师姓名</th>
+                    <th data-options="field:'jsxy',width:100,align:'right'">教师学部</th>
+                    <th data-options="field:'zc',width:100,align:'right'">职称</th>
+                    <th data-options="field:'gwlb',width:100,align:'right'">岗位类别</th>
+                    <th data-options="field:'grgzl',width:100,align:'right',editor:{type:'text'}">个人工作量</th>
+                    <th data-options="field:'cz',width:100,align:'right',formatter:function(a,b,c){
+                    return '<span onclick='+'run_save('+c+')'+'><a href='+'javascript:void(0)'+'><b>保存</b></a></span> | <span onclick='+'run_Through(2,'+b.applydate_id+',0)'+'><a href='+'javascript:void(0)'+'><b>删除</b></a></span>'}">操作</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+        <div data-options="region:'south',split:false" style="height:30px" >
+            <table align="center" width=100% border="0"><tr><td align="center"><button id="save_closed">保存并关闭</button></td></tr></table>
+        </div>
+    </div>
+</div>
+
+
+
+
+<form action="__APP__/CourseManager/Excel/workload_huizong" method="POST" id="e_form">
+    <button id="export2">导出审核通过的汇总表</button>
+    <input type="hidden" name="e_name" value="">
+    <input type="hidden" name="e_school" value="">
+    <input type="hidden" name="e_code" value="">
+
+
+</form>
+</body>
+</html>

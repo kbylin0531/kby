@@ -1,0 +1,94 @@
+<include file=":Include:jqueryHeader" />
+<script type="text/javascript">
+    var datagrid = null; //数据表
+    var hashInit=false;
+    $(function() {
+        //todo 初始化数据表
+        datagrid = $('#datagrid').datagrid({
+            toolbar : '#toobar',
+            frozenColumns:[[{field:'ck',checkbox:true}]],
+            onBeforeLoad : function(){
+                $(this).datagrid("unselectAll");
+                return true;
+            }
+        });
+
+        //todo 查询
+        $("#event_searcher").bind("click",function(){
+            datagrid.datagrid("options").url = '__ROOT__/Moral/Punish/vlist/hasJson/true'
+            datagrid.datagrid("reload",{YEAR:$("#YEAR").val(), TERM:$("#TERM").val(), SNAME:$("#SNAME").val(), SNO:$("#SNO").val(),STATUS:$("#STATUS").val()});
+        });
+
+        //todo 通过
+        $("#event_yes").bind("click",function(){
+            var rows = getSelectRows();
+            if(rows==null) return;
+
+            $.post("/Moral/Punish/verify/hasJson/true",{IDS:rows,STATUS:1},function(rep){
+                if(rep) msgShow("系统提示：", rep.message, rep.type);
+                else msgShow("系统提示：","发生未知错误！","error");
+            });
+        });
+
+        //todo 不通过
+        $("#event_no").bind("click",function(){
+            var rows = getSelectRows();
+            if(rows==null) return;
+
+            $.post("/Moral/Punish/verify/hasJson/true",{IDS:rows,STATUS:3},function(rep){
+                if(rep) msgShow("系统提示：", rep.message, rep.type);
+                else msgShow("系统提示：","发生未知错误！","error");
+            });
+        });
+
+        function getSelectRows(){
+            var rows = datagrid.datagrid('getSelections');
+            if(!rows || rows.length==0) {
+                msgShow("系统提示：","至少需要选择一项数据进行操作！","warning");
+                return null;
+            }
+            var returnVal = [];
+            for(var i=0; i<rows.length; i++) returnVal[i] = rows[i].ID
+
+            return returnVal;
+        }
+    });
+</script>
+
+<body class="easyui-layout" style="background: #fff;padding:0px;overflow-y: hidden"  fit="true" split="false" scroll="no" >
+
+<!-- 主页面 -->
+<div id="mainPanle" region="center" border="1" style="background: #fff; padding:3px; " >
+    <table id="datagrid" fitColumns="true" width="100%" singleSelect="false" fit="true" idField="ID"
+           pagination="true" pageSize="20" pageList="[20,40,60]" striped="true" >
+        <thead>
+        <tr><th data-options="field:'YEAR',width:60">学年</th>
+            <th data-options="field:'TERM',width:60">学期</th>
+            <th data-options="field:'CLASSNAME',width:100">班级</th>
+            <th data-options="field:'STUDENTNO',width:80">学号</th>
+            <th data-options="field:'NAME',width:80">姓名</th>
+            <th data-options="field:'DETAILS',width:120">处分状态</th>
+            <th data-options="field:'REM',width:60">处分原因</th>
+            <th data-options="field:'TEACHER_NAME',width:80">操作教师</th>
+            <th data-options="field:'STATUS',width:80">审核状态</th></tr>
+        </thead>
+    </table>
+</div>
+
+<!-- 主页面工具条 -->
+<div id="toobar">
+    <span class="datagrid-btn-separator-area">
+        <label for="YEAR">学年:<input type="text" id="YEAR" size="10"  value='{$YearTerm.YEAR}' class="easyui-validatebox"></label>
+        <label for="TERM">学期:<input type="text" id="TERM" size="10"  value='{$YearTerm.TERM}' class="easyui-validatebox"></label>
+        <label for="SNAME">姓名:<input type="text" id="SNAME" size="12"  value='%' class="easyui-validatebox"></label>
+        <label for="SNO">学号:<input type="text" id="SNO" size="10"  value='%' class="easyui-validatebox"></label>
+        <label for="SNO">学号:<select id="STATUS"><option value="0">0 = 待审核</option><option value="1">1 = 已通过</option><option value="3">3 = 已驳回</option></select></label>
+        <a id="event_searcher" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true">搜索</a>
+    </span>
+    <a class="datagrid-btn-separator"></a>
+    <a id="event_yes" class="easyui-linkbutton" data-options="iconCls:'icon-ok',plain:true" >通过</a>
+    <a id="event_no" class="easyui-linkbutton" data-options="iconCls:'icon-cut',plain:true">不通过</a>
+</div>
+
+</body>
+</html>

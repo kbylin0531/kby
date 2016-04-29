@@ -1,0 +1,91 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/ExtSearcher.js"></script>
+<script>
+    $(function () {
+
+        $("#ES_YEAR").val(GenKits.getParentYear());
+        $("#ES_TERM").val(GenKits.getParentTerm());
+        new ExtSearcher('__APP__/Common/Provider/seacher', ['ES_CLASS','ES_STUDENT'], 's').start();
+        var subform = $("#subform");
+        var dat =$("#dat");
+        var reload = function(){
+            var values = subform.serialize();
+            dat.datagrid('load',{_PARAMS_:values});
+        };
+
+        $("#search").click(reload);
+
+        $("#edit").click(function () {
+            Datagrid.editSelections(dat);
+        });
+        $("#reject").click(function () {
+            Datagrid.rejectChanges(dat);
+        });
+        $("#save").click(function () {
+            Datagrid.endEdit(dat);
+            var rows = Datagrid.getUpdated(dat);
+            if(rows.length){
+                $.post('__URL__/updateEncourageOfAddition',{rows:rows}, function (data) {
+                    return Messager.show(data, reload);
+                });
+            }else{
+                return Messager.showInfo('未检测到数据的修改！','info');
+            }
+        });
+
+        $("#delete").click(function () {
+            if(Datagrid.hasSelected(dat)){
+                var row = Datagrid.getSelected(dat);
+                $.post('__URL__/deleteEncourageOfDevolopment',{id:row['id']}, function (data) {
+                    return Messager.show(data, function () {
+                        dat.datagrid('reload');
+                    });
+                });
+            }
+        });
+
+    });
+</script>
+<body style="background: #fff">
+<div  class="easyui-layout" data-options="fit:true">
+    <div id="tbar">
+        <form id="subform">
+            <label for="ES_YEAR">学年:</label><input name="year" size='4' id="ES_YEAR" class="ES_YEAR s" value="2015" />
+            <label for="ES_TERM">学期:</label><input name="term" size='1' id="ES_TERM" class="ES_TERM s" value="1" />
+            <label for="ES_GRADE">年级:</label><select name="grade" id="ES_GRADE" class="ES_GRADE s"></select>
+            <label for="ES_SCHOOL">学部:</label><select name="schoolno" id="ES_SCHOOL" class="ES_SCHOOL s"></select>
+            <label for="ES_CLASS">班级:</label><select name="classno" id="ES_CLASS" class="ES_CLASS s"></select>
+            <label for="ES_STUDENT">学生:</label><select name="studentno" id="ES_STUDENT" class="ES_STUDENT s"></select>
+
+            <label for="name">项目名称:</label>
+            <input type="text" id="name" name="name" size="10" value="%" />
+            <a id="search"  href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+            <a id="delete"  href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-remove',plain:true">删除</a>
+            <a id="edit"  href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true">修改选中</a>
+            <a id="reject"  href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-cancel',plain:true">撤销修改</a>
+            <a id="save"  href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-save',plain:true">保存修改</a>
+        </form>
+    </div>
+    <!-- 列表栏 -->
+    <div data-options="region:'center',border:false" style="padding:0;background:#eee;">
+        <table class="easyui-datagrid" id="dat"
+               data-options="
+               url:'__URL__/listEncourageOfDevolopment',
+               pagination:true,singleSelect:false,fit:true,toolbar:'#tbar'">
+            <thead>
+            <tr>
+                <th data-options="checkbox:true"></th>
+                <th data-options="field:'studentno',width:100,editor:'text'" align="center">学号</th>
+                <th data-options="field:'studentname',width:100" align="center">姓名</th>
+                <th data-options="field:'classname',width:100" align="center">班级</th>
+                <th data-options="field:'yearterm',width:100" align="center">学年学期</th>
+                <th data-options="field:'projectname',width:100,editor:'text'" align="center">项目名称</th>
+                <th data-options="field:'credit',width:100,editor:'text'" align="center">已获学分</th>
+                <th data-options="field:'rem',width:100,editor:'text'" align="center">备注</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+</body>

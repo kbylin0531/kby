@@ -1,0 +1,574 @@
+<include file=":Include:jqueryHeader" />
+<style>
+.query{}
+legend{margin-left: 20px;}
+.query label{font-weight: bold;margin-left:20px;}
+#searcher{margin-left: 20px;}
+</style>
+<body>
+<div class="easyui-layout"  data-options="border:false,fit:true" >
+    <div id="tdemo" class="query">
+			<div>
+			   <label>学年：</label><input value="{$yearTerm.YEAR}" name="Q_YEAR" size="8">
+			   <label>学期：</label><input value="{$yearTerm.TERM}" name="Q_TERM" size="2">
+			   <label>课号：</label><input name="Q_COURSENO" size="8" value='%' >
+			   <label>班号：</label><input name="Q_CLASSNO" size="8" value='%' >
+			   <label>班名：</label><input name="Q_CLASSNAME" size="12" value='%' >
+               <label>周次：</label><input name="Q_WEEK" size="4" value='%' >
+               <label>班级所在学部：</label>
+                <select class="easyui-combobox" name="Q_SCHOOL" data-options="editable:false">
+                    <option value="%">全部</option>
+                    <volist name="school" id="s">
+                        <option value="{$s.SCHOOL}">{$s.NAME}</option>
+                    </volist>
+                </select>
+                <a href="javascript:void(0)" id="searcher">检索</a>
+			</div>
+            <div style="margin-top: 2px">
+ <!-- 
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  -->
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cut"  id="e_add" plain=true>新增考勤课程</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cut"  id="e_signin" plain=true>上课签到</a>                
+                
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cut"  id="e_del" plain=true>删除</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit"  id="e_edit" plain=true>编辑</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-back"  id="e_back" plain=true>取消编辑</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-save"  id="e_save" plain=true>保存</a>
+            </div>
+    </div>
+    <div data-options="region:'center',border:false" style=";background:#eee;">
+        <div id="content"></div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+eval('one=\'{$tjson}\'');
+
+$(function(){
+    var indexrow=undefined;
+    var dat=$('#content').datagrid({
+        fitColumns:true,
+        fit:true,
+        striped:true,
+        columns:[[{field:'ID',checkbox:true},
+                  {field:'YEAR',title:'学年',width:40,sortable:true,align:'center',editor:{
+                  	type:'validatebox',options:{required:true}}
+                  },{field:'TERM',title:'学期',width:35,sortable:true,align:'center',editor:{
+                  	type:'validatebox',options:{required:true}}
+                  },{field:'COURSE',title:'课号 / 课名',width:200,sortable:true,align:'center',editor:{
+                  	type:'combobox',options:{
+                  		required:true,
+                  		url:'__URL__/get_course_list/hasJson/true',  
+                  		editable:true,
+                  		mode:'remote',
+                  		valueField:'id',   
+                  		textField:'text',
+                  		onSelect:function(rec){
+                        	var currow = dat.datagrid('getSelected');  
+                        	if(currow && rec) {
+                        		currow.toCOURSENO = rec.id;
+                        		
+                        		var edclass = $('#content').datagrid('getEditor', {index:indexrow,field:'CLASS'});        	
+                            	if (!(edclass == "" || edclass == undefined || edclass == null || edclass === null))
+                            	{
+                            		edclass.target.combobox('reload','__URL__/get_courses_class_list/hasJson/true/YEAR/'+currow.YEAR+'/TERM/'+currow.TERM+'/COURSENO/'+rec.id); 
+                            	}
+                        	}
+                  		}
+                  	}}
+                  },
+                  {field:'CLASS',title:'班号 / 班名',width:180,sortable:true,align:'center',editor:{
+                	  type:'combobox',options:{
+                		  required:true,
+                		  url:'__URL__/get_courses_class_list/hasJson/true',   
+                		  editable:true,
+                		  mode:'remote',
+                		  valueField:'id',   
+                		  textField:'text',
+                		  onSelect:function(rec){
+                            	var currow = dat.datagrid('getSelected');  
+                            	if(currow && rec) {
+                            		currow.toCLASSNO = rec.id;
+                            	}
+                      		}                		  
+                	  }}
+                  },
+                  {field:'WEEK',title:'周次',width:35,sortable:true,align:'center',editor:{
+                  	type:'validatebox',options:{required:true}}
+                  },{field:'DATETIME',title:'上课时间',width:100,sortable:true,align:'center',editor:{
+                  	type:'datebox',options:{required:true}}
+                  },{field:'TIMENO',title:'节次',width:140,sortable:true,align:'center',editor:{
+                  	type:'combobox',options:{
+                  		data:eval(one),
+                  		onSelect:function(rec){
+                        	var currow = dat.datagrid('getSelected');  
+                        	if(currow && rec) {
+                        		currow.toTIMENO = rec.value;
+                        	}
+                  		}
+                  	}}
+                  },
+                  {field:'SCHOOLNAME',title:'开课学部',sortable:true,align:'center'},                  
+                  {field:'icount',title:'上课人数',sortable:true,align:'center'
+                  },
+                  {field:'icount1',title:'实际人数',sortable:true,align:'center'
+                  },
+                  {field:'icount0',title:'缺勤人数',sortable:true,align:'center'
+                  }]],
+		sortName:'ID',                      //排序用的
+		sortOrder:'desc',
+		pagination:true,
+		pageList:[10,20,30,40,50],
+		pageSize:20,
+		toolbar:'#tdemo',
+        onRowContextMenu:function(e,rowindex,row){
+            dat.datagrid('rejectChanges')
+            var tt=$('#content');
+            e.preventDefault();  //该方法将通知 Web 浏览器不要执行与事件关联的默认动作（如果存在这样的动作）
+            tt.datagrid('selectRow',rowindex);
+            $('#admin_access_menu').menu('show',{
+                left: e.pageX,
+                top: e.pageY
+            });
+        },
+        onAfterEdit:function(index,dataRow,changes){
+        	//保存请求的URL地址的
+            var Purl='';
+            var updated=dat.datagrid('getChanges','updated');
+            if(updated.length){
+                Purl='__URL__/mupdate/';
+                $.ajax({
+                    url:Purl,
+                    type:'POST',
+                    data:dataRow,
+                    success:function(content){
+                    	var index = dat.datagrid('getRowIndex', dat.datagrid('getSelected'));
+                    	if(content==-1){
+                    		$.messager.alert('提示','课号不存在','?');
+                    		dat.datagrid('beginEdit', index);
+                    		indexrow=index;
+                    	}else if(content==-2){
+                    		$.messager.alert('提示','班号不存在','?');
+                    		dat.datagrid('beginEdit', index);
+                    		indexrow=index;
+                    	}else if(content==-3){
+                    		$.messager.alert('提示','已经上课签到不应该再修改','?');
+                    		dat.datagrid('beginEdit', index);
+                    		indexrow=index;
+                    	}else if(content){
+                            indexrow=undefined;
+                            dat.datagrid('reload');
+                            $.messager.alert('提示','操作成功！','?');
+                        }else{
+                        	$.messager.alert('提示','操作失败！','?');
+                        }
+                    }
+                });
+            }
+        }
+    });
+    
+    /*
+     * 条件查询开始
+     */
+    $('#searcher').linkbutton({iconCls:'icon-search'});//搜索按钮
+    $('#searcher').click(function(){
+    	//验证学年学期是否输入
+    	var year=$.trim($("[name='Q_YEAR']").val());
+    	var term=$.trim($("[name='Q_TERM']").val());
+    	if(year=="" || term==""){
+    		msgShow("系统提示：","请输入要检索的学年与学期！","error");
+    		return;
+    	}
+    	
+    	dat.datagrid("options").url = "__URL__/manager/hasJson/1";
+    	dat.datagrid('load',{
+    		YEAR:year,
+    		TERM:term,
+    		COURSENO:$.trim($("[name='Q_COURSENO']").val()),
+    		CLASSNO:$.trim($("[name='Q_CLASSNO']").val()),
+    		CLASSNAME:$.trim($("[name='Q_CLASSNAME']").val()),
+    		WEEK:$.trim($("[name='Q_WEEK']").val()),
+    		SCHOOL:$.trim($("[name='Q_SCHOOL']").val())
+        })
+    });
+    
+    $('#e_add').bind('click',function(){
+       $('#e_addclass').window({closed:false});
+       $("#report")[0].reset();
+       $("[name='COURSENO']").val('');
+       $("[name='CLASSNO']").val('');
+       resetcombobox();  
+    })
+
+    $('#e_signin').bind('click',function(){
+        var rowList=dat.datagrid('getSelections');//获取所有被选中的
+        if(rowList.length>1){
+            $.messager.alert('提示','请选择一条进行上课签到,不能选多条','?');//用户选了多行编辑
+        }else if(rowList.length<1){
+            $.messager.alert('提示','请选择要上课签到的数据','?');//用户没选择行
+        }else{
+        	
+        	openTabsWindows('上课签到','__URL__/mstudents/ID/'+rowList[0].ID,'',true);
+        	
+        }
+    })
+
+    function ddel(){
+        var row1 = dat.datagrid('getSelections');
+        if (row1.length){
+            $.messager.confirm('提示','您确定要删除吗',function(b){
+                if(b){
+                    var infoarr=[];                      //存储删除信息的数组
+                    for(var i=0;i<row1.length;i++){
+                        infoarr[i]=row1[i].ID;
+                    }
+                    $.ajax({
+                        url:'__URL__/mdelete/hasJson/1',
+                        data:{'in':infoarr},
+                        type:'POST',
+                        success:function(del){
+                            if(del){
+                                $.messager.alert('提示','删除成功！','?');
+                                dat.datagrid('reload');
+                            }else{
+                                $.messager.alert('提示','删除失败,没权限操作','?');
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    $('#e_del').bind('click',ddel)
+    $('#admin_del').bind('click',ddel)
+    function eedit(){
+        var rowList=dat.datagrid('getSelections');//获取所有被选中的
+        dat.datagrid('removeEditor','ID');
+        if(rowList.length>1){
+            $.messager.alert('提示','请选择一条进行编辑,不能选多条','?');//用户选了多行编辑
+        }else if(rowList.length<1){
+            $.messager.alert('提示','请选择要编辑的数据','?');//用户没选择行
+        }else{
+            if(indexrow!=undefined){
+                dat.datagrid('endEdit',indexrow);
+            }
+            var row2 = dat.datagrid('getSelected');//获得被选中的索引
+            var index2 = dat.datagrid('getRowIndex', row2);
+            dat.datagrid('beginEdit', index2);
+            indexrow=index2;
+            
+        	var edcourse = $('#content').datagrid('getEditor', {index:indexrow,field:'COURSE'});        	
+        	if (!(edcourse == "" || edcourse == undefined || edcourse == null || edcourse === null))
+        	{
+        		edcourse.target.combobox('reload','__URL__/get_course_list/hasJson/true/YEAR/'+rowList[0].YEAR+'/TERM/'+rowList[0].TERM);       		
+        	}
+        	
+        	var edclass = $('#content').datagrid('getEditor', {index:indexrow,field:'CLASS'});        	
+        	if (!(edclass == "" || edclass == undefined || edclass == null || edclass === null))
+        	{
+        		var courseno = rowList[0].COURSENO;
+        		if (rowList[0].toCOURSENO)
+        		{
+        			courseno = rowList[0].toCOURSENO;
+        		}        		
+        		edclass.target.combobox('reload','__URL__/get_courses_class_list/hasJson/true/YEAR/'+rowList[0].YEAR+'/TERM/'+rowList[0].TERM+'/COURSENO/'+courseno);       		
+        	}        	
+            
+        }
+    }
+
+    $('#e_edit').bind('click',eedit)
+    $('#admin_edit').bind('click',eedit);
+
+    $('#e_back').bind('click',function(){
+        dat.datagrid('rejectChanges');
+        indexrow=undefined;
+    })
+
+    $('#e_save').bind('click',function(){
+        dat.datagrid('endEdit',indexrow);
+        indexrow=undefined;
+    })
+
+    
+    
+    function resetcombobox() {
+		var year = $.trim($("[name='YEAR']").val());
+		var term = $.trim($("[name='TERM']").val());
+		var courseno = $.trim($("[name='COURSENO']").val());
+		
+		$('#COURSENO').combobox({    
+		    url:'__URL__/get_course_list/hasJson/true/YEAR/'+year+'/TERM/'+term,   
+		    editable:true,
+		    mode:'remote',
+		    valueField:'id',    
+		    textField:'text',   
+		    onSelect:function(rec){
+	        	if(rec) {
+	        		
+	    			$('#CLASSNO').combobox({    
+	    			    url:'__URL__/get_courses_class_list/hasJson/true/YEAR/'+year+'/TERM/'+term+'/COURSENO/'+rec.id,   
+	    			    editable:true,
+	    			    mode:'remote',
+	    			    valueField:'id',    
+	    			    textField:'text'   
+	    			});  
+
+	        	}
+	        }
+		});
+		
+		$('#CLASSNO').combobox({		
+		    url:'__URL__/get_courses_class_list/hasJson/true/YEAR/'+year+'/TERM/'+term+'/COURSENO/'+courseno,   
+		    editable:true,
+		    mode:'remote',
+		    valueField:'id',    
+		    textField:'text'   
+		});  
+		
+    }
+    
+	resetcombobox();  
+	
+	
+	//按钮样式设置
+	$('#register').linkbutton({iconCls: 'icon-save'});    
+	//鼠标离开文本框事件
+	$(".txt_").blur(function(){
+		if($.trim($(this).val())==""){
+			$(this).next().html("* 必填");
+		}
+		
+		if($(this).attr("name")=="YEAR"){
+			resetcombobox();
+		}
+		else if($(this).attr("name")=="TERM"){
+			resetcombobox(); 
+		}		
+	});
+	$("#COURSENO").blur(function(){
+		var prms = {YEAR:$.trim($("[name='YEAR']").val()), TERM:$.trim($("[name='TERM']").val()), VALUE:$.trim($(this).val())};
+		ajaxCheck($(this),"__URL__/validation/hasJson/1/vn/course",prms,"课号");
+	});
+	$("#CLASSNO").blur(function(){
+		var courseno = $.trim($("[name='COURSENO']").val());
+		if (courseno!="")
+		{
+			var prms = {YEAR:$.trim($("[name='YEAR']").val()), TERM:$.trim($("[name='TERM']").val()),COURSENO:courseno, VALUE:$.trim($(this).val())};
+			ajaxCheck($(this),"__URL__/validation/hasJson/1/vn/class",prms,"班号");
+		}
+	});
+	
+    
+	$("#register").click(function(){
+		//学年验证
+		var bool=true;
+		
+		var reg=/^\d{4}$/;
+		if(!check($("[name='YEAR']"),false,reg,"只能输入四位数字","学年")) bool=false;
+		//学期验证
+		reg=/^[1-2]{1}$/;
+		if(!check($("[name='TERM']"),false,reg,"只能输入1或2","学期")) bool=false;
+		
+		//课号验证
+		ele=$("[name='COURSENO']");
+		str=$.trim(ele.val());
+		if(str!=""){
+			var prms = {YEAR:$.trim($("[name='YEAR']").val()), TERM:$.trim($("[name='TERM']").val()), VALUE:str};			
+			if(!ajaxCheck(ele,"__URL__/validation/hasJson/1/vn/course",prms,"课号"))bool=false;			
+		}else{
+			ele.next().html("课号不能为空");bool=false;
+		}
+		
+		var courseno = str;
+		//班号验证
+		ele=$("[name='CLASSNO']");
+		str=$.trim(ele.val());
+		if(str!=""){
+			if (courseno!="")
+			{
+				var prms = {YEAR:$.trim($("[name='YEAR']").val()), TERM:$.trim($("[name='TERM']").val()),COURSENO:courseno, VALUE:str};
+				if(!ajaxCheck(ele,"__URL__/validation/hasJson/1/vn/class",prms,"班号"))bool=false;
+			}else bool=false;
+		}else{
+			ele.next().html("班号不能为空");bool=false;
+		}
+		//周次验证
+		var ele=$("[name='WEEK']");
+		reg=/^\d{1,2}$/;
+		if(!check(ele,false,reg,"输入范围只能是1~20之间","周次")) bool=false;
+		else{
+			if(parseInt($.trim(ele.val()))>20 || parseInt($.trim(ele.val()))<=0){
+				ele.next().html("周次输入范围只能是1~20之间");bool=false;
+			}
+		}
+		//开始提交
+		if(bool){
+			//将信息封装到数组
+			var ary={YEAR:$.trim($("[name='YEAR']").val()),
+					TERM:$.trim($("[name='TERM']").val()),
+					COURSENO:$.trim($("[name='COURSENO']").val()),
+					CLASSNO:$.trim($("[name='CLASSNO']").val()),
+					WEEK:$.trim($("[name='WEEK']").val()),
+					DATETIME:$.trim($("[name='DATETIME']").val()),
+					TIMENO:$.trim($("[name='TIMENO']").val())};
+			//Ajax方式提交数据
+			$.ajax({
+                url:"__URL__/minsert/hasJson/1",
+                type:"POST",
+                data:ary,
+                success: function(data){
+                    if(data){
+                    	
+                    	$.messager.alert("提示","提交数据成功！");                    	
+                    	
+                    	$('#e_addclass').window('close');
+                    	
+                    	$('#content').datagrid('reload');
+                  	
+                    }else  $.messager.alert("提示","数据提交失败！请检查您提交的数据是否合法");
+                }
+            });
+		}
+	});
+    
+    
+    
+    
+})
+
+//ajax验证
+function ajaxCheck(ele,url,prms,str){
+	var bool=true;
+	if($.trim(ele.val())!=""){
+		$.ajax({
+            url:url,
+            async:false,
+            type:"POST",
+            data:prms,
+            success: function(data){
+                if(data==0){
+                	ele.next().html("该"+str+"不存在");
+                	bool=false;
+                }else ele.next().html("*");
+            }
+        });
+	}else ele.next().html(str+"不能为空");
+	return bool;
+}
+//input验证
+function check(ele,isNull,reg,str,name){
+	var value=$.trim(ele.val());
+	if(!isNull){
+		if(value!=""){
+			if(reg!=null && !reg.test(value)){
+				ele.next().html(str);return false;
+			}else ele.next().html("*");
+		}else{
+			ele.next().html(name+"不能为空");return false;
+		}
+	}else{
+		if(reg!=null && !reg.test(value)){
+			ele.next().html(str);return false;
+		}
+	}
+	return true;
+}
+
+
+$.extend($.fn.datagrid.methods, {
+    addEditor : function(jq, param){
+        if (param instanceof Array){
+            $.each(param, function(index, item){
+                var e = $(jq).datagrid('getColumnOption', item.field);e.editor = item.editor;
+            });
+        }else{
+            var e = $(jq).datagrid('getColumnOption', param.field);e.editor = param.editor;
+        }
+    },
+    removeEditor : function(jq, param){
+        if (param instanceof Array){
+            $.each(param, function(index, item){
+                var e = $(jq).datagrid('getColumnOption', item);e.editor = {};
+            });
+        }else{
+            var e = $(jq).datagrid('getColumnOption', param); e.editor = {};
+        }
+    }
+});
+</script>
+<div id="e_addclass" class="easyui-window" title="新增考勤课程" style="width:500px;height:460px"
+     data-options="iconCls:'icon-save',modal:true,minimizable:false,maximizable:false,closable:true,collapsible:false,closed:true">
+		<form action="__URL__" id="report">
+		<table align="center" cellspacing="15" border="0"style="margin-top: 50px">
+		 <tr>
+		   <th align="right">学年：</th>
+		   <td><input name="YEAR" class="txt_" value="{$yearTerm.YEAR}" size="8" maxlength="4"> <font color="red">*</font></td>
+		 </tr>
+		 <tr>
+		   <th align="right">学期：</th>
+		   <td><input name="TERM" class="txt_" value="{$yearTerm.TERM}" size="2" maxlength="1"> <font color="red">*</font></td>
+		 </tr>
+		 <tr>
+		   <th align="right">课号（9位） / 课名：</th>
+		   <td>
+		   
+              <select style="width:200px;" id="COURSENO" name="COURSENO" class="easyui-combobox">
+              <option value="">请选择</option>
+              </select>
+
+		   <font color="red">*</font>
+		   
+		   </td>
+		 </tr>
+		 <tr>
+		   <th align="right">班号 / 班名：</th>
+		   <td>
+		   
+              <select style="width:200px;" id="CLASSNO" name="CLASSNO" class="easyui-combobox">
+              <option value="">请选择</option>
+              </select>
+		   
+		   <font color="red">*</font>
+		   
+		   </td>
+		 </tr>
+		 <tr>
+		   <th align="right">周次：</th>
+		   <td>第<input name="WEEK" class="txt_" size="2" maxlength="4">周 <font color="red">*</font></td>
+		 </tr>
+		 <tr>
+		   <th align="right">上课时间：</th>
+		   <td><input name="DATETIME" class="easyui-datebox" maxlength="10"> <font color="red">（时间格式：2014-03-12）</font></td>
+		 </tr>
+		 <tr>
+		   <th align="right">节次：</th>
+		   <td>
+		   
+		   <select name="TIMENO">
+		   <volist name="timesectors" id="t">
+		   <option value="{$t.NAME}">{$t.VALUE}</option>
+		   </volist>
+		   </select>
+		   
+		   </td>
+		 </tr>
+		 <tr style="height: 50px">
+		   <td align="center" colspan="2">
+		   
+		   
+		   <a href="javascript:void(0)" class="easyui-linkbutton" id="register">提&nbsp;交</a>
+		   
+		   </td>
+		 </tr>
+		</table>
+		</form>
+</div>
+<div id="admin_access_menu" class="easyui-menu" style="width:100px;">
+    <div id='admin_del'>删除本条目</div>
+    <div id='admin_edit'>编辑本条目</div>
+</div>
+</html>

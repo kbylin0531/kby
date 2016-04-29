@@ -1,0 +1,114 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script src="__ROOT__/thirdparty/jquery/js/modules/results.js"></script>
+<script>
+    var school='{$school}';
+    var teacherno='{$teacherno}';
+
+    function gotoInput(url){
+        if(Datagrid.selectSingle('courselist')){
+            var row = Datagrid.getSelected('courselist');
+            window.open(url+
+                    '/year/'+ $("#year").val()+
+                    '/term/'+$("#term").val()+
+                    '/coursegroup/'+row.coursegroup+
+                    '/scoretype/'+row['score_type']);
+        }
+    }
+
+    function gotoFinalsInput(){
+        gotoInput('__URL__/pageFinalsInput');
+    }
+
+    function gotoRestiInput(){
+        gotoInput('__URL__/pageResitInputNV');
+    }
+
+    function gotoMidtermInput(){
+        gotoInput('__URL__/pageMidtermInput');
+    }
+
+    $(function(){
+        var year_input = $("#year");
+        var term_input = $("#term");
+        var dgrid = $('#courselist');
+
+        year_input.val(GenKits.getParentYear());
+        term_input.val(GenKits.getParentTerm());
+
+        function loadCourseList(){
+            $.post('__URL__/listFinalsSelect',{'year':year_input.val(),'term':term_input.val(),'teacherno':teacherno}, function (data) {
+                if(Ajaxor.isMessage(data)){
+                    return Messager.showMessage(data);
+                }
+                dgrid.datagrid('loadData',data);
+            });
+        }
+
+        loadCourseList();
+        $("#search").click(loadCourseList);
+    });
+</script>
+<body style="background: #fff">
+    <div  class="easyui-layout" data-options="fit:true">
+        <!-- 查询栏 -->
+        <div data-options="region:'north',split:false,border:false" style="height:80px"><br />
+            <div align="center">
+                <label for="year">学年：</label>
+                <input type="text" name="YEAR" id="year" size="4">&nbsp;&nbsp;
+                <label for="term">学期：</label>
+                <input type="text" name="TERM" id="term" size="1">
+                <a id="search" class="easyui-linkbutton" data-options="iconCls:'icon-search'" >查询</a>
+                <p style="color: blueviolet;">
+                    注：成绩输入时的分值类型在开课计划中设定，如果有需要请到开课计划模块下修改指定学年学期课号组号的课程成绩输入类型。
+                </p>
+            </div>
+        </div>
+        <!-- 列表栏 -->
+        <div data-options="region:'center',border:false" style="padding:0;background:#eee;">
+            <table class="easyui-datagrid" id="courselist"
+                   data-options="pagination:false,singleSelect:true,fit:true,toolbar:[
+                   {
+                     text:'进行期中成绩输入',
+                     iconCls:'icon-edit',
+                     handler:gotoMidtermInput
+                    },
+                   {
+                     text:'进行期末成绩输入',
+                     iconCls:'icon-edit',
+                     handler:gotoFinalsInput
+                   },
+                    {
+                     text:'进行补考成绩输入',
+                     iconCls:'icon-edit',
+                     handler:gotoRestiInput
+                   }
+                   ]">
+                <thead>
+                <tr>
+                    <th data-options="field:'coursegroup',width:100" align="center">课号</th>
+                    <th data-options="field:'coursename',width:300" align="center">课名</th>
+                    <th data-options="field:'teachernoname',width:200" align="center">教师</th>
+                    <th data-options="field:'credits',width:50" align="center">学分</th>
+                    <th data-options="field:'score_type',width:50,formatter:scoreTypeFormatter" align="center">分制</th>
+                    <th data-options="field:'weekhours',width:50" align="center">周学时</th>
+                    <th data-options="field:'weekexpehours',width:50" align="center">周实验</th>
+                    <th data-options="field:'coursetype',width:50" align="center">修课</th>
+                    <th data-options="field:'examtype',width:50" align="center">考核</th>
+                    <th data-options="field:'schoolname',width:100" align="center">开课学院</th>
+                    <th data-options="field:'classnoname',width:100" align="center">班级</th>
+                    <th data-options="field:'dayntime',width:200" align="center">时间</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+</body>
+
+
+
+
+
+
+

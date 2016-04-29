@@ -1,0 +1,24 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script>
+    $(function(){
+                $('#csh').bind('click',function(){
+                    $.messager.confirm('提示','点击确定开始计算工作量',function(aa){
+                                if(aa){
+                                    ajiakesi('__URL__/work_count/hasJson/1',{':year':parent.$('#YEAR').val(),':term':parent.$('#TERM').val()},function(c){
+                                        $.messager.alert('提示',c)
+                                    })
+                                }
+
+                            }
+                    )
+                })
+            }
+    )
+</script>
+<body style="background: #fff">
+<div >
+
+    <a href="javascript:void(0)" id="csh" class="easyui-linkbutton">计算工作量</a>
+</div>
+</body>

@@ -1,0 +1,211 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script type="text/javascript">
+    $(function() {
+        var rone='{$recno}';
+        var rtwo='{$recno2}';
+        var rank='{$rank}';//表明在评价第几个课程，排序后的
+        var year='{$year}';
+        var term='{$term}';
+
+
+        var prevButton = $('#last');
+        var scoreInputs = $('[name=number]');
+
+
+        if(rank==1){
+            prevButton.bind('click',function(){
+                return $.messager.alert('提示','已经是第一个了')
+            })
+        }else{
+            prevButton.bind('click',function(){
+                ajiakesi('__URL__/is_last',{rank:rank,year:year,term:term},function(c){
+                    eval('var obj='+c)
+                    var queryParams = "&teachername="+obj.TEACHERNAME+"&courseno="+obj.COURSENO+"&Recno="+obj.RECNO+"&coursename="+obj.COURSENAME+'&RECNO2='+obj.RECNO2+'&rank='+obj.row+'&year='+year+'&term='+term;
+                    if(obj.TYPE=='理论课'){
+                        openTabsWindows('学评教打分','__ROOT__/index.php?g=Student&m=Evaluation&a=ketangList'+queryParams,'',true);
+                    }else if(obj.TYPE=='实践课'){
+                        openTabsWindows('学评教打分','__ROOT__/index.php?g=Student&m=Evaluation&a=shijianList'+queryParams,'',true);
+                    }else if(obj.TYPE=='毕业实践'){
+                        openTabsWindows('学评教打分','__ROOT__/index.php?g=Student&m=Evaluation&a=biyeshijian'+queryParams,'',true);
+                    }else if(obj.TYPE=='理实一体'){
+                        openTabsWindows('学评教打分','__ROOT__/index.php?g=Student&m=Evaluation&a=lishi'+queryParams,'',true);
+                    }
+                })
+            })
+        }
+
+        var recno='{$number.recno}';
+
+        //自增数字
+        scoreInputs.bind('blur',function(){
+            if(isNaN($(this).val())|| $.trim($(this).val())==''){
+                $(this).css('background','red');
+                return $.messager.alert('提示','请填写数字');
+            }else{
+                var number=0;
+                scoreInputs.each(function(index,v){
+                    number+=parseFloat($(v).val());
+                });
+
+                $('#ztotal').html(number);
+                $(this).css('background','');
+            }
+        });
+
+        //保存执行下一步
+        $("#UPDATE").click(function(){
+            var number=0;
+            scoreInputs.each(function(index,v){
+                number+=Math.round(parseFloat($(v).val())*10)/10;
+            });
+            $.messager.confirm('提示','你确定要给该老师打'+number+'分吗？',function(c){
+                if(c){
+                    scoreInputs.each(function(index,v){
+                        if(isNaN($(v).val())|| $.trim($(v).val())==''){
+                            return $.messager.alert('提示','请填写数字!');
+                        }else if(parseFloat($(v).val())<$(v).attr('content').split('_')[0]||parseFloat($(v).val())>$(v).attr('content').split('_')[1]){
+                            return $.messager.alert('提示',$(v).val()+'这个数不能小于'+$(v).attr('content').split('_')[0]+'并且不能大于'+$(v).attr('content').split('_')[1])
+                        }
+                    });
+
+                    var scores = {};
+                    for(var x in scoreInputs){
+                        scores[x] = scoreInputs[x].val();
+                    }
+
+                    $.post('__URL__/saveKetang',{'scores':scores,'recno':recno,'rank':rank,year:year,term:term},function(c){
+                        if(c!='保存成功'){
+                            $.messager.alert('提示',c);
+                            return;
+                        }else{
+                            parent.$.messager.show({
+                                title:'提示',
+                                msg:c
+                            })
+                        }
+                        ajiakesi('__URL__/is_last',{rank:parseInt(rank)+2,year:year,term:term},function(c){
+                            eval('var obj='+c)
+                            if(c=='false'){
+
+                                parent.$('[name=__mainTabs__]').tabs('select','考评列表')
+                                parent.reloadTabGrid( "考评列表" );
+                                parent.$('[name=__mainTabs__]').tabs('close','学评教打分')
+
+                            }
+                            var queryParams = "&teachername="+obj.TEACHERNAME+"&courseno="+obj.COURSENO+"&Recno="+obj.RECNO+"&coursename="+obj.COURSENAME+'&RECNO2='+obj.RECNO2+'&rank='+obj.row+
+                                    '&year='+year+'&term='+term;
+                            if(obj.TYPE=='理论课'){
+                                openTabsWindows('学评教打分','__ROOT__/index.php?g=Student&m=Evaluation&a=ketangList'+queryParams,'',true);
+                            }else if(obj.TYPE=='实践课'){
+                                openTabsWindows('学评教打分','__ROOT__/index.php?g=Student&m=Evaluation&a=shijianList'+queryParams,'',true);
+                            }else if(obj.TYPE=='毕业实践'){
+                                openTabsWindows('学评教打分','__ROOT__/index.php?g=Student&m=Evaluation&a=biyeshijian'+queryParams,'',true);
+                            }else if(obj.TYPE=='理实一体'){
+                                openTabsWindows('学评教打分','__ROOT__/index.php?g=Student&m=Evaluation&a=lishi'+queryParams,'',true);
+                            }
+                        })
+                    })
+                }
+            })
+
+        });
+
+    });
+</script>
+<style>
+body{font-family:宋体; font-size:12pt;}
+p{text-indent:1em;margin-left:1;margin-top:0;margin-bottom:0;}
+td{background:white;line-height:150%;}
+td.first{text-indent:1em;background:white;line-height:150%;}
+table{background:green;border-width:0;spacing:0;padding:0;}
+</style>
+
+<body class="easyui-layout" style="background: #fff;padding:5px;overflow-y: hidden"  fit="true" split="false"   scroll="no" >
+
+<form id="jvForm" method="POST" action="__ROOT__/index.php?g=Student&m=Evaluation&a=saveKetang">
+<div id="mainPanle" region="center" border="1" style="background: #fff; padding:5px; " >
+    <h1 align="center"><font size="4" face="黑体"><b>宁波城市职业技术学部课程课堂教学质量评估表（学生用）</b></font></h1>
+    <p>
+        请您根据任课教师的教学实际情况，针对本评估表的每个问题，实事求是地对其教学作出评价。对每个问题，请选一个最能代表您看法的答案，给出您的分数。
+    </p>
+    <p>谢谢您的支持与合作。
+    </p>
+
+    <p align="center"> <b>课名：{$Think.request.coursename}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;课号：{$Think.request.courseno}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 任课教师：{$Think.request.teachername}</b>
+    <table  height="296"  width="97%" cellspacing="1" cellpadding="0" id="MYTABLE" dataSrc=#dsoDETAIL align="center">
+        <tr>
+            <td rowspan="2" align="center" width="10%"><b>一级指标</b></td>
+            <td colspan="2" align="center" width="60%"><b>二级指标</b></td>
+            <td colspan="5" align="center"><b>评价等级</b></td>
+        </tr>
+        <tr>
+            <td align="center">序号</td>
+            <td align="center">观察点</td>
+            <td align="center">A</td>
+            <td align="center">B</td>
+            <td align="center"> C</td>
+            <td align="center"> D</td>
+            <td align="center">得分</td>
+        </tr>
+        <tr>
+            <td align="center">教学态度(20分)</td>
+            <td align="center">1</td>
+             <td>1:利用多种方式与我们沟通，课后能关心我们的学习。<br>2:科学合理布置作业，批改认真，反馈及时。<br>3:教师严于律己，严格管理课堂，课堂秩序良好。</td>
+             <td align="center">20</td>
+            <td align="center">16</td>
+            <td align="center">12</td>
+            <td align="center">8</td>
+            <td align="center"><input type="text" size="4" maxlength="4" sql='1th' content="0_20" name="number" value="{$number.1th}"></td>
+        </tr>
+        <tr>
+            <td align="center">教学内容(30分)</td>
+            <td align="center">2</td>
+            <td>1:课程的教学目标清楚，教学内容充实。<br>2:理论联系实际，重点突出，难点分解易懂。<br></td>
+            <td align="center">30</td>
+            <td align="center">24</td>
+            <td align="center">18</td>
+            <td align="center">12</td>
+            <td align="center"><input type="text" size="4" maxlength="4" sql='2th' content="0_30" name="number" value="{$number.2th}"></td>
+        </tr>
+        <tr>
+            <td align="center">教学方法(30分)</td>
+            <td align="center">3</td>
+            <td>1:精讲多练，讲解清楚，听得明白。<br>2:善于启发引导，教学方式灵活，师生互动良好<br>3:网络信息丰富，多媒体课件图文并茂。</td>
+            <td align="center">30</td>
+            <td align="center">24</td>
+            <td align="center">18</td>
+            <td align="center">12</td>
+            <td align="center"><input type="text" size="4" maxlength="4" sql='3th' content="0_30" name="number" value="{$number.3th}"></td>
+        </tr>
+        <tr>
+            <td align="center">教学效果(20分)</td>
+            <td align="center">4</td>
+            <td>本课程激发了我的学习兴趣，老师上课有吸引力，学后有收获，喜欢听他(她)的课。</td>
+            <td align="center">20</td>
+            <td align="center">16</td>
+            <td align="center">12</td>
+            <td align="center">8</td>
+            <td align="center"><input type="text" size="4" maxlength="4" sql='4th' content="0_20" name="number" value="{$number.4th}"></td>
+        </tr>
+        <tr>
+            <td colspan="3">&nbsp;&nbsp;满分为100分,每一项可取最低分与最高分之间的任意一值</td>
+            <td colspan="5">&nbsp;&nbsp;<b>总分：<span id="ztotal">{$number.total}</span></b></td>
+        </tr>    .
+    </table>
+        <p align="center">　</p>
+        <p align="center">　</p>
+        <p align="center"></p>
+        <p align="center">　</p>
+
+        <p align="center">
+            <a href="javascript:void(0)" class="easyui-linkbutton" id="last" iconCls="icon-goleft">上一门课程</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" id="UPDATE" iconCls="icon-add">保存并进入下一门</a>
+        </p>
+        <input type="hidden" name="map" value="{$Think.request.Recno}">
+        <input type="hidden" name="total" id="total" value="0">
+</div>
+</form>
+
+</body>
+</html>

@@ -1,0 +1,50 @@
+<include file=":Include:jqueryHeader" />
+
+<body style="background: #FFFFFF">
+    
+
+
+<div>成功导入{$succount}条记录</div>
+<div>以下{$failcount}条记录由于多种原因没有成功导入</div>
+<table>
+<tr>
+<th>操作类型</th>
+<th>课程号</th>
+<th>教师号</th>
+<th>班级号</th>
+<th>教室号</th>
+<th>星期</th>
+<th>时段</th>
+<th>情况</th>
+</tr>
+
+<volist name="result" id="iresult">
+<tr>
+<td>
+  <if condition="$iresult.TYPE eq 'COURSE_TEACHER'">排课SCHEDULE表添加</if>
+  <if condition="$iresult.TYPE eq 'ROOM'">排课TIMELIST表教室添加</if>
+  <if condition="$iresult.TYPE eq 'CLASS'">排课TIMELIST表班级添加</if>
+  <if condition="$iresult.TYPE eq 'TEACHER'">排课TIMELIST表教师添加</if>
+  <if condition="$iresult.TYPE eq 'COURSE'">排课TIMELIST表课程添加</if>
+</td>
+<td>{$iresult.COURSENO}</td>
+<td>{$iresult.TEACHERNO}</td>
+<td>{$iresult.CLASSNO}</td>
+<td>{$iresult.ROOMNO}</td>
+<td>{$iresult.TIMES_DAY}</td>
+<td>{$iresult.TIMES_SECTOR}</td>
+<td>{$iresult.content}</td>
+</tr>
+</volist>
+
+</table>
+
+<div align=center>
+<input onclick="history.back();" type="button" value="返回" />
+</div>
+
+</body>
+
+
+</html>
+

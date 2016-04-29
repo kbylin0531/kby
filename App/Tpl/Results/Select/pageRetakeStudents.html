@@ -1,0 +1,55 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script>
+    $(function(){
+        $("#year").val(GenKits.getParentYear());
+        $("#term").val(GenKits.getParentTerm());
+
+        $('#search').bind('click',function(){
+            $('#dgrid').datagrid('load',{'_PARAMS_':$("#form").serialize()});
+        });
+    });
+</script>
+<body>
+
+<div id="cc" class="easyui-layout" data-options="fit:true">
+    <div id="tdemo">
+        <form id="form">
+            <label for="year">学年:</label>
+            <input type="text" name="year" id="year" size="4" >&nbsp;
+            <label for="term">学期:</label>
+            <input type="text" name="term" id="term" size="1">&nbsp;
+            <label for="courseno">课号:</label>
+            <input type="text" name="courseno" id="courseno" value="%" size="10">&nbsp;
+            <label for="coursename">课名:</label>
+            <input type="text" name="coursename" id="coursename" value="%" size="10">&nbsp;
+            <label for="school">所在学部:</label>
+            <select name="school" id="school">
+                <option value="%">全部</option>
+                <volist name="schools" id="s">
+                    <option value="{$s.SCHOOL}">{$s.NAME}</option>
+                </volist>
+            </select>
+            <a id="search" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+        </form>
+    </div>
+    <div data-options="region:'center'" style="padding:0;background:#eee;">
+        <table class="easyui-datagrid" id="dgrid"
+               data-options="url:'__URL__/listRetakeStudents',
+               toolbar:'#tdemo',pageList:[20,50,100,500],fitColumns:true,singleSelect:true,fit:true,pagination:true">
+            <thead>
+                <tr>
+                    <th data-options="field:'coursegroup',width:100" align="center">课号</th>
+                    <th data-options="field:'coursename',width:230" align="center">课名</th>
+                    <th data-options="field:'studentno',width:100,align:'right'" align="center">学号</th>
+                    <th data-options="field:'studentname',width:100,align:'right'" align="center">姓名</th>
+                    <th data-options="field:'classname',width:100,align:'right'" align="center">班级</th>
+                    <th data-options="field:'general_score',width:100,align:'right'" align="center">总评</th>
+                    <th data-options="field:'resit_score',width:100,align:'right'" align="center">补考</th>
+                    <th data-options="field:'retake_score',width:100,align:'right'" align="center">重修</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+</body>

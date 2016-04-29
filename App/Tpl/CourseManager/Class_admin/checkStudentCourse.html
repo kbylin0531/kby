@@ -1,0 +1,72 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script src="__ROOT__/thirdparty/jquery/js/searcher.js"></script>
+<script>
+    var haha={'M':'必修','E':'选修','R':'现修','T':'模块','F':'辅修'}
+    $(function(){
+        $('#run_student').bind('click',function(){
+            var row=$('#List_dat').datagrid('getSelected')
+            if(row==''){
+                return $.messager.alert('提示','请选择一个要查看的学生')
+            }
+            window.open('__URL__/My_student_Page/username/'+row.xh)
+        });
+
+        var classnoInput = $("#CLASSNO");
+        var studentInput = $("#SNO");
+        var parentYearInput = parent.$('[name=YEAR]');
+        var parentTermInput = parent.$('[name=TERM]');
+        $("#doSearch").click(function () {
+            $('#List_dat').datagrid('load',{
+                'YEAR':parentYearInput.val(),'TERM':parentTermInput.val(),
+                'STUDENTNO':studentInput.val(),'CLASSNO':classnoInput.val()});
+        });
+        
+    });
+</script>
+
+<style>
+    legend{margin-left: 20px;margin-bottom: 10px;}
+    .query span{line-height: 25px;}
+    .query label{font-weight: bold;margin-left:20px;}
+    .query a{margin-left: 20px;}
+</style>
+<body style="background-color: #FFF">
+
+<div id="tdemo">
+    <!--<label>设定班号：</label><input type=text name="CLASSNO" id="CLASSNO" value="%" size="7">&nbsp;-->
+    <!--<a href="javascript:void(0)" id="one_sub_classno" class="easyui-linkbutton">检索</a>-->
+    <!--<label>设定学号前几位：</label><input type="text" name="STUDENTNO" id="SNO" value="%" size="9">-->
+    <!-- searcher插件JS+HTML部分 -->
+    年级:<select name="GRADE" class="SEARCHER_GRADE"></select>
+    学部:<select name="SCHOOL" class="SEARCHER_SCHOOL"></select>
+    班级:<select name="CLASSNO"  id="CLASSNO"  class="SEARCHER_CLASS"></select>
+    学号:<select name="STUDENTNO"  id="SNO"  class="SEARCHER_STUDENT"></select>
+    <script> $(function () {searcher("__ROOT__"); }); </script>
+
+
+    <a href="javascript:void(0)" id="doSearch" class="easyui-linkbutton">检索</a>
+
+    <a href="javascript:void(0)" class="easyui-linkbutton" id="run_student" iconCls="icon-personal" plain="true">进入学生个人页面</a>
+</div>
+<table class="easyui-datagrid" id="List_dat"
+       data-options="url:'__URL__/checkStudentCourse/reqtag/getlist',fit:true,pagination:true,pageList:[20,50,100,200,500],toolbar:'#tdemo'">
+    <thead>
+    <tr>
+        <th data-options="field:'row',checkbox:true">选择</th>
+        <th data-options="field:'xh',width:150,align:'right'" align="center">学号</th>
+        <th data-options="field:'xm',width:220,align:'right'" align="center">姓名</th>
+        <th data-options="field:'xsbj',width:100,align:'right'" align="center">学生班级</th>
+        <th data-options="field:'zxf',width:100,align:'right'" align="center">总学分</th>
+        <th data-options="field:'hasChosedNum',width:100,align:'right'" align="center">已选门数</th>
+        <th data-options="field:'shouldChoseNum',width:100,align:'right'" align="center">应选门数</th>
+        <th data-options="field:'missed',width:100,align:'right'" align="center">漏选门数</th>
+    </tr>
+    </thead>
+</table>
+</div>
+
+
+
+</body>
+</html>

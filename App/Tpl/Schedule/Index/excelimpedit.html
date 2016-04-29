@@ -1,0 +1,188 @@
+<include file=":Include:jqueryHeader" />
+<script type="text/javascript" src='__ROOT__/thirdparty/jquery/js/taskMonitor.js'></script>
+
+<script type="text/javascript">
+    $(function() {
+        $("#YEAR").val(parent.$("#YEAR").val())
+        $("#TERM").val(parent.$("#TERM").val())
+    });
+</script>
+
+<body style="background: #FFFFFF">
+    <div id="content" title="" data-options="closable:false,collapsible:false">
+	  <form action="__URL__/excelimpsave" id="form_edit" name="form_edit" enctype="multipart/form-data" method="post" target="sysc_hiddenIframe">
+		<table align="center" border="0"style="margin-top: 50px">
+		 <tr height="30">
+		   <th align="right" width="24%">每周天数：</th>
+		   <td width="76%">
+		   
+		   <nobr><input type="radio" id="mzts_1" name="mzts" value="1"/><label for="mzts_1">每周一天</label></nobr>
+		   <nobr><input type="radio" id="mzts_2" name="mzts" value="2"/><label for="mzts_2">每周二天</label></nobr>
+		   <nobr><input type="radio" id="mzts_3" name="mzts" value="3"/><label for="mzts_3">每周三天</label></nobr>
+		   <nobr><input type="radio" id="mzts_4" name="mzts" value="4"/><label for="mzts_4">每周四天</label></nobr>
+		   <nobr><input type="radio" id="mzts_5" name="mzts" value="5" checked/><label for="mzts_5">每周五天</label></nobr>
+		   <nobr><input type="radio" id="mzts_6" name="mzts" value="6"/><label for="mzts_6">每周六天</label></nobr>
+		   <nobr><input type="radio" id="mzts_7" name="mzts" value="7"/><label for="mzts_7">每周七天</label></nobr>
+<!--  target="sysc_hiddenIframe"
+		   <nobr><input type="radio" id="mzts_8" name="mzts" value="8"/><label for="mzts_8">每周八天</label></nobr>
+		   <nobr><input type="radio" id="mzts_9" name="mzts" value="9"/><label for="mzts_9">每周九天</label></nobr>
+		   <nobr><input type="radio" id="mzts_10" name="mzts" value="10"/><label for="mzts_10">每周10天</label></nobr>
+		   <nobr><input type="radio" id="mzts_11" name="mzts" value="11"/><label for="mzts_11">每周11天</label></nobr>
+		   <nobr><input type="radio" id="mzts_12" name="mzts" value="12"/><label for="mzts_12">每周12天</label></nobr>
+		   <nobr><input type="radio" id="mzts_13" name="mzts" value="13"/><label for="mzts_13">每周13天</label></nobr>
+		   <nobr><input type="radio" id="mzts_14" name="mzts" value="14"/><label for="mzts_14">每周14天</label></nobr>
+		   <nobr><input type="radio" id="mzts_15" name="mzts" value="15"/><label for="mzts_15">每周15天</label></nobr>
+ -->		   
+		   </td>		   
+		 </tr>
+		 <tr height="30">
+		   <th align="right" >每天上午节数：</th>
+		   <td >
+		   
+		   <nobr><input type="radio" id="mtswjs_0" name="mtswjs" value="0"/><label for="mtswjs_0">上午没课</label></nobr>
+		   <nobr><input type="radio" id="mtswjs_1" name="mtswjs" value="1"/><label for="mtswjs_1">上午一节</label></nobr>
+		   <nobr><input type="radio" id="mtswjs_2" name="mtswjs" value="2"/><label for="mtswjs_2">上午二节</label></nobr>
+		   <nobr><input type="radio" id="mtswjs_3" name="mtswjs" value="3"/><label for="mtswjs_3">上午三节</label></nobr>
+		   <nobr><input type="radio" id="mtswjs_4" name="mtswjs" value="4" checked/><label for="mtswjs_4">上午四节</label></nobr>
+		   <nobr><input type="radio" id="mtswjs_5" name="mtswjs" value="5"/><label for="mtswjs_5">上午五节</label></nobr>
+		   <nobr><input type="radio" id="mtswjs_6" name="mtswjs" value="6"/><label for="mtswjs_6">上午六节</label></nobr>
+		   
+		   </td>		   
+		 </tr>
+		 <tr height="30">
+		   <th align="right" >每天下午节数：</th>
+		   <td >
+		   
+		   <nobr><input type="radio" id="mtxwjs_0" name="mtxwjs" value="0"/><label for="mtxwjs_0">下午没课</label></nobr>
+		   <nobr><input type="radio" id="mtxwjs_1" name="mtxwjs" value="1"/><label for="mtxwjs_1">下午一节</label></nobr>
+		   <nobr><input type="radio" id="mtxwjs_2" name="mtxwjs" value="2"/><label for="mtxwjs_2">下午二节</label></nobr>
+		   <nobr><input type="radio" id="mtxwjs_3" name="mtxwjs" value="3"/><label for="mtxwjs_3">下午三节</label></nobr>
+		   <nobr><input type="radio" id="mtxwjs_4" name="mtxwjs" value="4"/><label for="mtxwjs_4">下午四节</label></nobr>
+		   <nobr><input type="radio" id="mtxwjs_5" name="mtxwjs" value="5" checked/><label for="mtxwjs_5">下午五节</label></nobr>
+		   <nobr><input type="radio" id="mtxwjs_6" name="mtxwjs" value="6"/><label for="mtxwjs_6">下午六节</label></nobr>
+		   
+		   </td>		   
+		 </tr>
+<!-- 
+		 <tr height="30">
+		   <th align="right" >每天早自习节数：</th>
+		   <td >
+		   
+		   <nobr><input type="radio" id="mtzzxjs_0" name="mtzzxjs" value="0" checked/><label for="mtzzxjs_0">早自习没课</label></nobr>
+		   <nobr><input type="radio" id="mtzzxjs_1" name="mtzzxjs" value="1"/><label for="mtzzxjs_1">早自习一节</label></nobr>
+		   <nobr><input type="radio" id="mtzzxjs_2" name="mtzzxjs" value="2"/><label for="mtzzxjs_2">早自习二节</label></nobr>
+		   <nobr><input type="radio" id="mtzzxjs_3" name="mtzzxjs" value="3"/><label for="mtzzxjs_3">早自习三节</label></nobr>
+		   <nobr><input type="radio" id="mtzzxjs_4" name="mtzzxjs" value="4"/><label for="mtzzxjs_4">早自习四节</label></nobr>
+		   <nobr><input type="radio" id="mtzzxjs_5" name="mtzzxjs" value="5"/><label for="mtzzxjs_5">早自习五节</label></nobr>
+		   <nobr><input type="radio" id="mtzzxjs_6" name="mtzzxjs" value="6"/><label for="mtzzxjs_6">早自习六节</label></nobr>
+		   
+		   </td>		   
+		 </tr>
+ -->		 
+		 <tr height="30">
+		   <th align="right" >每天晚自习节数：</th>
+		   <td >
+		   
+		   <nobr><input type="radio" id="mtwzxjs_0" name="mtwzxjs" value="0"/><label for="mtwzxjs_0">晚自习没课</label></nobr>
+		   <nobr><input type="radio" id="mtwzxjs_1" name="mtwzxjs" value="1"/><label for="mtwzxjs_1">晚自习一节</label></nobr>
+		   <nobr><input type="radio" id="mtwzxjs_2" name="mtwzxjs" value="2"/><label for="mtwzxjs_2">晚自习二节</label></nobr>
+		   <nobr><input type="radio" id="mtwzxjs_3" name="mtwzxjs" value="3" checked/><label for="mtwzxjs_3">晚自习三节</label></nobr>
+		   <nobr><input type="radio" id="mtwzxjs_4" name="mtwzxjs" value="4"/><label for="mtwzxjs_4">晚自习四节</label></nobr>
+		   <nobr><input type="radio" id="mtwzxjs_5" name="mtwzxjs" value="5"/><label for="mtwzxjs_5">晚自习五节</label></nobr>
+		   <nobr><input type="radio" id="mtwzxjs_6" name="mtwzxjs" value="6"/><label for="mtwzxjs_6">晚自习六节</label></nobr>
+		   
+		   </td>		   
+		 </tr>
+		 
+		 
+		 <tr height="30">
+		   <th align="right" >排课学年：</th>
+		   <td >
+		   
+		   <input type="text" id="YEAR" name="YEAR" />
+		   
+		   <font color="red">*</font></td>		   
+		 </tr>
+		 <tr height="30">
+		   <th align="right" >排课学期：</th>
+		   <td >
+		   
+		   <input type="text" id="TERM" name="TERM" />
+		   
+		   <font color="red">*</font></td>		   
+		 </tr>
+		 <tr height="30">
+		   <th align="right" >更欣课表excel导入文件路径：</th>
+		   <td >
+		   
+		   
+		   <input type="file" id="afile" name="afile" size="40"  />
+		   
+		   
+		   <font color="red">*</font></td>		   
+		 </tr>
+
+		 <tr style="height: 50px">
+		   <td align="center" colspan="2"><a href="javascript:void(0)" id="btnSave">确&nbsp;认</a></td>
+		 </tr>
+		</table>
+	  </form>
+	</div>
+	
+<iframe name="sysc_hiddenIframe" frameborder="0"  border="0" style="display:none;width:0px;height:0px;"></iframe>	
+	
+</body>
+
+<script type="text/javascript">
+$(function(){
+	//按钮样式设置
+	$('#btnSave').linkbutton({iconCls: 'icon-ok'});
+	
+	//提交及验证教师信息
+	$("#btnSave").click(function(){
+		var bool = true;		
+		
+		var reg = /^.*\.(?:xls|XLS)$/;		
+		
+		if(!check($("[name='afile']"),false,reg,"请选择excel格式文件","excel导入文件路径")) bool=false;
+		
+		
+		//开始提交
+		if(bool){
+			$("#form_edit").submit();
+			
+			$.taskMonitor('{$Think.session.S_USER_NAME}',"更欣课表excel导入",{successCallback : function () {window.location="__URL__/excelimpresult";}});
+		}
+	});
+	
+	//子窗口
+	$("#content").window({
+        height:520,
+        width:820,
+        modal:true,
+        minimizable:false,
+        maximizable:false,
+        closable:false,
+        collapsible:false,
+        draggable:false,
+        resizable:false,
+        modal:false
+    });
+});
+
+function check(ele,isNull,reg,str,name){
+	var value=$.trim(ele.val());
+	if(value=="" && !isNull){
+		ele.next().html(name+"不能为空");return false;
+	}else{
+		if(reg!=null && !reg.test(value)){
+			ele.next().html(str);return false;
+		}else ele.next().html("*");
+	}
+	return true;
+}
+
+
+</script>
+</html>
+

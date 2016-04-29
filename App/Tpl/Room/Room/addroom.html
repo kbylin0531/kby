@@ -1,0 +1,363 @@
+<include file=":Include:jqueryHeader" />
+
+<script>
+    $(function(){
+        var win = $('#win');
+        $('#import').click(function () {
+            win.window('open');
+        });
+        
+        
+        
+        
+        Rpanduan=false;                                  //判断教室号的变量
+        Spanduan=false;                                 //判断座位号的变量
+        Tpanduan=false;                                 //判断考位号的变量
+
+       var addbt=$('#add').linkbutton({                  //添加按钮
+            iconCls: 'icon-add'
+        })
+        var czbt=$('#back2').linkbutton({                //重置按钮
+            iconCls: 'icon-back'
+        }).bind('click',function(){
+           addroom.reset()
+
+        })
+
+
+        addbt.bind('click',function(){
+            $('#ROOMNO').blur();
+
+                var one=$('#addroom input');
+                var two=$('#addroom select');
+                var wd=$('#wd2');
+                var value=quzhi(one,two,wd);
+//                for(var i in one){
+//                    if(one[i].value==""){
+//                        var tt= $('#addroom [name=\''+one[i].name+'\']').focus();        //判断input 选项 用户是不是没填
+//
+//                       return $.messager.alert('提示','还有选项没填')
+//                    }
+//                }
+                if(!Rpanduan){
+                    $.messager.alert('提示','<font color="red">请输入合法的教室号</font>');
+                    return;
+                }
+                if(!Spanduan){                  //判断座位号
+                    $.messager.alert('提示','<font color="red">请输入合法的座位号</font>');
+                    return
+                }
+
+                if(!Tpanduan){                  //判断座位号
+                    $.messager.alert('提示','<font color="red">请输入合法的考位号</font>');
+                    return
+                }
+
+            if(parseInt($('#TESTERS').val())>parseInt($('#SEATS').val())){
+                $.messager.alert('提示','<font color="red">考位数不能大于座位数</font>');
+                return;
+            }
+            var Timeout=setTimeout(function(){
+                $.ajax({
+                    url:'__URL__/insertroom',
+                    type:'POST',
+                    data:value,
+                    success:function(data){
+                        if(data=='true'){
+                            $.messager.confirm('提示','添加成功，需要跳转到查询页面吗?',function(r){
+
+                                if(r){              //代表跳转
+                                    window.location.href='__URL__/selectroom';
+                                }else{
+                                    addroom.reset()
+                                }
+                            });
+                        }
+                    }
+                });
+                clearTimeout(Timeout)
+            },300);
+        });
+
+
+        //取得所有表单值的函数
+        function quzhi(one,two,wd){
+            var nm={};
+            var objnm="";
+            for(var i=0;i<one.length;i++){
+                objnm=one[i].name;
+                if(objnm=='SORT'){
+                    if(one[i].checked)
+                        nm[objnm]=one[i].value;
+                    else                                          //获取到input的值
+                        continue;
+                }
+                nm[objnm]=one[i].value;
+            }
+            for(var i=0;i<two.length;i++){
+                objnm=two[i].name;
+                nm[objnm]=two[i].value;                                  //获取到select的值
+            }
+
+            return nm;
+    }
+
+       $('#ROOMNO').bind('blur',roomno);
+        //对ROOMNO做ajax验证的函数
+        function roomno(){
+            $.ajax({
+                'url':'__URL__/roomyz',
+                'type':'POST',
+
+                'data':{
+                    'ROOMNO':this.value
+                },
+                success:function(data){
+//                    if(data=='sev'){
+//                        $('#ROOMNO').css('background','red');
+//                        $('#ct2').html('<font color="red">&nbsp号码需9位</font>')
+//                        Rpanduan=false;
+//                    }else 
+                    	if(data=='false'){
+
+                        $('#ct2').html('<font color="red">&nbsp已经存在×</font>')
+                        Rpanduan=false;
+                    }else{
+                        $('#ROOMNO').css('background','');
+                        $('#ct2').html('<font color="green">&nbsp可以使用√</font>')
+                        Rpanduan=true;
+                    }
+                }
+            })
+        }
+
+        //对 教室面积做验证
+        $('#ROOM_AREA').bind('blur',roomareafc);
+        function roomareafc(){
+           var zz=new RegExp('^\-?[0-9]*(\.[0-9]{1,4})?$');
+           if(zz.test(this.value)){
+                  Spanduan=true;
+                $('#ROOM_AREA').css('background','');
+                $('#roomarea').html('<font color="green">&nbsp填写正确√</font>')
+            }else{
+                Spanduan=false;
+                $('#ROOM_AREA').css('background','red');
+                $('#roomarea').html('<font color="red">&nbsp填写错误×</font>')
+            }
+        }
+        //对 座位号和考位号做验证
+       $('#SEATS').bind('blur',seatsfc);
+        function seatsfc(){
+            var zz=new RegExp('^[0-9]{1,3}$');
+            if(zz.test(this.value)){
+                  Spanduan=true;
+                $('#SEATS').css('background','');
+                $('#zw2').html('<font color="green">&nbsp填写正确√</font>')
+            }else{
+                Spanduan=false;
+                $('#SEATS').css('background','red');
+                $('#zw2').html('<font color="red">&nbsp需3位以内数字×</font>')
+            }
+        }
+
+        $('#TESTERS').bind('blur',testfc);
+        function testfc(){
+            var zz=new RegExp('^[0-9]{1,3}$');
+            if(zz.test(this.value)){
+                Tpanduan=true;
+                $('#TESTERS').css('background','');
+                $('#kw2').html('<font color="green">&nbsp填写正确√</font>')
+            }else{
+                Tpanduan=false;
+                $('#TESTERS').css('background','red');
+                $('#kw2').html('<font color="red">&nbsp需3位以内数字×</font>')
+            }
+        }
+
+        $('#wd2').window({
+            height:520,
+            width:680,
+            modal:false,
+            minimizable:false,
+            maximizable:false
+        })
+    })
+
+</script>
+<body style="background-color: #fff">
+    <div id="wd2" title="" data-options="closable:false,collapsible:false">
+        <form method="POST" id="addroom" >
+            <table border="0" style="margin-top:20px;margin-left:30px" width="630" align="center" cellspacing="12">
+                <tr>
+                    <td width="16%" align="right"><font size="2">教室代号：</font><font color="red">*</font></td>
+                    <td width="25%">
+                    
+                    <input type="text" id="ROOMNO" name="ROOMNO" size="9" maxlength="9" value="">
+                    
+                    <span id="ct2">&nbsp<b>长度为9位</b></span></td>
+                    <td width="24%" align="right"><font size="2">房间号：</font></td>
+                    <td width="41%">
+                    
+                    <input type="text" name="NO" size="4" maxlength="15" value="">
+                    
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right"><font size="2">楼名：</font></td>
+                    <td >
+                    
+                    <input type="text" name="BUILDING" size="20" maxlength="30" value="">
+                    
+                    </td>
+                    <td align="right">
+                        <if condition="(SCHOOL_CODE eq 'yzzj')">
+                            <font size="2">校区：</font>
+                        <else />
+                            &nbsp;
+                        </if>
+                    </td>
+                    <td >
+                        <if condition="(SCHOOL_CODE eq 'yzzj')">
+                            <select name="AREA">
+                                <volist name="area" id="v">
+                                    <option value="{$v.NAME}">{$v.VALUE}</option>
+                                </volist>
+                            </select>
+                        <else />
+                            &nbsp;
+                            <select name="AREA" style="display: none">
+                                    <option value="0">未知</option>
+                            </select>
+                        </if>
+                    </td>
+                </tr>
+                <tr>
+                    <td  align="right"><font size="2">设施：</font></td>
+                    <td >
+                    
+                        <select name="EQUIPMENT">
+                            <volist name="roomoption" id="v">
+                                <option value="{$v.NAME}">{$v.VALUE}</option>
+                            </volist>
+                        </select>
+                        
+                    </td>
+                    <td align="right"><font size="2">教室面积：</font></td>
+                    <td >
+                    
+                    <input type="text" name="ROOM_AREA" id="ROOM_AREA" size="4" maxlength="5">
+                    
+                    <span id="roomarea"></span></td>
+                </tr>
+                <tr>
+                    <td align="right"><font size="2">座位数：</font></td>
+                    <td >
+                    
+                    <input type="text" name="SEATS" id="SEATS" size="4" maxlength="3">
+                    
+                    <span id="zw2">&nbsp<b>需要3位数字</b></span></td>
+                    <td align="right"><font size="2">考位数：</font></td>
+                    <td >
+                    
+                    <input type="text" name="TESTERS" id="TESTERS" size="4" maxlength="3">
+                    
+                    <span id="kw2">&nbsp<b>需要3位数字</b></span></td>
+
+                </tr>
+                <tr>
+                    <td align="right"><font size="2">可用不可用：</font></td>
+                    <td >
+                    
+                    <select size="1" name="STATUS">
+                        <option value="1">是</option>
+                        <option value="0">否</option>
+                    </select>
+                    
+                    </td>
+                    <td align="right"><font size="2">优先学部：</font></td>
+                    <td >
+                    
+                    <select name="PRIORITY">
+ 						<option value="">请选择</option>
+                        <volist name="school" id="v">
+                            <option value="{$v.SCHOOL}">{$v.NAME}</option>
+                        </volist>
+                   
+                    </select>
+                    
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right"><font size="2">排课约束：</font></td>
+                    <td >
+                    
+                    <select size="1" name="USAGE">
+                        <option value="P">人数限制  </option>
+                        <option value="C">授课限制  </option>
+                        <option value="N">无限制    </option>
+                    </select>
+                    
+                    </td>
+                    <td align="right"><font size="2">是否保留：</font></td>
+                    <td >
+                    
+                    <select size="1" name="RESERVED">
+                        <option value="1">是</option>
+                        <option value="0">否</option>
+                    </select>
+                    
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right"><font size="2">简称：</font></td>
+                    <td >
+                    
+                    <input type="text" name="JSN" size="20" value="" maxlength="20">
+                    
+                    </td>
+                    <td align="right"><font size="2">备注：</font></td>
+                    <td >
+                    
+                    <input type="text" name="REM" size="20" maxlength="20" value=" ">
+                    
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        <font color="red"><b>注：考位数不能大于座位数</b></font>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" align="center" height="120">
+                        <a href="javascript:void(0)" id="add">添加</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <a href="javascript:void(0)" id="back2">重置</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <a href="javascript:void(0)" id="import" class="easyui-linkbutton" data-options="iconCls:'icon-excel'">批量导入</a>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    <div id="win" class="easyui-window" title="My Window" style="width:300px;height:200px"
+         data-options="iconCls:'icon-save',modal:true">
+
+
+        <form id="upload" method='post' action="__URL__/insertroom/" enctype="multipart/form-data">
+            <input type="hidden" name="reqtag" value="excel_import" />
+            <table>
+                <tr>
+                    <td>
+                        <input id="import_input" name="import_input" type="file" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="submit" value="提交" >
+                    </td>
+                </tr>
+            </table>
+        </form>
+
+    </div>
+
+
+</body>

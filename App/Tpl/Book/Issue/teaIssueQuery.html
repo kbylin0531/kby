@@ -1,0 +1,72 @@
+<include file=":Include:jqueryHeader" />
+<include file="./style" />
+<body>
+<div class="easyui-layout"  data-options="border:false,fit:true" >
+    <div id="toobar">
+    	<label>学年：</label><input value="{$yearTerm.YEAR}" name="year" size="8" maxlength="4">
+		<label>学期：</label><input value="{$yearTerm.TERM}" name="term" size="4" maxlength="1">
+		<label>教师学院：</label>
+		<select class="easyui-combobox" name="school" data-options="editable:false">
+			<option value="%">全部</option>
+			<volist name="school" id="s">
+			<option value="{$s.SCHOOL}">{$s.NAME}</option>
+			</volist>
+		</select>
+		<label>教师号：</label><input name="teacherno" size="14" value='%'  maxlength="7">
+		<label>教师姓名：</label><input name="name" size="10" value='%'  maxlength="10">
+		<a href="javascript:void(0)" id="searcher">检索</a>
+    </div>
+    <div data-options="region:'center',border:false" style=";background:#eee;">
+    	<div id="datagrid"></div>
+    </div>
+</div>
+<script type="text/javascript">
+var list=null;
+$(function(){
+	//教材发放信息
+	var datagrid = $('#datagrid').datagrid({
+		fitColumns:true,
+        fit:true,
+        striped:true,
+        singleSelect:true,
+        toolbar:'#toobar',
+        columns:[[{field:'schoolname',title:'教师学院',align:'center',width:40},
+                  {field:'teacherno',title:'教师号',align:'center',width:40},
+                  {field:'name',title:'姓名',align:'center',width:30},
+                  {field:'isbn',title:'ISBN',align:'center',width:40},
+                  {field:'bookname',title:'教材名称',align:'center',width:150},
+                  {field:'price',title:'单价',align:'center',width:30},
+                  {field:'dis_rate',title:'折扣率',align:'center',width:30},
+                  {field:'dis_price',title:'折扣价',align:'center',width:30}]],
+		pagination:true,
+		pageList:[10,20,30,40,50],
+		pageSize:20});
+	//搜索按钮
+    $('#searcher').linkbutton({iconCls: 'icon-search'});
+    // 条件查询
+    $("#searcher").click(function(){
+    	//验证学年学期是否输入
+    	var year=$.trim($("[name='year']").val());
+    	var term=$.trim($("[name='term']").val());
+    	if(year=="" || term==""){
+    		msgShow("系统提示：","请输入要检索的学年与学期！","error");
+    		return;
+    	}
+        datagrid.datagrid("options").url = "__URL__/teaIssueQuery/hasJson/1";
+        datagrid.datagrid("load",getData());
+    });
+});
+//获取检索条件信息
+function getData(){
+	var data={
+        	year:$.trim($("[name='year']").val()),
+        	term:$.trim($("[name='term']").val()),
+        	school:$.trim($("[name='school']").val()),
+        	teacherno:$.trim($("[name='teacherno']").val()),
+        	name:$.trim($("[name='name']").val())
+        };
+	return data;
+}
+</script>
+</body>
+</html>

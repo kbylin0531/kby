@@ -1,0 +1,120 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script>
+    var key=[];
+    $(function(){
+
+        $("[name=year]").val(parent.$("#YEAR").val());
+        $("[name=term]").val(parent.$("#TERM").val());
+        $('#dat').datagrid()
+        //  var wd=$('#wd').window(new wind(700,400,false,false,false,false,false));        //todo:默认的页面
+        var wd4=$('#wd4').window(new wind(0,0,false,false,false,false,true));        //todo:默认的页面
+        //todo: 点击检索的时候
+        $('#bt').linkbutton({
+            'text':'检索',
+            'iconCls':'icon-search'
+        }).bind('click',function(){
+
+                    if($('[name=year]').val()==""||$('[name=term]').val()==""){
+                        return $.messager.alert('提示','请输入学年学期,不能为空')
+                    }
+                    $('#dat').datagrid('options').url='__APP__/Status/Status/Squery'
+                    //ajiakesi('__APP__/Status/Status/Squery',,function(c){
+                    $('#dat').datagrid('load',{'Sqlpath':{'select':'exam/pici_select.SQL',
+                        'count':'exam/pici_count.SQL'},
+                        'bind':{':year':$('[name=year]').val(),':term':$('[name=term]').val(),':classno':$('[name=classno]').val()}})
+                    $('#t_school').html($('[name=SCHOOL]').find("option:selected").text())
+                    $('#t_school').css({'font-size':'14px'})
+                    $('#t_year').html($('[name=year]').val())
+                    $('#t_year').css({'font-size':'14px'})
+                    $('#t_term').html($('[name=term]').val())
+                    $('#t_term').css({'font-size':'14px'})
+                    //    })
+                })
+
+
+        $('#set').bind('click',function(){
+            var rowlist=$('#dat').datagrid('getSelections')
+            var arr={}
+            for(var i=0;i<rowlist.length;i++){
+                arr[rowlist[i].kh]=rowlist[i].kh
+            }
+            ajiakesi('__URL__/setpici/hasJson/1',{bin:arr,'pici':$('[name=lock]').val()},function(c){
+                $.messager.alert('提示',c)
+                $('#dat').datagrid('load',{'Sqlpath':{'select':'exam/pici_select.SQL',
+                    'count':'exam/pici_count.SQL'},
+                    'bind':{':year':$('[name=year]').val(),':term':$('[name=term]').val(),':classno':$('[name=classno]').val()}})
+            })
+        })
+
+
+
+
+    })
+</script>
+<style>
+    /* #tb td{border:1px #95B8E7 solid;
+     }*/
+    input{height:15px;vertical-align:middle;}
+    span{border:0px solid red;;vertical-align:middle;}
+    /*  //  #bt{height:40px;width:70px;background-color:#E0ECFF;border:1px #95B8E7 solid; }*/
+</style>
+<body >
+
+
+<!--todo:查看班级退课公告-->
+
+<div id="cc" class="easyui-layout" data-options="fit:true">
+
+    <div id="tdemo">
+
+        <b>学年：</b>
+        <input name="year" type="text" size='4' >
+
+        <b>学期：</b>
+        <input type="text" name="term" size="1" >
+
+
+
+
+        <b>班号：</b>
+        <input type="text" name="classno" value="%">
+        <a href="javascript:void(0)" id="bt">检索</a>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <b>将选中条目设定:</b>
+        <select name="lock">
+            <option value="1">安排</option>
+            <option value="0">不安排</option>
+        </select>
+        <a href="javascript:void(0)" class="easyui-linkbutton" id="set" iconCls="icon-edit">设置</a>
+
+    </div>
+    <div data-options="region:'center',border:false" style="padding:0px;background:#eee;">
+
+        <table class="easyui-datagrid" id="dat"
+               data-options="fit:true,pagination:true,pageList:[150],toolbar:'#tdemo'">
+            <thead>
+            <tr>
+                <th data-options="field:'row',checkbox:true">选择</th>
+                <th data-options="field:'kh',width:150,align:'right'" align="center">课号</th>
+                <th data-options="field:'kcmc',width:320,align:'right'" align="center">课程名称</th>
+                <th data-options="field:'examtype',width:140,align:'right'" align="center">考试类型(考试/考查)</th>
+                <th data-options="field:'kkxy',width:100,align:'right'" align="center">开课学部</th>
+                <th data-options="field:'bj',width:120,align:'right'" align="center">主修班级</th>
+                <th data-options="field:'batch',width:120,align:'center',formatter:function(a,b,c){
+                    if(a==0)return '未安排'
+                    else if(a==1)return '安排'
+                }" align="center">是否排考</th>
+               <!-- <th data-options="field:'lock',width:120,align:'right',fomatter:function(a,b,c){
+                    if(a==0)return '不安排';
+                    else if(a==1)return '安排';
+                }" align="center">是否安排排考试</th>-->
+            </tr>
+            </thead>
+        </table>
+    </div>
+
+</div>
+
+
+</body>

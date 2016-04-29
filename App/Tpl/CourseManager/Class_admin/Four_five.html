@@ -1,0 +1,46 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script src="__ROOT__/thirdparty/jquery/js/searcher.js"></script>
+<script>
+    var haha={'M':'必修','E':'选修','R':'现修','T':'模块','F':'辅修'}
+    $(function(){
+
+
+
+
+
+        var classnoInput = $('#CLASSNO');
+
+        //todo:查看班级周课表
+        $('#fi_sub').bind('click',function(){
+            if(hasEmpty(classnoInput.val())){
+                return $.messager.alert('提示','请填写一个班号')
+            }
+
+            open("__URL__/Class_week_course/year/"+parent.$('[name=YEAR]').val()+'/term/'+parent.$('[name=TERM]').val()+'/CLASSNO/'+classnoInput.val());
+        })
+    })
+
+</script>
+
+<style>
+    .query{border: solid 1px #ccc;margin:50px 20px 20px 20px;padding:10px;}
+    legend{margin-left: 20px;margin-bottom: 10px;}
+    .query span{line-height: 25px;}
+    .query label{font-weight: bold;margin-left:20px;}
+    .query a{margin-left: 20px;}
+</style>
+<body style="background-color: #FFF">
+<!--设定班号：</label><input type=text name="CLASSNO" id="CLASSNO" value="" size="7">&nbsp;&nbsp;-->
+<!-- searcher插件JS+HTML部分 -->
+年级:<select name="GRADE" class="SEARCHER_GRADE"></select>
+学部:<select name="SCHOOL" class="SEARCHER_SCHOOL"></select>
+班级:<select name="CLASSNO"  id="CLASSNO"  class="SEARCHER_CLASS"></select>
+<!--学号:<select name="STUDENTNO"  id="SNO"  class="SEARCHER_STUDENT"></select>-->
+<script> $(function () {searcher("__ROOT__"); }); </script>
+
+
+
+<a href="javascript:void(0)" id="fi_sub" class="easyui-linkbutton">查看班级周课表</a>
+</body>
+</html>

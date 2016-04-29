@@ -1,0 +1,64 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/func.js"></script>
+<script src="__ROOT__/thirdparty/jquery/js/searcher.js"></script>
+<script>
+    var haha={'M':'必修','E':'选修','R':'现修','T':'模块','F':'辅修'}
+    $(function(){
+
+//
+//        $('[name=YEAR]').val(parent.$('#YEAR').val())
+//        $('[name=TERM]').val(parent.$('#TERM').val())
+//
+//
+//        $('#three_sub').bind('click',function(){
+//            openTabsWindows('统一非必修课',"__URL__/count_feibixiu/YEAR"+$('[name=YEAR]').val()+'/TERM/'+$('[name=TERM]').val()+'/CLASSNO/'+$('[name=CLASSNO]').val(),'',true);
+//
+//        })
+
+        var yearInput = $("#YEAR");
+        var termInput = $("#TERM");
+        var classnoInput = $("#CLASSNO");
+
+        yearInput.val(parent.$('#YEAR').val());
+        termInput.val(parent.$('#TERM').val());
+
+
+        $('#three_sub').bind('click',function(){
+            var classno = classnoInput.val();
+            if(hasEmpty(classno)){
+                return $.messager.alert('提示','未选择班级');
+            }
+            $.post("__URL__/count_feibixiu/YEAR/"+yearInput.val()+'/' +
+            'TERM/'+termInput.val()+'/CLASSNO/'+classnoInput.val(),{}, function (c) {
+                return $.messager.alert('提示', c.message,c.type);
+            });
+        })
+
+
+    })
+
+</script>
+
+<style>
+    legend{margin-left: 20px;margin-bottom: 10px;}
+    .query span{line-height: 25px;}
+    .query label{font-weight: bold;margin-left:20px;}
+    .query a{margin-left: 20px;}
+</style>
+<body style="background-color: #FFF">
+<label>设定缺省学年：</label><input type="text" id="YEAR" value="2011" size="4">
+<label>缺省学期：</label><input type="text" id="TERM" value="2" size="1">
+<br /><br />
+<!--设定班号：</label><input type=text name="CLASSNO" id="CLASSNO" value="%" size="7">-->
+<!-- searcher插件JS+HTML部分 -->
+年级:<select name="GRADE" class="SEARCHER_GRADE"></select>
+学部:<select name="SCHOOL" class="SEARCHER_SCHOOL"></select>
+班级:<select name="CLASSNO"  id="CLASSNO"  class="SEARCHER_CLASS"></select>
+<!--学号:<select name="STUDENTNO"  id="SNO"  class="SEARCHER_STUDENT"></select>-->
+<script> $(function () {searcher("__ROOT__"); }); </script>
+
+
+<br><br>
+<a href="javascript:void(0)" id="three_sub" class="easyui-linkbutton">班级统一选非必修课</a>
+</body>
+</html>

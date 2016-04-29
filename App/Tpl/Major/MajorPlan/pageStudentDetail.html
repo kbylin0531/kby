@@ -1,0 +1,127 @@
+<include file=":Include:jqueryHeader" />
+<script src="__ROOT__/thirdparty/jquery/js/modules/major.js"></script>
+<script>
+
+    var studentno = "{$studentno}";
+
+
+
+    $(function () {
+        var curstatus = $("#curstatus");
+
+        function doAjax(url,status,tip){
+            $.post(url,{studentno:studentno,status:status}, function (data) {
+                return Messager.show(data, function () {
+                    if(data.type === 'info'){
+                        curstatus.html(tip);
+                    }
+                });
+            });
+        }
+
+        $("#pass").click(function () {
+            doAjax('__URL__/updateAuditStatus',1,'当前状态:通过&nbsp;');
+        });
+        $("#passless").click(function () {
+            doAjax('__URL__/updateAuditStatus',2,'当前状态:不通过&nbsp;');
+        });
+    });
+</script>
+<style>
+    body {
+        background-color: #ffffff;
+    }
+    table.imagetable {
+        font-family: verdana,arial,sans-serif;
+        font-size:11px;
+        color:#666666;
+        border: 1px solid #999999;
+        border-collapse: collapse;
+        width: 100%;
+    }
+    table.imagetable th {
+        background:#b5cfd2;
+        border: 1px solid #999999;
+        padding: 8px;
+    }
+    table.imagetable td {
+        background:#ffffff;
+        border: 1px solid #999999;
+        padding: 8px;
+    }
+
+    .thcenter {
+        text-align: center;
+        width: 100px;
+    }
+
+</style>
+<body>
+
+<div align="right" id="toolbar">
+    <span id="curstatus">
+        当前状态:<script>document.write(statusFormate("{$curstatus}"))</script>&nbsp;
+    </span>
+    <span>
+        <a id="pass" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-edit'">通过</a>&nbsp;
+        <a id="passless" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-edit'">不通过</a>
+    </span>
+</div>
+
+<div align="center">
+    <p>概览</p>
+    <table class="imagetable">
+        <tr>
+            <th>应修学分</th>
+            <th>通过学分</th>
+            <th>审核结果(参考)</th>
+        </tr>
+        <tr>
+            <td class="thcenter">{$studentinfo.total_credit}</td>
+            <td class="thcenter">{$studentinfo.passed_credit}</td>
+            <td class="thcenter">{$studentinfo.passed}</td>
+
+        </tr>
+    </table>
+
+
+</div>
+
+
+
+<div align="center">
+    <volist name="programlist" id="v">
+        <p>{$v.programname}</p>
+        <table class="imagetable">
+            <thead>
+                <th class="thcenter">课名</th>
+                <th class="thcenter">学年</th>
+                <th class="thcenter">学期</th>
+                <th class="thcenter">课号</th>
+                <th class="thcenter">修课方式</th>
+                <th class="thcenter">考核方式</th>
+                <th class="thcenter">分数</th>
+                <th class="thcenter">学分</th>
+                <th class="thcenter">通过情况(参考)</th>
+            </thead>
+            <tbody>
+            <volist name="v.courselist" id="d">
+                <tr>
+                    <td class="thcenter">{$d.coursename}</td>
+                    <td class="thcenter">{$d.year}</td>
+                    <td class="thcenter">{$d.term}</td>
+                    <td class="thcenter">{$d.coursegroup}</td>
+                    <td class="thcenter">{$d.approach}</td>
+                    <td class="thcenter">{$d.examtype}</td>
+                    <td class="thcenter">{$d.score}</td>
+                    <td class="thcenter">{$d.credit}</td>
+                    <td class="thcenter">{$d.passed}</td>
+                </tr>
+            </volist>
+            </tbody>
+        </table>
+    </volist>
+
+
+</div>
+</body>
