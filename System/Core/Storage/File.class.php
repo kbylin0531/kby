@@ -197,13 +197,14 @@ class File implements StorageInterface {
      *      'filename' => 'file full path',
      * );
      * @param string $path 目录
+     * @param bool $recursion
      * @param bool $clear 是否清除之前的配置
      * @return array
      * @throws KbylinException
      */
-    public function readDirectory($path,$clear=true){
+    public function readDirectory($path,$recursion=false,$clear=true){
+        static $_file = [];
         if(!$this->checkAccessable($path,true)) return null;
-        static $_file = array();
         if($clear){
             $_file = array();
             $path = SEK::toSystemEncode($path);//不能多次转换，iconv函数不能自动识别自负编码
@@ -212,13 +213,14 @@ class File implements StorageInterface {
             $handler = opendir($path);
             while (($filename = readdir( $handler )) !== false) {//未读到最后一个文件   继续读
                 if ($filename !== '.' && $filename !== '..' ) {//文件除去 .和..
-                    $fullpath = $path . '/' . $filename;
-                    if(is_file($fullpath)) {
+                    $fullpath = $path . $filename;
+                    if(file_exists($fullpath)) {
                         $filename = SEK::toProgramEncode($filename);
                         $fullpath = SEK::toProgramEncode($fullpath);
                         $_file[$filename] = str_replace('\\','/',$fullpath);
-                    }elseif(is_dir($fullpath)) {
-                        $this->readDirectory($fullpath,false);//递归,不清空
+                    }
+                    if(is_dir($fullpath) and $recursion) {
+                        $this->readDirectory($fullpath,$recursion,false);//递归,不清空
                     }
                 }
             }

@@ -77,11 +77,11 @@ class Config extends General{
 
     public function group($id = 0)
     {
-        $configModel = new \Application\Admin\Model\Config();
-        $conf_group_list = $configModel->getConfigGroupList($id);
+        $configModel = new ConfigModel();
+        $conf_group_list = $configModel->getConfigList($id);
 
 
-//        $this->display();
+        $this->display();
     }
 
 

@@ -5,7 +5,7 @@
  * Date: 2016/4/15
  * Time: 18:46
  */
-namespace Application\Admin;
+namespace Application\Admin\Library;
 
 use Application\Admin\Model\AuthorityModel;
 use System\Traits\Controller\Render;

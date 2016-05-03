@@ -1,0 +1,114 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title> {block name="meta_title"}OneThink{/block} </title>
+    <link href="{$smarty.const.PUBLIC_URI}/favicon.ico" type="image/x-icon" rel="shortcut icon">
+    <link rel="stylesheet" type="text/css" href="{$smarty.const.ADMIN_URI}css/base.css" media="all">{* 基础样式 *}
+    <link rel="stylesheet" type="text/css" href="{$smarty.const.ADMIN_URI}css/common.css" media="all">
+    <link rel="stylesheet" type="text/css" href="{$smarty.const.ADMIN_URI}css/module.css">
+    <link rel="stylesheet" type="text/css" href="{$smarty.const.ADMIN_URI}css/style.css" media="all">
+    <link rel="stylesheet" type="text/css" href="{$smarty.const.ADMIN_URI}css/{$style}.css" media="all"> {* 主题样式 *}
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="{$smarty.const.STATIC_URI}/jquery-1.12.0.min.js"></script>
+    <![endif]-->
+    <!--[if gte IE 9]><!-->
+    <script type="text/javascript" src="{$smarty.const.STATIC_URI}/jquery-2.0.3.min.js"></script>
+    <script type="text/javascript" src="{$smarty.const.ADMIN_URI}js/jquery.mousewheel.js"></script>
+    <!--<![endif]-->
+    {block name="style"}{/block}
+</head>
+<body>
+    {* 头部 BEGIN *}
+    <div class="header">
+
+        {* LOGO BEGIN *}
+            <span class="logo"></span>
+        {* LOGO END *}
+
+        {* 主导航 BEGIN *}
+            <ul class="main-nav" id="main-nav">
+                {foreach $menu_list as $menu}
+                {* menu.class 可以使用''或者'current' *}
+                <li class=""><a href="{$menu.url}">{$menu.title}</a></li>
+                {/foreach}
+            </ul>
+        {* 主导航 END *}
+
+        {* 用户栏 BEGIN *}
+            <div class="user-bar">
+                <a href="javascript:void(0);" class="user-entrance"><i class="icon-user"></i></a>
+                <ul class="nav-list user-menu hidden">
+                    {* em 标签告诉浏览器这段文字为强调的内容 *}
+                    <li class="manager">你好，<em title="username">this is username !</em></li>
+                    <li><a href="{$uri.update_password}">修改密码</a></li>
+                    <li><a href="{$uri.update_nickname}">修改昵称</a></li>
+                    <li><a href="{$uri.logout}">退出</a></li>
+                </ul>
+            </div>
+        {* 用户栏 END *}
+    </div>
+    {* 头部 END *}
+
+    {* 边栏 BEGIN *}
+    <div class="sidebar" id="sidebar">
+        {* 子导航 BEGIN *}
+        {block name="sidebar"}
+            <div id="subnav" class="subnav">
+                {foreach $subnav as $menu}
+                <h3><i class="icon icon-unfold"></i>{$menu.name}</h3>
+                <ul class="side-sub-menu">
+                    {foreach $menu.submenus as $key=>$submenu}
+                    <li><a class="item" href="{$submenu.url}">
+                        {* $submenu|var_export:true *}
+                        {$submenu.title}</a></li>
+                    {/foreach}
+                </ul>
+                {/foreach}
+            </div>
+        {/block}
+        {* 子导航 END *}
+    </div>
+    {* 边栏 END *}
+
+    {* 内容区 BEGIN *}
+    <div id="main-content">
+        {* 提示区 BEGIN *}
+            <div id="top-alert" class="fixed alert alert-error" style="display: none;">
+                <button class="close fixed" style="margin-top: 4px;">&times;</button>
+                <div class="alert-content">这里是提示区域</div>
+            </div>
+        {* 提示区 END *}
+
+        {* 主体 BEGIN *}
+            <div id="main" class="main">
+                {* 位置栏 BEGIN *}
+                <!--<div class="breadcrumb">-->
+                    <!--<span>您的位置:</span>-->
+                    <!--<span>{ $v}</span>-->
+                    <!--<span><a href="{ $k}">{ $v}</a>&gt;</span>-->
+                <!--</div>-->
+                {block name="nav"}{/block}
+                {* 位置栏 END *}
+                {* 内容体区 BEGIN *}
+                    {block name="body"}{/block}
+                {* 内容体区 END *}
+            </div>
+        {* 主体 END *}
+
+        {* copyright BEGIN *}
+            <div class="cont-ft">
+                <div class="copyright">
+                    <div class="fl">{$copyright.fl}</div>
+                    <div class="fr">{$copyright.fr}</div>
+                </div>
+            </div>
+        {* copyright END *}
+    </div>
+    {* 内容区 END *}
+</body>
+
+<script type="text/javascript" src="{$smarty.const.ADMIN_URI}js/basic.js"></script>
+{block name="script"}{/block}
+
+</html>

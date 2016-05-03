@@ -1,3 +1,3 @@
-Education System is provided by Yinzhou Vocational Education School and powered by kbylin@163.com.
+Education System is provided by School of Yinzhou Vocational Education Center and powered by kbylin@163.com.
 
 

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="http://cdn.bootcss.com/jquery/1.12.1/jquery.min.js"></script>
+    <script src="./jQquery sortable lists_files/jquery-sortable-lists.js"></script>
+    <style>
+        html, body, ul, li {
+            background-color: #151515;
+            margin: 0;
+            padding: 0;
+        }
+
+        ul, li {
+            list-style-type: none;
+            color: #b5e853;
+            border: 1px solid #3f3f3f;
+        }
+
+        ul {
+            padding: 0;
+            background-color: #151515;
+        }
+
+        ul.sTree2 li {
+            padding-left: 50px;
+            margin: 5px;
+            border: 1px solid #3f3f3f;
+            background-color: #3f3f3f;
+        }
+
+        li div {
+            padding: 7px;
+            background-color: #222;
+            cursor: default
+        }
+
+        li, ul, div {
+            border-radius: 3px;
+        }
+
+        #sTree2 {
+            margin: 10px auto;
+        }
+
+        .open, .close {
+            font: bold 12pt/14pt Times, serif;
+            cursor: pointer
+        }
+    </style>
+</head>
+<body>
+<button  class="btn" id="toarray">To array</button>
+<ul class="sTree2 listsClass" id="sTree2">
+    <li class="sortableListsOpen" id="item_b" data-module="b">
+        <div><span class="sortableListsOpener"
+                   style="float: left; display: inline-block; margin-left: -35px; margin-right: 5px; font-size: 1.1em; background-position: 50% 50%; background-repeat: no-repeat;"><i
+                class="fa fa-minus c3"></i></span><span class="sortableListsOpener"
+                                                        style="float: left; display: inline-block; margin-left: -35px; margin-right: 5px; font-size: 1.1em; background-position: 50% 50%; background-repeat: no-repeat;"><i
+                class="fa fa-minus c3"></i></span>Item b
+        </div>
+        <ul class="" style="display: block;">
+            <li id="item_b1" data-module="b">
+                <div class="clickable">Item b1</div>
+            </li>
+            <li id="item_b2" data-module="b">
+                <div class="clickable"><span class="clickable">Item b2 - clickable text</span></div>
+            </li>
+            <li id="item_b3" data-module="b">
+                <div class="clickable">Item b3</div>
+            </li>
+            <li id="item_b4" data-module="b">
+                <div class="clickable">Item b4</div>
+            </li>
+            <li id="item_b5" data-module="b" class="sortableListsOpen">
+                <div class="clickable">Item b5<span class="sortableListsOpener"
+                                                    style="float: left; display: inline-block; margin-left: -35px; margin-right: 5px; font-size: 1.1em; background-position: 50% 50%; background-repeat: no-repeat;"><i
+                        class="fa fa-minus c3"></i></span></div>
+                <ul style="display: block;">
+                    <li class="sortableListsClosed" id="item_d" data-module="d"
+                        style="width: auto; position: relative; top: 0px; left: 0px; visibility: visible;">
+                        <div class="clickable"><span class="sortableListsOpener"
+                                                     style="float: left; display: inline-block; margin-left: -35px; margin-right: 5px; font-size: 1.1em; background-position: 50% 50%; background-repeat: no-repeat;"><i
+                                class="fa fa-plus"></i></span><span class="sortableListsOpener"
+                                                                    style="float: left; display: inline-block; margin-left: -35px; margin-right: 5px; font-size: 1.1em; background-position: 50% 50%; background-repeat: no-repeat;"><i
+                                class="fa fa-plus"></i></span>Item d
+                        </div>
+                        <ul class="" style="display: none;">
+                            <li id="item_d1" data-module="d">
+                                <div class="clickable">Item d1</div>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li class="sortableListsOpen" id="item_c" data-module="c">
+        <div><span class="sortableListsOpener"
+                   style="float: left; display: inline-block; margin-left: -35px; margin-right: 5px; font-size: 1.1em; background-position: 50% 50%; background-repeat: no-repeat;"><i
+                class="fa fa-minus c3"></i></span><span class="sortableListsOpener"
+                                                        style="float: left; display: inline-block; margin-left: -35px; margin-right: 5px; font-size: 1.1em; background-position: 50% 50%; background-repeat: no-repeat;"><i
+                class="fa fa-plus"></i></span>Item c - c block disallows inserting items from other blocks
+        </div>
+        <ul class="" style="display: block;">
+            <li id="item_c1" data-module="c">
+                <div class="clickable">Item c1SSSS
+                    <button class="clickable">dsd</button>
+                </div>
+            </li>
+        </ul>
+    </li>
+
+    <li class="" id="item_e" data-module="e">
+        <div>Item e</div>
+    </li>
+    <li class="" id="item_f" data-module="f">
+        <div>Item f</div>
+    </li>
+</ul>
+
+</body>
+<script>
+    var options = {
+        placeholderCss: {'background-color': '#ff8'},
+        hintCss: {'background-color': '#bbf'},
+        listSelector: 'ul',
+        listsClass: 'listsClass',
+        // or like a jQuery css object
+        listsCss: {'background-color': 'silver', 'border': '1px solid white'},
+
+        onChange: function (e) {
+            console.log(e, 'onChange');
+        },
+        complete: function (e) {
+            console.log(e, 'complete');
+        },
+        isAllowed: function (cEl, hint, target) {
+            if (target.data('module') === 'c' && cEl.data('module') !== 'c') {
+                hint.css('background-color', '#ff9999');
+                return false;
+            }
+            else {
+                hint.css('background-color', '#99ff99');
+                return true;
+            }
+        },
+        onDragStart: function(e, el) {
+            // Whatever you need to do before dragging
+        },
+        opener: {
+            active: true,
+            as: 'html',  // if as is not set plugin uses background image
+            close: '<span class="close">-</span>',  // or 'fa-minus c3',  // or './imgs/Remove2.png',
+            open: '<span class="open">+</span>',  // or 'fa-plus',  // or'./imgs/Add2.png',
+            openerCss: {
+                'display': 'inline-block',
+                //'width': '18px', 'height': '18px',
+                'float': 'left',
+                'margin-left': '-35px',
+                'margin-right': '5px',
+                //'background-position': 'center center', 'background-repeat': 'no-repeat',
+                'font-size': '1.1em'
+            }
+        },
+        ignoreClass: 'clickable'
+    };
+
+
+    var sTree = $('#sTree2').sortableLists(options);
+
+    $("#toarray").click(function () {
+        var arr = sTree.sortableListsToArray();
+        var hie = sTree.sortableListsToHierarchy();
+        var str = sTree.sortableListsToString();
+        console.log(arr,hie,str);
+    });
+    
+</script>
+</html>
