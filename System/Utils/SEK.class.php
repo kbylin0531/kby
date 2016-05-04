@@ -5,6 +5,7 @@
  * Time: 16:00
  */
 namespace System\Utils;
+use System\Core\Exception\ParameterInvalidException;
 use System\Core\KbylinException;
 
 /**
@@ -557,6 +558,30 @@ final class SEK {
             }
         }
         return true;
+    }
+
+    /**
+     * 获取PDO对象中的错误信息
+     * @param \PDO $pdo
+     * @return null|string
+     * @throws ParameterInvalidException
+     */
+    public static function fetchPDOError(\PDO $pdo){
+        $pdoError = $pdo->errorInfo();
+        return null !== $pdoError[0]? // PDO错误未被设置或者错误未发生,0位的值为null
+            "Code:{$pdoError[0]} >>> [{$pdoError[1]}]:[{$pdoError[2]}]":null;
+    }
+
+
+    /**
+     * 获取PDOStatemnent对象上查询时发生的错误
+     * 错误代号参照ANSI CODE ps: https://docs.oracle.com/cd/F49540_01/DOC/server.815/a58231/appd.htm
+     * @param \PDOStatement|null $statement
+     * @return string
+     */
+    public static function fetchStatementError(\PDOStatement $statement){
+        $stmtError = $statement->errorInfo();
+        return 0 !== intval($stmtError[0])?"Error Code:[{$stmtError[0]}]::[{$stmtError[1]}]:[{$stmtError[2]}]":'';
     }
 
 }

@@ -72,7 +72,8 @@ class File implements StorageInterface {
     public function read($filepath,$file_encoding='UTF-8',$output_encode='UTF-8'){
         if(!$this->checkAccessable($filepath,true)) return null;
 
-        $content = file_get_contents(SEK::toSystemEncode($filepath));
+//        exit(file_get_contents($filepath,null,null,null,1024));
+        $content = file_get_contents(SEK::toSystemEncode($filepath),null,null,null,2097152);//限制大小为2M
         if(false === $content){
             throw new KbylinException($filepath);
         }elseif($file_encoding === $output_encode){

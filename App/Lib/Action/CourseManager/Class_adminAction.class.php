@@ -258,7 +258,11 @@ class Class_adminAction extends RightAction
 
         $jieci=$this->md->sqlQuery("select * from TIMESECTORS");//todo:节次数组
         $jieci=$this->getTime($jieci);
-        $countOnejieci=array_reduce($jieci, "countOneDay");              //todo:统计出一天几个单节课
+        $countOnejieci=array_reduce($jieci, function($v1, $v2){
+                if(!$v1) $v1 = array();
+                if($v2['UNIT']=="1") $v1[]=$v2["NAME"];
+                return $v1;
+            });
         foreach($arr as $key=>$val){
             if($val['WEEKS']!=262143){
                 $weeks='周次'.str_pad(strrev(decbin($val['WEEKS'])),18,0);
@@ -378,9 +382,19 @@ class Class_adminAction extends RightAction
 
         $timeData = $this->md->sqlQuery("select NAME,VALUE,UNIT,TIMEBITS from TIMESECTORS");
         //所有课时列表以NAME为索引
-        $timesectors = array_reduce($timeData, "myTimesectorsReduce");
+        $timesectors = array_reduce($timeData, function($v1, $v2)
+        {
+            if (!$v1) $v1 = array();
+            $v1[$v2["NAME"]] = $v2;
+            return $v1;
+        });
         //取得单节课时自然数为索引
-        $countTimesectors = array_reduce($timeData, "myCountTimesectors");
+        $countTimesectors = array_reduce($timeData, function($v1, $v2)
+            {
+                if (!$v1) $v1 = array();
+                if ($v2['UNIT'] == "1") $v1[] = $v2["NAME"];
+                return $v1;
+            });
         //单双周
         $both = array("B"=>"","E"=>"（双周）","O"=>"（单周）");
 
@@ -507,22 +521,5 @@ class Class_adminAction extends RightAction
     }
 
 }
-function myTimesectorsReduce($v1, $v2){
-    if(!$v1) $v1 = array();
-    $v1[$v2["NAME"]] = $v2;
-    return $v1;
-}
 
 
-function myCountTimesectors($v1, $v2){
-    if(!$v1) $v1 = array();
-    if($v2['UNIT']=="1") $v1[]=$v2["NAME"];
-    return $v1;
-}
-
-//todo:一天有几节课
-function countOneDay($v1, $v2){
-    if(!$v1) $v1 = array();
-    if($v2['UNIT']=="1") $v1[]=$v2["NAME"];
-    return $v1;
-}

@@ -13,6 +13,7 @@ use System\Core\Dao\OCI;
 use System\Core\Dao\SQLServer;
 use System\Traits\Crux;
 use PDOStatement;
+use System\Utils\SEK;
 
 /**
  * Class Dao 数据入口对象(Data Access Object)
@@ -87,7 +88,25 @@ class Dao {
      * @var Dao[]
      */
     private static $_instances = null;
-    
+
+
+    /**
+     * 连接符号
+     */
+    CONST CONNECT_AND = ' AND ';
+    CONST CONNECT_OR = ' OR ';
+    CONST CONNECT_COMMA = ' , ';
+
+    /**
+     * 运算符
+     */
+    CONST OPERATOR_EQUAL = ' = ';
+    CONST OPERATOR_NOTEQUAL = ' != ';
+    CONST OPERATOR_LIKE = ' LIKE ';
+    CONST OPERATOR_NOTLIKE = ' NOT LIKE ';
+    CONST OPERATOR_IN = ' IN ';
+    CONST OPERATOR_NOTIN = 'NOT IN';
+
 
     /**
      * @var DaoAbstract
@@ -193,7 +212,7 @@ class Dao {
      *                   返回false表示了错误，可以用getError获取错误信息
      */
     public function exec($sql,array $inputs=null){
-        if(null === $inputs){
+        if(empty($inputs)){
             //调用PDO的查询功能
             try{
                 $rst = $this->driver->exec($sql);
@@ -240,7 +259,7 @@ class Dao {
             $this->curStatement = $this->driver->prepare($sql,$option);//prepare失败抛出异常后赋值过程结束,$this->curStatement可能依旧指向之前的SQLStatement对象（可能不为null）
         }catch(\PDOException $e){
             /* 当表不存在或者字段不存在时候 */
-            $this->setPdoError($e->getMessage());
+            $this->setPdoStatementError($e->getMessage());
         }
         return $this;
     }
@@ -252,12 +271,11 @@ class Dao {
      *                  不能绑定多个值到一个单独的参数,如果在 input_parameters 中存在比 PDO::prepare() 预处理的SQL 指定的多的键名，
      *                  则此语句将会失败并发出一个错误。(这个错误在PHP 5.2.0版本之前是默认忽略的)
      * @param PDOStatement|null $statement 该参数未设定或者为null时使用的PDOStatement为上次prepare的对象
-     * @return bool|false bool值表示执行结果，当不存在执行对象时返回null，可以通过rowCount方法获取受到影响行数，或者getError获取错误信息
+     * @return bool bool值表示执行结果，当不存在执行对象时返回null，可以通过rowCount方法获取受到影响行数，或者getError获取错误信息
      */
     public function execute(array $input_parameters = null, PDOStatement $statement=null){
         null !== $statement and $this->curStatement = $statement;
         if(!$this->curStatement or !($this->curStatement instanceof PDOStatement)){
-            $this->setError('No available PDOStatement in execute!');
             return false;
         }
 
@@ -290,11 +308,28 @@ class Dao {
      * @return array
      */
     public function fetchAll($fetch_style = null, $fetch_argument = null, $constructor_args = null){
-        $param = array();
+        $param = [];
         isset($fetch_style)         and $param[0] = $fetch_style;
         isset($fetch_argument)      and $param[1] = $fetch_argument;
         isset($constructor_args)    and $param[2] = $constructor_args;
         return call_user_func_array(array($this->curStatement,'fetchAll'),$param);
+    }
+
+    /**
+     * 从结果集中获取下一行
+     * @param int $fetch_style
+     *              \PDO::FETCH_ASSOC 关联数组
+     *              \PDO::FETCH_BOUND 使用PDOStatement::bindColumn()方法时绑定变量
+     *              \PDO::FETCH_CLASS 放回该类的新实例，映射结果集中的列名到类中对应的属性名
+     *              \PDO::FETCH_OBJ   返回一个属性名对应结果集列名的匿名对象
+     * @param int $cursor_orientation 默认使用\PDO::FETCH_ORI_NEXT，还可以是PDO::CURSOR_SCROLL，PDO::FETCH_ORI_ABS，PDO::FETCH_ORI_REL
+     * @param int $cursor_offset
+     *              参数二设置为PDO::FETCH_ORI_ABS(absolute)时，此值指定结果集中想要获取行的绝对行号
+     *              参数二设置为PDO::FETCH_ORI_REL(relative) 时 此值指定想要获取行相对于调用 PDOStatement::fetch() 前游标的位置
+     * @return mixed 此函数（方法）成功时返回的值依赖于提取类型。在所有情况下，失败都返回 FALSE
+     */
+    public function fetch($fetch_style = null, $cursor_orientation = \PDO::FETCH_ORI_NEXT, $cursor_offset = 0){
+        return $this->curStatement->fetch($fetch_style,$cursor_orientation,$cursor_offset);
     }
 
     /**
@@ -345,31 +380,17 @@ class Dao {
      * @return bool 返回true表示发生了错误并成功设置错误信息，返回false表示模块未捕捉到错误
      */
     private function setPdoError($errorInfo=null){
-        null === $errorInfo and $errorInfo = $this->getPdoError();
+        null === $errorInfo and $errorInfo = SEK::fetchPDOError($this->driver);
         return ($this->error = $errorInfo)===null?false:true;
     }
 
     /**
-     * 获取PDO对象查询时发生的错误
-     * @return string
+     * 设置PDOStatement上设置的错误
+     * @param string|null $errorString
+     * @return bool
      */
-    public function getPdoError(){
-        $pdoError = $this->driver->errorInfo();
-        return isset($pdoError[0])?"Code:{$pdoError[0]} >>> [{$pdoError[1]}]:[{$pdoError[2]}]":null;
-    }
-    /**
-     * 获取PDOStatemnent对象上查询时发生的错误
-     * @param PDOStatement|null $statement
-     * @return string
-     */
-    public function getStatementError(PDOStatement $statement=null){
-        null === $statement and $statement = $this->curStatement;
-        $stmtError = $statement->errorInfo();
-        return isset($stmtError[1])?"[{$stmtError[1]}]:[{$stmtError[2]}]":'';
-    }
-
     public function setPdoStatementError($errorString=null){
-        null === $errorString and $errorString = $this->getStatementError();
+        null === $errorString and $errorString = SEK::fetchStatementError($this->curStatement);
         return ($this->error = $errorString)===null?false:true;
     }
 
@@ -453,7 +474,7 @@ class Dao {
         return $this->driver->escape($fieldname);
     }
 
-/************************************** 链式扩展方法 ******************************************************************************************/
+/************************************** 扩展方法 ******************************************************************************************/
 
 
 
@@ -483,39 +504,29 @@ class Dao {
      * @throws KbylinException
      */
     public function create($tablename=null,array $fieldsMap=null){
-
-        $fields = $placeholder = '';
-        $sql = null;
-        $bind  = [];
-        $flag = true;//标记是否进行插入形式判断
-
-        $dao  = $this;
-
+        $sql = null; //返回的SQL语句
+        $inputs  = []; //输入参数列表
+        $fields = $fieldsholder = '';
         foreach($fieldsMap as $fieldName=>$fieldValue){
-            $colnm = $fieldName;
-            if($flag){
-                if(is_numeric($fieldName)){
-                    $placeholder  = rtrim(str_repeat(' ?,',count($fieldsMap)),',');
-                    $sql = "INSERT INTO {$tablename} VALUES ( {$placeholder} );";
-                    $bind = $fieldsMap;
-                    break;
-                }
-                $flag = false;
-            }
+            if(null === $fieldValue) continue; //值为null是表示不对其进行设置
+
+            $colnm = $fieldName;//插入列的名称
             if(is_array($fieldValue)){ //不设置字段名称进行插入时$fieldName无意义
-                $colnm = $fieldValue[1]?$dao->escape($fieldName):$fieldName;
+                $colnm = $fieldValue[1]?$this->escape($fieldName):$fieldName;
                 $fieldValue = $fieldValue[0];
             }
             $fields .= " {$colnm} ,";
-            $placeholder  .= " :{$fieldName} ,";
-            $bind[":{$fieldName}"] = $fieldValue;
+            $fieldsholder  .= " :{$fieldName} ,";
+            $inputs[":{$fieldName}"] = $fieldValue;
         }
 
-        if(isset($sql)){
-            $fields = rtrim($fields,',');
-            $sql = "INSERT INTO {$tablename} ( {$fields} ) VALUES ( {$placeholder} );";
-        }
-        return $dao->prepare($sql)->execute($bind);
+        $fields = rtrim($fields,',');
+        $fieldsholder = rtrim($fieldsholder,',');
+
+        if(empty($fields)) throw new KbylinException('No fileds setted!');
+        $sql = "INSERT INTO {$tablename} ( {$fields} ) VALUES ( {$fieldsholder} );";
+        //dumpout($sql,$inputs);
+        return $this->prepare($sql)->execute($inputs);
     }
 
     /**
@@ -523,33 +534,38 @@ class Dao {
      * @param string $tablename
      * @param string|array $flds
      * @param string|array $whr
+     * @param bool $toexec
      * @return bool
      * @throws KbylinException
      */
-    public function update($tablename,$flds,$whr){;
-        $input_params = [];
-        $fields = is_string($flds)?[$flds,[]]:$this->makeSegments($flds,false);
-        $where  = is_string($whr) ?[$whr,[]] :$this->makeSegments($whr, false);
-        empty($fields[1]) or $input_params = $fields[1];
-        empty($where[1]) or array_merge($input_params,$where[1]);
-        return $this->prepare("UPDATE {$tablename} SET {$fields[0]} WHERE {$where[0]};")->execute($input_params);
+    public function update($tablename,$flds,$whr,$toexec=true){;
+        $inputs = [];
+        $fields = is_string($flds)?[$flds,[]]:$this->translateSegments($flds,self::CONNECT_COMMA);
+        $where  = is_string($whr) ?[$whr,[]] :$this->translateSegments($whr, self::CONNECT_AND);
+        empty($fields[1]) or $inputs = $fields[1];
+        empty($where[1]) or array_merge($inputs,$where[1]);
+        $sql = "UPDATE {$tablename} SET {$fields[0]} WHERE {$where[0]};";
+
+        return $toexec?$this->prepare($sql)->execute($inputs):[$sql,$inputs];
     }
 
     /**
      * 执行删除数据的操作
      * 如果不设置参数，则进行清空表的操作（谨慎使用）
      * @param string $tablename 数据表的名称
-     * @param array $whr 字段映射数组
-     * @return bool
+     * @param array $where 字段映射数组,显示声明为null时表示清空这张表,否则如果提供的where条件为空时会抛出异常
+     * @return bool 是否成功删除
+     * @throws KbylinException
      */
-    public function delete($tablename,$whr=null){
+    public function delete($tablename,array $where){
         $bind = null;
-        if(isset($whr)){
-            $where  = $this->makeSegments($whr);
+        if(null === $where){
+            $sql = "delete from {$tablename};";
+        }else{
+            $where  = $this->translateSegments($where,self::CONNECT_AND);
+            if(empty($where[0])) throw new KbylinException('Where condition miss');
             $sql    = "delete from {$tablename} where {$where[0]};";
             $bind   = $where[1];
-        }else{
-            $sql = "delete from {$tablename};";
         }
         return $this->prepare($sql)->execute($bind);
     }
@@ -559,10 +575,11 @@ class Dao {
      * @param string $tablename
      * @param string|array|null $fields
      * @param string|array|null $whr
+     * @param bool $toexec 是否直接执行
      * @return array|bool
      * @throws KbylinException
      */
-    public function select($tablename=null,$fields=null,$whr=null){
+    public function select($tablename=null,$fields=null,$whr=null,$toexec=true){
         $bind = null;
         //设置选取字段
         if(null === $fields){
@@ -580,7 +597,7 @@ class Dao {
         if(null === $whr){
             $sql = "select {$fields} from {$tablename};";
         }elseif(is_array($whr)){
-            $whr  = is_string($whr)? [$whr,null] :$this->makeSegments($whr);
+            $whr  = is_string($whr)? [$whr,null] :$this->translateSegments($whr,self::CONNECT_AND);
             $sql = "select {$fields} from {$tablename} where {$whr[0]};";
             $bind = $whr[1];
         }elseif(is_string($whr)){
@@ -589,6 +606,7 @@ class Dao {
             throw new KbylinException('Parameter 3 require the type of "null","array","string" ,now is invalid!');
         }
 
+        if($toexec) return [$sql,$bind];
 
         if(false === $this->prepare($sql)->execute($bind) ){
             return false;
@@ -613,33 +631,34 @@ class Dao {
      * @param string $fieldName 字段名称
      * @param string|array $fieldValue 字段值
      * @param string $operator 操作符
-     * @param bool $translate 是否对字段名称进行转义,MSSQL中使用[]
+     * @param bool $escape 是否对字段名称进行转义,MSSQL中使用[]
      * @return array
      * @throws KbylinException
      */
-    private function makeFieldBind($fieldName,$fieldValue,$operator='=',$translate=false){
+    private function translateField($fieldName, $fieldValue, $operator=self::OPERATOR_EQUAL, $escape=false){
         $fieldName = trim($fieldName,' :[]');
         $bindFieldName = null;
         if(false !== strpos($fieldName,'.')){
+            //字段被制定了表的情况下
             $arr = explode('.',$fieldName);
             $bindFieldName = ':'.array_pop($arr);
         }elseif(mb_strlen($fieldName,'utf-8') < strlen($fieldName)){//其他编码
+            //中文字段的清空下取md5值作为占位符
             $bindFieldName = ':'.md5($fieldName);
         }else{
             $bindFieldName = ":{$fieldName}";
         }
 
         $operator = strtolower(trim($operator));
-        $sql = $translate?" [{$fieldName}] ":" {$fieldName} ";
+        $sql = $escape? $this->escape($fieldName):" {$fieldName} ";
         $bind = array();
 
         switch($operator){
-            case '=':
-                $sql .= " = {$bindFieldName} ";
-                $bind[$bindFieldName] = $fieldValue;
-                break;
-            case 'like':
-                $sql .= " like {$bindFieldName} ";
+            case self::OPERATOR_EQUAL:
+            case self::OPERATOR_NOTEQUAL:
+            case self::OPERATOR_LIKE:
+            case self::OPERATOR_NOTLIKE:
+                $sql .= " {$operator} {$bindFieldName} ";
                 $bind[$bindFieldName] = $fieldValue;
                 break;
             case 'in':
@@ -659,69 +678,64 @@ class Dao {
     }
 
     /**
-     * 片段设置
+     * 片段翻译(片段转化)
      * <note>
-     *      片段准则
+     *      片段匹配准则:
      *      $map == array(
      *           //第一种情况,连接符号一定是'='//
      *          'key' => $val,
      *          'key' => array($val,$operator,true),
-     *          //第二种情况，数组键，数组值//
-     *          array('key','val','like|=',true),//参数4的值为true时表示对key进行[]转义
+     *
+     *          //第二种情况，数组键，数组值//    -- 现在保留为复杂and和or连接 --
+     *          //array('key','val','like|=',true),//参数4的值为true时表示对key进行[]转义
+     *          //array(array(array(...),'and/or'),array(array(...),'and/or'),...) //此时数组内部的连接形式
+     *
      *          //第三种情况，字符键，数组值//
      *          'assignSql' => array(':bindSQLSegment',value)//与第一种情况第二子目相区分的是参数一以':' 开头
      *      );
      * </note>
-     * @param $map
+     * @param array $segments 片段数组
      * @param string $connect 表示是否使用and作为连接符，false时为,
      * @return array
+     * @throws KbylinException
      */
-    public function makeSegments($map,$connect='and'){
-        //初始值与参数检测
-        $bind = [];
+    private function translateSegments($segments, $connect=self::CONNECT_AND){
+        if(empty($segments)) throw new KbylinException('Segment should not be empty!');
+
         $sql = '';
-        if(empty($map)){
-            return [$sql,$bind];
-        }
+        $bind = [];
 
         //元素连接
-        foreach($map as $key=>$val){
+        foreach($segments as $key=> $val){
             if(is_numeric($key)){
-                //第二种情况
-                $rst = $this->makeFieldBind(
-                    $val[0],
-                    $val[1],
-                    isset($val[2])?$val[2]:' = ',
-                    !empty($val[3])
-                );
-                if(is_array($rst)){
-                    $sql .= " {$rst[0]} {$connect}";
-                    $bind = array_merge($bind, $rst[1]);
-                }
+                //第二中情况,符合形式组成
+                $result = $this->translateSegments($val[0],$val[1]);
+                $sql .= " {$result[0]} {$connect}";
+                $bind = array_merge($bind, $result[1]);
             }elseif(is_array($val) and strpos($val[0],':') === 0){
-                //第三种情况,复杂类型，由用户自定义
+                //第三种情况,过于复杂而选择由用户自定义
                 $sql .= " {$key} {$connect}";
                 $bind[$val[0]] = $val[1];
             }else{
                 //第一种情况
-                $translate = false;
+                $escape = false;
                 $operator = '=';
                 if(is_array($val)){
-                    $translate = isset($val[2])?$val[2]:false;
-                    $operator = isset($val[1])?$val[1]:'=';
+                    $escape = isset($val[2])?$val[2]:false;
+                    $operator = isset($val[1])?$val[1]:self::OPERATOR_EQUAL;
                     $val = $val[0];
                 }
-                $rst = $this->makeFieldBind($key,trim($val),$operator,$translate);//第一种情况一定是'='的情况
+                $rst = $this->translateField($key,trim($val),$operator,$escape);//第一种情况一定是'='的情况
                 if(is_array($rst)){
                     $sql .= " {$rst[0]} {$connect}";
                     $bind = array_merge($bind, $rst[1]);
                 }
             }
         }
-        $result = array(
+
+        return [
             substr($sql,0,strlen($sql)-strlen($connect)),//去除最后一个and
             $bind,
-        );
-        return $result;
+        ];
     }
 }

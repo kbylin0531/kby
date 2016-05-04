@@ -22,7 +22,7 @@ class UserinfoAction extends RightAction
     }
 
     /*
-     *todo:基本信息的方法页面
+     *基本信息的方法页面
      */
     public function basicinfo(){
         if($_POST['SQLPATH']){
@@ -44,7 +44,7 @@ class UserinfoAction extends RightAction
     }
 
     /*
-     * todo:个人学习经历页面
+     * 个人学习经历页面
      */
     public function xuexijingli(){
         if($_POST['SQLPATH']){
@@ -60,7 +60,7 @@ class UserinfoAction extends RightAction
         $this->display();
     }
 
-    //todo:荣耀与获奖页面
+    //荣耀与获奖页面
     public function honor(){
         if($_POST['SQLPATH']){
             $jieguo=$this->md->sqlExecute($this->md->getSqlMap($this->base.$_POST['SQLPATH']),$_POST['arr']);
@@ -88,7 +88,7 @@ class UserinfoAction extends RightAction
         $this->display();
     }
 
-    //todo:工作量页面
+    //工作量页面
     public function work(){
         if($this->_hasJson){
             $count=$this->md->sqlFind($this->md->getSqlMap($this->base.'Five_countwork.SQL'),array(':USERNAME'=>$_SESSION['S_USER_INFO']['USERNAME']));
@@ -192,7 +192,7 @@ class UserinfoAction extends RightAction
         $this->assign('schools',getSchoolList());
         $this->display();
     }
-    //todo:执行方法
+    //执行方法
     public function Sexecute(){
         foreach($_POST['order'] as $key=>$val){
             $_POST['order'][$key]=$_POST['bind'][$key];
@@ -202,35 +202,39 @@ class UserinfoAction extends RightAction
     }
 
 
-    //todo:教学质量的页面
+    //教学质量的页面
     public function teachingQuality(){
         $this->assign('username',$_SESSION['S_USER_INFO']['USERNAME']);
         $this->display();
     }
 
-    //todo:教师周课表页面
+    //教师周课表页面
     public function teacherWeekCourse(){
 
 
-        $array=array();            //todo:保存排列后的信息
-        $OEW = array("B"=>"","E"=>"（双周）","O"=>"（单周）");      //todo:单双周数组
+        $array=array();            //保存排列后的信息
+        $OEW = array("B"=>"","E"=>"（双周）","O"=>"（单周）");      //单双周数组
         $courseList=$this->md->sqlQuery($this->md->getSqlMap($this->base.'Six_teacherWeekCourse.SQL'),array(':teacherno'=>$_GET['teacherno'],':year'=>$_GET['year'],':term'=>$_GET['term']));
 
         $teacherinfo=$this->md->sqlFind('select NAME from TEACHERS where TEACHERNO=:teacherno',array(':teacherno'=>$_GET['teacherno']));
         $User = A('Room/Room');
-        $coursetype=$this->md->sqlQuery('select * from TIMESECTORS');        //todo:获取 所有课程类型信息
+        $coursetype=$this->md->sqlQuery('select * from TIMESECTORS');        //获取 所有课程类型信息
 
-        $skarray=array();  //todo:要上课的课号列表
+        $skarray=array();  //要上课的课号列表
         foreach($courseList as $v){
             if($v['TIME'][1]=='0')continue;
             $skarray[$v['COURSENO'].$v['COURSEGROUP']]=$v['COURSENO'].$v['COURSEGROUP'];
         }
-        $ar2=$User->getTime($coursetype);   //todo:节次数组        (以NAME为下标)
-        $onejie=array_reduce($coursetype,'countOneDay');                               //todo:获得有1节课的数组
+        $ar2=$User->getTime($coursetype);   //节次数组        (以NAME为下标)
+        $onejie=array_reduce($coursetype,function($v1, $v2){
+            if(!$v1) $v1 = array();
+            if($v2['UNIT']=="1") $v1[]=$v2["NAME"];
+            return $v1;
+        });                               //获得有1节课的数组
 
 
 
-        $num=count($onejie);                                                             //todo:统计一节课的  有几节
+        $num=count($onejie);                                                             //统计一节课的  有几节
         $ddstr='';
         // print_r($onejie);
 
@@ -263,7 +267,7 @@ class UserinfoAction extends RightAction
             }else{
                 $weeks='';
             }
-            //todo:去查询课程名称
+            //去查询课程名称
             $classname=$this->md->sqlQuery($this->md->getSqlMap($this->base.'Six_teacherWeekClassName.SQL'),array(':YEAR'=>$_GET['year'],':TERM'=>$_GET['term'],':COURSENO'=>$val['COURSENO'],':GROUP'=>$val['COURSEGROUP']));
             $classstr='';
 
@@ -276,12 +280,12 @@ class UserinfoAction extends RightAction
                 for($j=0;$j<2;$j++){
 
                     if(($ar2[$val['TIME'][0]]['TIMEBITS'] & $ar2[$onejie[$i-1+$j]]['TIMEBITS'])>0){
-                        //todo:ar2节次数组        (以NAME为下标)
+                        //ar2节次数组        (以NAME为下标)
 
                         if($ar2[$val['TIME'][0]]['UNIT']=="3"){
-                            //todo:取最后一节课是第几节
+                            //取最后一节课是第几节
                             $len=strlen(strrev(decbin($ar2[$val['TIME'][0]]['TIMEBITS'])));
-                            //todo:表示到单节了
+                            //表示到单节了
                             if(!($i+1<$len)){
                                 $array[($i-1)/2+1][$val['TIME'][1]] .='(第'.$len.'节)'.$OEW[$val['TIME'][2]].$val["COURSE"]."{$weeks} {$classstr}{$val['TASK']}" ;
                             }else{
@@ -289,7 +293,7 @@ class UserinfoAction extends RightAction
                             }
                             break;
                         }
-                        //todo:是一节课的就加上(第几节)  否则为空
+                        //是一节课的就加上(第几节)  否则为空
                         $array[($i-1)/2+1][$val['TIME'][1]] .= ($ar2[$val['TIME'][0]]['UNIT']=="1" ? '('.trim($ar2[$val['TIME'][0]]['VALUE']).')' : '').$OEW[$val['TIME'][2]].$val["COURSE"]."{$weeks} {$classstr}{$val['TASK']}<br/>";
                         break;
                         /*   $array[($i-1)/2+1][$val['TIME'][1]] .= ($jieci[$val['TIME'][0]]['UNIT']=="1" ? '('.trim($jieci[$val['TIME'][0]]['VALUE']).')' : '').$OEW[$val['TIME'][2]].$val["COURSE"]."{$weeks}<br/>";
@@ -299,29 +303,10 @@ class UserinfoAction extends RightAction
             }
         }
 
-        /*      echo '<pre>';
-          print_r($array);*/
-
         $str=$User->web($array,$teacherinfo['NAME'],date('Y-m-d H:i:s'),array('year'=>$_GET['year'],'term'=>$_GET['term']));
 
         $this->assign('str',$str);
 
         $this->display();
 
-
-
-
-
-
-
-
-
-
     }}
-
-//todo:一天有几节课
-function countOneDay($v1, $v2){
-    if(!$v1) $v1 = array();
-    if($v2['UNIT']=="1") $v1[]=$v2["NAME"];
-    return $v1;
-}

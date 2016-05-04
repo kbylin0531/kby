@@ -137,7 +137,7 @@ class ManageAction extends RightAction {
 	/**
 	 * 系统日志
 	 */
-	public function logs(){
+	public function logs($status=0){
 		if($this->_hasJson){
             $sql="SELECT TOP :COUNT RECNO,USERNAME,REMOTEIP,COOKIEROLES,SCRIPTNAME,PATHINFO,METHOD,CONVERT(VARCHAR(100),".
                 "REQUESTTIME,20) REQUESTTIME,CASE SUCCESS WHEN '1' THEN '成功' ELSE '失败' END SUCCESS,QUERY FROM LOGS ".

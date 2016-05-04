@@ -41,21 +41,48 @@ class CwebsActionScannerAdapter implements ActionScannerAdapterInterface{
     }
 
     public function fetchController($modulename){
-        $controllers = [];
+        $contlers = [];
         $path = $this->scandir.$modulename.'/';
-        $files = Storage::readDirectory($path);
-        foreach ($files as $name=>$path){
-            if(is_dir($path)) $controllers[strstr($name,'.class.php',true)] = $path;
+        $infos = Storage::readDirectory($path);
+        foreach ($infos as $name=>$path){
+            $name = strstr($name,'.class.php',true);
+            if(in_array($name,[
+                'IndexAction','ExcelAction'
+            ])) continue; //避免IndexAction因为缺少命名空间而导致重复
+            if(is_file($path)) $contlers[$name] = $path;
         }
-        return $controllers;
+        return $contlers;
     }
 
     public function fetchAction($module,$controller){
+        $actions = [];
         $path = $this->scandir."{$module}/{$controller}.class.php";
-        @include_once $path;
-        if(class_exists($controller)) throw new KbylinException('Invalid module and controller!',$module,$controller);
-        $instance = new \ReflectionClass($controller);
-        return $instance->getMethods(\ReflectionMethod::IS_PUBLIC);
+        include_once BASE_PATH.'ThinkPHP/Lib/Core/Action.class.php';
+        include_once $this->scandir.'CommonAction.class.php';
+        include_once $this->scandir.'RightAction.class.php';
+//        dumpout($module,$controller,$path,class_exists($controller),is_file($path));
+
+        $content = Storage::read($path);
+        if(false === $content){
+            throw new KbylinException("{$path} not found!");
+        }
+        $tempclassname = "{$module}_{$controller}";
+        $tempfile = RUNTIME_PATH."classes/{$tempclassname}.php";
+//        dump($content);
+        $newcontent = str_replace($controller,$tempclassname,$content);
+//        dumpout($newcontent);
+        if(Storage::write($tempfile,$newcontent) <= 0) throw new KbylinException('Write failed!');
+//        dump($module,$controller,$tempfile);
+        include_once $tempfile;
+        if(!class_exists($tempclassname)) throw new KbylinException('Invalid module and controller!',$module,$controller,$tempfile);
+        $instance = new \ReflectionClass($tempclassname);
+        $methods = $instance->getMethods(\ReflectionMethod::IS_PUBLIC);
+        foreach ($methods as $method){
+            $name = $method->getName();
+            if(0 === strpos($name,'_')) continue;//以单下划线或者双下划线开头直接忽略
+            $actions[] = $name;
+        }
+        return $actions;
     }
 
 }

@@ -5,7 +5,7 @@
  * Date: 14-7-1
  * Time: 下午3:07
  */
-class Final_adminAction extends RightAction {
+class Final_AdminAction extends RightAction {
     private $model;
     protected $message = array("type"=>"info","message"=>"","dbError"=>"");
 

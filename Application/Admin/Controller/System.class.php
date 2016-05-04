@@ -6,9 +6,12 @@
  * Time: 18:46
  */
 namespace Application\Admin\Controller;
-use Application\Admin\Library\ActionScanner;
+use Application\Admin\Library\ActionManager;
 use Application\Admin\Library\Adapter\CwebsActionScannerAdapter;
 use Application\Admin\Library\AdminController;
+use Application\Admin\Model\ActionGroupModel;
+use Application\Admin\Model\ActionModel;
+use Application\Admin\Model\ModuleModel;
 use Application\Admin\Model\SystemModel;
 use System\Utils\Response;
 
@@ -22,9 +25,72 @@ class System extends AdminController{
     }
 
     public function scan(){
-        $actionScanner = new ActionScanner(new CwebsActionScannerAdapter());
-        $modules = $actionScanner->scan(BASE_PATH.'App/Lib/Action/')->getModules();
-        dumpout($modules);
+        $manager = new ActionManager(new CwebsActionScannerAdapter());
+        $modules = $manager->scan(BASE_PATH.'App/Lib/Action/')->fetchModule();
+
+        $moduleModel = new ModuleModel();
+        $actionGroupModel = new ActionGroupModel();
+        $actionModel = new ActionModel();
+        $result = [
+            'success'   => [
+                'm'=>0,
+                'c'=>0,
+                'a'=>0,
+            ],
+            'failed'    => [
+                'm'=>0,
+                'c'=>0,
+                'a'=>0,
+            ],
+        ];
+
+        //错误信息
+        $error = '';
+
+        //清空之前的操作的数据
+        $moduleModel->delete();
+        $actionGroupModel->delete();
+        $actionModel->delete();
+
+        foreach ($modules as $module){
+            if($moduleModel->field('code',$module)->create()){
+                $result['success']['m']++;
+            }else{
+                $result['failed']['m']++;
+                $error = $actionModel->getError();
+                $error and $error .= "{$module}: {$error} \n";
+            }
+            $controllers = $manager->fetchController($module);
+            foreach ($controllers as $controller=>$controllerpath){
+                if($actionGroupModel->fields([
+                    'mcode' => $module,
+                    'code'  => $controller,
+                    ])->create())
+                {
+                    $result['success']['c']++;
+                }else{
+                    $result['failed']['c']++;
+                    $error = $actionModel->getError();
+                    $error and $error .= "{$module}@{$controller}: {$error} \n";
+                }
+                $actions = $manager->fetchAction($module,$controller);
+//                dump($module,$controller,$actions);//打印模块和控制器名称
+                foreach ($actions as $action){
+                    if($actionModel->fields([
+                        'mccode' => "{$module}@{$controller}",
+                        'code'  => $action,
+                    ])->create())
+                    {
+                        $result['success']['a']++;
+                    }else{
+                        $result['failed']['a']++;
+                        $error = $actionModel->getError();
+                        $error and $error .= "{$module}@{$controller}/{$action} : {$error} \n";
+                    }
+                }
+            }
+        }
+        dumpout($result,nl2br($error));
     }
 
     /**

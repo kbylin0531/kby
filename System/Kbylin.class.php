@@ -35,7 +35,6 @@ const TYPE_UNKNOWN  = 'unknown type';
 const MODE_RETURN = 0;
 const MODE_EXCEPTION = 1;
 
-date_default_timezone_set('Asia/Shanghai'); //避免使用date函数时的警告
 defined('DEBUG_MODE_ON') or define('DEBUG_MODE_ON', true); //是否开启DUBUG模式
 defined('PAGE_TRACE_ON') or define('PAGE_TRACE_ON', true); //是否开启TRACE界面
 
@@ -133,9 +132,8 @@ final class Kbylin {
     public function init(array $config=null){
         self::recordStatus('init_begin');
         $this->_inited and die('实例已完成过初始化!');
-        null !== $config and
-            $this->_convention = array_merge($this->_convention,$config);//合并用户自定义配置和系统封默认配置
-        date_default_timezone_set('Asia/Shanghai') or die('Date format set time zone failed!');
+        null !== $config and $this->_convention = array_merge($this->_convention,$config);//合并用户自定义配置和系统封默认配置
+        date_default_timezone_set('Asia/Shanghai') or die('Date format set time zone failed!');////避免使用date函数时的警告
 
         //分解请求参数
         if(isset($this->_convention['REQUEST_PARAM_NAME'])){

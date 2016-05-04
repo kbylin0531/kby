@@ -5,7 +5,7 @@
  * Date: 14-2-12
  * Time: 下午3:43
  */
-class ItemAction extends RightAction
+class ResultAction extends RightAction
 {
     private $md;        //存放模型对象
     /**
