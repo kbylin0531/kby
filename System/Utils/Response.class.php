@@ -19,7 +19,6 @@ class Response {
     const MESSAGE_TYPE_SUCCESS = 1;
     const MESSAGE_TYPE_FAILURE = 0;
 
-
     /**
      * 清空输出缓存
      * @return void
@@ -58,6 +57,7 @@ class Response {
      */
     public static function ajaxBack($data,$type=AJAX_JSON,$json_option=0) {
         self::cleanOutput();
+        SEK::disableTrace();
         switch (strtoupper($type)){
             case AJAX_JSON :// 返回JSON数据格式到客户端 包含状态信息
                 header('Content-Type:application/json; charset=utf-8');

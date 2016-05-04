@@ -36,7 +36,7 @@ const MODE_RETURN = 0;
 const MODE_EXCEPTION = 1;
 
 defined('DEBUG_MODE_ON') or define('DEBUG_MODE_ON', true); //是否开启DUBUG模式
-defined('PAGE_TRACE_ON') or define('PAGE_TRACE_ON', true); //是否开启TRACE界面
+//defined('PAGE_TRACE_ON') or define('PAGE_TRACE_ON', true); //是否开启TRACE界面
 
 /**
  * Class Kbylin
@@ -260,7 +260,7 @@ final class Kbylin {
      */
     public function _onShutDown(){
         self::recordStatus("_xor_exec_shutdown");
-        if(DEBUG_MODE_ON and PAGE_TRACE_ON and !IS_AJAX){
+        if(DEBUG_MODE_ON and !IS_AJAX){
              SEK::showTrace(self::$_status,6);//页面跟踪信息显示
         }
 
@@ -269,7 +269,7 @@ final class Kbylin {
             Storage::write(LITE_FILE_NAME,LiteBuilder::compileInBatch($this->_classes));
             self::recordStatus('create_lite_begin');
         }
-        \System\Utils\Response::flushOutput();
+        Response::flushOutput();
     }
 
     /**
@@ -346,7 +346,6 @@ final class Kbylin {
      * @return void
      */
     public function _handleException(Exception $e){
-
         IS_AJAX and Response::failed($e->getMessage());
 
         Response::cleanOutput();

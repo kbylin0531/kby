@@ -24,6 +24,7 @@ class System extends AdminController{
         $this->display();
     }
 
+
     public function scan(){
         $manager = new ActionManager(new CwebsActionScannerAdapter());
         $modules = $manager->scan(BASE_PATH.'App/Lib/Action/')->fetchModule();
@@ -42,15 +43,15 @@ class System extends AdminController{
                 'c'=>0,
                 'a'=>0,
             ],
+            'error' => '',
         ];
 
         //错误信息
-        $error = '';
 
         //清空之前的操作的数据
-        $moduleModel->delete();
-        $actionGroupModel->delete();
-        $actionModel->delete();
+        $moduleModel->clean();
+        $actionGroupModel->clean();
+        $actionModel->clean();
 
         foreach ($modules as $module){
             if($moduleModel->field('code',$module)->create()){
@@ -58,7 +59,7 @@ class System extends AdminController{
             }else{
                 $result['failed']['m']++;
                 $error = $actionModel->getError();
-                $error and $error .= "{$module}: {$error} \n";
+                $error and $result['error'] .= "{$module}: {$error} \n";
             }
             $controllers = $manager->fetchController($module);
             foreach ($controllers as $controller=>$controllerpath){
@@ -71,7 +72,7 @@ class System extends AdminController{
                 }else{
                     $result['failed']['c']++;
                     $error = $actionModel->getError();
-                    $error and $error .= "{$module}@{$controller}: {$error} \n";
+                    $error and $result['error'] .= "{$module}@{$controller}: {$error} \n";
                 }
                 $actions = $manager->fetchAction($module,$controller);
 //                dump($module,$controller,$actions);//打印模块和控制器名称
@@ -85,12 +86,12 @@ class System extends AdminController{
                     }else{
                         $result['failed']['a']++;
                         $error = $actionModel->getError();
-                        $error and $error .= "{$module}@{$controller}/{$action} : {$error} \n";
+                        $error and $result['error'] .= "{$module}@{$controller}/{$action} : {$error} \n";
                     }
                 }
             }
         }
-        dumpout($result,nl2br($error));
+        Response::ajaxBack($result);
     }
 
     /**

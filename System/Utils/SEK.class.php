@@ -74,11 +74,35 @@ final class SEK {
     }
 
     /**
+     * 是否允许显示
+     * @return bool
+     */
+    private static $_allowTrace = true;
+
+    /**
+     * 禁用trace页面
+     * @return bool
+     */
+    public static function disableTrace(){
+        self::$_allowTrace = false;
+    }
+
+    /**
+     * 启用trace页面
+     * @return bool
+     */
+    public static function enableTrace(){
+        self::$_allowTrace = true;
+    }
+
+    /**
      * 显示trace页面
      * @param array $status 状态信息
      * @param int $accuracy 精确度
+     * @return void
      */
     public static function showTrace(array $status,$accuracy=6){
+        if(!self::$_allowTrace) return ;//如果被禁止了trace页面,则不显示该页面
         //吞吐率  1秒/单次执行时间
         if(count($status) > 1){
             $last  = end($status);

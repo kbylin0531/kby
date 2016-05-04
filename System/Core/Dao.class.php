@@ -557,7 +557,7 @@ class Dao {
      * @return bool 是否成功删除
      * @throws KbylinException
      */
-    public function delete($tablename,array $where){
+    public function delete($tablename,array $where=null){
         $bind = null;
         if(null === $where){
             $sql = "delete from {$tablename};";

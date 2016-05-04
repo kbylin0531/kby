@@ -210,6 +210,11 @@ class Model {
         return $this->getDao()->delete($this->_table,null);
     }
 
+    /**
+     * 获取SQL及其输入参数
+     * @param $type
+     * @throws KbylinException
+     */
     public function build($type){
         switch ($type){
             case self::DATA_SELECT:
