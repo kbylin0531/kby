@@ -15,6 +15,31 @@ use System\Core\KbylinException;
 final class SEK {
 
     /**
+     * 调用位置
+     */
+    const CALL_PLACE_SELF       = 0; //表示调用者自身的位置
+    const CALL_PLACE_FORWARD    = 1;// 表示调用调用者的位置
+    /**
+     * 信息组成
+     */
+    const CALL_ELEMENT_FUNCTION = 1;
+    const CALL_ELEMENT_FILE     = 2;
+    const CALL_ELEMENT_LINE     = 4;
+    const CALL_ELEMENT_CLASS    = 8;
+    const CALL_ELEMENT_TYPE     = 16;
+    const CALL_ELEMENT_ARGS     = 32;
+
+    /**
+     * 配置类型
+     * 值使用字符串而不是效率更高的数字是处于可以直接匹配后缀名的考虑
+     */
+    const CONF_TYPE_PHP     = 'php';
+    const CONF_TYPE_INI     = 'ini';
+    const CONF_TYPE_YAML    = 'yaml';
+    const CONF_TYPE_XML     = 'xml';
+    const CONF_TYPE_JSON    = 'json';
+    
+    /**
      * 变量跟踪信息
      * @var array
      */
@@ -27,19 +52,6 @@ final class SEK {
      */
     public static function getAvailablePdoDrivers(){
         return \PDO::getAvailableDrivers();
-    }
-
-    /**
-     * 转换成PHP处理文件系统时所用的编码
-     * 即UTF-8转GB2312
-     * @param $str
-     * @return string|false 转化失败返回false
-     * @throws KbylinException 编码转换失败时抛出异常
-     */
-    public static function toSystemEncode($str){
-        $result = iconv('UTF-8','GB2312//IGNORE',$str);
-        if(false === $result) throw new KbylinException(['UTF-8','GB2312//IGNORE',$str]);
-        return $result;
     }
 
     /**
@@ -168,19 +180,6 @@ final class SEK {
             ],
         ];
         SEK::loadTemplate('trace',$vars,false);//参数三表示不清空之前的缓存区
-    }
-
-    /**
-     * 转换成程序使用的编码
-     * 即GB2312转UTF-8
-     * @param string $str 待转换的字符串
-     * @return string|false 转化失败返回false
-     * @throws KbylinException 编码转换失败时抛出异常
-     */
-    public static function toProgramEncode($str){
-        $result = iconv('GB2312','UTF-8//IGNORE',$str);
-        if(false === $result) throw new KbylinException(['GB2312','UTF-8//IGNORE',$str]);
-        return $result;
     }
 
     /**
@@ -536,15 +535,15 @@ final class SEK {
     public static function parseConfigFile($file,callable $parser=null){
         $ext = pathinfo($file, PATHINFO_EXTENSION);
         switch ($ext) {
-            case 'php':
+            case self::CONF_TYPE_PHP:
                 return include $file;
-            case 'ini':
+            case self::CONF_TYPE_INI:
                 return parse_ini_file($file);
-            case 'yaml':
+            case self::CONF_TYPE_YAML:
                 return yaml_parse_file($file);
-            case 'xml':
+            case self::CONF_TYPE_XML:
                 return (array)simplexml_load_file($file);
-            case 'json':
+            case self::CONF_TYPE_JSON:
                 return json_decode(file_get_contents($file), true);
             default:
                 if (isset($parser)) {
@@ -552,6 +551,27 @@ final class SEK {
                 } else {
                     throw new KbylinException('无法解析配置文件');
                 }
+        }
+    }
+    /**
+     * 获取调用者本身的位置
+     * @param int $elements 为0是表示获取全部信息
+     * @param int $place 位置属性
+     * @return array|string
+     */
+    public static function getCallPlace($elements=0, $place=self::CALL_PLACE_FORWARD){
+        $trace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT,2);
+        if($elements){
+            $result = [];
+            $elements & self::CALL_ELEMENT_ARGS     and $result[self::CALL_ELEMENT_ARGS]    = isset($trace[$place]['args'])?$trace[$place]['args']:null;
+            $elements & self::CALL_ELEMENT_CLASS    and $result[self::CALL_ELEMENT_CLASS]   = isset($trace[$place]['class'])?$trace[$place]['class']:null;
+            $elements & self::CALL_ELEMENT_FILE     and $result[self::CALL_ELEMENT_FILE]    = isset($trace[$place]['file'])?$trace[$place]['file']:null;
+            $elements & self::CALL_ELEMENT_FUNCTION and $result[self::CALL_ELEMENT_FUNCTION]= isset($trace[$place]['function'])?$trace[$place]['function']:null;
+            $elements & self::CALL_ELEMENT_LINE     and $result[self::CALL_ELEMENT_LINE]    = isset($trace[$place]['line'])?$trace[$place]['line']:null;
+            $elements & self::CALL_ELEMENT_TYPE     and $result[self::CALL_ELEMENT_TYPE]    = isset($trace[$place]['type'])?$trace[$place]['type']:null;
+            return $result;
+        }else{
+            return $trace[$place];
         }
     }
 
@@ -606,6 +626,21 @@ final class SEK {
     public static function fetchStatementError(\PDOStatement $statement){
         $stmtError = $statement->errorInfo();
         return 0 !== intval($stmtError[0])?"Error Code:[{$stmtError[0]}]::[{$stmtError[1]}]:[{$stmtError[2]}]":'';
+    }
+
+
+    /**
+     * 从字面商判断$path是否被包含在$scope的范围内
+     * @param string $path 路径
+     * @param string $scope 范围
+     * @return bool
+     */
+    public static function checkPathContainedInScope($path, $scope){
+        if(false !== strpos($path,'\\\\'))  $path  = str_replace('\\\\','/',$path);
+        if(false !== strpos($scope,'\\\\')) $scope = str_replace('\\\\','/',$scope);
+        $path = rtrim($path,'/');
+        $scope = rtrim($scope,'/');
+        return (IS_WIN?stripos($path,$scope):strpos($path,$scope)) === 0;
     }
 
 }

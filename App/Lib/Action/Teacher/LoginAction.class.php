@@ -37,14 +37,14 @@ class LoginAction extends Action
         	$user['TGROUP'] = $user_teacher["TGROUP"];        	 
         	
             $user = array_map("ctrim", $user);
-            $this->_check($user['lock'],$user['PASSWORD']); //用户的状态、及用户检测
+            $this->_check($user['lock'],$user['password']); //用户的状态、及用户检测
             $guid = getGUID(session_id()); //获得GUID
-            $this->_sessionToDB($user['USERNAME'], $guid); //把session信息写入到sessions表中
+            $this->_sessionToDB($user['username'], $guid); //把session信息写入到sessions表中
 
             session(null);
             session('S_USER_SCHOOL',$user['SCHOOL']);
             session("S_LOGIN_TYPE",1); //注册用户为教师
-            session("S_USER_NAME", $user["USERNAME"]); //注册用户
+            session("S_USER_NAME", $user["username"]); //注册用户
             session("S_GUID",$guid); //注册GUID
             session("S_ROLES", $user['ROLES']); //注册角色信息
             session("S_LOGIN_COUNT", 0);

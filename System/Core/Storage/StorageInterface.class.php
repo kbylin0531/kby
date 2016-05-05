@@ -20,21 +20,20 @@ interface StorageInterface {
      *  页面是utf-8，file_get_contents的页面是gb2312，输出时中文乱码
      * @param string $filepath 文件路径,PHP源码中格式是UTF-8，需要转成GB2312才能使用
      * @param string|array $file_encoding 文件内容实际编码,可以是数组集合或者是编码以逗号分开的字符串
-     * @param string $output_encode 文件内容输出编码
-     * @return string|null 返回文件内容，无法访问文件时返回null
-     * @throws KbylinException
+     * @return string|null 返回文件内容,文件不存在或者在访问范围之内将返回null
      */
-    public function read($filepath,$file_encoding='UTF-8',$output_encode='UTF-8');
+    public function read($filepath,$file_encoding='UTF-8');//,$output_encode='UTF-8'
 
     /**
      * 将指定内容写入到文件中
      * @param string $filepath 文件路径
      * @param string $content 要写入的文件内容(一定是UTF-8编码)
      * @param string $write_encode 写入文件时的编码
+     * @param string $text_encode 文本本身的编码格式
      * @return int 返回写入的字节数目,失败时抛出异常
      * @throws FileWriteFailedException
      */
-    public function write($filepath,$content,$write_encode='UTF-8');
+    public function write($filepath,$content,$write_encode='UTF-8',$text_encode='UTF-8');
 
     /**
      * 将指定内容追加到文件中

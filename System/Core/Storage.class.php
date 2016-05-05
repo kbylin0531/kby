@@ -30,44 +30,70 @@ class Storage {
                 'WRITE_LIMIT_ON'    => true,
                 'READABLE_SCOPE'    => BASE_PATH,
                 'WRITABLE_SCOPE'    => RUNTIME_PATH,
-                'ACCESS_FAILED_MODE'    => MODE_RETURN,
+                'ACCESS_FAILED_MODE'    => MODE_EXCEPTION,
             ]
         ],
+
     ];
 
     /**
+     * 驱动实例
+     * @var StorageInterface[]
+     */
+    private static $_instances = [];
+    /**
+     * 当前增再使用的驱动的角标
+     * @var int|string
+     */
+    private static $_curindex = null;
+
+    /**
      * 获取驱动
-     * @param int|string|null $index 驱动器ID,null或者参数未设置时为null
+     * @param int|string $index 驱动器ID,null或者参数未设置时为null
      * @return StorageInterface
      */
-    private static function getDriver($index=null){
-        static $_instances = [];
-        if(!isset($_instances[$index])){
-            $_instances[$index] = self::getDriverInstance($index);
+    private static function getDriver($index){
+        self::using($index);
+        if(!isset(self::$_instances[$index])){
+            self::$_instances[$index] = self::getDriverInstance($index);
         }
-        return $_instances[$index];
+        return self::$_instances[$index];
+    }
+
+    /**
+     * 指定使用的驱动角标
+     * @param int|string $index
+     * @return void
+     * @throws KbylinException 角标不存在时抛出异常
+     */
+    public static function using($index){
+        $convention = self::getConventions();
+        if(key_exists($index,$convention['DRIVER_CLASS_LIST'])){
+            throw new KbylinException("Driver {$index} not found!");
+        }
+        self::$_curindex = $index;
     }
 
     /**
      * 获取文件内容
      * @param string $filepath 文件路径
      * @param string $fileEncoding 文件内容实际编码
-     * @param string $translateEncode 文件内容输出编码
-     * @return string|null 文件不存在时返回false
+     * @return string|false 文件不存在或者文件无法访问时返回false,否则返回文件文本内容string
      */
-    public static function read($filepath, $fileEncoding='UTF-8', $translateEncode='UTF-8'){
-        return self::getDriver()->read($filepath,$fileEncoding,$translateEncode);
+    public static function read($filepath, $fileEncoding='UTF-8'){
+        return self::getDriver(self::$_curindex)->read($filepath,$fileEncoding);
     }
 
     /**
      * 文件写入
      * @param string $filepath 文件名
      * @param string $content 文件内容
-     * @param string $write_encode 文件写入编码
-     * @return int 成功写入的字节数目
+     * @param string $write_encode 写入编码
+     * @param string $text_encode 文本本身的编码格式
+     * @return bool 文件是否写入成功
      */
-    public static function write($filepath,$content,$write_encode='UTF-8') {
-        return self::getDriver()->write($filepath,$content,$write_encode);
+    public static function write($filepath,$content,$write_encode='UTF-8',$text_encode='UTF-8') {
+        return self::getDriver(self::$_curindex)->write($filepath,$content,$write_encode,$text_encode);
     }
 
     /**
@@ -76,31 +102,29 @@ class Storage {
      * @param string $filename  文件名
      * @param string $content  追加的文件内容
      * @param string $write_encode 文件写入编码
-     * @return string 返回写入内容
+     * @return bool 是否成功追加
      */
     public static function append($filename,$content,$write_encode='UTF-8'){
-        return self::getDriver()->append($filename,$content,$write_encode);
+        return self::getDriver(self::$_curindex)->append($filename,$content,$write_encode);
     }
 
     /**
      * 文件是否存在
-     * @access public
      * @param string $filename  文件名
-     * @return boolean
+     * @return bool 文件是否存在
      */
     public static function has($filename){
-        return self::getDriver()->has($filename);
+        return self::getDriver(self::$_curindex)->has($filename);
     }
 
 
     /**
      * 文件删除
-     * @access public
      * @param string $filename  文件名
-     * @return boolean
+     * @return bool 是否成功删除文件
      */
     public static function unlink($filename){
-        return self::getDriver()->unlink($filename);
+        return self::getDriver(self::$_curindex)->unlink($filename);
     }
 
     /**
@@ -108,19 +132,19 @@ class Storage {
      * 可以使用stat获取信息
      * @access public
      * @param string $filename  文件名
-     * @return array|mixed
+     * @return int|false 返回Unix时间戳,失败时返回false
      */
     public static function mtime($filename){
-        return self::getDriver()->mtime($filename);
+        return self::getDriver(self::$_curindex)->mtime($filename);
     }
 
     /**
      * 获取文件大小
      * @param string $filename 文件路径信息
-     * @return mixed
+     * @return int|false 返回文件大小,失败时返回false
      */
     public static function size($filename){
-        return self::getDriver()->size($filename);
+        return self::getDriver(self::$_curindex)->size($filename);
     }
 
     /**
@@ -128,20 +152,20 @@ class Storage {
      * 如果文件夹已经存在，则修改权限
      * @param string $fullpath 文件夹路径
      * @param int $auth 文件权限，八进制表示
-     * @return bool
+     * @return bool 文件夹是否创建成功
      */
     public static function makeDirectory($fullpath,$auth = 0755){
-        return self::getDriver()->makeDirectory($fullpath,$auth);
+        return self::getDriver(self::$_curindex)->makeDirectory($fullpath,$auth);
     }
 
     /**
      * 删除文件夹
      * @param string $path 文件夹目录
      * @param bool $recursion 是否递归删除
-     * @return bool true成功删除，false删除失败
+     * @return bool 是否成功删除文件夹
      */
     public static function removeDirectory($path,$recursion=false) {
-        return self::getDriver()->removeDirectory($path,$recursion);
+        return self::getDriver(self::$_curindex)->removeDirectory($path,$recursion);
     }
 
     
@@ -153,10 +177,10 @@ class Storage {
      * );
      * @param string $path 文件夹路径
      * @param bool $recursion 是否递归读取
-     * @return array|null
+     * @return array|false 返回文件列表信息数组,失败时返回false
      */
     public static function readDirectory($path,$recursion=false){
-        return self::getDriver()->readDirectory($path,$recursion);
+        return self::getDriver(self::$_curindex)->readDirectory($path,$recursion);
     }
 
 }

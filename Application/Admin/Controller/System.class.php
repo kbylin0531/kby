@@ -24,7 +24,6 @@ class System extends AdminController{
         $this->display();
     }
 
-
     public function scan(){
         $manager = new ActionManager(new CwebsActionScannerAdapter());
         $modules = $manager->scan(BASE_PATH.'App/Lib/Action/')->fetchModule();

@@ -73,7 +73,7 @@ var Genkits = {
     /**
      * 修复IE8、9下的Placeholder的支持
      */
-    fixInputPlaceholder4IE :function() {
+    fixInputPlaceholderForIE :function() {
         //fix html5 placeholder attribute for ie7 & ie8
         if (this.isIE8 || this.isIE9()) { // ie8 & ie9
             // this is html5 placeholder fix for inputs, inputs with placeholder-no-fix class will be skipped(e.g: we need this for password fields)

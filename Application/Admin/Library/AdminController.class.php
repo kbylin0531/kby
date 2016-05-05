@@ -9,6 +9,7 @@ namespace Application\Admin\Library;
 
 use Application\Admin\Model\AuthorityModel;
 use System\Traits\Controller\Render;
+use System\Utils\Assets;
 
 class AdminController {
 
@@ -16,12 +17,15 @@ class AdminController {
 
     public function __construct(){
 
+        dumpout(Assets::load('menu'));
         $authModel = new AuthorityModel();
         $modules = $authModel->getAccessableModules();
         $this->assign('modules',$modules);
 
         $actions = $authModel->getAccessableActions(1);
         $this->assign('actions',$actions);
+
+        $this->checkLogin() or $this->redirectLoginPage();
     }
 
     /**
@@ -47,5 +51,13 @@ class AdminController {
      * 分配模块下的操作信息列表
      */
     protected function assignActionsList(){}
+
+    private function checkLogin(){
+        return true;
+    }
+
+    private function redirectLoginPage(){
+        echo '你还未登录系统';
+    }
 
 }

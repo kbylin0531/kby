@@ -1,31 +1,32 @@
 /**
-Core script to handle the entire theme and core functions
-**/
+ * Core script to handle the entire theme and core functions
+ * @type {{initHeader, initSidebar, initContent, initFooter, init, fixContentHeight}}
+ */
 var Layout = function () {
-
-    var pagesidebar = $('.page-sidebar');
+    var thiswindow = $(window);
     var thisbody = $('body');
+    var pagesidebar = $('.page-sidebar');
     var sidebarsearch = $('.sidebar-search');
     var pageheader = $('.page-header');
-
+    var pageContent = $('.page-content');
     var resBreakpointMd = Genkits.getResponsiveBreakpoint('md');
 
-    // Set proper height for sidebar and content. The content and sidebar height must be synced always.
+    /**
+     * Set proper height for sidebar and content.
+     * The content and sidebar height must be synced always.
+     */
     var handleSidebarAndContentHeight = function () {
-        var content = $('.page-content');
-        var sidebar = pagesidebar;
-        var body = thisbody;
         var height;
 
-        if (body.hasClass("page-footer-fixed") === true && body.hasClass("page-sidebar-fixed") === false) {
+        if (thisbody.hasClass("page-footer-fixed") === true && thisbody.hasClass("page-sidebar-fixed") === false) {
             var available_height = Metronic.getViewPort().height - $('.page-footer').outerHeight() - pageheader.outerHeight();
-            if (content.height() < available_height) {
-                content.attr('style', 'min-height:' + available_height + 'px');
+            if (pageContent.height() < available_height) {
+                pageContent.attr('style', 'min-height:' + available_height + 'px');
             }
         } else {
-            if (body.hasClass('page-sidebar-fixed')) {
+            if (thisbody.hasClass('page-sidebar-fixed')) {
                 height = _calculateFixedSidebarViewportHeight();
-                if (body.hasClass('page-footer-fixed') === false) {
+                if (thisbody.hasClass('page-footer-fixed') === false) {
                     height = height - $('.page-footer').outerHeight();
                 }
             } else {
@@ -35,14 +36,14 @@ var Layout = function () {
                 if (Metronic.getViewPort().width < resBreakpointMd) {
                     height = Metronic.getViewPort().height - headerHeight - footerHeight;
                 } else {
-                    height = sidebar.height() + 20;
+                    height = pagesidebar.height() + 20;
                 }
 
                 if ((height + headerHeight + footerHeight) <= Metronic.getViewPort().height) {
                     height = Metronic.getViewPort().height - headerHeight - footerHeight;
                 }
             }
-            content.attr('style', 'min-height:' + height + 'px');
+            pageContent.attr('style', 'min-height:' + height + 'px');
         }
     };
 
@@ -156,7 +157,6 @@ var Layout = function () {
 
                     pageContentBody.html(res);
                     Layout.fixContentHeight(); // fix content height
-                    Metronic.initAjax(); // initialize core stuff
                 },
                 error: function () {
                     pageContentBody.html('<h4>Could not load the requested content.</h4>');
@@ -186,7 +186,6 @@ var Layout = function () {
                 success: function (res) {
                     pageContentBody.html(res);
                     Layout.fixContentHeight(); // fix content height
-                    Metronic.initAjax(); // initialize core stuff
                 },
                 error: function () {
                     pageContentBody.html('<h4>Could not load the requested content.</h4>');
@@ -322,7 +321,7 @@ var Layout = function () {
                 }
             }
 
-            $(window).trigger('resize');
+            thiswindow.trigger('resize');
         });
     };
 
@@ -385,7 +384,7 @@ var Layout = function () {
         var duration = 500;
 
         if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {  // ios supported
-            $(window).bind("touchend touchcancel touchleave", function(){
+            thiswindow.bind("touchend touchcancel touchleave", function(){
                if ($(this).scrollTop() > offset) {
                     $('.scroll-to-top').fadeIn(duration);
                 } else {
@@ -393,7 +392,7 @@ var Layout = function () {
                 }
             });
         } else {  // general 
-            $(window).scroll(function() {
+            thiswindow.scroll(function() {
                 if ($(this).scrollTop() > offset) {
                     $('.scroll-to-top').fadeIn(duration);
                 } else {

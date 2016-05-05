@@ -119,8 +119,8 @@ trait Crux {
 
         if(!isset($thisinstances[$index])){
             $info = self::getDriverInfo($index);
-            $driverclass = $info[0];
 
+            $driverclass = $info[0];
             $thisinstances[$index] = new $driverclass($info[1]);
         }
 

@@ -5,7 +5,9 @@ var Metronic = function() {
     var body = $("body");
     var resizeHandlers = [];
 
-    // initializes main settings
+    /**
+     * 初始化
+     */
     var handleInit = function() {
         if (Genkits.isIE10()) {
             $('html').addClass('ie10'); // detect IE10 version
@@ -15,69 +17,53 @@ var Metronic = function() {
         }
     };
 
-    // runs callback functions set by Metronic.addResponsiveHandler().
-    var _runResizeHandlers = function() {
-        // reinitialize other subscribed elements
-        for (var i = 0; i < resizeHandlers.length; i++) {
-            var each = resizeHandlers[i];
-            each.call();
-        }
+    /**
+     * 运行由Kbylin.addResponsiveHandler方法添加的处理函数
+     * @private
+     */
+    var runResizeHandlers = function() {
+        for (var i = 0; i < resizeHandlers.length; i++) resizeHandlers[i].call();
     };
 
     // handle the layout reinitialization on window resize
+    /**
+     *
+     */
     var handleOnResize = function() {
         var resize;
-        if (Genkits.isIE8()) {
-            var currheight;
-            $(window).resize(function() {
-                if (currheight == document.documentElement.clientHeight) {
-                    return; //quite event since only body resized not window.
-                }
-                if (resize) {
-                    clearTimeout(resize);
-                }
-                resize = setTimeout(function() {
-                    _runResizeHandlers();
-                }, 50); // wait 50ms until window resize finishes.                
-                currheight = document.documentElement.clientHeight; // store last body client height
-            });
-        } else {
-            $(window).resize(function() {
-                if (resize) {
-                    clearTimeout(resize);
-                }
-                resize = setTimeout(function() {
-                    _runResizeHandlers();
-                }, 50); // wait 50ms until window resize finishes.
-            });
-        }
+        var currheight;
+
+        $(window).resize(function() {
+            if(Genkits.isIE8()){
+                if(currheight == document.documentElement.clientHeight) return ;
+                currheight = document.documentElement.clientHeight;
+            }
+            if (resize) clearTimeout(resize);
+            resize = setTimeout(function() {
+                runResizeHandlers();
+            }, 50); // wait 50ms until window resize finishes.
+        });
     };
 
     // Handlesmaterial design checkboxes
     var handleMaterialDesign = function() {
-
         if (body.hasClass('page-md')) {
-            // Material design click effect
-            // credit where credit's due; http://thecodeplayer.com/walkthrough/ripple-click-effect-google-material-design       
-            body.on('click', 'a.btn, button.btn, input.btn, label.btn', function(e) { 
-                var element, circle, d, x, y;
+            body.on('click', 'a.btn, button.btn, input.btn, label.btn', function(e) {
+                var circle  = body.find(".md-click-circle"), d, x, y;
 
-                element = $(this);
-      
-                if(element.find(".md-click-circle").length == 0) {
-                    element.prepend("<span class='md-click-circle'></span>");
+                if(circle.length == 0) {
+                    body.prepend("<span class='md-click-circle'></span>");
                 }
                     
-                circle = element.find(".md-click-circle");
                 circle.removeClass("md-click-animate");
                 
                 if(!circle.height() && !circle.width()) {
-                    d = Math.max(element.outerWidth(), element.outerHeight());
+                    d = Math.max(body.outerWidth(), body.outerHeight());
                     circle.css({height: d, width: d});
                 }
                 
-                x = e.pageX - element.offset().left - circle.width()/2;
-                y = e.pageY - element.offset().top - circle.height()/2;
+                x = e.pageX - body.offset().left - circle.width()/2;
+                y = e.pageY - body.offset().top - circle.height()/2;
                 
                 circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate");
             });
@@ -88,39 +74,31 @@ var Metronic = function() {
     // Handles Bootstrap Dropdowns
     var handleDropdowns = function() {
         body.on('click', '.dropdown-menu.hold-on-click', function(e) {
-            e.stopPropagation();
+            e.stopPropagation();//停止事件的传播
         });
     };
 
-    // Handles scrollable contents using jQuery SlimScroll plugin.
-    var handleScrollers = function() {
-        Metronic.initSlimScroll('.scroller');
-    };
 
     return {
-
         //main function to initiate the theme
         init: function() {
             //IMPORTANT!!!: Do not modify the core handlers call order.
 
-            //Core handlers
             handleInit(); // initialize core variables
             handleOnResize(); // set and handle responsive    
 
             //UI Component handlers     
             handleMaterialDesign(); // handle material design       
-            handleScrollers(); // handles slim scrolling contents
             handleDropdowns(); // handle dropdowns
 
             // Hacks
-            Genkits.fixInputPlaceholder4IE(); //IE8 & IE9 input placeholder issue fix
+            Genkits.fixInputPlaceholderForIE(); //IE8 & IE9 input placeholder issue fix
         },
 
         //main function to initiate core javascript after ajax complete
-        initAjax: function() {
-            handleScrollers(); // handles slim scrolling contents
-            handleDropdowns(); // handle dropdowns
-        },
+        // initAjax: function() {
+        //     handleDropdowns(); // handle dropdowns
+        // },
 
 
         //public function to add callback a function which will be called on window resize
@@ -128,14 +106,11 @@ var Metronic = function() {
             resizeHandlers.push(func);
         },
 
-        // wrMetronicer function to scroll(focus) to an element
         scrollTo: function(el, offeset) {
-            var pos = (el && el.size() > 0) ? el.offset().top : 0;
+            var pos = (el instanceof jQuery && el.size() > 0) ? el.offset().top : 0;//不存在该元素时顶部为0
 
             if (el) {
-                if (body.hasClass('page-header-fixed')) {
-                    pos = pos - $('.page-header').height();
-                }
+                if (body.hasClass('page-header-fixed'))  pos = pos - $('.page-header').height();//头部被固定的时候需要减去头部的高度
                 pos = pos + (offeset ? offeset : -1 * el.height());
             }
 
@@ -143,20 +118,17 @@ var Metronic = function() {
                 scrollTop: pos
             }, 'slow');
         },
-
+        /**
+         * 使得滚动条变细长
+         * @param el
+         */
         initSlimScroll: function(el) {
             $(el).each(function() {
-                if ($(this).attr("data-initialized")) {
-                    return; // exit
-                }
+                if ($(this).attr("data-initialized")) return;//如果初始化过了,直接返回
 
-                var height;
-
-                if ($(this).attr("data-height")) {
-                    height = $(this).attr("data-height");
-                } else {
-                    height = $(this).css('height');
-                }
+                //设置高度为data-height的高度,如果存在的话
+                var height = $(this).attr("data-height");
+                if(!height) height = $(this).height();
 
                 var datavisible = $(this).attr("data-always-visible") == "1";
                 $(this).slimScroll({
@@ -171,13 +143,13 @@ var Metronic = function() {
                     disableFadeOut: true
                 });
 
-                $(this).attr("data-initialized", "1");
+                $(this).attr("data-initialized", "1");//标记已经初始化过了
             });
         },
 
         destroySlimScroll: function(el) {
             $(el).each(function() {
-                if ($(this).attr("data-initialized") === "1") { // destroy existing instance before updating the height
+                if ($(this).attr("data-initialized") === "1") { //只针对初始化过的元素
                     $(this).removeAttr("data-initialized");
                     $(this).removeAttr("style");
 

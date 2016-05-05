@@ -8,6 +8,8 @@
 namespace System\Traits\Controller;
 use System\Core\KbylinException;
 use System\Library\View;
+use System\Utils\SEK;
+
 trait Render {
 
     /**
@@ -102,8 +104,7 @@ trait Render {
         null === $this->_context and $this->fetchContext();
         //未设置时使用调用display的函数名称
         if(null === $template){//如果未设置参数一,获取当前调用方法的名称作为模板的默认名称
-            $trace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT,2);
-            $this->_context['a'] = $trace[1]['function'];
+            $this->_context['a'] = SEK::getCallPlace(SEK::CALL_ELEMENT_FUNCTION);
             $context = $this->_context;
         }else{
             $context = $this->parseTemplateLocation($template);

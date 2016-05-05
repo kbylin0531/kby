@@ -1,3 +1,218 @@
 {extends file="base.html"}
 
+{block name="body"}
+<!-- BEGIN HEADER -->
+<div class="page-header md-shadow-z-1-i navbar navbar-fixed-top">
+    <!-- BEGIN HEADER INNER -->
+    <div class="page-header-inner">
+        <!-- BEGIN LOGO -->
+        <div class="page-logo">
+            <a href="javascript:void(0);">
+                <span style="line-height: 46px;font-size: 21px;text-decoration:none;color: whitesmoke">Kbylin</span>
+            </a>
+            <div class="menu-toggler sidebar-toggler">
+            </div>
+        </div>
+        <div class="hor-menu hor-menu-light hidden-sm hidden-xs">
+            <ul class="nav navbar-nav">
+                {* 单个链接 *}
+                <li class="classic-menu-dropdown active">
+                    <a href="index.html"> Dashboard <span class="selected"></span>
+                    </a>
+                </li>
+                {* 大表盘 *}
+                <li class="mega-menu-dropdown">
+                    <a data-toggle="dropdown" href="javascript:;" class="dropdown-toggle">
+                        Mega <i class="fa fa-angle-down"></i>
+                    </a>
+                    <ul class="dropdown-menu" style="min-width: 700px;">
+                        <li>
+                            <div class="mega-menu-content">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <ul class="mega-menu-submenu">
+                                            <li>
+                                                <h3>Layouts</h3>
+                                            </li>
+                                            <li>
+                                                <a href="index_horizontal_menu.html">
+                                                    <i class="fa fa-angle-right"></i> Dashboard & Mega Menu </a>
+                                            </li>
+                                            <li>
+                                                <a href="layout_full_height_portlet.html">
+                                                    Full Height Portlet <span class="badge badge-roundless badge-danger">new</span></a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <ul class="mega-menu-submenu">
+                                            <li>
+                                                <h3>More Layouts</h3>
+                                            </li>
+                                            <li>
+                                                <a href="layout_horizontal_menu2.html">
+                                                    Horizontal Mega Menu 2 </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <ul class="mega-menu-submenu">
+                                            <li>
+                                                <h3>Even More!</h3>
+                                            </li>
+                                            <li>
+                                                <a href="layout_sidebar_closed.html">
+                                                    Sidebar Closed Page </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+                <li class="classic-menu-dropdown">
+                    <a data-toggle="dropdown" href="javascript:;">
+                        Classic <i class="fa fa-angle-down"></i>
+                    </a>
+                    <ul class="dropdown-menu pull-left">
+                        <li>
+                            <a href="javascript:;">
+                                <i class="fa fa-bookmark-o"></i> Section 1 </a>
+                        </li>
+                        <li>
+                            <a href="javascript:;">
+                                <i class="fa fa-user"></i> Section 2 </a>
+                        </li>
+                        <li class="dropdown-submenu">
+                            <a href="javascript:;">
+                                <i class="fa fa-envelope-o"></i> More options </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="javascript:;">
+                                        Second level link </a>
+                                </li>
+                                <li class="dropdown-submenu">
+                                    <a href="javascript:;">
+                                        More options </a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a href="index.html">
+                                                Third level link </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <!-- END HEADER SEARCH BOX -->
+        <!-- BEGIN RESPONSIVE MENU TOGGLER -->
+        <a href="javascript:;" class="menu-toggler responsive-toggler" data-toggle="collapse" data-target=".navbar-collapse">
+        </a>
+        <!-- END RESPONSIVE MENU TOGGLER -->
+        <!-- BEGIN TOP NAVIGATION MENU -->
+        <div class="top-menu">
+            <ul class="nav navbar-nav pull-right">
+                <li class="dropdown dropdown-user">
+                    <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                        <img alt="" class="img-circle" src="../../assets/admin/layout/img/avatar3_small.jpg"/>
+                        <span class="username username-hide-on-mobile"> Nick </span>
+                        <i class="fa fa-angle-down"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-default">
+                        <li>
+                            <a href="inbox.html">
+                                <i class="icon-envelope-open"></i> My Inbox <span class="badge badge-danger">
+							3 </span>
+                            </a>
+                        </li>
+                        <li class="divider">
+                        </li>
+                        <li>
+                            <a href="extra_lock.html">
+                                <i class="icon-lock"></i> Lock Screen </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown dropdown-quick-sidebar-toggler">
+                    <a href="javascript:;" class="dropdown-toggle">
+                        <i class="icon-logout"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="clearfix">
+</div>
+<div class="page-container">
+    <div class="page-sidebar-wrapper">
+        <div class="page-sidebar navbar-collapse collapse">
+            <!-- 左侧边栏 -->
+            <ul class="page-sidebar-menu page-sidebar-menu-light  hidden-sm hidden-xs" data-auto-scroll="true" data-slide-speed="200">
+                <!-- 搜索框 -->
+                <li class="sidebar-search-wrapper">
+                    <form class="sidebar-search sidebar-search-bordered" action="#" method="POST">
+                        <a href="javascript:;" class="remove">
+                            <i class="icon-close"></i>
+                        </a>
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Search...">
+							<span class="input-group-btn">
+							<button class="btn submit"><i class="icon-magnifier"></i></button>
+							</span>
+                        </div>
+                    </form>
+                </li>
+                <!-- 带子菜单 -->
+                <li class="start active open">
+                    <a href="javascript:;">
+                        <i class="fa fa-cogs"></i>
+					<span class="title">
+					Page Layouts </span>
+					<span class="arrow open">
+					</span>
+                        <span class="selected"></span>
+                    </a>
+                    <ul class="sub-menu">
+                        <li class="active">
+                            <a href="layout_horizontal_sidebar_menu.html">
+                                Horizontal & Sidebar Menu </a>
+                        </li>
+                        <li>
+                            <a href="layout_fontawesome_icons.html">
+                                <span class="badge badge-roundless badge-danger">new</span>Layout with Fontawesome Icons</a>
+                        </li>
+                    </ul>
+                </li>
+                <!-- 直接链接 -->
+                <li>
+                    <a href="charts.html">
+                        <i class="fa fa-bar-chart-o"></i>
+					<span class="title">
+					Visual Charts </span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="page-content-wrapper">
+        <div class="page-content">
+        </div>
+    </div>
+</div>
+
+{* 足部 *}
+<div class="page-footer">
+    <div class="page-footer-inner">
+        2014 &copy; Metronic by keenthemes.
+    </div>
+    <div class="scroll-to-top">
+        <i class="icon-arrow-up"></i>
+    </div>
+</div>
+{/block}
 
