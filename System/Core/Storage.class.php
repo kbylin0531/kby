@@ -36,6 +36,14 @@ class Storage {
 
     ];
 
+
+    /**
+     * 目录存在与否
+     */
+    const IS_DIR = -1;
+    const IS_FILE = 1;
+    const IS_EMPTY  =0;
+
     /**
      * 驱动实例
      * @var StorageInterface[]
@@ -78,10 +86,11 @@ class Storage {
      * 获取文件内容
      * @param string $filepath 文件路径
      * @param string $fileEncoding 文件内容实际编码
+     * @param bool $recursion 如果读取到的文件是目录,是否进行递归读取,默认为false
      * @return string|false 文件不存在或者文件无法访问时返回false,否则返回文件文本内容string
      */
-    public static function read($filepath, $fileEncoding='UTF-8'){
-        return self::getDriver(self::$_curindex)->read($filepath,$fileEncoding);
+    public static function read($filepath, $fileEncoding='UTF-8',$recursion=false){
+        return self::getDriver(self::$_curindex)->read($filepath,$fileEncoding,$recursion);
     }
 
     /**
@@ -119,6 +128,17 @@ class Storage {
 
 
     /**
+     * 设定文件的访问和修改时间
+     * @param string $filename 文件路径
+     * @param int $time
+     * @param int $atime
+     * @return bool
+     */
+    public static function touch($filename, $time = null, $atime = null){
+        return self::getDriver(self::$_curindex)->touch($filename,$time,$atime);
+    }
+
+    /**
      * 文件删除
      * @param string $filename  文件名
      * @return bool 是否成功删除文件
@@ -129,13 +149,12 @@ class Storage {
 
     /**
      * 返回文件内容上次的修改时间
-     * 可以使用stat获取信息
-     * @access public
-     * @param string $filename  文件名
-     * @return int|false 返回Unix时间戳,失败时返回false
+     * @param string $filepath 文件路径
+     * @param int $mtime 修改时间
+     * @return int|bool 如果是修改时间的操作,返回的bool值表示成功与否;如果是获取修改时间,则返回Unix时间戳或者bool值的false表示获取修改时间失败
      */
-    public static function mtime($filename){
-        return self::getDriver(self::$_curindex)->mtime($filename);
+    public static function mtime($filepath,$mtime=null){
+        return self::getDriver(self::$_curindex)->mtime($filepath,$mtime);
     }
 
     /**
@@ -156,6 +175,25 @@ class Storage {
      */
     public static function makeDirectory($fullpath,$auth = 0755){
         return self::getDriver(self::$_curindex)->makeDirectory($fullpath,$auth);
+    }
+
+    /**
+     * 创建文件夹
+     * @param string $dirpath 文件夹路径
+     * @param int $auth 文件夹权限
+     * @return null
+     */
+    public static function mkdir($dirpath,$auth = 0755){
+        return self::getDriver(self::$_curindex)->mkdir($dirpath,$auth);
+    }
+    /**
+     * 修改文件权限
+     * @param string $filepath 文件路径
+     * @param int $auth 文件权限
+     * @return bool
+     */
+    public static function chmod($filepath,$auth = 0755){
+        return self::getDriver(self::$_curindex)->chmod($filepath,$auth);
     }
 
     /**
