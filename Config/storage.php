@@ -12,8 +12,8 @@ return [
     ],
     'DRIVER_CONFIG_LIST' => [
         [
-            'READ_LIMIT_ON'     => false,
-            'WRITE_LIMIT_ON'    => false,
+            'READ_LIMIT_ON'     => true,
+            'WRITE_LIMIT_ON'    => true,
             'READABLE_SCOPE'    => BASE_PATH,
             'WRITABLE_SCOPE'    => RUNTIME_PATH,
             'ACCESS_FAILED_MODE'    => MODE_RETURN,

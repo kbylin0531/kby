@@ -19,7 +19,12 @@ class StorageTest {
 //        $this->testSize();
 
 //        $this->testMakeDir();
-        $this->testTouch();
+//        $this->testTouch();
+//        $this->testUnlink();
+//        $this->testWrite();
+        $this->testAppend();
+
+
 
     }
 
@@ -56,19 +61,46 @@ class StorageTest {
     public function testTouch(){
         dumpout(Storage::touch('D:\\中文2\\才1',140000000,140000000),Storage::touch('D:\\中文2\\才2',140000000,140000000));//测试存在和不存在的文件
     }
+    public function testUnlink(){
+        dumpout(Storage::unlink('D:/abs.txt')
+        ,Storage::unlink('D:/中文2')
+        ,Storage::unlink('D:/中文2',true)
+        );
+    }
 
 
 
 
     public function testWrite(){
         dumpout(
-//            Storage::write(BASE_PATH.'test.txt','yes 中文','UTF-8')
-            Storage::write(RUNTIME_PATH.'/才/才/c/test.txt','yes 中文','UTF-8') //BASE_PATH RUNTIME_PATH
-//            ,Storage::write(RUNTIME_PATH.'test2.txt','这是一段中文','GB2312') //BASE_PATH RUNTIME_PATH
+            //使用notepad++打开看到右下角编码还是ANSI的情况通常是中文字变化幅度不大的缘故,使用一大段中文代替"中文"两个字更能达到检测的目的
+            Storage::write('D:/test1.txt','yes 这里由一大肚的合适觉得会觉得就会撒计划中文','UTF-8')
+            ,Storage::write('D:/test2.txt','yes 这里由一大肚的合适觉得会觉得就会撒计划中文','GBK')
+            ,Storage::write('D:/test3.txt','yes 这里由一大肚的合适觉得会觉得就会撒计划中文','GB2312')
 
+            ,Storage::write(RUNTIME_PATH.'中文目录/test.txt','yes 这里是大家阿斯顿健身卡几点回家啊放假开始的附近号手机打开啊尽快 ','UTF-8') //BASE_PATH RUNTIME_PATH
+            ,Storage::write(RUNTIME_PATH.'中文目录/test2.txt','yes 这里是大家阿斯顿健身卡几点回家啊放假开始的附近号手机打开啊尽快','GBK') //BASE_PATH RUNTIME_PATH
         );
     }
 
+
+    public function testAppend(){
+        dumpout(
+            Storage::append('D:/test1.txt','yes 这里由一大肚的合适觉得会觉得就会撒计划中文','UTF-8')//写入已知文件
+            ,Storage::append('D:/test4.txt','yes 这里由一大肚的合适觉得会觉得就会撒计划中文','UTF-8')//写入不存在的文件
+
+
+            //出现了GB2312中没有的中文,被当成空格写入??  否,操作系统无法显示该中文的缘故
+            ,Storage::append('D:/这个人/噷.txt','yes 这里由一大肚的合适觉得会觉得就会撒计划中文','UTF-8')//写入中文路径已知文件
+            ,Storage::append('D:/这个人/噷2.txt','yes 这里由一大肚的合适觉得会觉得就会撒计划中文','UTF-8')//写入中文路径不存在的文件
+
+            ,Storage::read('D:/这个人/噷.txt')
+
+            ,Storage::append('D:/这个人/很帅.txt','yes 这里由一大肚的合适觉得会觉得就会撒计划中文','UTF-8')//写入中文路径已知文件
+            ,Storage::append('D:/这个人/很帅2.txt','yes 这里由一大肚的合适觉得会觉得就会撒计划中文','UTF-8')//写入中文路径不存在的文件
+
+        );
+    }
 
 
 }

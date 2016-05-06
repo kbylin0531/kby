@@ -51,9 +51,7 @@ class File implements StorageInterface {
      * @throws KbylinException 编码转换失败时抛出异常
      */
     public function toSystemEncode($str,$strencode='UTF-8'){
-        $result = iconv($strencode,$this->convention['OS_ECNODE'].'//IGNORE',$str);
-        if(false === $result) throw new KbylinException("{$strencode} ==> GB2312 failed!");
-        return $result;
+        return iconv($strencode,$this->convention['OS_ECNODE'].'//IGNORE',$str);
     }
 
     /**
@@ -64,9 +62,7 @@ class File implements StorageInterface {
      * @throws KbylinException 编码转换失败时抛出异常
      */
     public function toProgramEncode($str){
-        $result = iconv($this->convention['OS_ECNODE'],'UTF-8//IGNORE',$str);
-        if(false === $result) throw new KbylinException(['GB2312','UTF-8//IGNORE',$str]);
-        return $result;
+        return iconv($this->convention['OS_ECNODE'],'UTF-8//IGNORE',$str);
     }
 
     /**
@@ -110,7 +106,9 @@ class File implements StorageInterface {
 
 
 
-/*TODO:读取 *********************************************************************************************************************/
+/*****************************************************************************************************************/
+//  读取
+/*****************************************************************************************************************/
 
     /**
      * 获取文件内容
@@ -119,10 +117,10 @@ class File implements StorageInterface {
      * @param string $filepath 文件路径,PHP源码中格式是UTF-8，需要转成GB2312才能使用
      * @param string|array $file_encoding 文件内容实际编码,可以是数组集合或者是编码以逗号分开的字符串
      * @param bool $recursion 如果读取到的文件是目录,是否进行递归读取,默认为false
-     * @return string|array|false 返回文件时间内容
+     * @return string|array|false|null 返回文件时间内容;返回null表示在访问的范围之外
      */
     public function read($filepath, $file_encoding=null,$recursion=false){//,$output_encode='UTF-8'
-        if(!$this->checkReadableWithRevise($filepath)) return false;
+        if(!$this->checkReadableWithRevise($filepath)) return null;
 
         if(is_file($filepath)){
             return $this->_readFile($filepath, $file_encoding);
@@ -165,11 +163,10 @@ class File implements StorageInterface {
      * @param $dirpath
      * @param bool $recursion 是否进行递归读取
      * @param bool $_isouter 辅助参数,用于判断是外部调用还是内部的
-     * @return array|null
-     * @throws KbylinException
+     * @return array
      */
     private function _readDir($dirpath, $recursion=false, $_isouter=true){
-        static $_file = null;
+        static $_file = [];
         static $_dirpath_toread = null;
 
         if(true === $_isouter){
@@ -205,7 +202,7 @@ class File implements StorageInterface {
      * @return int 0表示目录不存在,<0表示是目录 >0表示是文件,可以用Storage的三个常量判断
      */
     public function has($filepath){
-        if(!$this->checkReadableWithRevise($filepath)) return false;
+        if(!$this->checkReadableWithRevise($filepath)) return null;
         if(is_dir($filepath)) return Storage::IS_DIR;
         if(is_file($filepath)) return Storage::IS_FILE;
         return Storage::IS_EMPTY;
@@ -215,46 +212,31 @@ class File implements StorageInterface {
      * 返回文件内容上次的修改时间
      * @param string $filepath 文件路径
      * @param int $mtime 修改时间
-     * @return int|bool 如果是修改时间的操作,返回的bool值表示成功与否;如果是获取修改时间,则返回Unix时间戳或者bool值的false表示获取修改时间失败
+     * @return int|bool|null 如果是修改时间的操作返回的bool;如果是获取修改时间,则返回Unix时间戳;返回null表示在访问的范围之外
      */
     public function mtime($filepath,$mtime=null){
-        if(!$this->checkReadableWithRevise($filepath)) return false;
+        if(!$this->checkReadableWithRevise($filepath)) return null;
         return file_exists($filepath)?null === $mtime?filemtime($filepath):touch($filepath,$mtime):false;
     }
 
     /**
      * 获取文件按大小
      * @param string $filepath 文件路径
-     * @return int|false 按照字节计算的单位
+     * @return int|false|null 按照字节计算的单位;返回null表示在访问的范围之外
      */
     public function size($filepath){
-        if(!$this->checkReadableWithRevise($filepath)) return false;
+        if(!$this->checkReadableWithRevise($filepath)) return null;
         return file_exists($filepath)?filesize($filepath):false;//即便是加了@filesize也无法防止系统的报错
     }
 
-/*TODO:写入 *********************************************************************************************************************/
-    /**
-     * 设定文件的访问和修改时间
-     * 注意的是:内置函数touch在文件不存在的情况下会创建新的文件,此时创建时间可能大于修改时间和访问时间
-     *         但是如果是在上层目录不存在的情况下
-     * @param string $filepath 文件路径
-     * @param int $mtime 文件修改时间
-     * @param int $atime 文件访问时间，如果未设置，则值设置为mtime相同的值
-     * @return bool 是否成功
-     */
-    public function touch($filepath, $mtime = null, $atime = null){
-        if(!$this->checkWritableWithRevise($filepath)) return false;
-        if(!file_exists($filepath)){
-            $this->_makeDir(dirname($filepath));
-        }
-        return touch($filepath, $mtime,$atime);
-    }
-
+/*****************************************************************************************************************/
+//  写入
+/*****************************************************************************************************************/
     /**
      * 创建文件夹
      * @param string $dirpath 文件夹路径
      * @param int $auth 文件夹权限
-     * @return null
+     * @return bool|null 返回null表示在访问的范围之外
      */
     public function mkdir($dirpath,$auth = 0755){
         if(!$this->checkWritableWithRevise($dirpath)) return false;
@@ -262,10 +244,27 @@ class File implements StorageInterface {
     }
 
     /**
+     * 设定文件的访问和修改时间
+     * 注意的是:内置函数touch在文件不存在的情况下会创建新的文件,此时创建时间可能大于修改时间和访问时间
+     *         但是如果是在上层目录不存在的情况下
+     * @param string $filepath 文件路径
+     * @param int $mtime 文件修改时间
+     * @param int $atime 文件访问时间，如果未设置，则值设置为mtime相同的值
+     * @return bool 是否成功|返回null表示在访问的范围之外
+     */
+    public function touch($filepath, $mtime = null, $atime = null){
+        if(!$this->checkWritableWithRevise($filepath)) return null;
+        if(!file_exists($filepath)){
+            $this->_makeDir(dirname($filepath));
+        }
+        return touch($filepath, $mtime,$atime);
+    }
+
+    /**
      * 修改文件权限
      * @param string $filepath 文件路径
      * @param int $auth 文件权限
-     * @return bool
+     * @return bool 是否成功修改了该文件|返回null表示在访问的范围之外
      */
     public function chmod($filepath,$auth = 0755){
         if(!$this->checkWritableWithRevise($dirpath)) return false;
@@ -279,6 +278,8 @@ class File implements StorageInterface {
      * @return bool 文件夹已经存在的时候返回false,成功创建返回true
      */
     private function _makeDir($dirpath,$auth = 0755){
+        
+//        dumpout(is_dir($dirpath),$this->toProgramEncode($dirpath),mkdir($dirpath,$auth,true));
         return is_dir($dirpath)?false:mkdir($dirpath,$auth,true);
     }
 
@@ -287,12 +288,48 @@ class File implements StorageInterface {
      * 删除目录时必须保证该目录为空
      * @param string $filepath 文件或者目录的路径
      * @param bool $recursion 删除的目标是目录时,若目录下存在文件,是否进行递归删除,默认为false
-     * @return bool 是否成功删除
+     * @return bool 是否成功删除|返回null表示在访问的范围之外
      */
     public function unlink($filepath,$recursion=false){
         if(!$this->checkWritableWithRevise($filepath)) return null;
-        return is_file($filepath)?unlink($filepath):rmdir($filepath);
+        if(is_file($filepath)){
+            return unlink($filepath);
+        }elseif(is_dir($filepath)){
+            return $this->_removeDir($filepath,$recursion);
+        }else{
+            return false;
+        }
     }
+
+    /**
+     * 删除文件夹
+     * 注意:@rmdir($dirpath); 也无法阻止报错
+     * @param string $dirpath 文件夹名路径
+     * @param bool $recursion 是否递归删除
+     * @return bool 目录不存在返回false
+     */
+    private function _removeDir($dirpath,$recursion=false){
+        if(!is_dir($dirpath)) return false;
+        //扫描目录
+
+        $dh = opendir($dirpath);
+        while ($file = readdir($dh)) {
+            if($file === '.' or $file === '..') continue;
+
+            if(!$recursion) {//存在其他文件或者目录,非true时循环删除
+                closedir($dh);
+                return false;
+            }
+
+            $path = str_replace('\\','/',"{$dirpath}/{$file}");
+            if(is_dir($path) and !$this->_removeDir($path,$recursion)) return false;
+            if(is_file($path) and !unlink($path)) return false;
+        }
+        closedir($dh);
+        return rmdir($dirpath);
+    }
+
+
 
     /**
      * 将指定内容写入到文件中
@@ -300,24 +337,26 @@ class File implements StorageInterface {
      * @param string $content 要写入的文件内容
      * @param string $write_encode 写入文件时的编码
      * @param string $text_encode 文本本身的编码格式,默认使用UTF-8的编码格式
-     * @return int 返回写入的字节数目,失败时抛出异常
+     * @return bool 是否成功写入|返回null表示在访问的范围之外
      */
     public function write($filepath,$content,$write_encode=null,$text_encode='UTF-8'){
-        if(!$this->checkWritableWithRevise($filepath)) return false;
+        if(!$this->checkWritableWithRevise($filepath)) return null;
+        return $this->_write($filepath,$content,$write_encode,$text_encode);
+    }
 
+    private function _write($filepath,$content,$write_encode=null,$text_encode='UTF-8'){
+        //文件父目录检测
         $dir = dirname($filepath);
+        if(!is_dir($dir)) $this->_makeDir($dir);
 
-        dumpout($dir);
-        if(!$this->has($dir)) $this->makeDirectory($dir);//父目录不存在时创建
-
+        //文本编码检测
         null === $write_encode and $write_encode = $this->convention['WRITEIN_ENCODE'];
-
-//        dump($write_encode,$text_encode,iconv($text_encode,$write_encode.'//IGNORE',$content));
         if($write_encode !== $text_encode){//写入的编码并非是文本的编码时进行转化
             $content = iconv($text_encode,$write_encode.'//IGNORE',$content);
         }
-        $result = file_put_contents($filepath,$content);
-        return $result === false?false:$result > 0;
+
+        //文件写入
+        return file_put_contents($filepath,$content) > 0;
     }
 
     /**
@@ -325,105 +364,28 @@ class File implements StorageInterface {
      * @param string $filepath 文件路径
      * @param string $content 要写入的文件内容
      * @param string $write_encode 写入文件时的编码
-     * @return bool 是否成功写入
-     * @throws KbylinException
+     * @param string $text_encode 文本本身的编码格式,默认使用UTF-8的编码格式
+     * @return bool|null 是否成功写入,返回null表示无法访问该范围的文件
      */
-    public function append($filepath,$content,$write_encode='UTF-8'){
+    public function append($filepath,$content,$write_encode=null,$text_encode='UTF-8'){
         if(!$this->checkWritableWithRevise($filepath)) return null;
-//        SEK::dump($filepath,$content,$write_encode);exit;
-        if(!$this->has($filepath)){
-            return $this->write($filepath,$content,$write_encode);
-        }
-        if(false === is_writable($temp)){
-            throw new KbylinException($filepath);
-        }
-        $handler = fopen($temp,'a+');//追加方式，如果文件不存在则无法创建
-        if($write_encode !== 'UTF-8'){
-            $content = iconv('UTF-8',$write_encode,$content);
-        }
-        $rst = fwrite($handler,$content);
-        if(false === fclose($handler)) throw new KbylinException($filepath,$content);
+
+        //文件不存在时
+        if(!is_file($filepath)) return $this->_write($filepath,$content,$write_encode);
+
+        //打开文件
+        $handler = fopen($filepath,'a+');//追加方式，如果文件不存在则无法创建
+        if(false === $handler) return false;
+
+        //编码处理
+        null === $write_encode and $write_encode = $this->convention['WRITEIN_ENCODE'];
+        $write_encode !== $text_encode and $content = iconv($text_encode,$write_encode,$content);
+
+        //关闭文件
+        $rst = fwrite($handler,$content); //出现错误时返回false
+        if(false === fclose($handler)) return false;
+
         return $rst > 0;
     }
 
-/*TODO:目录 *********************************************************************************************************************/
-    /**
-     * @param string $path 目录
-     * @param bool $recursion
-     * @param bool $clear 是否清除之前的配置
-     * @return array
-     * @throws KbylinException
-     */
-    public function readDirectory($path,$recursion=false,$clear=true){
-        static $_file = [];
-        if(!$this->checkReadableWithRevise($path)) return null;
-        if($clear){
-            $_file = array();
-            $path = $this->toSystemEncode($path);//不能多次转换，iconv函数不能自动识别自负编码
-        }
-        if (is_dir($path)) {
-            $handler = opendir($path);
-            while (($filename = readdir( $handler )) !== false) {//未读到最后一个文件   继续读
-                if ($filename !== '.' && $filename !== '..' ) {//文件除去 .和..
-                    $fullpath = $path . $filename;
-                    if(file_exists($fullpath)) {
-                        $filename = $this->toProgramEncode($filename);
-                        $fullpath = $this->toProgramEncode($fullpath);
-                        $_file[$filename] = str_replace('\\','/',$fullpath);
-                    }
-                    if(is_dir($fullpath) and $recursion) {
-                        $this->readDirectory($fullpath,$recursion,false);//递归,不清空
-                    }
-                }
-            }
-            closedir($handler);//关闭目录指针
-        }else{
-            throw new KbylinException("Path '{$path}' is not a dirent!");
-        }
-        return $_file;
-    }
-
-    /**
-     * 删除文件夹
-     * @param string $dirpath 文件夹名路径
-     * @param bool $recursion 是否递归删除
-     * @return bool
-     */
-    public function removeDirectory($dirpath,$recursion=false){
-        if(!$this->checkWritableWithRevise($dirpath)) return null;
-        if(!$this->has($dirpath)) return false;
-        //扫描目录
-        $dh = opendir($this->toSystemEncode($dirpath));
-        while ($file = readdir($dh)) {
-            if($file !== '.' && $file !== '..') {
-                if(!$recursion) {//存在其他文件或者目录,非true时循环删除
-                    closedir($dh);
-                    return false;
-                }
-                $path = str_replace('\\','/',"{$dirpath}/{$file}");
-                if(false === (is_dir($this->toSystemEncode($path))?$this->removeDirectory($path,true):$this->unlink($path))){
-                    return false;//***全等运算符优先级高于三目
-                }
-            }
-        }
-        closedir($dh);
-        return $this->unlink($dirpath);
-    }
-    /**
-     * 创建文件夹
-     * 如果文件夹已经存在，则修改权限
-     * @param string $dirpath 文件夹路径
-     * @param int $auth 文件权限，八进制表示
-     * @return bool
-     */
-    public function makeDirectory($dirpath,$auth = 0755){
-        $dirpath = $this->toSystemEncode($dirpath);
-        if(!$this->checkWritableWithRevise($dirpath)) return null;
-        $dirpath = $this->toSystemEncode($dirpath);
-        if(is_dir($dirpath)){
-            return chmod($dirpath,$auth);
-        }else{
-            return mkdir($dirpath,$auth,true);
-        }
-    }
 }

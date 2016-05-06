@@ -33,7 +33,7 @@ class CwebsActionScannerAdapter implements ActionScannerAdapterInterface{
 
     public function fetchModule(){
         $modules = [];
-        $files = Storage::readDirectory($this->scandir,false);
+        $files = Storage::read($this->scandir,false);
         foreach ($files as $name=>$path){
             if(is_dir($path)) $modules[] = $name;
         }
@@ -43,7 +43,7 @@ class CwebsActionScannerAdapter implements ActionScannerAdapterInterface{
     public function fetchController($modulename){
         $contlers = [];
         $path = $this->scandir.$modulename.'/';
-        $infos = Storage::readDirectory($path);
+        $infos = Storage::read($path);
         foreach ($infos as $name=>$path){
             $name = strstr($name,'.class.php',true);
             if(in_array($name,[
@@ -71,7 +71,7 @@ class CwebsActionScannerAdapter implements ActionScannerAdapterInterface{
 //        dump($content);
         $newcontent = str_replace($controller,$tempclassname,$content);
 //        dumpout($newcontent);
-        if(Storage::write($tempfile,$newcontent) <= 0) throw new KbylinException('Write failed!');
+        if(!Storage::write($tempfile,$newcontent)) throw new KbylinException('Write failed!');
 //        dump($module,$controller,$tempfile);
         include_once $tempfile;
         if(!class_exists($tempclassname)) throw new KbylinException('Invalid module and controller!',$module,$controller,$tempfile);
