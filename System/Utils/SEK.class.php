@@ -19,6 +19,7 @@ final class SEK {
      */
     const CALL_PLACE_SELF       = 0; //表示调用者自身的位置
     const CALL_PLACE_FORWARD    = 1;// 表示调用调用者的位置
+    const CALL_PLACE_FURTHER_FORWARD = 2;
     /**
      * 信息组成
      */
@@ -560,7 +561,7 @@ final class SEK {
      * @return array|string
      */
     public static function getCallPlace($elements=0, $place=self::CALL_PLACE_FORWARD){
-        $trace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT,2);
+        $trace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT);
         if($elements){
             $result = [];
             $elements & self::CALL_ELEMENT_ARGS     and $result[self::CALL_ELEMENT_ARGS]    = isset($trace[$place]['args'])?$trace[$place]['args']:null;
@@ -636,10 +637,11 @@ final class SEK {
      * @return bool
      */
     public static function checkPathContainedInScope($path, $scope){
-        if(false !== strpos($path,'\\\\'))  $path  = str_replace('\\\\','/',$path);
-        if(false !== strpos($scope,'\\\\')) $scope = str_replace('\\\\','/',$scope);
+        if(false !== strpos($path,'\\'))  $path  = str_replace('\\','/',$path);
+        if(false !== strpos($scope,'\\')) $scope = str_replace('\\','/',$scope);
         $path = rtrim($path,'/');
         $scope = rtrim($scope,'/');
+//        dumpout($path,$scope);
         return (IS_WIN?stripos($path,$scope):strpos($path,$scope)) === 0;
     }
 

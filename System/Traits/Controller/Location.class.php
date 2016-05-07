@@ -7,6 +7,7 @@
  */
 namespace System\Traits\Controller;
 use System\Utils\Network;
+use System\Utils\SEK;
 
 trait Location{
 
@@ -46,7 +47,7 @@ trait Location{
             'javascript:history.back(-1);':
             'javascript:window.close();';
 
-        \Kbylin::loadTemplate('jump',$vars);
+        SEK::loadTemplate('jump',$vars);
     }
 
     /**

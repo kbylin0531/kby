@@ -11,4 +11,7 @@ use Application\Admin\Library\AdminController;
 
 class Lang extends AdminController{
 
+    public function index(){
+        $this->display();
+    }
 }

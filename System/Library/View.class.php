@@ -101,6 +101,7 @@ class View {
 
         $path = APP_PATH."{$context['m']}/View/{$context['c']}/";
         isset($context['t']) and $path = "{$path}{$context['t']}/";
+//        dumpout($thisconvention,$path,$context);
         $path = "{$path}{$context['a']}.{$thisconvention['TEMPLATE_SUFFIX']}";
         return $path;
     }

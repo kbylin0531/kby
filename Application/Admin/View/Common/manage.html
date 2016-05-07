@@ -1,18 +1,16 @@
-{extends file="base.html"}
+{extends file="./base.html"}
 
 {block name="body"}
-<!-- BEGIN HEADER -->
 <div class="page-header md-shadow-z-1-i navbar navbar-fixed-top">
-    <!-- BEGIN HEADER INNER -->
     <div class="page-header-inner">
-        <!-- BEGIN LOGO -->
+        {* LOGO *}
         <div class="page-logo">
             <a href="javascript:void(0);">
-                <span style="line-height: 46px;font-size: 21px;text-decoration:none;color: whitesmoke">Kbylin</span>
+                <img src="{$smarty.const.PUBLIC_URI}/assets/img/logo.png" alt="logo" class="logo-default" />
             </a>
-            <div class="menu-toggler sidebar-toggler">
-            </div>
+            <div class="menu-toggler sidebar-toggler"></div>
         </div>
+
         <div class="hor-menu hor-menu-light hidden-sm hidden-xs">
             <ul class="nav navbar-nav">
                 {* 单个链接 *}
@@ -110,7 +108,7 @@
         </div>
         <!-- END HEADER SEARCH BOX -->
         <!-- BEGIN RESPONSIVE MENU TOGGLER -->
-        <a href="javascript:;" class="menu-toggler responsive-toggler" data-toggle="collapse" data-target=".navbar-collapse">
+        <a href="#" class="menu-toggler responsive-toggler" data-toggle="collapse" data-target=".navbar-collapse">
         </a>
         <!-- END RESPONSIVE MENU TOGGLER -->
         <!-- BEGIN TOP NAVIGATION MENU -->
@@ -146,8 +144,7 @@
         </div>
     </div>
 </div>
-<div class="clearfix">
-</div>
+<div class="clearfix"></div>
 <div class="page-container">
     <div class="page-sidebar-wrapper">
         <div class="page-sidebar navbar-collapse collapse">

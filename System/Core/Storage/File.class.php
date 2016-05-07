@@ -81,6 +81,7 @@ class File implements StorageInterface {
         $temp = dirname($path);//修改的目录
         $path = $this->toSystemEncode($path);
         if(!$limiton or !$scope) return true;
+//        dumpout($temp,$scope,SEK::checkPathContainedInScope($temp,$scope));
         return SEK::checkPathContainedInScope($temp,$scope);
     }
 

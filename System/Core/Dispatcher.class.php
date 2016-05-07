@@ -20,8 +20,8 @@ class Dispatcher{
 
     const CONF_NAME = 'dispatcher';
     const CONF_CONVENTION = [
-        'EMPTY_CONTROLLER'  => null,//控制器不存在时访问的空控制器
-        'EMPTY_ACTION'      => null,//控制器中不存在指定方法时反问的方法的名称
+        'EMPTY_CONTROLLER'  => 'Index',//控制器不存在时访问的空控制器
+        'EMPTY_ACTION'      => 'index',//控制器中不存在指定方法时反问的方法的名称
     ];
 
     /**
@@ -73,6 +73,7 @@ class Dispatcher{
             if($thisconvention['EMPTY_ACTION'] and method_exists($classInstance,$thisconvention['EMPTY_ACTION'])){
                 $action = $thisconvention['EMPTY_ACTION'];
             }else{
+                dumpout($action);  
                 throw new ActionNotFoundException($action);
             }
         }

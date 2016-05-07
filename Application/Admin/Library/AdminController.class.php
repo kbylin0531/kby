@@ -7,25 +7,22 @@
  */
 namespace Application\Admin\Library;
 
-use Application\Admin\Model\AuthorityModel;
-use System\Traits\Controller\Render;
+use System\Library\Controller;
 use System\Utils\Assets;
 
-class AdminController {
+class AdminController extends Controller{
 
-    use Render;
 
     public function __construct(){
-
-        dumpout(Assets::load('menu'));
-        $authModel = new AuthorityModel();
-        $modules = $authModel->getAccessableModules();
-        $this->assign('modules',$modules);
-
-        $actions = $authModel->getAccessableActions(1);
-        $this->assign('actions',$actions);
-
         $this->checkLogin() or $this->redirectLoginPage();
+    }
+
+    protected function displayManagement($template = null, $cache_id = null, $compile_id = null, $parent = null){
+        //加载模块和菜单
+        $this->assign('info',$this->getInfo());
+        $this->assign('modules',$this->getModules());
+        $this->assign('actions',$this->getActions());
+        $this->display($template , $cache_id , $compile_id, $parent);
     }
 
     /**
@@ -35,6 +32,18 @@ class AdminController {
         $this->assignUserInfoList();
         $this->assignModulesList();
         $this->assignActionsList();
+    }
+
+    private function getInfo(){
+        return Assets::load('_info');
+    }
+
+    private function getModules(){
+        return Assets::load('_menu');
+    }
+
+    private function getActions(){
+        return Assets::load('_action');
     }
 
     /**
