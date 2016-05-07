@@ -58,7 +58,7 @@ var Layout = function () {
 
     // Handle sidebar menu links
     var handleSidebarMenuActiveLink = function(mode, el) {
-        var url = location.hash.toLowerCase();    
+        var url = location.hash.toLowerCase();
 
         var menu = page_sidebar_menu;
 
@@ -66,8 +66,8 @@ var Layout = function () {
             el = $(el);
         } else if (mode === 'match') {
             menu.find("li > a").each(function() {
-                var path = $(this).attr("href").toLowerCase();       
-                // url match condition         
+                var path = $(this).attr("href").toLowerCase();
+                // url match condition
                 if (path.length > 1 && url.substr(1, path.length - 1) == path.substr(1)) {
                     el = $(this);
                 }
@@ -80,7 +80,7 @@ var Layout = function () {
 
         if (el.attr('href').toLowerCase() === 'javascript:;' || el.attr('href').toLowerCase() === '#') {
             return;
-        }        
+        }
 
         // disable active states
         menu.find('li.active').removeClass('active');
@@ -91,8 +91,8 @@ var Layout = function () {
                 if ($(this).children('.sub-menu').size() === 0) {
                     $(this).removeClass('open');
                     $(this).find('> a > .arrow.open').removeClass('open');
-                }                             
-            }); 
+                }
+            });
         } else {
              menu.find('li.open').removeClass('open');
         }
@@ -104,14 +104,14 @@ var Layout = function () {
             if ($(this).parent('ul.page-sidebar-menu').size() === 1) {
                 $(this).find('> a').append('<span class="selected"></span>');
             }
-            
+
             if ($(this).children('ul.sub-menu').size() === 1) {
                 $(this).addClass('open');
             }
         });
 
         if (mode === 'click') {
-            if (App.getViewPort().width < resBreakpointMd && page_sidebar.hasClass("in")) { // close the menu on mobile view while laoding a page 
+            if (App.getViewPort().width < resBreakpointMd && page_sidebar.hasClass("in")) { // close the menu on mobile view while laoding a page
                 $('.page-header .responsive-toggler').click();
             }
         }
@@ -134,7 +134,7 @@ var Layout = function () {
             }
 
             if (hasSubMenu === false) {
-                if (App.getViewPort().width < resBreakpointMd && page_sidebar.hasClass("in")) { // close the menu on mobile view while laoding a page 
+                if (App.getViewPort().width < resBreakpointMd && page_sidebar.hasClass("in")) { // close the menu on mobile view while laoding a page
                     page_header.find('.responsive-toggler').click();
                 }
                 return;
@@ -152,7 +152,7 @@ var Layout = function () {
             var autoScroll = menu.data("auto-scroll");
             var slideSpeed = parseInt(menu.data("slide-speed"));
             var keepExpand = menu.data("keep-expanded");
-            
+
             if (!keepExpand) {
                 parent.children('li.open').children('a').children('.arrow').removeClass('open');
                 parent.children('li.open').children('.sub-menu:not(.always-open)').slideUp(slideSpeed);
@@ -205,92 +205,12 @@ var Layout = function () {
             });
         }
 
-        var pageContentBody = $('.page-content .page-content-body');
-
-        // handle ajax links within sidebar menu
-        page_sidebar.on('click', ' li > a.ajaxify', function (e) {
-            e.preventDefault();
-            App.scrollTop();
-
-            var url = $(this).attr("href");
-            var menuContainer = $('.page-sidebar ul');
-
-            menuContainer.children('li.active').removeClass('active');
-            menuContainer.children('arrow.open').removeClass('open');
-
-            $(this).parents('li').each(function () {
-                $(this).addClass('active');
-                $(this).children('a > span.arrow').addClass('open');
-            });
-            $(this).parents('li').addClass('active');
-
-            if (App.getViewPort().width < resBreakpointMd && page_sidebar.hasClass("in")) { // close the menu on mobile view while laoding a page 
-                $('.page-header .responsive-toggler').click();
-            }
-
-            App.startPageLoading();
-
-            var the = $(this);
-            
-            $.ajax({
-                type: "GET",
-                cache: false,
-                url: url,
-                dataType: "html",
-                success: function (res) {
-                    if (the.parents('li.open').size() === 0) {
-                        $('.page-sidebar-menu > li.open > a').click();
-                    }
-
-                    App.stopPageLoading();
-                    pageContentBody.html(res);
-                    Layout.fixContentHeight(); // fix content height
-                    App.initAjax(); // initialize core stuff
-                },
-                error: function () {
-                    App.stopPageLoading();
-                    pageContentBody.html('<h4>Could not load the requested content.</h4>');
-                }
-            });
-        });
-
-        // handle ajax link within main content
-        page_content.on('click', '.ajaxify', function (e) {
-            e.preventDefault();
-            App.scrollTop();
-
-            var url = $(this).attr("href");
-
-            App.startPageLoading();
-
-            if (App.getViewPort().width < resBreakpointMd && page_sidebar.hasClass("in")) { // close the menu on mobile view while laoding a page 
-                $('.page-header .responsive-toggler').click();
-            }
-
-            $.ajax({
-                type: "GET",
-                cache: false,
-                url: url,
-                dataType: "html",
-                success: function (res) {
-                    App.stopPageLoading();
-                    pageContentBody.html(res);
-                    Layout.fixContentHeight(); // fix content height
-                    App.initAjax(); // initialize core stuff
-                },
-                error: function () {
-                    pageContentBody.html('<h4>Could not load the requested content.</h4>');
-                    App.stopPageLoading();
-                }
-            });
-        });
-
         // handle scrolling to top on responsive menu toggler click when header is fixed for mobile view
         $(document).on('click', '.page-header-fixed-mobile .page-header .responsive-toggler', function(){
-            App.scrollTop(); 
-        });      
-     
-        // handle sidebar hover effect        
+            App.scrollTop();
+        });
+
+        // handle sidebar hover effect
         handleFixedSidebarHoverEffect();
     };
 
@@ -387,7 +307,7 @@ var Layout = function () {
             new_link.find("a:first").append('<span class="selected"></span>');
         });
 
-        // handle search box expand/collapse        
+        // handle search box expand/collapse
         page_header.on('click', '.search-form', function () {
             var form_controll = $(this).find('.form-control');
             $(this).addClass("open");
@@ -415,11 +335,11 @@ var Layout = function () {
         });
 
         // handle hover dropdown menu for desktop devices only
-        $('[data-hover="megamenu-dropdown"]').not('.hover-initialized').each(function() {   
-            $(this).dropdownHover(); 
-            $(this).addClass('hover-initialized'); 
+        $('[data-hover="megamenu-dropdown"]').not('.hover-initialized').each(function() {
+            $(this).dropdownHover();
+            $(this).addClass('hover-initialized');
         });
-        
+
         $(document).on('click', '.mega-menu-dropdown .dropdown-menu', function (e) {
             e.stopPropagation();
         });
@@ -447,7 +367,7 @@ var Layout = function () {
                    scrollToTop.fadeOut(duration);
                 }
             });
-        } else {  // general 
+        } else {  // general
             $(window).scroll(function() {
                 if ($(this).scrollTop() > offset) {
                     scrollToTop.fadeIn(duration);
@@ -480,8 +400,8 @@ var Layout = function () {
             if (target.hasClass('portlet')) {
                 var portletBody = target.find('.portlet-body');
 
-                App.destroySlimScroll(portletBody.find('.full-height-content-body')); // destroy slimscroll 
-                
+                App.destroySlimScroll(portletBody.find('.full-height-content-body')); // destroy slimscroll
+
                 height = height -
                     target.find('.portlet-title').outerHeight(true) -
                     parseInt(target.find('.portlet-body').css('padding-top')) -
@@ -495,7 +415,7 @@ var Layout = function () {
                     portletBody.css('min-height', height);
                 }
             } else {
-               App.destroySlimScroll(target.find('.full-height-content-body')); // destroy slimscroll 
+               App.destroySlimScroll(target.find('.full-height-content-body')); // destroy slimscroll
 
                 if (App.getViewPort().width >= resBreakpointMd && target.hasClass("full-height-content-scrollable")) {
                     height = height - 35;
@@ -505,7 +425,7 @@ var Layout = function () {
                     target.css('min-height', height);
                 }
             }
-        });        
+        });
     };
     //* END:CORE HANDLERS *//
 
@@ -514,7 +434,7 @@ var Layout = function () {
         //IMPORTANT!!!: Do not modify the core handlers call order.
 
         initHeader: function() {
-            handleHorizontalMenu(); // handles horizontal menu    
+            handleHorizontalMenu(); // handles horizontal menu
         },
 
         setSidebarMenuActiveLink: function(mode, el) {
@@ -527,8 +447,8 @@ var Layout = function () {
             handleSidebarMenu(); // handles main menu
             handleSidebarToggler(); // handles sidebar hide/show
 
-            if (App.isAngularJsApp()) {      
-                handleSidebarMenuActiveLink('match'); // init sidebar active links 
+            if (App.isAngularJsApp()) {
+                handleSidebarMenuActiveLink('match'); // init sidebar active links
             }
 
             App.addResizeHandler(handleFixedSidebar); // reinitialize fixed sidebar on window resize
@@ -539,14 +459,14 @@ var Layout = function () {
             handleTabs(); // handle bootstrah tabs
 
             App.addResizeHandler(handleSidebarAndContentHeight); // recalculate sidebar & content height on window resize
-            App.addResizeHandler(handle100HeightContent); // reinitialize content height on window resize 
+            App.addResizeHandler(handle100HeightContent); // reinitialize content height on window resize
         },
 
         initFooter: function() {
             handleGoTop(); //handles scroll to top functionality in the footer
         },
 
-        init: function () {            
+        init: function () {
             this.initHeader();
             this.initSidebar();
             this.initContent();
