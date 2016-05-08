@@ -124,3 +124,6 @@ li [class*=" fa-"].icon-large,li [class*=" glyphicon-"].icon-large,li [class*=" 
 .nav-tabs>li>a{font-size:14px;-webkit-border-radius:4px 4px 0 0;-moz-border-radius:4px 4px 0 0;-ms-border-radius:4px 4px 0 0;-o-border-radius:4px 4px 0 0;border-radius:4px 4px 0 0}
 .nav-tabs>li .dropdown-menu:after,.nav-tabs>li .dropdown-menu:before{display:none}
 .nav-tabs .dropdown.open>.dropdown-toggle{background:#eee;color:#0d638f;border-color:transparent}
+
+
+.media-list li{cursor: pointer}

@@ -392,108 +392,58 @@ var Dazzling = function (config) {
         });
     };
 
-    var quick_sidebar_wrapper = $('.page-quick-sidebar-wrapper');//quick-sidebar内容区
-    //将page-quick-sidebar-wrapper类下的指定元素 resize scroll
-    var initSlimScroll = function (selector) {
-        var alertList = quick_sidebar_wrapper.find(selector);
-        var alertListHeight = quick_sidebar_wrapper.height() - quick_sidebar_wrapper.find('.nav-justified > .nav-tabs').outerHeight();
-        // alerts list
-        destroySlimScroll(alertList);
-        alertList.attr("data-height", alertListHeight);
-        createSlimScroll(alertList);
-    };
     // Handles quick sidebar chats
     var handleQuickSidebarChat = function () {
-        var wrapper = $('.page-quick-sidebar-wrapper');
-        var wrapperChat = wrapper.find('.page-quick-sidebar-chat');
+        var wrapper = $('.page-quick-sidebar-wrapper');//quick-sidebar内容区
+        var wrapperContenItem = wrapper.find('.tab-content-item');
+
+        var rebuildSlimScroll = function (el,height) {
+            destroySlimScroll(el);
+            el.attr("data-height", height);
+            createSlimScroll(el);
+        };
+
+        var initSlimScroll = function (selector) {
+            var alertList = wrapper.find(selector);
+            var alertListHeight = wrapper.height() - wrapper.find('.nav-justified > .nav-tabs').outerHeight();
+            // alerts list
+            rebuildSlimScroll(alertList,alertListHeight);
+        };
+
 
         var initChatSlimScroll = function () {
-            var chatUsers = wrapper.find('.page-quick-sidebar-chat-users');
-            var chatUsersHeight = wrapper.height() - wrapper.find('.nav-tabs').outerHeight(true);
+            var wrapperContentItemList      = wrapper.find('.page-quick-sidebar-item-list');
+            var wrapperContentItemContent   = wrapperContenItem.find('.page-quick-sidebar-item-content');
+
+            var wrapperContentItemContentHeight = wrapper.height() - wrapper.find('.nav-tabs').outerHeight(true);
 
             // chat user list
-            destroySlimScroll(chatUsers);
-            chatUsers.attr("data-height", chatUsersHeight);
-            createSlimScroll(chatUsers);
+            rebuildSlimScroll(wrapperContentItemList,wrapperContentItemContentHeight);
 
-            var wrapperChat = wrapper.find('.page-quick-sidebar-chat');
-            var chatMessages = wrapperChat.find('.page-quick-sidebar-chat-user-messages');
-            var chatMessagesHeight = chatUsersHeight - wrapperChat.find('.page-quick-sidebar-chat-user-form').outerHeight(true) - wrapperChat.find('.page-quick-sidebar-nav').outerHeight(true);
-
+            var chatMessagesHeight = wrapperContentItemContentHeight - wrapperContenItem.find('.page-quick-sidebar-nav').outerHeight(true);//减去返回按钮的高度
             // user chat messages
-            destroySlimScroll(chatMessages);
-            chatMessages.attr("data-height", chatMessagesHeight);
-            createSlimScroll(chatMessages);
+            rebuildSlimScroll(wrapperContentItemContent,chatMessagesHeight);
         };
 
-        initChatSlimScroll();
-        resizeHandlers.push(initChatSlimScroll); // reinitialize on window resize
 
-        wrapper.find('.page-quick-sidebar-chat-users .media-list > .media').click(function () {
-            wrapperChat.addClass("page-quick-sidebar-content-item-shown");
+        //点击显示
+        wrapper.find('.page-quick-sidebar-item-list .media-list > .godetail').click(function () {
+            wrapperContenItem.addClass("page-quick-sidebar-content-item-shown");
         });
-        wrapper.find('.page-quick-sidebar-chat-user .page-quick-sidebar-back-to-list').click(function () {
-            wrapperChat.removeClass("page-quick-sidebar-content-item-shown");
+        //点击返回
+        wrapper.find('.page-quick-sidebar-item-wrapper .page-quick-sidebar-back-to-list').click(function () {
+            wrapperContenItem.removeClass("page-quick-sidebar-content-item-shown");
         });
 
-        var handleChatMessagePost = function (e) {
-            e.preventDefault();
-
-            var chatContainer = wrapperChat.find(".page-quick-sidebar-chat-user-messages");
-            var input = wrapperChat.find('.page-quick-sidebar-chat-user-form .form-control');
-
-            var text = input.val();
-            if (text.length === 0) {
-                return;
-            }
-
-            var preparePost = function(dir, time, name, avatar, message) {
-                var tpl = '';
-                tpl += '<div class="post '+ dir +'">';
-                tpl += '<img class="avatar" alt="" src="' + Layout.getLayoutImgPath() + avatar +'.jpg"/>';
-                tpl += '<div class="message">';
-                tpl += '<span class="arrow"></span>';
-                tpl += '<a href="#" class="name">Bob Nilson</a>&nbsp;';
-                tpl += '<span class="datetime">' + time + '</span>';
-                tpl += '<span class="body">';
-                tpl += message;
-                tpl += '</span>';
-                tpl += '</div>';
-                tpl += '</div>';
-
-                return tpl;
-            };
-
-            // handle post
-            var time = new Date();
-            var message = preparePost('out', (time.getHours() + ':' + time.getMinutes()), "Bob Nilson", 'avatar3', text);
-            message = $(message);
-            chatContainer.append(message);
-
-            chatContainer.slimScroll({scrollTo: '1000000px'});
-
-            input.val("");
-
-            // simulate reply
-            setTimeout(function(){
-                var time = new Date();
-                var message = preparePost('in', (time.getHours() + ':' + time.getMinutes()), "Ella Wong", 'avatar2', 'Lorem ipsum doloriam nibh...');
-                message = $(message);
-                chatContainer.append(message);
-
-                chatContainer.slimScroll({
-                    scrollTo: '1000000px'
-                });
-            }, 3000);
+        // reinitialize on window resize
+        var _resizeSlimOnWindowsResized = function(){
+            initSlimScroll('.page-quick-sidebar-alerts-list');
+            initSlimScroll('.page-quick-sidebar-settings-list');
+            initChatSlimScroll();
         };
+        _resizeSlimOnWindowsResized();
+        resizeHandlers.push(_resizeSlimOnWindowsResized); // reinitialize on window resize
 
-        wrapperChat.find('.page-quick-sidebar-chat-user-form .btn').click(handleChatMessagePost);
-        wrapperChat.find('.page-quick-sidebar-chat-user-form .form-control').keypress(function (e) {
-            if (e.which == 13) {
-                handleChatMessagePost(e);
-                return false;
-            }
-        });
     };
 
     //sidebar相关的初始化
@@ -668,13 +618,6 @@ var Dazzling = function (config) {
         //初始化聊天界面
         handleQuickSidebarChat();
 
-        // reinitialize on window resize
-        var _resizeSlimOnWindowsResized = function(){
-            initSlimScroll('.page-quick-sidebar-alerts-list');
-            initSlimScroll('.page-quick-sidebar-settings-list');
-        };
-        _resizeSlimOnWindowsResized();
-        resizeHandlers.push(_resizeSlimOnWindowsResized); // reinitialize on window resize
     };
     //初始化应用
     var init = function () {

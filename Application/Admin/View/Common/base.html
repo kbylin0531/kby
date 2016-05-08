@@ -194,21 +194,21 @@
                 </div>
             </div>
         </div>
-        {* quick-sidebar 隐藏 *}
+        {* quick-sidebar 隐藏按钮 *}
         <a href="#" class="page-quick-sidebar-toggler"><i class="icon-login"></i></a>
-        {* quick-sidebar 内容区 *}
+        {* QuickSidebar *}
         <div class="page-quick-sidebar-wrapper" data-close-on-body-click="false">
             <div class="page-quick-sidebar">
                 {* 分类tab *}
                 <ul class="nav nav-tabs">
-                    <li class="active">{* 激活 *}
-                        <a href="#" data-target="#quick_sidebar_tab_1" data-toggle="tab"> Users
-                            <span class="badge badge-danger">2</span>
+                    <li class="active">
+                        <a href="#" data-target="#quick_sidebar_tab_1" data-toggle="tab"> User
+                            <span class="badge badge-danger"></span>
                         </a>
                     </li>
                     <li class="">
-                        <a href="#" data-target="#quick_sidebar_tab_2" data-toggle="tab"> Users
-                            <span class="badge badge-danger">2</span>
+                        <a href="#" data-target="#quick_sidebar_tab_2" data-toggle="tab"> Setting
+                            <span class="badge badge-danger"></span>
                         </a>
                     </li>
                     <li class="dropdown">{* 可下拉 *}
@@ -217,173 +217,72 @@
                         </a>
                         <ul class="dropdown-menu pull-right">
                             <li>
-                                <a href="#" data-target="#quick_sidebar_tab_3" data-toggle="tab">
+                                <a href="#" data-target="#quick_sidebar_tab_1" data-toggle="tab">
                                     <i class="icon-bell"></i> Alerts </a>
-                            </li>
-                            <li>
-                                <a href="#" data-target="#quick_sidebar_tab_3" data-toggle="tab">
-                                    <i class="icon-info"></i> Notifications </a>
-                            </li>
-                            <li>
-                                <a href="#" data-target="#quick_sidebar_tab_3" data-toggle="tab">
-                                    <i class="icon-speech"></i> Activities </a>
                             </li>
                             <li class="divider"></li>
                             <li>
-                                <a href="#" data-target="#quick_sidebar_tab_3" data-toggle="tab">
+                                <a href="#" data-target="#quick_sidebar_tab_2" data-toggle="tab">
                                     <i class="icon-settings"></i> Settings </a>
                             </li>
                         </ul>
                     </li>
                 </ul>
                 <div class="tab-content">
-                    <div class="tab-pane active page-quick-sidebar-chat" id="quick_sidebar_tab_1">
+                    <div class="tab-pane active tab-content-item" id="quick_sidebar_tab_1">
                         {* 列表 *}
-                        <div class="page-quick-sidebar-chat-users" >
-                            <h3 class="list-heading">Staff</h3>
+                        <div class="page-quick-sidebar-item-list" data-rail-color="#ddd" data-wrapper-class="page-quick-sidebar-list">
+                            <h3 class="list-heading">hello</h3>
                             <ul class="media-list list-items">
-                                <li class="media">
-                                    111
+                                <li class="godetail">
+                                    google
+                                </li>
+                                <li class="" >
+                                    baidu
                                 </li>
                             </ul>
                         </div>
                         {* 列表内容 *}
                         <div class="page-quick-sidebar-item">
-                            <div class="page-quick-sidebar-chat-user">
+                            <div class="page-quick-sidebar-item-wrapper">
+                                {* 返回按钮 *}
                                 <div class="page-quick-sidebar-nav">
-                                    <a href="#" class="page-quick-sidebar-back-to-list">
+                                    <a href="javascript:void(0);" class="page-quick-sidebar-back-to-list">
                                         <i class="icon-arrow-left"></i>Back</a>
                                 </div>
-                                <div class="page-quick-sidebar-chat-user-messages">
-                                    <div class="post out">
-                                        <img class="avatar" alt="" src="{$smarty.const.PUBLIC_URI}assets/layouts/layout/img/avatar3.jpg" />
-                                        <div class="message">
-                                            <span class="arrow"></span>
-                                            <a href="#" class="name">Bob Nilson</a>
-                                            <span class="datetime">20:15</span>
-                                            <span class="body"> When could you send me the report ? </span>
-                                        </div>
-                                    </div>
-                                    <div class="post in">
-                                        <img class="avatar" alt="" src="{$smarty.const.PUBLIC_URI}assets/layouts/layout/img/avatar2.jpg" />
-                                        <div class="message">
-                                            <span class="arrow"></span>
-                                            <a href="#" class="name">Ella Wong</a>
-                                            <span class="datetime">20:15</span>
-                                            <span class="body"> Its almost done. I will be sending it shortly </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="page-quick-sidebar-chat-user-form">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" placeholder="Type a message here...">
-                                        <div class="input-group-btn">
-                                            <button type="button" class="btn green">
-                                                <i class="icon-paper-clip"></i>
-                                            </button>
-                                        </div>
-                                    </div>
+                                <hr />
+                                {* 内容区 *}
+                                <div class="page-quick-sidebar-item-content">
+                                    ....
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <div class="tab-pane active page-quick-sidebar-chat" id="quick_sidebar_tab_2">
+                    <div class="tab-pane tab-content-item" id="quick_sidebar_tab_2">
                         {* 列表 *}
-                        <div class="page-quick-sidebar-chat-users" data-rail-color="#ddd" data-wrapper-class="page-quick-sidebar-list">
+                        <div class="page-quick-sidebar-item-list" data-rail-color="#ddd" data-wrapper-class="page-quick-sidebar-list">
                             <h3 class="list-heading">yes bean</h3>
                             <ul class="media-list list-items">
-                                <li class="media">
+                                <li class="godetail">
                                     nice
-                                    <button>click me </button>
                                 </li>
-                                <li class="media">
+                                <li class="" >
                                     nice
-                                    <button>click me </button>
                                 </li>
                             </ul>
                         </div>
                         {* 列表内容 *}
                         <div class="page-quick-sidebar-item">
-                            <div class="page-quick-sidebar-chat-user">
+                            <div class="page-quick-sidebar-item-wrapper">
+                                {* 返回按钮 *}
                                 <div class="page-quick-sidebar-nav">
-                                    <a href="#" class="page-quick-sidebar-back-to-list">
-                                        <i class="icon-arrow-left"></i>Back</a>
+                                    <a href="javascript:void(0);" class="page-quick-sidebar-back-to-list">
+                                    <i class="icon-arrow-left"></i>Back</a>
                                 </div>
-                                <div class="page-quick-sidebar-chat-user-messages">
-                                    <div class="post out">
-                                        <img class="avatar" alt="" src="{$smarty.const.PUBLIC_URI}assets/layouts/layout/img/avatar3.jpg" />
-                                        <div class="message">
-                                            <span class="arrow"></span>
-                                            <a href="#" class="name">Bob Nilson</a>
-                                            <span class="datetime">20:15</span>
-                                            <span class="body"> When could you send me the report ? </span>
-                                        </div>
-                                    </div>
-                                    <div class="post in">
-                                        <img class="avatar" alt="" src="{$smarty.const.PUBLIC_URI}assets/layouts/layout/img/avatar2.jpg" />
-                                        <div class="message">
-                                            <span class="arrow"></span>
-                                            <a href="#" class="name">Ella Wong</a>
-                                            <span class="datetime">20:15</span>
-                                            <span class="body"> Its almost done. I will be sending it shortly </span>
-                                        </div>
-                                    </div>
-                                    <div class="post in">
-                                        <img class="avatar" alt="" src="{$smarty.const.PUBLIC_URI}assets/layouts/layout/img/avatar2.jpg" />
-                                        <div class="message">
-                                            <span class="arrow"></span>
-                                            <a href="#" class="name">Ella Wong</a>
-                                            <span class="datetime">20:15</span>
-                                            <span class="body"> Its almost done. I will be sending it shortly </span>
-                                        </div>
-                                    </div>
-                                    <div class="post in">
-                                        <img class="avatar" alt="" src="{$smarty.const.PUBLIC_URI}assets/layouts/layout/img/avatar2.jpg" />
-                                        <div class="message">
-                                            <span class="arrow"></span>
-                                            <a href="#" class="name">Ella Wong</a>
-                                            <span class="datetime">20:15</span>
-                                            <span class="body"> Its almost done. I will be sending it shortly </span>
-                                        </div>
-                                    </div>
-                                    <div class="post in">
-                                        <img class="avatar" alt="" src="{$smarty.const.PUBLIC_URI}assets/layouts/layout/img/avatar2.jpg" />
-                                        <div class="message">
-                                            <span class="arrow"></span>
-                                            <a href="#" class="name">Ella Wong</a>
-                                            <span class="datetime">20:15</span>
-                                            <span class="body"> Its almost done. I will be sending it shortly </span>
-                                        </div>
-                                    </div>
-                                    <div class="post in">
-                                        <img class="avatar" alt="" src="{$smarty.const.PUBLIC_URI}assets/layouts/layout/img/avatar2.jpg" />
-                                        <div class="message">
-                                            <span class="arrow"></span>
-                                            <a href="#" class="name">Ella Wong</a>
-                                            <span class="datetime">20:15</span>
-                                            <span class="body"> Its almost done. I will be sending it shortly </span>
-                                        </div>
-                                    </div>
-                                    <div class="post in">
-                                        <img class="avatar" alt="" src="{$smarty.const.PUBLIC_URI}assets/layouts/layout/img/avatar2.jpg" />
-                                        <div class="message">
-                                            <span class="arrow"></span>
-                                            <a href="#" class="name">Ella Wong</a>
-                                            <span class="datetime">20:15</span>
-                                            <span class="body"> Its almost done. I will be sending it shortly </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="page-quick-sidebar-chat-user-form">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" placeholder="Type a message here...">
-                                        <div class="input-group-btn">
-                                            <button type="button" class="btn green">
-                                                <i class="icon-paper-clip"></i>
-                                            </button>
-                                        </div>
-                                    </div>
+                                <hr />
+                                {* 内容区 *}
+                                <div class="page-quick-sidebar-item-content">
+                                    ....
                                 </div>
                             </div>
                         </div>
