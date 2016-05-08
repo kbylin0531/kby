@@ -65,30 +65,37 @@
         </div>
         <div class="page-content-wrapper">
             <div class="page-content">
-                <div class="page-bar">
-                    <ul class="page-breadcrumb">
-                        <li>
-                            <a href="#">Home</a>
-                            <i class="fa fa-circle"></i>
-                        </li>
-                        <li>
-                            <span>Page Layouts</span>
-                        </li>
-                    </ul>
-                    <div class="page-toolbar">
-                        <div class="btn-group pull-right">
-                            <button type="button" class="btn green btn-sm btn-outline dropdown-toggle" data-toggle="dropdown"> Actions
-                                <i class="fa fa-angle-down"></i>
-                            </button>
-                            <ul class="dropdown-menu pull-right" role="menu">
-                                <li>
-                                    <a href="#">
-                                        <i class="icon-bell"></i> Action</a>
-                                </li>
-                            </ul>
+                {block name='stage_top_bar'}
+                    <div class="page-bar">
+                        <ul class="page-breadcrumb">
+                            <li>
+                                <a href="#">Home</a>
+                                <i class="fa fa-circle"></i>
+                            </li>
+                            <li>
+                                <span>Page Layouts</span>
+                            </li>
+                        </ul>
+                        <div class="page-toolbar">
+                            <div class="btn-group pull-right">
+                                <button type="button" class="btn green btn-sm btn-outline dropdown-toggle" data-toggle="dropdown"> Actions
+                                    <i class="fa fa-angle-down"></i>
+                                </button>
+                                <ul class="dropdown-menu pull-right" role="menu">
+                                    <li>
+                                        <a href="#">
+                                            <i class="icon-bell"></i> Action</a>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
-                </div>
+                {/block}
+                {block name='stage_content'}
+                    <h3 class="page-title"> Search Box On Header 1
+                        <small>search box on header</small>
+                    </h3>
+                {/block}
             </div>
         </div>
         <a href="#" class="page-quick-sidebar-toggler"><i class="icon-control-end"></i></a>
@@ -193,28 +200,12 @@
 <script src="{$smarty.const.PUBLIC_URI}assets/plugins/jquery-slimscroll/jquery.slimscroll.min.js"></script>
 
 <script src="{$smarty.const.PUBLIC_URI}assets/js/dazzling.js" ></script>
-
-
 <script>
-
-    $(function () {
-        Dazzling.init({
-            'public_uri':"{$smarty.const.PUBLIC_URI}",
-            'metas':[
-                {
-                    'content':'email:kbylin@163.com'
-                },
-                {
-                    'content':'email:784855684@qq.com'
-                }
-            ]
-        });
-    });
+    Dazzling.init();
 
     Dazzling.initUserInfo('{$user}',['avatar.src','nickname','menu']);
     Dazzling.initPageInfo('{$page}',['headermenu','metas!']);
 
 </script>
-
 {block name='js'}{/block}
 </html>

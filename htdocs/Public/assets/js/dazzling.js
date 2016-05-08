@@ -765,8 +765,7 @@ var Dazzling = function () {
     return {
         'init':function (config) {
             //写入文件
-            console.log(config,config.hasOwnProperty('metas'));
-            config.hasOwnProperty('metas') && this.writeMetas(config['metas']);
+            config instanceof Object && config.hasOwnProperty('metas') && this.writeMetas(config['metas']);
 
             handleCompatibility();//处理常见的兼容性问题
 

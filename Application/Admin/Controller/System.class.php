@@ -17,6 +17,11 @@ use System\Utils\Response;
 
 class System extends AdminController{
 
+    public function PageActionManagement(){
+
+        $this->displayManagement();
+    }
+
     /**
      * 显示系统管理页面默认主页
      */
