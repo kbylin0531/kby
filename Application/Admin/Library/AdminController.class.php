@@ -21,9 +21,8 @@ class AdminController extends Controller{
     protected function displayManagement($template = null, $cache_id = null, $compile_id = null, $parent = null){
         //加载模块和菜单
 
-        $info = $this->getInfo();
-        $info['navbar_nav'] = json_encode($info['navbar_nav']);
-        $this->assign('info',$info);
+        $this->assign('page',json_encode($this->getPageInfo()));
+        $this->assign('user',json_encode($this->getUserInfo()));
         $this->assign('modules',$this->getModules());
         $this->assign('actions',$this->getActions());
 
@@ -32,6 +31,9 @@ class AdminController extends Controller{
         $this->display($template , $cache_id , $compile_id, $parent);
     }
 
+    protected function getUserInfo(){
+        return Assets::load('_user');
+    }
     /**
      * 分配管理员页面信息
      */
@@ -41,8 +43,8 @@ class AdminController extends Controller{
         $this->assignActionsList();
     }
 
-    private function getInfo(){
-        return Assets::load('_info');
+    private function getPageInfo(){
+        return Assets::load('_page');
     }
 
     private function getModules(){

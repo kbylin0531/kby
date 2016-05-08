@@ -6,39 +6,35 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    {foreach $info['default_metas'] as $meta}
-        <meta content="{$meta.content}" {if false === empty($meta['others'])}{foreach $meta['others'] as $key=>$value}{$key}="{$value}"{/foreach}{/if} >
-    {/foreach}
-    <title>{block name='title'}{if isset($title)}{$title}{else}{$info.default_title}{/if}{/block}</title>
-    <link rel="shortcut icon" href="{$info.shortcut_ico}" />
+    <title>Kbylin</title>
+    <link rel="shortcut icon" href="https://elementary.io/favicon.ico" />
 
-    <link href="{$smarty.const.PUBLIC_URI}assets/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
-    <link href="{$smarty.const.PUBLIC_URI}assets/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css" />
-    <link href="{$smarty.const.PUBLIC_URI}assets/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="{$smarty.const.PUBLIC_URI}assets/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="{$smarty.const.PUBLIC_URI}assets/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css">
+    <link href="{$smarty.const.PUBLIC_URI}assets/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
 
-    <link href="{$smarty.const.PUBLIC_URI}assets/css/themes/{if isset($info.theme)}{$info.theme}{else}darkblue{/if}.min.css" rel="stylesheet" type="text/css" id="style_color" />
-    <link href="{$smarty.const.PUBLIC_URI}assets/css/components.css" rel="stylesheet" id="style_components" type="text/css" />
-    <link href="{$smarty.const.PUBLIC_URI}assets/css/layout.css" rel="stylesheet" type="text/css" />
+    <link href="{$smarty.const.PUBLIC_URI}assets/css/themes/darkblue.min.css" rel="stylesheet" type="text/css">
+    <link href="{$smarty.const.PUBLIC_URI}assets/css/components.css" rel="stylesheet" type="text/css">
+    <link href="{$smarty.const.PUBLIC_URI}assets/css/layout.css" rel="stylesheet" type="text/css">
+
     {block name='css'}{/block}
 </head>
 
-<body class="{if $info.header_fixed}page-header-fixed{/if} {if $info.sidebar_fixed}page-sidebar-fixed{/if} {if $info.header_top_fixed}page-header-top-fixed{/if} {if $info.header_menu_fixed}page-header-menu-fixed{/if} page-sidebar-closed-hide-logo page-content-white">
+<body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
     <div class="page-header navbar navbar-fixed-top">
         <div class="page-header-inner ">
             <div class="page-logo">
-                <a href="#"><img src="{$info.src_logo}" alt="logo" class="logo-default" /></a>
+                <a href="#"><img src="" id="dazz_logo" alt="logo" class="logo-default" /></a>
                 <div class="menu-toggler sidebar-toggler"></div>
             </div>
             <div class="hor-menu hor-menu-light hidden-sm hidden-xs">
-                <ul class="nav navbar-nav" id="headerMenu"></ul>
+                <ul class="nav navbar-nav" id="dazz_header_menu"></ul>
             </div>
-            <form class="search-form" method="GET">
+            <form class="search-form">
                 <div class="input-group">
                     <input type="text" class="form-control" placeholder="Search..." name="query">
                     <span class="input-group-btn">
-                        <a href="#" class="btn submit">
-                            <i class="icon-magnifier"></i>
-                        </a>
+                        <a href="#" class="btn submit"><i class="icon-magnifier"></i></a>
                     </span>
                 </div>
             </form>
@@ -47,19 +43,14 @@
                 <ul class="nav navbar-nav pull-right">
                     <li class="dropdown dropdown-user">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
-                            <img alt="" class="img-circle" src="{$smarty.const.PUBLIC_URI}assets/layouts/layout/img/avatar3_small.jpg" />
-                            <span class="username username-hide-on-mobile"> Nick </span>
+                            <img alt="" class="img-circle" src="" id="avatar" />
+                            <span class="username username-hide-on-mobile" id="nickname"> </span>
                             <i class="fa fa-angle-down"></i>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-default">
-                            <li>
-                                <a href="#">
-                                    <i class="icon-user"></i> My Profile </a>
-                            </li>
-                        </ul>
+                        <ul class="dropdown-menu dropdown-menu-default" id="menu"></ul>
                     </li>
 
-                    <li class="dropdown dropdown-quick-sidebar-toggler"><a href="#" class="dropdown-toggle"><i class="icon-logout"></i></a></li>
+                    <li class="dropdown dropdown-quick-sidebar-toggler"><a href="#" class="dropdown-toggle"><i class="icon-control-start"></i></a></li>
                 </ul>
             </div>
         </div>
@@ -69,53 +60,12 @@
     <div class="page-container">
         <div class="page-sidebar-wrapper">
             <div class="page-sidebar navbar-collapse collapse">
-                <ul class="page-sidebar-menu page-sidebar-menu-light page-sidebar-menu-hover-submenu" data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200" style="padding-top: 20px">
-                    <li class="nav-item  ">
-                        <a href="#" class="nav-link nav-toggle">
-                            <i class="icon-home"></i>
-                            <span class="title">Dashboard</span>
-                            <span class="arrow"></span>
-                        </a>
-                        <ul class="sub-menu">
-                            <li class="nav-item start ">
-                                <a href="#" class="nav-link ">
-                                    <i class="icon-bar-chart"></i>
-                                    <span class="title">Dashboard 1</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="heading">
-                        <h3 class="uppercase">Features</h3>
-                    </li>
-                    <li class="nav-item active open">
-                        <a href="#" class="nav-link nav-toggle">
-                            <i class="icon-layers"></i>
-                            <span class="title">Page Layouts</span>
-                            <span class="selected"></span>
-                            <span class="arrow open"></span>
-                        </a>
-                        <ul class="sub-menu">
-                            <li class="nav-item  ">
-                                <a href="#" class="nav-link ">
-                                    <span class="title">Classic Page Head</span>
-                                </a>
-                            </li>
-                            <li class="nav-item  ">
-                                <a href="#" class="nav-link ">
-                                    <span class="title">Blank Page</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
+                <ul id="dazz_sidebar_menu" class="page-sidebar-menu page-sidebar-menu-light page-sidebar-menu-hover-submenu" data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200" style="padding-top: 20px"></ul>
             </div>
         </div>
         <div class="page-content-wrapper">
             <div class="page-content">
-                {* 内容区顶部 *}
                 <div class="page-bar">
-                    {* 面包屑 *}
                     <ul class="page-breadcrumb">
                         <li>
                             <a href="#">Home</a>
@@ -125,7 +75,6 @@
                             <span>Page Layouts</span>
                         </li>
                     </ul>
-                    {* 工具栏 *}
                     <div class="page-toolbar">
                         <div class="btn-group pull-right">
                             <button type="button" class="btn green btn-sm btn-outline dropdown-toggle" data-toggle="dropdown"> Actions
@@ -142,7 +91,7 @@
                 </div>
             </div>
         </div>
-        <a href="#" class="page-quick-sidebar-toggler"><i class="icon-login"></i></a>
+        <a href="#" class="page-quick-sidebar-toggler"><i class="icon-control-end"></i></a>
         <div class="page-quick-sidebar-wrapper" data-close-on-body-click="false">
             <div class="page-quick-sidebar">
                 <ul class="nav nav-tabs">
@@ -238,15 +187,32 @@
 <script src="{$smarty.const.PUBLIC_URI}assets/plugins/respond.min.js"></script>
 <script src="{$smarty.const.PUBLIC_URI}assets/plugins/excanvas.min.js"></script>
 <![endif]-->
-<script src="{$smarty.const.PUBLIC_URI}assets/plugins/jquery.min.js" type="text/javascript"></script>
-<script src="{$smarty.const.PUBLIC_URI}assets/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
-<script src="{$smarty.const.PUBLIC_URI}assets/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js" type="text/javascript"></script>
-<script src="{$smarty.const.PUBLIC_URI}assets/plugins/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
+<script src="{$smarty.const.PUBLIC_URI}assets/plugins/jquery.min.js"></script>
+<script src="{$smarty.const.PUBLIC_URI}assets/plugins/bootstrap/js/bootstrap.min.js"></script>
+<script src="{$smarty.const.PUBLIC_URI}assets/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js"></script>
+<script src="{$smarty.const.PUBLIC_URI}assets/plugins/jquery-slimscroll/jquery.slimscroll.min.js"></script>
 
-<script src="{$smarty.const.PUBLIC_URI}assets/js/dazzling.js" type="text/javascript"></script>
+<script src="{$smarty.const.PUBLIC_URI}assets/js/dazzling.js" ></script>
+
+
 <script>
 
-    Dazzling.initHeaderMenu('{$info.navbar_nav}','#headerMenu');
+    $(function () {
+        Dazzling.init({
+            'public_uri':"{$smarty.const.PUBLIC_URI}",
+            'metas':[
+                {
+                    'content':'email:kbylin@163.com'
+                },
+                {
+                    'content':'email:784855684@qq.com'
+                }
+            ]
+        });
+    });
+
+    Dazzling.initUserInfo('{$user}',['avatar.src','nickname','menu']);
+    Dazzling.initPageInfo('{$page}',['headermenu','metas!']);
 
 </script>
 

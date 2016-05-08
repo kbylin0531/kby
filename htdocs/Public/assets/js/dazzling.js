@@ -1,14 +1,10 @@
-/**
- * Created by Zhonghuang on 2016/4/15.
+/***
+ *
  */
-var Dazzling = function (config) {
+var Dazzling = function () {
 
-    var convention = {
-    };
-
-    for(var x in config) if(x in convention) convention[x] = config[x];
-
-    if(!jQuery) throw "Require Jquery!";
+    // for(var x in config) if(x in convention) convention[x] = config[x];
+    if(!jQuery ) throw "Require Jquery!";
 
     var thishtml = $('html');
     var thisbody = $('body');
@@ -536,10 +532,13 @@ var Dazzling = function (config) {
             };
             if(/(y+)/.test(fmt))
                 fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));
-            for(var k in o)
+            for(var k in o){
+                if(!o.hasOwnProperty(k)) continue;
                 if(new RegExp("("+ k +")").test(fmt))
                     fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));
-            return fmt;
+            }
+
+              return fmt;
         };
 
         //添加placeholder支持,处理不支持placeholder的浏览器,这里将不支持IE8以下的浏览器,故只有IE9和IE10
@@ -621,23 +620,167 @@ var Dazzling = function (config) {
         //初始化聊天界面
         handleQuickSidebarChat();
     };
-    //初始化应用
-    var init = function () {
-        handleCompatibility();//处理常见的兼容性问题
 
-        initApplication();//初始化应用
 
-        //初始化布局
-        initHeaderSearchForm(); // handles horizontal menu
-        initSidebar();//初始化sidebar
-        initGotoTop();//处理足部的Go to top 按钮
+    /**
+     * 获取超链接
+     * @param attrs
+     * @param iconAhead
+     * @returns {*|jQuery|HTMLElement}
+     */
+    var _getAnchor4Header = function (attrs,iconAhead) {
+        var a = $(document.createElement('a'));
+        attrs.hasOwnProperty('title') && a.text(" "+attrs.title+" ");
+        attrs.hasOwnProperty('href')  && a.attr('href',attrs.href);
+        attrs.hasOwnProperty('submenu')  && a.attr('data-toggle','dropdown');
 
-        //初始化quick-sidebar
-        initQuickSidebar();//初始化quick-sidebar
+        if(attrs.hasOwnProperty('icon')){
+            var i = $(document.createElement('i'));
+            i.addClass('fa '+attrs.icon);
+            iconAhead?i.prependTo(a):i.appendTo(a);
+        }
+        return a;
     };
 
+    var _getAnchor4Sidebar = function (attrs,hasSubmenu) {
+        var a = $(document.createElement('a'));
+        a.addClass(hasSubmenu?'nav-link nav-toggle':'nav-link');
+
+        //未传入参数的清空
+        if(undefined === hasSubmenu) hasSubmenu = attrs.hasOwnProperty('submenu');
+
+        //icon 默认为 icon-doc
+        if(!attrs.hasOwnProperty('icon')) attrs['icon'] = 'icon-doc';
+        a.append($('<i class="'+attrs['icon']+'"></i>'));
+
+        //必要属性
+        a.append($('<span class="title">'+attrs['title']+'</span>'));
+
+        hasSubmenu && a.append($('<span class="arrow"></span>'));
+
+        return a;
+    };
+
+    /**
+     * 获取ul列表
+     * @param menuitem
+     */
+    var _getUnorderedLists4Header = function(menuitem){
+        if(!menuitem.hasOwnProperty('submenu') || !menuitem.submenu) return;//不存在子菜单时直接返回
+        var li_ul = $('<ul class="dropdown-menu"></ul>');
+        //创建并添加ul
+        for(var x in menuitem.submenu){
+            if(!menuitem.submenu.hasOwnProperty(x)) continue;
+            //子菜单项
+            var subitem =  menuitem.submenu[x];
+
+            // return console.log(subitem,menuitem.submenu,x)
+            var li = $(document.createElement('li'));
+            li.append(_getAnchor4Header(subitem,true));
+            li_ul.append(li);
+            if(subitem.hasOwnProperty('submenu')){
+                // console.log(subitem);
+                li.addClass('dropdown-submenu');
+                li.append(_getUnorderedLists4Header(subitem));
+            }
+        }
+        return li_ul;
+    };
+
+    /**
+     * @param menuitem
+     * @private
+     */
+    var _getUnorderedLists4Sidebar = function (menuitem) {
+        if(!menuitem.hasOwnProperty('submenu') || !menuitem.submenu) return;//不存在子菜单时直接返回
+        var li_ul = $('<ul class="sub-menu"></ul>');
+
+        //创建并添加ul
+        for(var x in menuitem.submenu){
+            if(!menuitem.submenu.hasOwnProperty(x)) continue;
+            //子菜单项
+            var subitem =  menuitem.submenu[x];
+
+            var hasSubmenu = subitem.hasOwnProperty('submenu');
+
+            var li_navitem = $(document.createElement('li'));
+            li_navitem.addClass('nav-item');
+            li_navitem.append(_getAnchor4Sidebar(subitem,hasSubmenu));
+            li_ul.append(li_navitem);
+            if(hasSubmenu){
+                li_navitem.append(_getUnorderedLists4Sidebar(subitem));
+            }
+        }
+        return li_ul;
+    };
+
+    /**
+     * 初始化头部的菜单
+     */
+    var initHeaderMenu = function (header_menu) {
+        var dazz_headermenu = $("#dazz_header_menu");
+
+        var active_index = parseInt(header_menu['active_index']);
+
+        for(var index in header_menu['menu_list']){
+            if(!header_menu['menu_list'].hasOwnProperty(index)) continue;
+            //菜单项
+            var menuitem = header_menu['menu_list'][index];
+
+            var li = $(document.createElement('li'));
+            li.addClass(parseInt(index) === active_index?'active classic-menu-dropdown':'classic-menu-dropdown');
+
+            var hasSubmenu = menuitem.hasOwnProperty('submenu');
+
+            if(hasSubmenu) menuitem['icon'] = 'fa-angle-down';
+            li.append(_getAnchor4Header(menuitem,false));
+            if(hasSubmenu) li.append(_getUnorderedLists4Header(menuitem));
+
+            dazz_headermenu.append(li);
+        }
+    };
+
+    var initSidebarMenu = function (sidebar_menu) {
+        var dazz_sidebar_menu = $("#dazz_sidebar_menu");
+
+        for(var index in sidebar_menu['menu_list']){
+            if(!sidebar_menu['menu_list'].hasOwnProperty(index)) continue;
+            //菜单项
+            var menuitem = sidebar_menu['menu_list'][index];
+
+            var li_navitem = $(document.createElement('li'));
+            li_navitem.addClass('nav-item');
+
+            var hasSubmenu = menuitem.hasOwnProperty('submenu');
+
+            var a = _getAnchor4Sidebar(menuitem,hasSubmenu);
+
+            li_navitem.append(a);
+            hasSubmenu && li_navitem.append(_getUnorderedLists4Sidebar(menuitem));
+
+            dazz_sidebar_menu.append(li_navitem);
+        }
+    };
+    
     return {
-        'init':init,
+        'init':function (config) {
+            //写入文件
+            console.log(config,config.hasOwnProperty('metas'));
+            config.hasOwnProperty('metas') && this.writeMetas(config['metas']);
+
+            handleCompatibility();//处理常见的兼容性问题
+
+            initApplication();//初始化应用
+
+            //初始化布局
+            initHeaderSearchForm(alert); // handles horizontal menu
+            initSidebar();//初始化sidebar
+            initGotoTop();//处理足部的Go to top 按钮
+
+            //初始化quick-sidebar
+            initQuickSidebar();//初始化quick-sidebar
+
+        },
         'scrollTo':scrollTo,
         /**
          * 习惯性的jquery方法
@@ -666,7 +809,6 @@ var Dazzling = function (config) {
          * @returns {{}}
          */
         'getBrowserInfo':getBrowserInfo,
-        'initHeaderSearchForm':initHeaderSearchForm,
         'str2Obj':function (str) {
             if(str instanceof Object)return str;/* 已经是对象的清空下直接返回
             由于json是以”{}”的方式来开始以及结束的，在JS中，它会被当成一个语句块来处理，所以必须强制性的将它转换成一种表达式。
@@ -674,78 +816,110 @@ var Dazzling = function (config) {
             */
             return eval ("(" + str + ")");
         },
-        '_getUnorderedLists':function(menuitem,istop){
-            if(!menuitem.hasOwnProperty('submenu') || !menuitem.submenu) return;//不存在子菜单时直接返回
+        /**
+         * 初始化头部的查询表单
+         */
+        'initHeaderSearchForm':initHeaderSearchForm,
+        /**
+         * 判断一个元素是否是数组
+         * @param el
+         * @returns {boolean}
+         */
+        'isArray':function (el) {
+            return Object.prototype.toString.call(el) === '[object Array]';
+        },
+        "autoFillById":function (elements, infos, ignores) {
+            if(!this.isArray(ignores)) ignores = [ignores];/* 自动转数组 */
+            
+            // console.log(elements,infos,ignores);
 
-            var li_ul = $('<ul class="dropdown-menu"></ul>');
+            for(var x in elements){
+                if(!elements.hasOwnProperty(x)) continue;
+                var id = elements[x];
+                if($.inArray(id,ignores) === 0) continue;
 
-            //创建并添加ul
-            for(var x in menuitem.submenu){
-                if(!menuitem.submenu.hasOwnProperty(x)) continue;
-                //子菜单项
-                var subitem =  menuitem.submenu[x];
-
-                // return console.log(subitem,menuitem.submenu,x)
-                var li = $(document.createElement('li'));
-                li.append(this._getAnchor(subitem,true));
-                li_ul.append(li);
-                if(subitem.hasOwnProperty('submenu')){
-                    console.log(subitem);
-                    li.addClass('dropdown-submenu');
-                    li.append(this._getUnorderedLists(subitem,false));
+                // console.log(id);
+                var temp ;
+                if(infos.hasOwnProperty(id)){
+                    if(id.indexOf('.') !== -1){
+                        temp = id.split('.');
+                        // console.log(temp,infos[id]);
+                        $("#"+temp[0]).attr(temp[1],infos[id]);
+                    }else{
+                        // console.log(id,'-------',infos[id]);
+                        $("#"+id).text(infos[id])
+                    }
                 }
             }
-            return li_ul;
         },
 
-        '_getAnchor':function (attrs,iconAhead) {
-            var a = $(document.createElement('a'));
-            attrs.hasOwnProperty('title') && a.text(" "+attrs.title+" ");
-            attrs.hasOwnProperty('href')  && a.attr('href',attrs.href);
-            attrs.hasOwnProperty('submenu')  && a.attr('data-toggle','dropdown');
-
-            if(attrs.hasOwnProperty('icon')){
-                var i = $(document.createElement('i'));
-                i.addClass('fa '+attrs.icon);
-                iconAhead?i.prependTo(a):i.appendTo(a);
-            }
-            return a;
-        },
         /**
-         * 初始化顶部菜单,将服务器的压力转移至客户端
-         * @param navbar_conf 对象字符串
-         * @param navbar_menu 待初始化的菜单对象或者选择器或者jquery对象
-         * @returns {Object}
+         * 向HTML中写入meta信息
+         * @param metas
          */
-        'initHeaderMenu':function (navbar_conf,navbar_menu) {
-            if(navbar_conf instanceof Object)return navbar_conf;/* 已经是对象的清空下直接返回 */
-            if(!(navbar_menu instanceof jQuery)) navbar_menu = $(navbar_menu);
+        'writeMetas':function (metas) {
+            var lastmeta = $("meta:last");//获取最后一个meta
 
-            navbar_conf = this.str2Obj(navbar_conf);
-            var active_index = parseInt(navbar_conf['active_index']);
+            for(var x in metas){
+                if(!metas.hasOwnProperty(x)) continue;
+                var item = metas[x];
 
-            for(var index in navbar_conf['menu_list']){
-                if(!navbar_conf['menu_list'].hasOwnProperty(index)) continue;
+                var meta = document.createElement('meta');
+                for (var y in item){
+                    if(!item.hasOwnProperty(y)) continue;
+                    meta.setAttribute(y,item[y]);
+                }
+                $(meta).insertAfter(lastmeta);
+            }
+        },
 
-                //菜单项
-                var menuitem = navbar_conf['menu_list'][index];
+        /**
+         * @param userinfo 信息数组
+         * @param itemsIds 要初始化的标签数组
+         */
+        'initUserInfo':function (userinfo,itemsIds) {
+            if(!(userinfo instanceof Object)) userinfo = this.str2Obj(userinfo);
+            var usermenu = $("#menu");
+
+            this.autoFillById(itemsIds,userinfo,['menu']);
+
+            for(var index in userinfo['menu']){
+                if(!userinfo['menu'].hasOwnProperty(index)) continue;
+                var item = userinfo['menu'][index];
 
                 var li = $(document.createElement('li'));
-                li.addClass(parseInt(index) === active_index?'active classic-menu-dropdown':'classic-menu-dropdown');
+                var a = $(document.createElement('a'));
+                a.text(item['title']);
+                li.append(a);
 
-                var hasSubmenu = menuitem.hasOwnProperty('submenu');
+                if(item.hasOwnProperty('href')) item['href'] = '#';
+                a.attr('href',item['href']);
 
-                if(hasSubmenu) menuitem['icon'] = 'fa-angle-down';
-                li.append(this._getAnchor(menuitem,false));
-                if(hasSubmenu) li.append(this._getUnorderedLists(menuitem,true));
-
-                li.appendTo(navbar_menu);
+                if(item.hasOwnProperty('icon')){
+                    var i = $(document.createElement('i'));
+                    i.addClass(item['icon']);
+                    a.prepend(i);
+                }
+                usermenu.append(li);
             }
-        }
+        },
+        /**
+         * 初始化页面信息
+         * @param pageinfo 页面信息
+         */
+        'initPageInfo':function (pageinfo) {
+            if(!(pageinfo instanceof Object)) pageinfo = this.str2Obj(pageinfo);
+
+            //设置标题
+            pageinfo.hasOwnProperty('title') && $("title").text(pageinfo['title']);
+            pageinfo.hasOwnProperty('logo') && $("#dazz_logo").attr('src',pageinfo['logo']);
+
+            initHeaderMenu(pageinfo['header_menu']);
+            initSidebarMenu(pageinfo['sidebar_menu']);
+        },
+        'setActive':function () {}
     };
 }();
 
-$(function () {
-    Dazzling.init();
-    // console.log(Dazzling.getBrowserInfo())
-});
+
+
