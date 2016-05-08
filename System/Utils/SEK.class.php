@@ -17,9 +17,9 @@ final class SEK {
     /**
      * 调用位置
      */
-    const CALL_PLACE_SELF       = 0; //表示调用者自身的位置
-    const CALL_PLACE_FORWARD    = 1;// 表示调用调用者的位置
-    const CALL_PLACE_FURTHER_FORWARD = 2;
+    const CALL_PLACE_BACKWORD   = 0; //表示调用者自身的位置
+    const CALL_PLACE_SELF       = 1;// 表示调用调用者的位置
+    const CALL_PLACE_FORWARD    = 2;
     /**
      * 信息组成
      */
@@ -560,7 +560,7 @@ final class SEK {
      * @param int $place 位置属性
      * @return array|string
      */
-    public static function getCallPlace($elements=0, $place=self::CALL_PLACE_FORWARD){
+    public static function getCallPlace($elements=0, $place=self::CALL_PLACE_SELF){
         $trace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT);
         if($elements){
             $result = [];

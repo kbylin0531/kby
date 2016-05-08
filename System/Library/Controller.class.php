@@ -110,7 +110,7 @@ class Controller {
         null === $this->_context and $this->fetchContext();
         //未设置时使用调用display的函数名称
         if(null === $template){//如果未设置参数一,获取当前调用方法的名称作为模板的默认名称
-            $this->_context['a'] = SEK::getCallPlace(SEK::CALL_ELEMENT_FUNCTION,2)[SEK::CALL_ELEMENT_FUNCTION];
+            $this->_context['a'] = SEK::getCallPlace(SEK::CALL_ELEMENT_FUNCTION,SEK::CALL_PLACE_FORWARD)[SEK::CALL_ELEMENT_FUNCTION];
             $context = $this->_context;
         }else{
             $context = $this->parseTemplateLocation($template);

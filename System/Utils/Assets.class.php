@@ -22,7 +22,7 @@ class Assets {
      * @return array 配置为空或者找不到配置时返回空数组
      */
     public static function load($name,$type=SEK::CONF_TYPE_PHP,$assetsDirName='Assets'){
-        $place = SEK::getCallPlace(SEK::CALL_ELEMENT_FILE,SEK::CALL_PLACE_FORWARD);
+        $place = SEK::getCallPlace(SEK::CALL_ELEMENT_FILE,SEK::CALL_PLACE_SELF);
         $targetdir = dirname($place[SEK::CALL_ELEMENT_FILE]);
         $temp = null;
         while(true){

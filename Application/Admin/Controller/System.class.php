@@ -21,7 +21,7 @@ class System extends AdminController{
      * 显示系统管理页面默认主页
      */
     public function index(){
-        $this->display();
+        $this->displayManagement();
     }
 
     public function scan(){

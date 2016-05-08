@@ -363,13 +363,13 @@ var Dazzling = function (config) {
 
     //初始化顶部的查询
     var initHeaderSearchForm = function (handler) {
+        if(!handler) handler = alert;
         // handle search box expand/collapse
         page_header.on('click', '.search-form', function () {
             var form_controll = $(this).find('.form-control');
             $(this).addClass("open");
             form_controll.focus();/* 主动聚焦 */
             form_controll.on('blur', function () {/* 失去焦点时自动关闭 */
-                if(typeof handler === 'function') return handler(form_controll.val());
                 $(this).closest('.search-form').removeClass("open");
                 $(this).unbind("blur");
             });
@@ -377,18 +377,22 @@ var Dazzling = function (config) {
 
         // handle hor menu search form on enter press
         page_header.on('keypress', '.hor-menu .search-form .form-control', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var val = $(this).closest('.search-form').find('.form-control').val();
             if (e.which == 13) {/* 按下回车自动提交 */
-                if(typeof handler === 'function') return handler($(this).val());
-                $(this).closest('.search-form').submit();
-                return false;
+                return handler(val);
             }
+            return false;
         });
 
         // handle header search button click
         page_header.on('mousedown', '.search-form.open .submit', function (e) {/* .submit是超链接,需要阻止事件的传播 */
             e.preventDefault();
             e.stopPropagation();
-            $(this).closest('.search-form').submit();
+            var val = $(this).closest('.search-form').find('.form-control').val();
+            if(typeof handler === 'function') return handler(val);
+            return false;
         });
     };
 
@@ -410,19 +414,18 @@ var Dazzling = function (config) {
             rebuildSlimScroll(alertList,alertListHeight);
         };
 
-
         var initChatSlimScroll = function () {
             var wrapperContentItemList      = wrapper.find('.page-quick-sidebar-item-list');
             var wrapperContentItemContent   = wrapperContenItem.find('.page-quick-sidebar-item-content');
 
-            var wrapperContentItemContentHeight = wrapper.height() - wrapper.find('.nav-tabs').outerHeight(true);
+            var wrapperContentItemListHeight = wrapper.height() - wrapper.find('.nav-tabs').outerHeight(true);
 
             // chat user list
-            rebuildSlimScroll(wrapperContentItemList,wrapperContentItemContentHeight);
+            rebuildSlimScroll(wrapperContentItemList,wrapperContentItemListHeight);
 
-            var chatMessagesHeight = wrapperContentItemContentHeight - wrapperContenItem.find('.page-quick-sidebar-nav').outerHeight(true);//减去返回按钮的高度
+            var wrapperContentItemContentHeight = wrapperContentItemListHeight - wrapperContenItem.find('.page-quick-sidebar-nav').outerHeight(true);//减去返回按钮的高度
             // user chat messages
-            rebuildSlimScroll(wrapperContentItemContent,chatMessagesHeight);
+            rebuildSlimScroll(wrapperContentItemContent,wrapperContentItemContentHeight);
         };
 
 
@@ -617,7 +620,6 @@ var Dazzling = function (config) {
         });
         //初始化聊天界面
         handleQuickSidebarChat();
-
     };
     //初始化应用
     var init = function () {
@@ -664,7 +666,82 @@ var Dazzling = function (config) {
          * @returns {{}}
          */
         'getBrowserInfo':getBrowserInfo,
-        'initHeaderSearchForm':initHeaderSearchForm
+        'initHeaderSearchForm':initHeaderSearchForm,
+        'str2Obj':function (str) {
+            if(str instanceof Object)return str;/* 已经是对象的清空下直接返回
+            由于json是以”{}”的方式来开始以及结束的，在JS中，它会被当成一个语句块来处理，所以必须强制性的将它转换成一种表达式。
+            加上圆括号的目的是迫使eval函数在处理JavaScript代码的时候强制将括号内的表达式（expression）转化为对象，而不是作为语句（statement）来执行
+            */
+            return eval ("(" + str + ")");
+        },
+        '_getUnorderedLists':function(menuitem,istop){
+            if(!menuitem.hasOwnProperty('submenu') || !menuitem.submenu) return;//不存在子菜单时直接返回
+
+            var li_ul = $('<ul class="dropdown-menu"></ul>');
+
+            //创建并添加ul
+            for(var x in menuitem.submenu){
+                if(!menuitem.submenu.hasOwnProperty(x)) continue;
+                //子菜单项
+                var subitem =  menuitem.submenu[x];
+
+                // return console.log(subitem,menuitem.submenu,x)
+                var li = $(document.createElement('li'));
+                li.append(this._getAnchor(subitem,true));
+                li_ul.append(li);
+                if(subitem.hasOwnProperty('submenu')){
+                    console.log(subitem);
+                    li.addClass('dropdown-submenu');
+                    li.append(this._getUnorderedLists(subitem,false));
+                }
+            }
+            return li_ul;
+        },
+
+        '_getAnchor':function (attrs,iconAhead) {
+            var a = $(document.createElement('a'));
+            attrs.hasOwnProperty('title') && a.text(" "+attrs.title+" ");
+            attrs.hasOwnProperty('href')  && a.attr('href',attrs.href);
+            attrs.hasOwnProperty('submenu')  && a.attr('data-toggle','dropdown');
+
+            if(attrs.hasOwnProperty('icon')){
+                var i = $(document.createElement('i'));
+                i.addClass('fa '+attrs.icon);
+                iconAhead?i.prependTo(a):i.appendTo(a);
+            }
+            return a;
+        },
+        /**
+         * 初始化顶部菜单,将服务器的压力转移至客户端
+         * @param navbar_conf 对象字符串
+         * @param navbar_menu 待初始化的菜单对象或者选择器或者jquery对象
+         * @returns {Object}
+         */
+        'initHeaderMenu':function (navbar_conf,navbar_menu) {
+            if(navbar_conf instanceof Object)return navbar_conf;/* 已经是对象的清空下直接返回 */
+            if(!(navbar_menu instanceof jQuery)) navbar_menu = $(navbar_menu);
+
+            navbar_conf = this.str2Obj(navbar_conf);
+            var active_index = parseInt(navbar_conf['active_index']);
+
+            for(var index in navbar_conf['menu_list']){
+                if(!navbar_conf['menu_list'].hasOwnProperty(index)) continue;
+
+                //菜单项
+                var menuitem = navbar_conf['menu_list'][index];
+
+                var li = $(document.createElement('li'));
+                li.addClass(parseInt(index) === active_index?'active classic-menu-dropdown':'classic-menu-dropdown');
+
+                var hasSubmenu = menuitem.hasOwnProperty('submenu');
+
+                if(hasSubmenu) menuitem['icon'] = 'fa-angle-down';
+                li.append(this._getAnchor(menuitem,false));
+                if(hasSubmenu) li.append(this._getUnorderedLists(menuitem,true));
+
+                li.appendTo(navbar_menu);
+            }
+        }
     };
 }();
 
