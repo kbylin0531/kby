@@ -1093,7 +1093,9 @@ var Dazzling = function () {
                         onItem(context,event);
 
                         var target  = event.target;
-                        handler(context.eq(0),target.getAttribute('tabindex'),target.innerText);
+                        console.log(context);
+
+                        handler(context,target.getAttribute('tabindex'),target.innerText);
                     },
                     // execute code before context menu if shown
                     before: before
@@ -1104,26 +1106,19 @@ var Dazzling = function () {
 
             /**
              *
-             <div>
-             <h2>Remodal</h2>
-             <p >
-             Responsive, lightweight, fast, synchronized with CSS animations, fully customizable modal window plugin
-             with declarative state notation and hash tracking.
-             </p>
-             </div>
+             * 注意:
+             * ①第一次创建时会把选择器中的元素'拐走',所以要记得保存热modal对象
+             var remodal = null;
+             ...
+             if(! remodal) remodal = Dazzling.modal.create('#fortest',{});
+             remodal.open();
 
-
-
-
-
-             </div>
+             * @param modalBodySelector
              * @param option
              */
             'create':function (modalBodySelector,option) {
                 var doc = $(document);
                 var config = {
-                    //模拟框标题
-                    'id':'modal_'+this.utils.guid(),
                     //各个时期的事件
                     'handler':{
                         'opening':null,
@@ -1132,14 +1127,23 @@ var Dazzling = function () {
                         'closed':null,
                         'confirmation':null,
                         'cancellation':null
-                    }
+                    },
+
+                    hashTracking:true,
+                    closeOnConfirm:true,
+                    closeOnCancel:true,
+                    closeOnEscape:true,
+                    closeOnOutsideClick:false
 
                 };
 
+
                 //初始化
                 for(var x in option){
+                    if(!option.hasOwnProperty(x)) continue;
                     if(x === 'handler'){
                         for(var y in option['handler']){
+                            if(!option['handler'].hasOwnProperty(y)) continue;
                             config['handler'][y] = option['handler'][y];
                         }
                     }else{
@@ -1147,7 +1151,15 @@ var Dazzling = function () {
                     }
                 }
 
-                var remodal = $('<div class="remodal remodal-wrapper" data-remodal-id="'+id+'">');
+                var options = '';
+                for(var z in config){
+                    if(!config.hasOwnProperty(z)) continue;
+                    if('id' !== z )options += z+(config[z]?':true,':':false,');
+                }
+
+                // console.log(options.substr(0,options.length-1));
+                var remodal = $('<div class="remodal remodal-wrapper" data-remodal-id="'+config['id']+'"></div>');
+                remodal.attr('data-remodal-options',options.substr(0,options.length-1));
                 var buttonClose = $('<button data-remodal-action="close" class="remodal-close"></button>');
                 remodal.append(buttonClose);
 
@@ -1168,8 +1180,25 @@ var Dazzling = function () {
                     doc.on(e, '.remodal', config['handler'][e]);
                 }
 
+                return $("[data-remodal-id="+config['id']+"]").remodal();
+            },
+            '_check':function (remodal) {
+                /* 检查是否是有效的Remodal对象... */
+                if(!(remodal instanceof Object)) throw "Require Remodal Object!";
+            },
+            'open':function (remodal) {
+                this._check(remodal);
+                return remodal.open();
+            },
+            'getState':function (remodal) {
+                this._check(remodal);
+                return remodal.getState();
+            },
+            'destroy':function (remodal) {
+                this._check(remodal);
+                return remodal.destroy();
             }
-            
+
         }
     };
 }();

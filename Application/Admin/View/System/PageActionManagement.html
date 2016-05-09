@@ -1,17 +1,4 @@
 {extends file="../Common/datatables.html"}
-{block name='page_css'}
-<style>
-    .text_align_center {
-        text-align: center;
-    }
-    .text_align_left {
-        text-align: left;
-    }
-    .text_align_right {
-        text-align: right;
-    }
-</style>
-{/block}
 {block name='page_js'}
 <script>
     $(function () {
@@ -29,11 +16,6 @@
                     'width':'20%',
                     'className':'text_align_center',
                     'data':'title'
-                },
-                {
-                    'title':'父ID',
-                    'width':'8%',
-                    'data':'parent'
                 },
                 {
                     'title':'状态',
@@ -60,17 +42,31 @@
                 }
             ]
         });
-
-        datatable.find("tbody").on('dblclick','tr',function (e) {
+        datatable.find("tbody").on('dblclick','tr',function () {
             var data = tableapi.row(this).data();
             console.log(data);
         });
+        var remodal = Dazzling.modal.create('#editModule',{});
+        var input_title = $("#title");
+        var input_status = $("#status");
+        var input_order = $("#order");
+        var input_description = $("#description");
 
         Dazzling.post(
             '{$smarty.const.__CONTROLLER__}/listModule',
             {},
             function (data) {
                 Dazzling.datatable.bind(tableapi).load(data);
+
+                datatable.on( 'click', 'tr', function () {
+                    if ( $(this).hasClass('selected') ) {
+                        $(this).removeClass('selected');
+                    }else {
+                        table.$('tr.selected').removeClass('selected');
+                        $(this).addClass('selected');
+                    }
+                });
+
                 Dazzling.contextmenu.bind(
                     "#dtable tr",
                     [
@@ -84,16 +80,23 @@
                     ],
                     function(element,tabindex,title){
                         console.log(element,tabindex,title);
+
+                        input_title.val(element.title);
+                        input_status.val(element.status);
+                        input_order.val(element.order);
+                        input_description.val(element.description);
+
+                        remodal.open();
                     }
                 );
             }
         );
 
-
-        $('#myModal').modal()
     });
 </script>
 {/block}
 {block name='stage_content'}
-<table id="dtable" class="display table table-condensed table-bordered" cellspacing="0" width="100%"></table>
+<div id="editModule" >
+</div>
+<table id="dtable" class="display table-condensed table-bordered" cellspacing="0" width="100%"></table>
 {/block}

@@ -31,6 +31,8 @@ class System extends AdminController{
 
     /**
      * 获取模块列表
+     * @access public
+     * @return void
      */
     public function listModule(){
         $moduleModel = new ModuleModel();
