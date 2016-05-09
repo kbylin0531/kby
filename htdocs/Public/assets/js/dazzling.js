@@ -1025,9 +1025,23 @@ var Dazzling = function () {
                 return toastr.clear()
             }
         },
+
+        /**
+         * target的格式:
+         * [
+         * //对象可以声明角标
+             {
+                 'index':'edit',
+                 'title':'Edit'
+             },
+         //数组按照顺序填写tabindex和title
+            ['delete','删除'],
+             false,//false 和 0 等== false的值可以化为分隔符号
+             'Separated link']
+         */
         'contextmenu':{
             'instance':null,
-            'bind':function (selector,target,onItem,before) {
+            'bind':function (selector,target,handler,onItem,before) {
                 if(selector instanceof jQuery) this.instance = selector;
                 else  this.instance = $(selector);
 
@@ -1042,13 +1056,19 @@ var Dazzling = function () {
                     if(item){
                         var tabindex = -1;
                         var title;
-                        if($.isArray(item)){
-                            tabindex = item[0];
-                            title = item[1];
+                        if(item instanceof Object){
+                            if(item.hasOwnProperty('index') && item.hasOwnProperty('title')){
+                                tabindex = item['index'];
+                                title = item['title'];
+                            }else{
+                                tabindex = item[0];
+                                title = item[1];
+                            }
                         }else{
-                            tabindex = item;
+                            tabindex = index;
+                            title = item;
                         }
-                        ul.append('<li><a tabindex="'+title+'">'+tabindex+'</a></li>');
+                        ul.append('<li><a tabindex="'+tabindex+'">'+title+'</a></li>');
                     }else{
                         /*  如果是空数组或者任何等于false的值 */
                         ul.append($('<li class="divider"></li>'));
@@ -1056,20 +1076,100 @@ var Dazzling = function () {
                 }
                 thisbody.prepend(contextmenu);
 
-                var empty = function (a,b) {console.log(a,b);};
-                before || (before = empty);
-                onItem || (onItem = empty);
-
-                // console.log('#'+id,$('#'+id))
-                this.instance.contextmenu({
-                    target:'#'+id,
-                    // execute code before context menu if shown
-                    before: before,
-                    // execute on menu item selection
-                    onItem: onItem
+                before || (before = function (e,c) {
+                });
+                onItem || (onItem = function (c,e) {
                 });
 
+                handler || (handler = function (element,tabindex,title) {
+                    console.log(element,tabindex,title);
+                });
+                
+                // console.log('#'+id,$('#'+id))
+                return this.instance.contextmenu({
+                    target:'#'+id,
+                    // execute on menu item selection
+                    onItem: function (context,event) {
+                        onItem(context,event);
+
+                        var target  = event.target;
+                        handler(context.eq(0),target.getAttribute('tabindex'),target.innerText);
+                    },
+                    // execute code before context menu if shown
+                    before: before
+                });
             }
+        },
+        'modal':{
+
+            /**
+             *
+             <div>
+             <h2>Remodal</h2>
+             <p >
+             Responsive, lightweight, fast, synchronized with CSS animations, fully customizable modal window plugin
+             with declarative state notation and hash tracking.
+             </p>
+             </div>
+
+
+
+
+
+             </div>
+             * @param option
+             */
+            'create':function (modalBodySelector,option) {
+                var doc = $(document);
+                var config = {
+                    //模拟框标题
+                    'id':'modal_'+this.utils.guid(),
+                    //各个时期的事件
+                    'handler':{
+                        'opening':null,
+                        'opened':null,
+                        'closing':null,
+                        'closed':null,
+                        'confirmation':null,
+                        'cancellation':null
+                    }
+
+                };
+
+                //初始化
+                for(var x in option){
+                    if(x === 'handler'){
+                        for(var y in option['handler']){
+                            config['handler'][y] = option['handler'][y];
+                        }
+                    }else{
+                        config[x] = option[x];
+                    }
+                }
+
+                var remodal = $('<div class="remodal remodal-wrapper" data-remodal-id="'+id+'">');
+                var buttonClose = $('<button data-remodal-action="close" class="remodal-close"></button>');
+                remodal.append(buttonClose);
+
+                //加入入体部
+                if(!(modalBodySelector instanceof jQuery)) modalBodySelector = $(modalBodySelector);
+                remodal.append(modalBodySelector);
+
+                remodal.append("<br />");
+                var confirm = $('<button data-remodal-action="confirm" class="remodal-confirm">提交</button>');
+                var cancel = $('<button data-remodal-action="cancel" class="remodal-cancel">取消</button>');
+                remodal.append(confirm).append(cancel);
+
+                thisbody.append(remodal);
+
+                for (var e in config['handler']){
+                    if(!config['handler'].hasOwnProperty(e)) continue;
+                    if(!config['handler'][e]) continue;
+                    doc.on(e, '.remodal', config['handler'][e]);
+                }
+
+            }
+            
         }
     };
 }();

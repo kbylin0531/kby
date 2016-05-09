@@ -66,20 +66,34 @@
             console.log(data);
         });
 
-
         Dazzling.post(
             '{$smarty.const.__CONTROLLER__}/listModule',
             {},
             function (data) {
                 Dazzling.datatable.bind(tableapi).load(data);
-
-                Dazzling.contextmenu.bind("#dtable tr",['Action',0,'Separated link']);
-
+                Dazzling.contextmenu.bind(
+                    "#dtable tr",
+                    [
+                        {
+                            'index':'edit',
+                            'title':'Edit'
+                        },
+                        false,
+                        ['delete','删除']
+                        ,0,'Separated link'
+                    ],
+                    function(element,tabindex,title){
+                        console.log(element,tabindex,title);
+                    }
+                );
             }
         );
+
+
+        $('#myModal').modal()
     });
 </script>
 {/block}
 {block name='stage_content'}
-<table id="dtable" class="table table-condensed table-striped table-bordered table-hover" cellspacing="0" width="100%"></table>
+<table id="dtable" class="display table table-condensed table-bordered" cellspacing="0" width="100%"></table>
 {/block}
