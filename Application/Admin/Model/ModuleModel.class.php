@@ -26,4 +26,8 @@ class ModuleModel extends Model{
         'status'    => null,
     ];
 
+    public function listModule(){
+        return $this->select();
+    }
+
 }

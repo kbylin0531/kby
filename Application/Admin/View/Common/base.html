@@ -12,6 +12,7 @@
     <link href="{$smarty.const.PUBLIC_URI}assets/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href="{$smarty.const.PUBLIC_URI}assets/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css">
     <link href="{$smarty.const.PUBLIC_URI}assets/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="{$smarty.const.PUBLIC_URI}assets/plugins/toastr/toastr.min.css" rel="stylesheet" type="text/css">
 
     <link href="{$smarty.const.PUBLIC_URI}assets/css/themes/darkblue.min.css" rel="stylesheet" type="text/css">
     <link href="{$smarty.const.PUBLIC_URI}assets/css/components.css" rel="stylesheet" type="text/css">
@@ -199,8 +200,11 @@
 <script src="{$smarty.const.PUBLIC_URI}assets/plugins/bootstrap/js/bootstrap.min.js"></script>
 <script src="{$smarty.const.PUBLIC_URI}assets/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js"></script>
 <script src="{$smarty.const.PUBLIC_URI}assets/plugins/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+<script src="{$smarty.const.PUBLIC_URI}assets/plugins/toastr/toastr.min.js"></script>
+<script src="{$smarty.const.PUBLIC_URI}assets/plugins/bootstrap-contextmenu/bootstrap-contextmenu.js"></script>
 
 <script src="{$smarty.const.PUBLIC_URI}assets/js/dazzling.js" ></script>
+{block name='js'}{/block}
 <script>
     Dazzling.init();
 
@@ -208,6 +212,5 @@
     Dazzling.initPageInfo('{$page}',['headermenu','metas!']);
 
 </script>
-{block name='js'}{/block}
 {block name='page_js'}{/block}
 </html>

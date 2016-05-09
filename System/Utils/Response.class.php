@@ -17,6 +17,7 @@ class Response {
      * 返回的消息类型
      */
     const MESSAGE_TYPE_SUCCESS = 1;
+    const MESSAGE_TYPE_WARNING = -1;
     const MESSAGE_TYPE_FAILURE = 0;
 
     /**

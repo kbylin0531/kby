@@ -141,4 +141,14 @@ li [class*=" fa-"].icon-large,li [class*=" glyphicon-"].icon-large,li [class*=" 
 .nav-tabs .dropdown.open>.dropdown-toggle{background:#eee;color:#0d638f;border-color:transparent}
 
 
+/* 自定义 */
 .media-list li{cursor: pointer}
+.text_align_center {
+    text-align: center;
+}
+.text_align_left {
+    text-align: left;
+}
+.text_align_right {
+    text-align: right;
+}

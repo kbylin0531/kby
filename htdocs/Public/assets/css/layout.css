@@ -365,7 +365,7 @@
 .page-container-bg-solid .page-bar .page-toolbar .btn.btn-sm,.page-content-white .page-bar .page-toolbar .btn.btn-sm{margin-top:0}
 .page-content{margin-top:0;padding:0;background-color:#fff}
 .page-container-bg-solid .page-content{background:#eef1f5}
-.page-content-white .page-content .page-bar{border-bottom:1px solid #e7ecf1}
+.page-content-white .page-content .page-bar{border-bottom:1px solid #FFF}
 .page-container-bg-solid.page-md .page-content .page-bar,.page-content-white.page-md .page-content .page-bar{border-radius:0!important}
 .page-full-width .page-content{margin-left:0!important}
 @media (min-width:992px){.page-content-wrapper{float:left;width:100%}

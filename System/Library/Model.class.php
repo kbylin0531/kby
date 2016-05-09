@@ -203,6 +203,18 @@ class Model {
     }
 
     /**
+     * 从数据库中获取指定条件的数据对象
+     * @return array|bool 返回数组或者false(发生了错误)
+     * @throws KbylinException
+     */
+    public function select(){
+        if(null === $this->_table) throw new KbylinException('Module has no table binded!');
+        $list = $this->getDao()->select($this->_table,$this->_where);
+        $this->clear();
+        return $list;
+    }
+
+    /**
      * 清空一张表
      * @return bool 是否成功删除
      */

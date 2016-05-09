@@ -29,6 +29,21 @@ class System extends AdminController{
         $this->displayManagement();
     }
 
+    /**
+     * 获取模块列表
+     */
+    public function listModule(){
+        $moduleModel = new ModuleModel();
+
+        $list = $moduleModel->listModule();
+        if(false === $list){
+            Response::failed('获取模块列表失败!'.$list);
+        }else{
+            Response::ajaxBack($list);
+        }
+    }
+
+
     public function scan(){
         $manager = new ActionManager(new CwebsActionScannerAdapter());
         $modules = $manager->scan(BASE_PATH.'App/Lib/Action/')->fetchModule();

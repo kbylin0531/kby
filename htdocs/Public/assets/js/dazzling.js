@@ -761,7 +761,15 @@ var Dazzling = function () {
             dazz_sidebar_menu.append(li_navitem);
         }
     };
-    
+
+
+    var lastRequestTime = null;
+
+    var convention = {
+        //post刷新间隔
+        'requestExpireTime':1000
+    };
+
     return {
         'init':function (config) {
             //写入文件
@@ -785,12 +793,24 @@ var Dazzling = function () {
          * 习惯性的jquery方法
          * @param url 请求地址
          * @param data 请求数据对象
-         * @param callback 服务器响应时的回调
+         * @param callback 服务器响应时的回调,如果回调函数返回false或者无返回值,则允许系统进行通知处理,返回true表示已经处理完毕,无需其他的操作
          * @param datatype 期望返回的数据类型 json xml html script json jsonp text 中的一种
          * @param async 是否异步,希望同步的清空下使用false,默认为true
          * @returns {*}
          */
         'post':function (url, data, callback, datatype, async) {
+
+            var currentMilliTime = (new Date()).valueOf();
+            if(!lastRequestTime){
+                lastRequestTime = currentMilliTime;
+            }else{
+                if((currentMilliTime - lastRequestTime) <= convention['requestExpireTime']){
+                    lastRequestTime = currentMilliTime;
+                    Dazzling.toast.warning('请将刷新间隔1秒以上!');
+                    return;
+                }
+            }
+
             if(undefined === datatype) datatype = "json";
             if(undefined === async) async = true;
             return jQuery.ajax({
@@ -799,7 +819,25 @@ var Dazzling = function () {
                 dataType:datatype,
                 async: async,
                 data: data,
-                success:callback
+                success:function (data) {
+                    var result = callback(data);
+
+                    // return console.log(result,!result,Dazzling.toast);
+                    if(result) return ;
+
+                    //通知处理
+                    if(data instanceof Object){
+                        if(data.hasOwnProperty('_type') && data.hasOwnProperty('_message')){
+                            if(data['_type'] > 0){
+                                return Dazzling.toast.success(data['_message']);
+                            }else if(data['_type'] < 0){
+                                return Dazzling.toast.warning(data['_message']);
+                            }else{
+                                return Dazzling.toast.error(data['_message']);
+                            }
+                        }
+                    }
+                }
             });
         },
         /**
@@ -916,7 +954,123 @@ var Dazzling = function () {
             initHeaderMenu(pageinfo['header_menu']);
             initSidebarMenu(pageinfo['sidebar_menu']);
         },
-        'setActive':function () {}
+        'setActive':function () {},
+        /**
+         * 工具箱
+         */
+        'utils':{
+            /**
+             * 获取GUID/UUID
+             * @returns {string}
+             */
+          'guid':function() {
+              var s = [];
+              var hexDigits = "0123456789abcdef";
+              for (var i = 0; i < 36; i++) {
+                  s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+              }
+              s[14] = "4";  // bits 12-15 of the time_hi_and_version field to 0010
+              s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1);  // bits 6-7 of the clock_seq_hi_and_reserved to 01
+              s[8] = s[13] = s[18] = s[23] = "-";
+
+              return s.join("");
+          }
+        },
+
+        /**
+         * 表格工具
+         */
+        'datatable': {
+            'instace':null,
+            /**
+             * 设置操作对象
+             * @param dtable
+             * @returns {Dazzling}
+             */
+            'bind':function (dtable) {
+                // if(dtable instanceof DataTable.Api){//内部变量,无法判断是否是实例对象
+                    this.instace = dtable;
+                    return this;/* this 对象同于链式调用 */
+                // }
+                // throw "Require Datatables instance!";
+            },
+            'load':function (data) {
+                if(!this.instace) throw "No Datatable binded!";
+                //先清除
+                this.instace.rows.add(data).draw();
+            }
+            
+        },
+        'toast':{
+            'init':function () {
+                toastr.options.closeButton = true;
+                toastr.options.newestOnTop = true;
+                // toastr.options.closeMethod = 'fadeOut';
+                // toastr.options.closeDuration = 300;
+                // toastr.options.closeEasing = 'linear';
+            },
+            'success':function (msg,title) {
+                this.init();
+                return toastr.success(msg,title)
+            },
+            'warning':function (msg,title) {
+                this.init();
+                return toastr.warning(msg,title)
+            },
+            'error':function (msg,title) {
+                this.init();
+                return toastr.error(msg,title)
+            },
+            'clear':function () {
+                return toastr.clear()
+            }
+        },
+        'contextmenu':{
+            'instance':null,
+            'bind':function (selector,target,onItem,before) {
+                if(selector instanceof jQuery) this.instance = selector;
+                else  this.instance = $(selector);
+
+                var id = ("cm_"+Dazzling.utils.guid());
+
+                var contextmenu = $("<div id='"+id+"'></div>");
+                var ul = $('<ul class="dropdown-menu" role="">');
+                contextmenu.append(ul);
+                for(var index in target){
+                    if(!target.hasOwnProperty(index)) continue;
+                    var item = target[index];
+                    if(item){
+                        var tabindex = -1;
+                        var title;
+                        if($.isArray(item)){
+                            tabindex = item[0];
+                            title = item[1];
+                        }else{
+                            tabindex = item;
+                        }
+                        ul.append('<li><a tabindex="'+title+'">'+tabindex+'</a></li>');
+                    }else{
+                        /*  如果是空数组或者任何等于false的值 */
+                        ul.append($('<li class="divider"></li>'));
+                    }
+                }
+                thisbody.prepend(contextmenu);
+
+                var empty = function (a,b) {console.log(a,b);};
+                before || (before = empty);
+                onItem || (onItem = empty);
+
+                // console.log('#'+id,$('#'+id))
+                this.instance.contextmenu({
+                    target:'#'+id,
+                    // execute code before context menu if shown
+                    before: before,
+                    // execute on menu item selection
+                    onItem: onItem
+                });
+
+            }
+        }
     };
 }();
 

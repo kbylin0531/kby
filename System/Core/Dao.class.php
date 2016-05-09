@@ -582,7 +582,7 @@ class Dao {
     public function select($tablename=null,$fields=null,$whr=null,$toexec=true){
         $bind = null;
         //设置选取字段
-        if(null === $fields){
+        if(empty($fields)){
             $fields = ' * ';
         }elseif($fields and is_array($fields)){
             //默认转义
@@ -606,7 +606,7 @@ class Dao {
             throw new KbylinException('Parameter 3 require the type of "null","array","string" ,now is invalid!');
         }
 
-        if($toexec) return [$sql,$bind];
+        if(!$toexec) return [$sql,$bind];
 
         if(false === $this->prepare($sql)->execute($bind) ){
             return false;
