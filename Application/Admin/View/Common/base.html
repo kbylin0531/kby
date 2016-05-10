@@ -4,21 +4,39 @@
 <!--[if !IE]><!--><html lang="en"><!--<![endif]-->
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Kbylin</title>
     <link rel="shortcut icon" href="https://elementary.io/favicon.ico" />
 
-    <link href="{$smarty.const.PUBLIC_URI}assets/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-    <link href="{$smarty.const.PUBLIC_URI}assets/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css">
-    <link href="{$smarty.const.PUBLIC_URI}assets/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-    <link href="{$smarty.const.PUBLIC_URI}assets/plugins/toastr/toastr.min.css" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href="{$smarty.const.PUBLIC_URI}assets/plugins/remodal/dist/remodal.css">
-    <link rel="stylesheet" href="{$smarty.const.PUBLIC_URI}assets/plugins/remodal/dist/remodal-default-theme.css">
+    <script>
+        var public_url = "{$smarty.const.PUBLIC_URI}";
+        var csses =  [
+            'assets/plugins/font-awesome/css/font-awesome.min.css',
+            'assets/plugins/simple-line-icons/simple-line-icons.min.css',
+            'assets/plugins/bootstrap/css/bootstrap.min.css',
+            'assets/plugins/toastr/toastr.min.css',
+            'assets/plugins/remodal/dist/remodal.css',
+            'assets/plugins/remodal/dist/remodal-default-theme.css',
 
-    <link href="{$smarty.const.PUBLIC_URI}assets/css/themes/darkblue.min.css" rel="stylesheet" type="text/css">
-    <link href="{$smarty.const.PUBLIC_URI}assets/css/components.css" rel="stylesheet" type="text/css">
-    <link href="{$smarty.const.PUBLIC_URI}assets/css/layout.css" rel="stylesheet" type="text/css">
+            'assets/css/themes/darkblue.min.css',
+            'assets/css/components.css',
+            'assets/css/layout.css'
+        ];
+        for (var i = 0; i < csses.length; i++){
+            document.write('<link href="'+public_url+csses[i]+'" rel="stylesheet" type="text/css" />');
+        }
+
+
+        //IE判断
+        var version;
+        if(version = navigator.userAgent.toLowerCase().match(/msie ([\d.]+)/)){
+            version = parseInt(version[1]);
+        }else{
+            version = 12;//IE12??
+        }
+
+    </script>
 
     {block name='css'}{/block}
     {block name='page_css'}{/block}
@@ -82,7 +100,7 @@
                         </ul>
                         <div class="page-toolbar">
                             <div class="btn-group pull-right">
-                                <button type="button" class="btn green btn-sm btn-outline dropdown-toggle" data-toggle="dropdown"> Actions
+                                <button type="button" class="btn dazzling btn-sm btn-outline dropdown-toggle" data-toggle="dropdown"> Actions
                                     <i class="fa fa-angle-down"></i>
                                 </button>
                                 <ul class="dropdown-menu pull-right" role="menu">
@@ -198,15 +216,32 @@
 <script src="{$smarty.const.PUBLIC_URI}assets/plugins/respond.min.js"></script>
 <script src="{$smarty.const.PUBLIC_URI}assets/plugins/excanvas.min.js"></script>
 <![endif]-->
-<script src="{$smarty.const.PUBLIC_URI}assets/plugins/jquery.min.js"></script>
-<script src="{$smarty.const.PUBLIC_URI}assets/plugins/bootstrap/js/bootstrap.min.js"></script>
-<script src="{$smarty.const.PUBLIC_URI}assets/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js"></script>
-<script src="{$smarty.const.PUBLIC_URI}assets/plugins/jquery-slimscroll/jquery.slimscroll.min.js"></script>
-<script src="{$smarty.const.PUBLIC_URI}assets/plugins/toastr/toastr.min.js"></script>
-<script src="{$smarty.const.PUBLIC_URI}assets/plugins/bootstrap-contextmenu/bootstrap-contextmenu.js"></script>
-<script src="{$smarty.const.PUBLIC_URI}assets/plugins/remodal/dist/remodal.js"></script>
 
-<script src="{$smarty.const.PUBLIC_URI}assets/js/dazzling.js" ></script>
+
+<script>
+
+    if(version < 9){
+        document.write("<scri"+"pt src=\""+public_url+"assets/plugins/html5shiv/dist/html5shiv.min.js\"></s"+"cript>");
+        document.write("<scri"+"pt src=\""+public_url+"assets/plugins/respond/dest/respond.min.js\"></s"+"cript>");
+        document.write("<scri"+"pt src=\""+public_url+"assets/plugins/jquery-placeholder/jquery.placeholder.min.js\"></s"+"cript>");
+    }
+
+    var scripts =  [
+        'assets/plugins/jquery.min.js',
+        'assets/plugins/bootstrap/js/bootstrap.min.js',
+        'assets/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js',
+        'assets/plugins/jquery-slimscroll/jquery.slimscroll.min.js',
+        'assets/plugins/toastr/toastr.min.js',
+        'assets/plugins/bootstrap-contextmenu/bootstrap-contextmenu.js',
+        'assets/plugins/remodal/dist/remodal.js',
+
+        'assets/js/dazzling.js'
+    ];
+    for (var i = 0; i < scripts.length; i++){
+        document.write("<scri"+"pt src=\""+public_url+scripts[i]+"\"></s"+"cript>");
+    }
+</script>
+
 {block name='js'}{/block}
 <script>
     Dazzling.init();

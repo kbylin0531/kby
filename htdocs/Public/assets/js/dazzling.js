@@ -546,26 +546,28 @@ var Dazzling = function () {
         var isIE8 = browerinfo.type === 'ie' && 8 === browerinfo.version;
         var isIE9 = browerinfo.type === 'ie' && 9 === browerinfo.version;
         if(isIE8 || isIE9){
+
+            $('input, textarea').placeholder();
             // this is html5 placeholder fix for inputs, inputs with placeholder-no-fix class will be skipped(e.g: we need this for password fields)
-            $('input[placeholder]:not(.placeholder-no-fix), textarea[placeholder]:not(.placeholder-no-fix)').each(function() {
-                var input = $(this);
-
-                if (input.val() === '' && input.attr("placeholder") !== '') {
-                    input.addClass("placeholder").val(input.attr('placeholder'));
-                }
-
-                input.focus(function() {
-                    if (input.val() == input.attr('placeholder')) {
-                        input.val('');
-                    }
-                });
-
-                input.blur(function() {
-                    if (input.val() === '' || input.val() == input.attr('placeholder')) {
-                        input.val(input.attr('placeholder'));
-                    }
-                });
-            });
+            // $('input[placeholder]:not(.placeholder-no-fix), textarea[placeholder]:not(.placeholder-no-fix)').each(function() {
+            //     var input = $(this);
+            //
+            //     if (input.val() === '' && input.attr("placeholder") !== '') {
+            //         input.addClass("placeholder").val(input.attr('placeholder'));
+            //     }
+            //
+            //     input.focus(function() {
+            //         if (input.val() == input.attr('placeholder')) {
+            //             input.val('');
+            //         }
+            //     });
+            //
+            //     input.blur(function() {
+            //         if (input.val() === '' || input.val() == input.attr('placeholder')) {
+            //             input.val(input.attr('placeholder'));
+            //         }
+            //     });
+            // });
         }
     };
     //初始化应用

@@ -6,5 +6,5 @@
   RewriteCond %{REQUEST_FILENAME} !-f
 
   #请求Public资源不经过index.php#
-  RewriteRule ^(?![^>]*Public)(.*)$ index.php/$1 [QSA,PT,L]
+  RewriteRule ^(?![^>]*Public)(.*)$ admin.php/$1 [QSA,PT,L]
 </IfModule>
