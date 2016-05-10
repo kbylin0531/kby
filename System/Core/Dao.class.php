@@ -31,6 +31,7 @@ class Dao {
     const CONF_NAME = 'dao';
 
     const CONF_CONVENTION = [
+        'AUTO_ESCAPE_ON'    => true,
         'DRIVER_DEFAULT_INDEX' => 0,
         'DRIVER_CLASS_LIST' => [
             MySQL::class,
@@ -100,11 +101,11 @@ class Dao {
     /**
      * 运算符
      */
-    CONST OPERATOR_EQUAL = ' = ';
-    CONST OPERATOR_NOTEQUAL = ' != ';
-    CONST OPERATOR_LIKE = ' LIKE ';
-    CONST OPERATOR_NOTLIKE = ' NOT LIKE ';
-    CONST OPERATOR_IN = ' IN ';
+    CONST OPERATOR_EQUAL = '=';
+    CONST OPERATOR_NOTEQUAL = '!=';
+    CONST OPERATOR_LIKE = 'LIKE';
+    CONST OPERATOR_NOTLIKE = 'NOT LIKE';
+    CONST OPERATOR_IN = 'IN';
     CONST OPERATOR_NOTIN = 'NOT IN';
 
 
@@ -525,7 +526,6 @@ class Dao {
 
         if(empty($fields)) throw new KbylinException('No fileds setted!');
         $sql = "INSERT INTO {$tablename} ( {$fields} ) VALUES ( {$fieldsholder} );";
-        //dumpout($sql,$inputs);
         return $this->prepare($sql)->execute($inputs);
     }
 
@@ -538,14 +538,18 @@ class Dao {
      * @return bool
      * @throws KbylinException
      */
-    public function update($tablename,$flds,$whr,$toexec=true){;
+    public function update($tablename,$flds,$whr,$toexec=true){
         $inputs = [];
-        $fields = is_string($flds)?[$flds,[]]:$this->translateSegments($flds,self::CONNECT_COMMA);
-        $where  = is_string($whr) ?[$whr,[]] :$this->translateSegments($whr, self::CONNECT_AND);
+//        dumpout($flds,$whr);
+        $fields = is_string($flds)?[$flds]:$this->translateSegments($flds,self::CONNECT_COMMA);
+        $where  = is_string($whr) ?[$whr] :$this->translateSegments($whr, self::CONNECT_AND);
+
+//        dumpout($fields,$where);
         empty($fields[1]) or $inputs = $fields[1];
-        empty($where[1]) or array_merge($inputs,$where[1]);
+        empty($where[1]) or $inputs = array_merge($inputs,$where[1]);
         $sql = "UPDATE {$tablename} SET {$fields[0]} WHERE {$where[0]};";
 
+//        dumpout($sql,$inputs);
         return $toexec?$this->prepare($sql)->execute($inputs):[$sql,$inputs];
     }
 
@@ -649,9 +653,12 @@ class Dao {
             $bindFieldName = ":{$fieldName}";
         }
 
-        $operator = strtolower(trim($operator));
-        $sql = $escape? $this->escape($fieldName):" {$fieldName} ";
+        $operator = strtolower($operator);
+
+//        $sql = $this->escape($fieldName);//
+        $sql = (self::$_conventions[self::class]['AUTO_ESCAPE_ON'] or $escape)? $this->escape($fieldName):" {$fieldName} ";
         $bind = array();
+
 
         switch($operator){
             case self::OPERATOR_EQUAL:
@@ -661,8 +668,8 @@ class Dao {
                 $sql .= " {$operator} {$bindFieldName} ";
                 $bind[$bindFieldName] = $fieldValue;
                 break;
-            case 'in':
-            case 'not in':
+            case self::OPERATOR_IN:
+            case self::OPERATOR_NOTIN:
                 if(is_string($fieldValue)){
                     $sql .= " {$operator} ({$fieldValue}) ";
                 }elseif(is_array($fieldValue)){
@@ -700,7 +707,9 @@ class Dao {
      * @throws KbylinException
      */
     private function translateSegments($segments, $connect=self::CONNECT_AND){
-        if(empty($segments)) throw new KbylinException('Segment should not be empty!');
+        if(empty($segments)){
+            throw new KbylinException(empty($segments),$segments,'Segment should not be empty!');
+        }
 
         $sql = '';
         $bind = [];
@@ -719,7 +728,7 @@ class Dao {
             }else{
                 //第一种情况
                 $escape = false;
-                $operator = '=';
+                $operator = self::OPERATOR_EQUAL;
                 if(is_array($val)){
                     $escape = isset($val[2])?$val[2]:false;
                     $operator = isset($val[1])?$val[1]:self::OPERATOR_EQUAL;

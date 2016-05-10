@@ -1040,6 +1040,7 @@ var Dazzling = (function () {
         //datatable表格工具,一次只能操作一个表格API对象
         'datatables': {
             'tableApi':null,
+            'current_row':null,//当前操作的行,可能是一群行
             //设置之后的操作所指定的DatatableAPI对象
             'bind':function (api) {
                 this.tableApi = api; return this;/* this 对象同于链式调用 */
@@ -1052,7 +1053,20 @@ var Dazzling = (function () {
             },
             //获取表格指定行的数据
             'data':function (element) {
+                this.current_row = element;
                 return this.tableApi.row(element).data();
+            },
+            'update':function (newdata,line){
+                (line === undefined) && (line = this.current_row);
+                if(line){
+                    if(Kbylin.isArray(line)){
+                        for (var i = 0; i < line.length ; i ++){
+                            this.update(newdata,line[i]);
+                        }
+                    }else{
+                        return this.tableApi.row(line).data(newdata).draw();
+                    }
+                }
             }
         },
         //页面的Toast工具,toast对象直接属于window对象

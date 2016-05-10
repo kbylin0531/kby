@@ -121,9 +121,13 @@ class Dispatcher{
         //获取方法的固定参数
         $methodParams = $targetMethod->getParameters();
 
+
         //遍历方法的参数
         foreach ($methodParams as $param) {
             $paramName = $param->getName();
+
+//            dump($vars,$paramName);
+
             if(isset($vars[$paramName])){
                 $args[] =   $vars[$paramName];
             }elseif($param->isDefaultValueAvailable()){
@@ -132,6 +136,8 @@ class Dispatcher{
                 throw new KbylinException("The action miss the param '{$paramName}'!");
             }
         }
+
+//        dumpout($vars,$methodParams);
         return $args;
     }
 

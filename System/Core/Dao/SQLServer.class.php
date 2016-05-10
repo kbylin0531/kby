@@ -24,7 +24,9 @@ class SQLServer extends DaoAbstract {
      * @param string $fieldname 字段名称
      * @return string
      */
-    public function escape($fieldname){}
+    public function escape($fieldname){
+        return $this->_l_quote.$fieldname.$this->_r_quote;
+    }
     /**
      * 根据配置创建DSN
      * @param array $config 数据库连接配置

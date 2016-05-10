@@ -54,7 +54,11 @@
             'confirm':function () {
                 Dazzling.post(ctler_uri+'updateModule',Dazzling.form.serialize("#form_module"),function (data) {
                     console.log(data);
-                    Dazzling.modal.hide(editModal);
+                    if(data['_type'] > 0){
+
+                        //只有成功时才会自动消失
+                        Dazzling.modal.hide(editModal);
+                    }
                 });
             },
             'cancel':function () {

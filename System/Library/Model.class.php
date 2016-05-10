@@ -154,7 +154,7 @@ class Model {
      * @return $this
      */
     public function where(array $where){
-        foreach ($where as $key=>$val)  isset($this->_fields[$key]) and $this->_fields[$key] = $val;
+        foreach ($where as $key=>$val)  key_exists($key,$this->_fields) and $this->_where[$key] = $val;
         return $this;
     }
 
@@ -262,7 +262,10 @@ class Model {
      */
     public function update(){
         if(null === $this->_table) throw new KbylinException('Module has no table binded!');
-        $result = $this->getDao()->update($this->_table,$this->_fields,$this->_where);
+//        dumpout($this->_fields,$this->_where);
+        $fields = [];
+        foreach ($this->_fields as $key=>$value) isset($value) and $fields[$key] = $value;
+        $result = $this->getDao()->update($this->_table,$fields,$this->_where);
         $this->clear();
         return $result;
     }

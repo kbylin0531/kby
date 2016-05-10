@@ -18,6 +18,7 @@ class ModuleModel extends Model{
 
     const TABLE_NAME = 'kl_module';
     const TABLE_FIELDS = [
+        'id'        => null,
         'title'     => null,
         'parent'    => null,
         'description' => null,
@@ -43,6 +44,8 @@ class ModuleModel extends Model{
      * @throws \System\Core\KbylinException
      */
     public function updateModule(array $info,$id){
+//        dumpout($info,$id);
+
         $fields = SEK::ghostArray($info,[
             'title','description','order','status' //镜像这些数据防止对多余的部分进行修改
         ]);
@@ -50,6 +53,7 @@ class ModuleModel extends Model{
             $this->setError('没有指定更新的字段!');
             return false;
         }
+
         return $this->fields($fields)->where(['id'=>$id])->update();
     }
 

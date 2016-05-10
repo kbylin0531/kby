@@ -139,10 +139,15 @@ final class Kbylin {
         if(isset($_REQUEST[$this->_convention['REQUEST_PARAM_NAME']])){
             $temp = [];
             parse_str($_REQUEST[$this->_convention['REQUEST_PARAM_NAME']],$temp);
+
+//            echo '<pre>';
+//            var_dump($temp);
+//            exit();
+
             $_POST = array_merge($_POST,$temp);
             $_REQUEST = array_merge($_REQUEST,$temp);
             $_GET = array_merge($_GET,$temp);
-            unset($this->_convention['REQUEST_PARAM_NAME']);
+            unset($_REQUEST[$this->_convention['REQUEST_PARAM_NAME']]);
         }
 
         //目录常量
