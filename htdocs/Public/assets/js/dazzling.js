@@ -16,36 +16,6 @@ var Dazzling = function () {
     var page_footer  = $('.page-footer');
     var page_sidebar_menu = $('.page-sidebar-menu');
 
-    var getBrowserInfo = function () {
-            var ret = {}; //用户返回的对象
-            var _tom = {};
-            var _nick;
-            var ua = navigator.userAgent.toLowerCase();
-            (_nick = ua.match(/msie ([\d.]+)/)) ? _tom.ie = _nick[1] :
-                (_nick = ua.match(/firefox\/([\d.]+)/)) ? _tom.firefox = _nick[1] :
-                    (_nick = ua.match(/chrome\/([\d.]+)/)) ? _tom.chrome = _nick[1] :
-                        (_nick = ua.match(/opera.([\d.]+)/)) ? _tom.opera = _nick[1] :
-                            (_nick = ua.match(/version\/([\d.]+).*safari/)) ? _tom.safari = _nick[1] : 0;
-            if (_tom.ie) {
-                ret.type = "ie";
-                ret.version = parseInt(_tom.ie);
-            } else if (_tom.firefox) {
-                ret.type = "firefox";
-                ret.version = parseInt(_tom.firefox);
-            } else if (_tom.chrome) {
-                ret.type = "chrome";
-                ret.version = parseInt(_tom.chrome);
-            } else if (_tom.opera) {
-                ret.type = "opera";
-                ret.version = parseInt(_tom.opera);
-            } else if (_tom.safari) {
-                ret.type = "safari";
-                ret.version = parseInt(_tom.safari);
-            }else{
-                ret.type = ret.version ="unknown";
-            }
-            return ret;
-    };
 
     var scrollTo = function (el, offeset) {
         var pos = (el && el.size() > 0) ? el.offset().top : 0;
@@ -403,13 +373,6 @@ var Dazzling = function () {
             createSlimScroll(el);
         };
 
-        var initSlimScroll = function (selector) {
-            var alertList = wrapper.find(selector);
-            var alertListHeight = wrapper.height() - wrapper.find('.nav-justified > .nav-tabs').outerHeight();
-            // alerts list
-            rebuildSlimScroll(alertList,alertListHeight);
-        };
-
         var initChatSlimScroll = function () {
             var wrapperContentItemList      = wrapper.find('.page-quick-sidebar-item-list');
             var wrapperContentItemContent   = wrapperContenItem.find('.page-quick-sidebar-item-content');
@@ -436,8 +399,6 @@ var Dazzling = function () {
 
         // reinitialize on window resize
         var _resizeSlimOnWindowsResized = function(){
-            initSlimScroll('.page-quick-sidebar-alerts-list');
-            initSlimScroll('.page-quick-sidebar-settings-list');
             initChatSlimScroll();
         };
         _resizeSlimOnWindowsResized();
@@ -542,39 +503,16 @@ var Dazzling = function () {
         };
 
         //添加placeholder支持,处理不支持placeholder的浏览器,这里将不支持IE8以下的浏览器,故只有IE9和IE10
-        var browerinfo = getBrowserInfo();
+        var browerinfo = Kbylin.getBrowserInfo();
         var isIE8 = browerinfo.type === 'ie' && 8 === browerinfo.version;
         var isIE9 = browerinfo.type === 'ie' && 9 === browerinfo.version;
-        if(isIE8 || isIE9){
-
-            $('input, textarea').placeholder();
-            // this is html5 placeholder fix for inputs, inputs with placeholder-no-fix class will be skipped(e.g: we need this for password fields)
-            // $('input[placeholder]:not(.placeholder-no-fix), textarea[placeholder]:not(.placeholder-no-fix)').each(function() {
-            //     var input = $(this);
-            //
-            //     if (input.val() === '' && input.attr("placeholder") !== '') {
-            //         input.addClass("placeholder").val(input.attr('placeholder'));
-            //     }
-            //
-            //     input.focus(function() {
-            //         if (input.val() == input.attr('placeholder')) {
-            //             input.val('');
-            //         }
-            //     });
-            //
-            //     input.blur(function() {
-            //         if (input.val() === '' || input.val() == input.attr('placeholder')) {
-            //             input.val(input.attr('placeholder'));
-            //         }
-            //     });
-            // });
-        }
+        if(isIE8 || isIE9) $('input, textarea').placeholder();
     };
     //初始化应用
     var initApplication = function () {
         var resize;
         var currheight;
-        var browerinfo = getBrowserInfo();
+        var browerinfo = Kbylin.getBrowserInfo();
         var isIE8 = browerinfo.type === 'ie' && 8 === browerinfo.version;
         var isIE9 = browerinfo.type === 'ie' && 9 === browerinfo.version;
         var isIE10 = browerinfo.type === 'ie' && 10 === browerinfo.version;
@@ -842,12 +780,6 @@ var Dazzling = function () {
                 }
             });
         },
-        /**
-         * 获取浏览器信息
-         * Object {type: "Chrome", version: "50.0.2661.94"}
-         * @returns {{}}
-         */
-        'getBrowserInfo':getBrowserInfo,
         'str2Obj':function (str) {
             if(str instanceof Object)return str;/* 已经是对象的清空下直接返回
             由于json是以”{}”的方式来开始以及结束的，在JS中，它会被当成一个语句块来处理，所以必须强制性的将它转换成一种表达式。

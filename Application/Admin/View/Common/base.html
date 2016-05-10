@@ -7,34 +7,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Kbylin</title>
-    <link rel="shortcut icon" href="https://elementary.io/favicon.ico" />
+    <script src="{$smarty.const.PUBLIC_URI}assets/js/kbylin.js"></script>
 
     <script>
-        var public_url = "{$smarty.const.PUBLIC_URI}";
-        var csses =  [
-            'assets/plugins/font-awesome/css/font-awesome.min.css',
-            'assets/plugins/simple-line-icons/simple-line-icons.min.css',
-            'assets/plugins/bootstrap/css/bootstrap.min.css',
-            'assets/plugins/toastr/toastr.min.css',
-            'assets/plugins/remodal/dist/remodal.css',
-            'assets/plugins/remodal/dist/remodal-default-theme.css',
+        Kbylin.init({
+            'public_url':"{$smarty.const.PUBLIC_URI}"
+        }).load([
+                    "https://elementary.io/favicon.ico",
 
-            'assets/css/themes/darkblue.min.css',
-            'assets/css/components.css',
-            'assets/css/layout.css'
-        ];
-        for (var i = 0; i < csses.length; i++){
-            document.write('<link href="'+public_url+csses[i]+'" rel="stylesheet" type="text/css" />');
-        }
+                    'assets/plugins/font-awesome/css/font-awesome.min.css',
+                    'assets/plugins/simple-line-icons/simple-line-icons.min.css',
+                    'assets/plugins/bootstrap/css/bootstrap.min.css',
+                    'assets/plugins/toastr/toastr.min.css',
+                    'assets/plugins/remodal/dist/remodal.css',
+                    'assets/plugins/remodal/dist/remodal-default-theme.css',
 
-
-        //IE判断
-        var version;
-        if(version = navigator.userAgent.toLowerCase().match(/msie ([\d.]+)/)){
-            version = parseInt(version[1]);
-        }else{
-            version = 12;//IE12??
-        }
+                    'assets/css/themes/darkblue.min.css',
+                    'assets/css/components.css',
+                    'assets/css/layout.css'
+                ]);
 
     </script>
 
@@ -63,7 +54,7 @@
             <a href="#" class="menu-toggler responsive-toggler" data-toggle="collapse" data-target=".navbar-collapse"></a>
             <div class="top-menu">
                 <ul class="nav navbar-nav pull-right">
-                    <li class="dropdown dropdown-user">
+                    <li class="dropdown dropdown-user dropdown-dark">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
                             <img alt="" class="img-circle" src="" id="avatar" />
                             <span class="username username-hide-on-mobile" id="nickname"> </span>
@@ -71,8 +62,7 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-default" id="menu"></ul>
                     </li>
-
-                    <li class="dropdown dropdown-quick-sidebar-toggler"><a href="#" class="dropdown-toggle"><i class="icon-control-start"></i></a></li>
+                    {block name='quick_sidebar_entry'}{/block}
                 </ul>
             </div>
         </div>
@@ -114,97 +104,10 @@
                     </div>
                 {/block}
                 {block name='stage_content'}
-                    <h3 class="page-title"> Search Box On Header 1
-                        <small>search box on header</small>
-                    </h3>
                 {/block}
             </div>
         </div>
-        <a href="#" class="page-quick-sidebar-toggler"><i class="icon-control-end"></i></a>
-        <div class="page-quick-sidebar-wrapper" data-close-on-body-click="false">
-            <div class="page-quick-sidebar">
-                <ul class="nav nav-tabs">
-                    <li class="active">
-                        <a href="#" data-target="#quick_sidebar_tab_1" data-toggle="tab"> User
-                            <span class="badge badge-danger"></span>
-                        </a>
-                    </li>
-                    <li class="">
-                        <a href="#" data-target="#quick_sidebar_tab_2" data-toggle="tab"> Setting
-                            <span class="badge badge-danger"></span>
-                        </a>
-                    </li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"> More
-                            <i class="fa fa-angle-down"></i>
-                        </a>
-                        <ul class="dropdown-menu pull-right">
-                            <li>
-                                <a href="#" data-target="#quick_sidebar_tab_1" data-toggle="tab">
-                                    <i class="icon-bell"></i> Alerts </a>
-                            </li>
-                            <li class="divider"></li>
-                            <li>
-                                <a href="#" data-target="#quick_sidebar_tab_2" data-toggle="tab">
-                                    <i class="icon-settings"></i> Settings </a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-                <div class="tab-content">
-                    <div class="tab-pane active tab-content-item" id="quick_sidebar_tab_1">
-                        <div class="page-quick-sidebar-item-list" data-rail-color="#ddd" data-wrapper-class="page-quick-sidebar-list">
-                            <h3 class="list-heading">hello</h3>
-                            <ul class="media-list list-items">
-                                <li class="godetail">
-                                    google
-                                </li>
-                                <li class="" >
-                                    baidu
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="page-quick-sidebar-item">
-                            <div class="page-quick-sidebar-item-wrapper">
-                                <div class="page-quick-sidebar-nav">
-                                    <a href="javascript:void(0);" class="page-quick-sidebar-back-to-list">
-                                        <i class="icon-arrow-left"></i>Back</a>
-                                </div>
-                                <hr />
-                                <div class="page-quick-sidebar-item-content">
-                                    ....
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="tab-pane tab-content-item" id="quick_sidebar_tab_2">
-                        <div class="page-quick-sidebar-item-list" data-rail-color="#ddd" data-wrapper-class="page-quick-sidebar-list">
-                            <h3 class="list-heading">yes bean</h3>
-                            <ul class="media-list list-items">
-                                <li class="godetail">
-                                    nice
-                                </li>
-                                <li class="" >
-                                    nice
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="page-quick-sidebar-item">
-                            <div class="page-quick-sidebar-item-wrapper">
-                                <div class="page-quick-sidebar-nav">
-                                    <a href="javascript:void(0);" class="page-quick-sidebar-back-to-list">
-                                    <i class="icon-arrow-left"></i>Back</a>
-                                </div>
-                                <hr />
-                                <div class="page-quick-sidebar-item-content">
-                                    ....
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {block name='quick_sidebar'}{/block}
     </div>
     <div class="page-footer">
         <div class="page-footer-inner"> 2014 &copy; Metronic by keenthemes.</div>
@@ -212,21 +115,16 @@
     </div>
 </body>
 
-<!--[if lt IE 9]>
-<script src="{$smarty.const.PUBLIC_URI}assets/plugins/respond.min.js"></script>
-<script src="{$smarty.const.PUBLIC_URI}assets/plugins/excanvas.min.js"></script>
-<![endif]-->
-
-
 <script>
 
-    if(version < 9){
-        document.write("<scri"+"pt src=\""+public_url+"assets/plugins/html5shiv/dist/html5shiv.min.js\"></s"+"cript>");
-        document.write("<scri"+"pt src=\""+public_url+"assets/plugins/respond/dest/respond.min.js\"></s"+"cript>");
-        document.write("<scri"+"pt src=\""+public_url+"assets/plugins/jquery-placeholder/jquery.placeholder.min.js\"></s"+"cript>");
-    }
+    var ieVersion = Kbylin.ieVersion();
+    if(!ieVersion && ieVersion < 9) Kbylin.load([
+        "assets/plugins/html5shiv/dist/html5shiv.min.js",
+        "assets/plugins/respond/dest/respond.min.js",
+        "assets/plugins/jquery-placeholder/jquery.placeholder.min.js"
+    ]);
 
-    var scripts =  [
+    Kbylin.load([
         'assets/plugins/jquery.min.js',
         'assets/plugins/bootstrap/js/bootstrap.min.js',
         'assets/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js',
@@ -236,10 +134,7 @@
         'assets/plugins/remodal/dist/remodal.js',
 
         'assets/js/dazzling.js'
-    ];
-    for (var i = 0; i < scripts.length; i++){
-        document.write("<scri"+"pt src=\""+public_url+scripts[i]+"\"></s"+"cript>");
-    }
+    ]);
 </script>
 
 {block name='js'}{/block}
