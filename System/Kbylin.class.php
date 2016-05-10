@@ -70,7 +70,7 @@ final class Kbylin {
         'FUNC_PACK_LIST'    => [],
         'FUNC_PATH'         => 'Func/',//相对于BASE_PATH
 
-        'REQUEST_PARAM_NAME'    => '_PARAMS_',
+        'REQUEST_PARAM_NAME'    => '_KBYLIN_',
     ];
     /**
      * 类名与类路径的映射数组
@@ -136,9 +136,9 @@ final class Kbylin {
         date_default_timezone_set('Asia/Shanghai') or die('Date format set time zone failed!');////避免使用date函数时的警告
 
         //分解请求参数
-        if(isset($this->_convention['REQUEST_PARAM_NAME'])){
+        if(isset($_REQUEST[$this->_convention['REQUEST_PARAM_NAME']])){
             $temp = [];
-            parse_str($this->_convention['REQUEST_PARAM_NAME'],$temp);
+            parse_str($_REQUEST[$this->_convention['REQUEST_PARAM_NAME']],$temp);
             $_POST = array_merge($_POST,$temp);
             $_REQUEST = array_merge($_REQUEST,$temp);
             $_GET = array_merge($_GET,$temp);

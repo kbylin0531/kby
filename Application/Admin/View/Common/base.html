@@ -1,7 +1,5 @@
 <!DOCTYPE html>
-<!--[if IE 8]><html lang="en" class="ie8 no-js lt-ie9"><![endif]-->
-<!--[if IE 9]><html lang="en" class="ie9 no-js"><![endif]-->
-<!--[if !IE]><!--><html lang="en"><!--<![endif]-->
+<html>
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
@@ -10,23 +8,13 @@
     <script src="{$smarty.const.PUBLIC_URI}assets/js/kbylin.js"></script>
 
     <script>
-        Kbylin.init({
+
+        var infos = Kbylin.str2Obj('{$infos}');
+        var cdn = infos['cdn'];
+        var options = {
             'public_url':"{$smarty.const.PUBLIC_URI}"
-        }).load([
-                    "https://elementary.io/favicon.ico",
-
-                    'assets/plugins/font-awesome/css/font-awesome.min.css',
-                    'assets/plugins/simple-line-icons/simple-line-icons.min.css',
-                    'assets/plugins/bootstrap/css/bootstrap.min.css',
-                    'assets/plugins/toastr/toastr.min.css',
-                    'assets/plugins/remodal/dist/remodal.css',
-                    'assets/plugins/remodal/dist/remodal-default-theme.css',
-
-                    'assets/css/themes/darkblue.min.css',
-                    'assets/css/components.css',
-                    'assets/css/layout.css'
-                ]);
-
+        };
+        Kbylin.init(options).load(cdn['ico'],'ico').load(cdn['css'],'css');
     </script>
 
     {block name='css'}{/block}
@@ -82,7 +70,7 @@
                         <ul class="page-breadcrumb">
                             <li>
                                 <a href="#">Home</a>
-                                <i class="fa fa-circle"></i>
+                                <span>/</span>
                             </li>
                             <li>
                                 <span>Page Layouts</span>
@@ -116,33 +104,24 @@
 </body>
 
 <script>
-
     var ieVersion = Kbylin.ieVersion();
-    if(!ieVersion && ieVersion < 9) Kbylin.load([
-        "assets/plugins/html5shiv/dist/html5shiv.min.js",
-        "assets/plugins/respond/dest/respond.min.js",
-        "assets/plugins/jquery-placeholder/jquery.placeholder.min.js"
-    ]);
+    if( ieVersion < 9){
+        Kbylin.load(cdn['js_lt9'],'js');
+    }else{
+        Kbylin.load(cdn['js_gt9'],'js');
+    }
 
-    Kbylin.load([
-        'assets/plugins/jquery.min.js',
-        'assets/plugins/bootstrap/js/bootstrap.min.js',
-        'assets/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js',
-        'assets/plugins/jquery-slimscroll/jquery.slimscroll.min.js',
-        'assets/plugins/toastr/toastr.min.js',
-        'assets/plugins/bootstrap-contextmenu/bootstrap-contextmenu.js',
-        'assets/plugins/remodal/dist/remodal.js',
 
-        'assets/js/dazzling.js'
-    ]);
+    Kbylin.load(cdn['js'],'js');
+
 </script>
 
 {block name='js'}{/block}
 <script>
     Dazzling.init();
 
-    Dazzling.initUserInfo('{$user}',['avatar.src','nickname','menu']);
-    Dazzling.initPageInfo('{$page}',['headermenu','metas!']);
+    Dazzling.initUserInfo(infos['user'],['avatar.src','nickname','menu']);
+    Dazzling.initPageInfo(infos['page'],['headermenu','metas!']);
 
 </script>
 {block name='page_js'}{/block}

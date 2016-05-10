@@ -1,7 +1,8 @@
-/***
- *
+/**
+ * 框架基础执行工具
+ * @type object
  */
-var Dazzling = function () {
+var Dazzling = (function () {
 
     // for(var x in config) if(x in convention) convention[x] = config[x];
     if(!jQuery ) throw "Require Jquery!";
@@ -16,6 +17,24 @@ var Dazzling = function () {
     var page_footer  = $('.page-footer');
     var page_sidebar_menu = $('.page-sidebar-menu');
 
+    /**
+     * 投入string类型的jquery选择器或者dom对象或者jquery对象本身,返回实打实的jquery对象
+     * @param selector
+     * @returns {jQuery}
+     */
+    var toJquery = function (selector) {
+        if(typeof selector  === 'string'){
+            return $(selector);
+        }else if(typeof selector === 'object'){
+            if(selector instanceof HTMLElement){
+                return $(selector);
+            }else if(selector instanceof jQuery){
+                return selector;
+            }else{
+                throw "Invalid parameter";
+            }
+        }
+    };
 
     var scrollTo = function (el, offeset) {
         var pos = (el && el.size() > 0) ? el.offset().top : 0;
@@ -403,7 +422,6 @@ var Dazzling = function () {
         };
         _resizeSlimOnWindowsResized();
         resizeHandlers.push(_resizeSlimOnWindowsResized); // reinitialize on window resize
-
     };
 
     //sidebar相关的初始化
@@ -451,57 +469,6 @@ var Dazzling = function () {
     };
     //兼容性处理 与 加强
     var handleCompatibility = function () {
-        //处理console对象缺失
-        !window.console &&  (window.console = (function(){var c = {}; c.log = c.warn = c.debug = c.info = c.error = c.time = c.dir = c.profile = c.clear = c.exception = c.trace = c.assert = function(){}; return c;})());
-        //IE8不支持indexOf方法
-        if (!Array.prototype.indexOf){
-            Array.prototype.indexOf = function(elt){
-                var len = this.length >>> 0;
-                var from = Number(arguments[1]) || 0;
-                from = (from < 0)
-                    ? Math.ceil(from)
-                    : Math.floor(from);
-                if (from < 0)
-                    from += len;
-                for (; from < len; from++)
-                {
-                    if (from in this &&
-                        this[from] === elt)
-                        return from;
-                }
-                return -1;
-            };
-        }
-
-        /**
-         * 对Date的扩展，将 Date 转化为指定格式的String
-         * 月(M)、日(d)、小时(h)、分(m)、秒(s)、季度(q) 可以用 1-2 个占位符，
-         * 年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字)
-         * 例子：
-         * (new Date()).format("yyyy-MM-dd hh:mm:ss.S") ==> 2006-07-02 08:09:04.423
-         * (new Date()).format("yyyy-M-d h:m:s.S")      ==> 2006-7-2 8:9:4.18
-         */
-        Date.prototype.format = function(fmt){ //author: meizz
-            var o = {
-                "M+" : this.getMonth()+1,                 //月份
-                "d+" : this.getDate(),                    //日
-                "h+" : this.getHours(),                   //小时
-                "m+" : this.getMinutes(),                 //分
-                "s+" : this.getSeconds(),                 //秒
-                "q+" : Math.floor((this.getMonth()+3)/3), //季度
-                "S"  : this.getMilliseconds()             //毫秒
-            };
-            if(/(y+)/.test(fmt))
-                fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));
-            for(var k in o){
-                if(!o.hasOwnProperty(k)) continue;
-                if(new RegExp("("+ k +")").test(fmt))
-                    fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));
-            }
-
-              return fmt;
-        };
-
         //添加placeholder支持,处理不支持placeholder的浏览器,这里将不支持IE8以下的浏览器,故只有IE9和IE10
         var browerinfo = Kbylin.getBrowserInfo();
         var isIE8 = browerinfo.type === 'ie' && 8 === browerinfo.version;
@@ -614,12 +581,10 @@ var Dazzling = function () {
             //子菜单项
             var subitem =  menuitem.submenu[x];
 
-            // return console.log(subitem,menuitem.submenu,x)
             var li = $(document.createElement('li'));
             li.append(_getAnchor4Header(subitem,true));
             li_ul.append(li);
             if(subitem.hasOwnProperty('submenu')){
-                // console.log(subitem);
                 li.addClass('dropdown-submenu');
                 li.append(_getUnorderedLists4Header(subitem));
             }
@@ -707,241 +672,394 @@ var Dazzling = function () {
 
     var convention = {
         //post刷新间隔
-        'requestExpireTime':1000
+        'requestExpireTime':400
     };
 
-    return {
-        'init':function (config) {
-            //写入文件
-            config instanceof Object && config.hasOwnProperty('metas') && this.writeMetas(config['metas']);
+    var init = function (config) {
 
-            handleCompatibility();//处理常见的兼容性问题
+        handleCompatibility();//处理常见的兼容性问题
 
-            initApplication();//初始化应用
+        initApplication();//初始化应用
 
-            //初始化布局
-            initHeaderSearchForm(alert); // handles horizontal menu
-            initSidebar();//初始化sidebar
-            initGotoTop();//处理足部的Go to top 按钮
+        //初始化布局
+        initHeaderSearchForm(alert); // handles horizontal menu
+        initSidebar();//初始化sidebar
+        initGotoTop();//处理足部的Go to top 按钮
 
-            //初始化quick-sidebar
-            initQuickSidebar();//初始化quick-sidebar
+        //初始化quick-sidebar
+        initQuickSidebar();//初始化quick-sidebar
+    };
 
-        },
-        'scrollTo':scrollTo,
-        /**
-         * 习惯性的jquery方法
-         * @param url 请求地址
-         * @param data 请求数据对象
-         * @param callback 服务器响应时的回调,如果回调函数返回false或者无返回值,则允许系统进行通知处理,返回true表示已经处理完毕,无需其他的操作
-         * @param datatype 期望返回的数据类型 json xml html script json jsonp text 中的一种
-         * @param async 是否异步,希望同步的清空下使用false,默认为true
-         * @returns {*}
-         */
-        'post':function (url, data, callback, datatype, async) {
+    /**
+     * 习惯性的jquery方法
+     * @param url 请求地址
+     * @param data 请求数据对象
+     * @param callback 服务器响应时的回调,如果回调函数返回false或者无返回值,则允许系统进行通知处理,返回true表示已经处理完毕,无需其他的操作
+     * @param datatype 期望返回的数据类型 json xml html script json jsonp text 中的一种
+     * @param async 是否异步,希望同步的清空下使用false,默认为true
+     * @returns {*}
+     */
+    var dazzlingPost = function (url, data, callback, datatype, async) {
 
-            var currentMilliTime = (new Date()).valueOf();
-            if(!lastRequestTime){
-                lastRequestTime = currentMilliTime;
-            }else{
-                if((currentMilliTime - lastRequestTime) <= convention['requestExpireTime']){
-                    lastRequestTime = currentMilliTime;
-                    Dazzling.toast.warning('请将刷新间隔1秒以上!');
-                    return;
-                }
+        var currentMilliTime = (new Date()).valueOf();
+        if(!lastRequestTime){
+            lastRequestTime = currentMilliTime;
+        }else{
+            var gap = currentMilliTime - lastRequestTime;
+            lastRequestTime = currentMilliTime;
+            if(gap < convention['requestExpireTime']){
+                return Dazzling.toast.warning('请勿频繁刷新!');
             }
+        }
 
-            if(undefined === datatype) datatype = "json";
-            if(undefined === async) async = true;
-            return jQuery.ajax({
-                url: url,
-                type: 'post',
-                dataType:datatype,
-                async: async,
-                data: data,
-                success:function (data) {
-                    var result = callback(data);
+        if(undefined === datatype) datatype = "json";
+        if(undefined === async) async = true;
 
-                    // return console.log(result,!result,Dazzling.toast);
-                    if(result) return ;
+        if(typeof data === 'string'){
+            data = {
+                '_KBYLIN_':data //后台会进行分解
+            };
+        }
 
-                    //通知处理
-                    if(data instanceof Object){
-                        if(data.hasOwnProperty('_type') && data.hasOwnProperty('_message')){
-                            if(data['_type'] > 0){
-                                return Dazzling.toast.success(data['_message']);
-                            }else if(data['_type'] < 0){
-                                return Dazzling.toast.warning(data['_message']);
-                            }else{
-                                return Dazzling.toast.error(data['_message']);
-                            }
+        return jQuery.ajax({
+            url: url,
+            type: 'post',
+            dataType:datatype,
+            async: async,
+            data: data,
+            success:function (data) {
+                var result = callback(data);
+
+                if(result) return ;
+
+                //通知处理
+                if(data instanceof Object){
+                    if(data.hasOwnProperty('_type') && data.hasOwnProperty('_message')){
+                        if(data['_type'] > 0){
+                            return Dazzling.toast.success(data['_message']);
+                        }else if(data['_type'] < 0){
+                            return Dazzling.toast.warning(data['_message']);
+                        }else{
+                            return Dazzling.toast.error(data['_message']);
                         }
                     }
                 }
-            });
-        },
-        'str2Obj':function (str) {
-            if(str instanceof Object)return str;/* 已经是对象的清空下直接返回
-            由于json是以”{}”的方式来开始以及结束的，在JS中，它会被当成一个语句块来处理，所以必须强制性的将它转换成一种表达式。
-            加上圆括号的目的是迫使eval函数在处理JavaScript代码的时候强制将括号内的表达式（expression）转化为对象，而不是作为语句（statement）来执行
-            */
-            return eval ("(" + str + ")");
-        },
-        /**
-         * 初始化头部的查询表单
-         */
-        'initHeaderSearchForm':initHeaderSearchForm,
-        /**
-         * 判断一个元素是否是数组
-         * @param el
-         * @returns {boolean}
-         */
-        'isArray':function (el) {
-            return Object.prototype.toString.call(el) === '[object Array]';
-        },
-        "autoFillById":function (elements, infos, ignores) {
-            if(!this.isArray(ignores)) ignores = [ignores];/* 自动转数组 */
-            
-            // console.log(elements,infos,ignores);
+            }
+        });
+    };
 
-            for(var x in elements){
-                if(!elements.hasOwnProperty(x)) continue;
-                var id = elements[x];
-                if($.inArray(id,ignores) === 0) continue;
+    /**
+     * ??
+     * @param elements
+     * @param infos
+     * @param ignores
+     */
+    var autoFillById = function (elements, infos, ignores) {
+        if(!Kbylin.isArray(ignores)) ignores = [ignores];/* 自动转数组 */
 
-                // console.log(id);
-                var temp ;
-                if(infos.hasOwnProperty(id)){
-                    if(id.indexOf('.') !== -1){
-                        temp = id.split('.');
-                        // console.log(temp,infos[id]);
-                        $("#"+temp[0]).attr(temp[1],infos[id]);
-                    }else{
-                        // console.log(id,'-------',infos[id]);
-                        $("#"+id).text(infos[id])
-                    }
+
+        for(var x in elements){
+            if(!elements.hasOwnProperty(x)) continue;
+            var id = elements[x];
+            if($.inArray(id,ignores) === 0) continue;
+
+            var temp ;
+            if(infos.hasOwnProperty(id)){
+                if(id.indexOf('.') !== -1){
+                    temp = id.split('.');
+                    $("#"+temp[0]).attr(temp[1],infos[id]);
+                }else{
+                    $("#"+id).text(infos[id])
                 }
             }
-        },
+        }
+    };
 
-        /**
-         * 向HTML中写入meta信息
-         * @param metas
-         */
-        'writeMetas':function (metas) {
-            var lastmeta = $("meta:last");//获取最后一个meta
+    var initUserInfo = function (userinfo,itemsIds) {
+        if(!(userinfo instanceof Object)) userinfo = Kbylin.str2Obj(userinfo);
+        var usermenu = $("#menu");
 
-            for(var x in metas){
-                if(!metas.hasOwnProperty(x)) continue;
-                var item = metas[x];
+        autoFillById(itemsIds,userinfo,['menu']);
 
-                var meta = document.createElement('meta');
-                for (var y in item){
-                    if(!item.hasOwnProperty(y)) continue;
-                    meta.setAttribute(y,item[y]);
-                }
-                $(meta).insertAfter(lastmeta);
+        for(var index in userinfo['menu']){
+            if(!userinfo['menu'].hasOwnProperty(index)) continue;
+            var item = userinfo['menu'][index];
+
+            var li = $(document.createElement('li'));
+            var a = $(document.createElement('a'));
+            a.text(item['title']);
+            li.append(a);
+
+            if(item.hasOwnProperty('href')) item['href'] = '#';
+            a.attr('href',item['href']);
+
+            if(item.hasOwnProperty('icon')){
+                var i = $(document.createElement('i'));
+                i.addClass(item['icon']);
+                a.prepend(i);
             }
-        },
+            usermenu.append(li);
+        }
+    };
 
-        /**
-         * @param userinfo 信息数组
-         * @param itemsIds 要初始化的标签数组
-         */
-        'initUserInfo':function (userinfo,itemsIds) {
-            if(!(userinfo instanceof Object)) userinfo = this.str2Obj(userinfo);
-            var usermenu = $("#menu");
+    var initPageInfo = function (pageinfo) {
+        if(!(pageinfo instanceof Object)) pageinfo = Kbylin.str2Obj(pageinfo);
 
-            this.autoFillById(itemsIds,userinfo,['menu']);
+        //设置标题
+        pageinfo.hasOwnProperty('title') && $("title").text(pageinfo['title']);
+        pageinfo.hasOwnProperty('logo') && $("#dazz_logo").attr('src',pageinfo['logo']);
 
-            for(var index in userinfo['menu']){
-                if(!userinfo['menu'].hasOwnProperty(index)) continue;
-                var item = userinfo['menu'][index];
+        initHeaderMenu(pageinfo['header_menu']);
+        initSidebarMenu(pageinfo['sidebar_menu']);
+    };
+    var setActive = function () {
 
-                var li = $(document.createElement('li'));
-                var a = $(document.createElement('a'));
-                a.text(item['title']);
-                li.append(a);
+    };
+    /**
+     * 随机获取一个GUID
+     * @returns {string}
+     */
+    var guid = function() {
+        var s = [];
+        var hexDigits = "0123456789abcdef";
+        for (var i = 0; i < 36; i++) {
+            s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+        }
+        s[14] = "4";  // bits 12-15 of the time_hi_and_version field to 0010
+        s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1);  // bits 6-7 of the clock_seq_hi_and_reserved to 01
+        s[8] = s[13] = s[18] = s[23] = "-";
 
-                if(item.hasOwnProperty('href')) item['href'] = '#';
-                a.attr('href',item['href']);
+        return s.join("");
+    };
 
-                if(item.hasOwnProperty('icon')){
-                    var i = $(document.createElement('i'));
-                    i.addClass(item['icon']);
-                    a.prepend(i);
-                }
-                usermenu.append(li);
+    /**
+     * target的格式:
+     * [
+     * //对象可以声明角标
+     {
+         'index':'edit',
+         'title':'Edit'
+     },
+     //数组按照顺序填写tabindex和title
+     //不同对象之间以hr划分
+     ]
+     */
+    var createContextmenu = function (selector,target,handler,onItem,before) {
+        var instance = toJquery(selector);
+
+        var id = ("cm_"+Dazzling.utils.guid());
+
+        var contextmenu = $("<div id='"+id+"'></div>");
+        var ul = $('<ul class="dropdown-menu" role="">');
+        contextmenu.append(ul);
+        for(var index in target){
+            if(!target.hasOwnProperty(index)) continue;
+
+            var group = target[index];
+            for(var i in group){
+                if(!group.hasOwnProperty(i)) continue;
+                var tabindex = i;
+                var title = group[i];
+                ul.append('<li><a tabindex="'+tabindex+'">'+title+'</a></li>');
             }
-        },
-        /**
-         * 初始化页面信息
-         * @param pageinfo 页面信息
-         */
-        'initPageInfo':function (pageinfo) {
-            if(!(pageinfo instanceof Object)) pageinfo = this.str2Obj(pageinfo);
 
-            //设置标题
-            pageinfo.hasOwnProperty('title') && $("title").text(pageinfo['title']);
-            pageinfo.hasOwnProperty('logo') && $("#dazz_logo").attr('src',pageinfo['logo']);
+            ul.append($('<li class="divider"></li>'));//对象之间划割
+        }
+        thisbody.prepend(contextmenu);
 
-            initHeaderMenu(pageinfo['header_menu']);
-            initSidebarMenu(pageinfo['sidebar_menu']);
-        },
-        'setActive':function () {},
-        /**
-         * 工具箱
-         */
-        'utils':{
-            /**
-             * 获取GUID/UUID
-             * @returns {string}
-             */
-          'guid':function() {
-              var s = [];
-              var hexDigits = "0123456789abcdef";
-              for (var i = 0; i < 36; i++) {
-                  s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
-              }
-              s[14] = "4";  // bits 12-15 of the time_hi_and_version field to 0010
-              s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1);  // bits 6-7 of the clock_seq_hi_and_reserved to 01
-              s[8] = s[13] = s[18] = s[23] = "-";
+        before || (before = function (e,c) {
+        });
+        onItem || (onItem = function (c,e) {
+        });
 
-              return s.join("");
-          }
-        },
+        handler || (handler = function (element,tabindex,title) {});
 
-        /**
-         * 表格工具
-         */
-        'datatable': {
-            'instace':null,
-            /**
-             * 设置操作对象
-             * @param dtable
-             * @returns {Dazzling}
-             */
-            'bind':function (dtable) {
-                // if(dtable instanceof DataTable.Api){//内部变量,无法判断是否是实例对象
-                    this.instace = dtable;
-                    return this;/* this 对象同于链式调用 */
-                // }
-                // throw "Require Datatables instance!";
+        return instance.contextmenu({
+            target:'#'+id,
+            // execute on menu item selection
+            onItem: function (context,event) {
+                onItem(context,event);
+                var target  = event.target;
+                handler(context,target.getAttribute('tabindex'),target.innerText);
             },
-            'load':function (data) {
-                if(!this.instace) throw "No Datatable binded!";
-                //先清除
-                this.instace.rows.add(data).draw();
+            // execute code before context menu if shown
+            before: before
+        });
+    };
+
+    /**
+     *
+     * 注意:(弃用)
+     * ①第一次创建时会把选择器中的元素'拐走',所以要记得保存热modal对象
+     var remodal = null;
+     ...
+     if(! remodal) remodal = Dazzling.modal.create('#fortest',{});
+     remodal.open();
+
+     * @param modalBodySelector
+     * @param option
+     */
+    var createModal = function (modalBodySelector,option) {
+        var config = {
+            'title':null,
+            'confirmText':'提交',
+            'cancelText':'取消',
+            'fade':true,
+
+            //确认和取消的回调函数
+            'confirm':null,
+            'cancel':null,
+
+            'show':null,//即将显示
+            'shown':null,//显示完毕
+            'hide':null,//即将隐藏
+            'hidden':null,//隐藏完毕
+
+            'backdrop':'static',
+            'keyboard':true
+        };
+
+        //初始化
+        for(var x in option){
+            if(!option.hasOwnProperty(x)) continue;
+            config[x] = option[x];
+        }
+
+        var id = 'modal_'+Dazzling.utils.guid();
+
+        var modal = $('<div class="modal" id="'+id+'" aria-hidden="true"></div>');
+        if(typeof config['backdrop'] !== "string"){
+            config['backdrop'] = config['backdrop']?'true':'false';
+        }
+        if(config['fade']) modal.addClass('fade');
+        modal.attr('data-backdrop',config['backdrop']);
+        modal.attr('data-keyboard',config['keyboard']?'true':'false');
+
+        var dialog = $('<div class="modal-dialog"></div>');
+        modal.append(dialog);
+
+        var content = $('<div class="modal-content"></div>');
+        dialog.append(content);
+
+        if(config['title']){
+            var header = $('<div class="modal-header"></div>');
+            var close = $('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>');
+            header.append(close).append($('<h4 class="modal-title">'+config['title']+'</h4>'));
+            content.append(header);
+        }
+
+        var body = $('<div class="modal-body"></div>');
+        body.appendTo(content);
+        body.append(toJquery(modalBodySelector));
+
+
+        var footer = $('<div class="modal-footer"></div>');
+        var cancel = $('<button type="button" class="btn btn-default" data-dismiss="modal">'+config['cancelText']+'</button>');
+        var confirm = $('<button type="button" class="btn btn-primary">'+config['confirmText']+'</button>');
+        content.append(footer.append(cancel).append(confirm));
+
+        //确认和取消事件注册
+        confirm.click(function (e) {
+            if(config['confirm']){
+                config['confirm'](e);
+            }
+        });
+        cancel.click(function (e) {
+            if(config['cancel']){
+                config['cancel'](e);
+            }
+        });
+        //事件注册
+
+        thisbody.append(modal);
+
+        var instance = $("#"+id);
+
+        var events = ['show','shown','hide','hidden'];
+        for(var i =0; i < events.length; i++){
+            var eventname = events[i];
+            config[eventname] && instance.on(eventname+'.bs.modal', function () {
+            });
+        }
+
+        return instance.modal('hide');
+    };
+
+    /**
+     * 自动填写表单
+     * @param form 表单对象或者表单选择器
+     * @param data 待设置的数据 如 {'key':'value'}
+     * @param map 数据映射 如{'key':'input_name'} 如果input_name设置为null等false值时 input_name即key的名称
+     */
+    var autoFillForm = function (form, data, map) {
+        if(typeof form === 'string') form = $(form);
+        if(!(form instanceof jQuery)) throw "Parameter 1 expect to be jquery ";
+        var target,i;
+        if(Kbylin.isArray(map)){
+            for(i = 0 ; i < map.length; i++){
+                target = form.find("[name="+map[i]+"]");
+                // console.log(target,target.length,data);
+                if(!target.length) continue;
+                target.val(data[map[i]]);
+            }
+        }else if(Kbylin.isObject(map) ){
+            for(i in map ){
+                if(!map.hasOwnProperty(i)) continue;
+                if(!data.hasOwnProperty(i)) continue;
+
+                if(!map[i]) map[i] = i;//值未设置时使用键作为默认的名称  如:'id':null,
+                target = form.find("[name="+map[i]+"]");
+                if(!target.length) continue;
+
+                target.val(data[i]);
             }
             
+        }
+    };
+
+    return {
+        //初始化应用
+        'init':init,
+        //滚动到
+        'scrollTo':scrollTo,
+        //定制的方法,定制过程中避免对jquery中的方法进行修改
+        'post':dazzlingPost,
+        //初始化用户信息
+        'initUserInfo':initUserInfo,
+        //初始化页面信息
+        'initPageInfo':initPageInfo,
+        //为活跃的菜单项目添加active类
+        'setActive':setActive,
+        //工具箱
+        'utils':{
+            //随机获取一个GUID
+            'guid':guid,
+            //投入string类型的jquery选择器或者dom对象或者jquery对象本身,返回实打实的jquery对象
+            'toJquery':toJquery
         },
+        //datatable表格工具,一次只能操作一个表格API对象
+        'datatables': {
+            'tableApi':null,
+            //设置之后的操作所指定的DatatableAPI对象
+            'bind':function (api) {
+                this.tableApi = api; return this;/* this 对象同于链式调用 */
+            },
+            //为tableapi对象加载数据,参数二用于清空之前的数据
+            'load':function (data,clear) {
+                if(!this.tableApi) throw "No Datatable binded!";
+                if(undefined === clear || clear) this.tableApi.clear();//清除之前的表格内容
+                this.tableApi.rows.add(data).draw();
+            },
+            //获取表格指定行的数据
+            'data':function (element) {
+                return this.tableApi.row(element).data();
+            }
+        },
+        //页面的Toast工具,toast对象直接属于window对象
         'toast':{
             'init':function () {
                 toastr.options.closeButton = true;
                 toastr.options.newestOnTop = true;
-                // toastr.options.closeMethod = 'fadeOut';
-                // toastr.options.closeDuration = 300;
-                // toastr.options.closeEasing = 'linear';
             },
             'success':function (msg,title) {
                 this.init();
@@ -959,183 +1077,38 @@ var Dazzling = function () {
                 return toastr.clear()
             }
         },
-
-        /**
-         * target的格式:
-         * [
-         * //对象可以声明角标
-             {
-                 'index':'edit',
-                 'title':'Edit'
-             },
-         //数组按照顺序填写tabindex和title
-            ['delete','删除'],
-             false,//false 和 0 等== false的值可以化为分隔符号
-             'Separated link']
-         */
-        'contextmenu':{
-            'instance':null,
-            'bind':function (selector,target,handler,onItem,before) {
-                if(selector instanceof jQuery) this.instance = selector;
-                else  this.instance = $(selector);
-
-                var id = ("cm_"+Dazzling.utils.guid());
-
-                var contextmenu = $("<div id='"+id+"'></div>");
-                var ul = $('<ul class="dropdown-menu" role="">');
-                contextmenu.append(ul);
-                for(var index in target){
-                    if(!target.hasOwnProperty(index)) continue;
-                    var item = target[index];
-                    if(item){
-                        var tabindex = -1;
-                        var title;
-                        if(item instanceof Object){
-                            if(item.hasOwnProperty('index') && item.hasOwnProperty('title')){
-                                tabindex = item['index'];
-                                title = item['title'];
-                            }else{
-                                tabindex = item[0];
-                                title = item[1];
-                            }
-                        }else{
-                            tabindex = index;
-                            title = item;
-                        }
-                        ul.append('<li><a tabindex="'+tabindex+'">'+title+'</a></li>');
-                    }else{
-                        /*  如果是空数组或者任何等于false的值 */
-                        ul.append($('<li class="divider"></li>'));
-                    }
-                }
-                thisbody.prepend(contextmenu);
-
-                before || (before = function (e,c) {
-                });
-                onItem || (onItem = function (c,e) {
-                });
-
-                handler || (handler = function (element,tabindex,title) {
-                    console.log(element,tabindex,title);
-                });
-                
-                // console.log('#'+id,$('#'+id))
-                return this.instance.contextmenu({
-                    target:'#'+id,
-                    // execute on menu item selection
-                    onItem: function (context,event) {
-                        onItem(context,event);
-
-                        var target  = event.target;
-                        console.log(context);
-
-                        handler(context,target.getAttribute('tabindex'),target.innerText);
-                    },
-                    // execute code before context menu if shown
-                    before: before
-                });
-            }
+        //上下文菜单工具
+        'contextmenu': {
+            //创建上下文菜单
+            'create': createContextmenu
         },
         'modal':{
-
-            /**
-             *
-             * 注意:
-             * ①第一次创建时会把选择器中的元素'拐走',所以要记得保存热modal对象
-             var remodal = null;
-             ...
-             if(! remodal) remodal = Dazzling.modal.create('#fortest',{});
-             remodal.open();
-
-             * @param modalBodySelector
-             * @param option
-             */
-            'create':function (modalBodySelector,option) {
-                var doc = $(document);
-                var config = {
-                    //各个时期的事件
-                    'handler':{
-                        'opening':null,
-                        'opened':null,
-                        'closing':null,
-                        'closed':null,
-                        'confirmation':null,
-                        'cancellation':null
-                    },
-
-                    hashTracking:true,
-                    closeOnConfirm:true,
-                    closeOnCancel:true,
-                    closeOnEscape:true,
-                    closeOnOutsideClick:false
-
-                };
-
-
-                //初始化
-                for(var x in option){
-                    if(!option.hasOwnProperty(x)) continue;
-                    if(x === 'handler'){
-                        for(var y in option['handler']){
-                            if(!option['handler'].hasOwnProperty(y)) continue;
-                            config['handler'][y] = option['handler'][y];
-                        }
-                    }else{
-                        config[x] = option[x];
-                    }
-                }
-
-                var options = '';
-                for(var z in config){
-                    if(!config.hasOwnProperty(z)) continue;
-                    if('id' !== z )options += z+(config[z]?':true,':':false,');
-                }
-
-                // console.log(options.substr(0,options.length-1));
-                var remodal = $('<div class="remodal remodal-wrapper" data-remodal-id="'+config['id']+'"></div>');
-                remodal.attr('data-remodal-options',options.substr(0,options.length-1));
-                var buttonClose = $('<button data-remodal-action="close" class="remodal-close"></button>');
-                remodal.append(buttonClose);
-
-                //加入入体部
-                if(!(modalBodySelector instanceof jQuery)) modalBodySelector = $(modalBodySelector);
-                remodal.append(modalBodySelector);
-
-                remodal.append("<br />");
-                var confirm = $('<button data-remodal-action="confirm" class="remodal-confirm">提交</button>');
-                var cancel = $('<button data-remodal-action="cancel" class="remodal-cancel">取消</button>');
-                remodal.append(confirm).append(cancel);
-
-                thisbody.append(remodal);
-
-                for (var e in config['handler']){
-                    if(!config['handler'].hasOwnProperty(e)) continue;
-                    if(!config['handler'][e]) continue;
-                    doc.on(e, '.remodal', config['handler'][e]);
-                }
-
-                return $("[data-remodal-id="+config['id']+"]").remodal();
+            //创建一个Modal对象,会将HTML中指定的内容作为自己的一部分拐走
+            'create':createModal,
+            //检查是否是有效的Remodal对象,简单地判断
+            '_check':function (modal) {
+                if(!(modal instanceof Object)) throw "Require Remodal Object!";
             },
-            '_check':function (remodal) {
-                /* 检查是否是有效的Remodal对象... */
-                if(!(remodal instanceof Object)) throw "Require Remodal Object!";
+            'show':function (modal) {
+                this._check(modal);
+                return modal.modal('show');
             },
-            'open':function (remodal) {
-                this._check(remodal);
-                return remodal.open();
-            },
-            'getState':function (remodal) {
-                this._check(remodal);
-                return remodal.getState();
-            },
-            'destroy':function (remodal) {
-                this._check(remodal);
-                return remodal.destroy();
+            'hide':function (modal) {
+                this._check(modal);
+                return modal.modal('hide');
             }
-
+        },
+        'form':{
+            //自动填写表单
+            'autoFill':autoFillForm,
+            //表单中的所有值序列化
+            'serialize':function(selector){
+                selector = toJquery(selector);
+                return selector.serialize();
+            }
         }
     };
-}();
+})();
 
 
 

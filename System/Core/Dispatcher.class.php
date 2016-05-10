@@ -123,13 +123,13 @@ class Dispatcher{
 
         //遍历方法的参数
         foreach ($methodParams as $param) {
-            $parameterName = $param->getName();
-            if(isset($vars[$parameterName])){
-                $args[] =   $vars[$parameterName];
+            $paramName = $param->getName();
+            if(isset($vars[$paramName])){
+                $args[] =   $vars[$paramName];
             }elseif($param->isDefaultValueAvailable()){
                 $args[] =   $param->getDefaultValue();
             }else{
-                throw new KbylinException("Method do not get valid  parameter with name of $parameterName !");
+                throw new KbylinException("The action miss the param '{$paramName}'!");
             }
         }
         return $args;

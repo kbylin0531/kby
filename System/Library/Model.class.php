@@ -22,6 +22,8 @@ class Model {
     use Crux;
     const CONF_NAME = 'model';
 
+    const TABLE_NAME = '';//用于指定本模型对应的表,只允许字符串类型
+    const TABLE_FIELDS = [];//用于指定本模型对应的字段列表,键为字段名称,值为字段默认值
 
     /**
      * 操作类型
@@ -36,7 +38,7 @@ class Model {
      * null时表示未存在对应表
      * @var string
      */
-    protected $_table = null;
+    private $_table = '';
 
     /**
      * 对应表的字段列表
@@ -44,14 +46,14 @@ class Model {
      * 如果value值为null时表示不对之进行设置,可以调用clear方法进行显示清空
      * @var array
      */
-    protected $_fields = [];
+    private $_fields = [];
 
     /**
      * 对应表的查询字段列表
      * 为null时表示不限制
      * @var array|null
      */
-    protected $_where = [];
+    private $_where = [];
 
     /**
      * 使用private将之私有以
@@ -65,15 +67,37 @@ class Model {
      */
     private $_cur_dao_index = null;
 
+    /**用户自定义的错误
+     * @var string
+     */
+    private $_errors = '';
+
     /**
      * Model constructor.
      * 单参数为非null时就指定了该表的数据库和字段,来对制定的表进行操作
-     * @param string $tablename 表的实际名称
-     * @param string $fields 字段数组
+     * @param string $tablename 表的实际名称,不指定时候将使用类常量中定义的值
+     * @param string $fields 字段数组,不指定时候将使用类常量中定义的值
+     * @throws KbylinException
      */
     public function __construct($tablename=null,$fields=null){
-        null !== $tablename and $this->_table = $tablename;
-        null !== $fields and $this->_fields = $fields;
+        if(null !== $tablename){
+            $this->_table = $tablename;
+        }else{
+            $classname = static::class;
+            $this->_table = $classname::TABLE_NAME;
+        }
+        if(null !== $fields){
+            $this->_fields = $fields;
+        }else{
+            $classname = static::class;
+            $this->_fields = $classname::TABLE_FIELDS;
+        }
+        if(!is_string($this->_table)){
+            throw new KbylinException('Constant TABLE_NAME require to be string !');
+        }
+        if(!is_array($this->_fields)){
+            throw new KbylinException('Constant TABLE_FIELDS require to be array !');
+        }
     }
 
     /**
@@ -169,13 +193,30 @@ class Model {
         return $this;
     }
 
+
+    /**
+     * 设置模型的错误
+     * 在下次调用getError(会将该错误一起返回)
+     * @param string $error
+     * @return void
+     */
+    public function setError($error){
+        $this->_errors = $this->_errors.PHP_EOL.$error;
+    }
+
     /**
      * 获取查询的错误
      * @param null|int|string $index
      * @return string
      */
     public function getError($index=null){
-        return $this->getDao($index)->getError();
+        if($this->_errors){
+            $error = $this->_errors.PHP_EOL.$this->getDao($index)->getError();
+            $this->_errors = '';
+        }else{
+            $error = $this->getDao($index)->getError();
+        }
+        return $error;
     }
 
     /**
@@ -212,6 +253,18 @@ class Model {
         $list = $this->getDao()->select($this->_table,$this->_where);
         $this->clear();
         return $list;
+    }
+
+    /**
+     * 从数据库中修改指定的数据
+     * @return bool 是否成功
+     * @throws KbylinException
+     */
+    public function update(){
+        if(null === $this->_table) throw new KbylinException('Module has no table binded!');
+        $result = $this->getDao()->update($this->_table,$this->_fields,$this->_where);
+        $this->clear();
+        return $result;
     }
 
     /**

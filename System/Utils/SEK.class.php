@@ -645,4 +645,26 @@ final class SEK {
         return (IS_WIN?stripos($path,$scope):strpos($path,$scope)) === 0;
     }
 
+    /**
+     * 根据映射获取数组的'镜像'
+     * @param array $array 待镜像的数组
+     * @param array $map  映射关系.键为镜像中的键,如果键为数字则默认值为键;值为原数组中的键(如果是string;类型),如果值==false则使用与键相同的名称
+     * @return array
+     */
+    public static function ghostArray($array,$map){
+        $ghost = [];
+        foreach ($map as $key=>$value){
+            if(is_numeric($key)){
+                $ghost[$value] = $array[$value];
+            }else{
+                if(!$value){
+                    $ghost[$key] = $array[$key];
+                }else{
+                    $ghost[$key] = $array[$value];
+                }
+            }
+        }
+        return $ghost;
+    }
+
 }

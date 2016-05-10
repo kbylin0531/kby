@@ -13,7 +13,6 @@ use System\Utils\SEK;
 
 class AdminController extends Controller{
 
-
     public function __construct(){
         $this->checkLogin() or $this->redirectLoginPage();
     }
@@ -21,14 +20,27 @@ class AdminController extends Controller{
     protected function displayManagement($template = null, $cache_id = null, $compile_id = null, $parent = null){
         //加载模块和菜单
 
-        $this->assign('page',json_encode($this->getPageInfo()));
-        $this->assign('user',json_encode($this->getUserInfo()));
-        $this->assign('modules',$this->getModules());
-        $this->assign('actions',$this->getActions());
+//        dumpout(json_encode($this->getCDN()));
+        $this->assign('infos',json_encode([
+            'cdn'   => $this->getCDN(),//加载CDN
+            'page'  => $this->getPageInfo(),
+            'user'  => $this->getUserInfo(),
+//            'modules'  => $this->getModules(),
+//            'actions'  => $this->getActions(),
+        ]));
 
         //获取调用自己的函数
         null === $template and $template = SEK::getCallPlace(SEK::CALL_ELEMENT_FUNCTION,SEK::CALL_PLACE_FORWARD)[SEK::CALL_ELEMENT_FUNCTION];
         $this->display($template , $cache_id , $compile_id, $parent);
+    }
+
+    /**
+     * 加载CDN方案
+     * @return array
+     */
+    private function getCDN(){
+        $solution = Assets::load('cdn');
+        return $solution['solution_list'][$solution['active_index']];
     }
 
     protected function getUserInfo(){
@@ -47,13 +59,13 @@ class AdminController extends Controller{
         return Assets::load('_page');
     }
 
-    private function getModules(){
-        return Assets::load('_menu');
-    }
-
-    private function getActions(){
-        return Assets::load('_action');
-    }
+//    private function getModules(){
+//        return Assets::load('_menu');
+//    }
+//
+//    private function getActions(){
+//        return Assets::load('_action');
+//    }
 
     /**
      * 分配用户信息列表

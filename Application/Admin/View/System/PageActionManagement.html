@@ -2,9 +2,11 @@
 {block name='page_js'}
 <script>
     $(function () {
+        var ctler_uri = '{$smarty.const.__CONTROLLER__}/';
         var datatable = $('#dtable');
 
         var tableapi = datatable.DataTable({
+            "dom": '<"toolbar">frtip',
             'columns':[
                 {
                     'title':'ID',
@@ -42,108 +44,108 @@
                 }
             ]
         });
+
         datatable.find("tbody").on('dblclick','tr',function () {
             var data = tableapi.row(this).data();
             console.log(data);
         });
-        var remodal = Dazzling.modal.create('#editModule',{});
-        var input_title = $("#title");
-        var input_status = $("#status");
-        var input_order = $("#order");
-        var input_description = $("#description");
-
-        Dazzling.post(
-            '{$smarty.const.__CONTROLLER__}/listModule',
-            {},
-            function (data) {
-                Dazzling.datatable.bind(tableapi).load(data);
-
-                datatable.on( 'click', 'tr', function () {
-                    if ( $(this).hasClass('selected') ) {
-                        $(this).removeClass('selected');
-                    }else {
-                        table.$('tr.selected').removeClass('selected');
-                        $(this).addClass('selected');
-                    }
+        var editModal = Dazzling.modal.create('#editModule',{
+            'title':'编辑模块',
+            'confirm':function () {
+                Dazzling.post(ctler_uri+'updateModule',Dazzling.form.serialize("#form_module"),function (data) {
+                    console.log(data);
+                    Dazzling.modal.hide(editModal);
                 });
-
-                Dazzling.contextmenu.bind(
-                    "#dtable tr",
-                    [
-                        {
-                            'index':'edit',
-                            'title':'Edit'
-                        },
-                        false,
-                        ['delete','删除']
-                        ,0,'Separated link'
-                    ],
-                    function(element,tabindex,title){
-                        console.log(element,tabindex,title);
-
-                        input_title.val(element.title);
-                        input_status.val(element.status);
-                        input_order.val(element.order);
-                        input_description.val(element.description);
-
-                        remodal.open();
-                    }
-                );
+            },
+            'cancel':function () {
+                Dazzling.modal.hide(editModal);
             }
-        );
+        });
+        Dazzling.datatables.bind(tableapi);
+        var loadData = function () {
+            Dazzling.post(
+                    ctler_uri+'listModule',
+                    {},
+                    function (data) {
+                        Dazzling.datatables.load(data);
+
+                        //设置上下文菜单
+                        Dazzling.contextmenu.create(
+                                "#dtable tr",
+                                [
+                                    {
+                                        'edit':'编辑',
+                                        'delete':'删除'
+                                    },
+                                    {
+                                        'deleteSelected':'删除选中'
+                                    }
+                                ],
+                                function(element,tabindex,title){
+                                    var data = Dazzling.datatables.data(element);
+//                                    console.log(tabindex,title,element);
+                                    switch (tabindex){
+                                        case 'edit':
+                                            Dazzling.form.autoFill("#form_module",data,[
+                                                'id','title','order','description','status'
+                                            ]);
+                                            Dazzling.modal.show(editModal);
+                                            break;
+                                        case 'delete':
+                                            break;
+                                        case 'deleteSelect':
+                                            break;
+                                    }
+                                }
+                        );
+                    }
+            );
+        };
+        $("#reload").click(loadData).trigger('click');
 
     });
 </script>
 {/block}
 {block name='stage_content'}
+<div id="toolbar">
+    <button type="button" id="reload" class="btn btn-sm dazzling"><i class="icon-reload "></i> 刷新 </button>
+</div>
+
 <div id="editModule" >
-    <div >
-        <div class="form-group">
-            <label>Email Address</label>
-            <div class="input-group">
-                <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
-                <input type="text" class="form-control" placeholder="Email Address是滴是滴">
+    <form class="form-horizontal" id="form_module">
+        <input name="id" type="hidden">
+        <div class="form-body">
+            <div class="form-group">
+                <label class="control-label col-md-2">名称</label>
+                <div class="col-md-2">
+                    <input class="form-control input-sm" name="title" type="text" />
+                    <span class="help-block"> </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-2">启用状态</label>
+                <div class="col-md-3">
+                    <select class="input-sm" name="status">
+                        <option value="1">启用</option>
+                        <option value="0">禁用</option>
+                    </select>
+                    <span class="help-block">  </span>
+                </div>
+                <label class="control-label col-md-2">排序</label>
+                <div class="col-md-2">
+                    <input class="form-control input-sm" name="order"  type="text" />
+                    <span class="help-block">  </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-2">描述</label>
+                <div class="col-md-10">
+                    <input class="form-control input-sm" name="description" type="text" />
+                    <span class="help-block">  </span>
+                </div>
             </div>
         </div>
-        <div class="form-group">
-            <label>Disabled</label>
-            <input type="text" class="form-control" placeholder="Disabled" disabled> </div>
-        <div class="form-group">
-            <label>Readonly</label>
-            <input type="text" class="form-control" placeholder="Readonly" readonly> </div>
-        <div class="form-group">
-            <label>Dropdown</label>
-            <select class="form-control">
-                <option>Option 1</option>
-                <option>Option 2</option>
-                <option>Option 3</option>
-                <option>Option 4</option>
-                <option>Option 5</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Multiple Select</label>
-            <select multiple class="form-control">
-                <option>Option 1</option>
-                <option>Option 2</option>
-                <option>Option 3</option>
-                <option>Option 4</option>
-                <option>Option 5</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Textarea</label>
-            <textarea class="form-control" rows="3"></textarea>
-        </div>
-        <div class="form-actions">
-            <!--<button type="button" class="btn btn-sm">SUBMIT</button>-->
-            <a class="btn btn-circle btn-icon-only btn-default" href="javascript:void(0);">
-                <i class="icon-cloud-upload"></i>
-                提交
-            </a>
-        </div>
-
-    </div>
+    </form>
 </div>
 <table id="dtable" class="display table-condensed table-bordered" cellspacing="0" width="100%"></table>
 {/block}
