@@ -26,6 +26,9 @@ class ModuleModel extends Model{
         'code'      => null,
         'status'    => null,
     ];
+    //默认倒序
+    const TABLE_ORDER = '[order] desc';
+
 
     /**
      * 获取模块列表

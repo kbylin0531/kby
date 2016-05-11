@@ -18,7 +18,6 @@ use System\Utils\Response;
 class System extends AdminController{
 
     public function PageActionManagement(){
-
         $this->displayManagement();
     }
 

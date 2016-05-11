@@ -1064,7 +1064,7 @@ var Dazzling = (function () {
                             this.update(newdata,line[i]);
                         }
                     }else{
-                        return this.tableApi.row(line).data(newdata).draw();
+                        return this.tableApi.row(line).data(newdata).draw(false);
                     }
                 }
             }

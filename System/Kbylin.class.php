@@ -12,6 +12,7 @@ use System\Core\Dispatcher;
 use System\Utils\Response;
 use System\Core\Log;
 use System\Utils\SEK;
+use System\Core\KbylinException;
 
 const AJAX_JSON = 0;
 const AJAX_XML = 1;
@@ -34,6 +35,31 @@ const TYPE_UNKNOWN  = 'unknown type';
  */
 const MODE_RETURN = 0;
 const MODE_EXCEPTION = 1;
+
+//$arr = [];var_dump(empty($arr[0]['yes']));exit();
+function dump(){// ob_end_clean();//取消注释时打印会清空之前的输出//传入空的字符串或者==false的值时 打印文件
+    $params = func_get_args();
+    $color='#';$str='9ABCDEF';//随机浅色背景
+    for($i=0;$i<6;$i++) $color=$color.$str[rand(0,strlen($str)-1)];
+    $traces = debug_backtrace();//0表示dump本身//如果是dumpout的内部调用,则1和2表现为call_user_func_array和dumpout,此时需要获取的是3开始的位置
+    if(!empty($traces[1]['function']) and !empty($traces[2]['function']) and
+        'call_user_func_array' === $traces[1]['function'] and 'dumpout' === $traces[2]['function']){
+        array_shift($traces);
+        array_shift($traces);
+    }
+    array_shift($traces);
+//    echo "<pre>";var_dump($params,$traces );exit();
+    echo "<pre style='background: {$color};width: 100%;'><h3 style='color: midnightblue'><b>File:</b>{$traces[0]['file']} << <b>Line:</b>{$traces[0]['line']} >> </h3>";
+    foreach ($params as $key=>$val) echo '<b>Param '.$key.':</b><br />'.var_export($val, true).'<br />';
+    echo '</pre>';
+}
+
+function dumpout(){
+//    echo "<pre>";var_dump(func_get_args());exit();
+    call_user_func_array('dump',func_get_args());
+    exit();
+}
+
 
 defined('DEBUG_MODE_ON') or define('DEBUG_MODE_ON', true); //是否开启DUBUG模式
 //defined('PAGE_TRACE_ON') or define('PAGE_TRACE_ON', true); //是否开启TRACE界面
@@ -139,11 +165,6 @@ final class Kbylin {
         if(isset($_REQUEST[$this->_convention['REQUEST_PARAM_NAME']])){
             $temp = [];
             parse_str($_REQUEST[$this->_convention['REQUEST_PARAM_NAME']],$temp);
-
-//            echo '<pre>';
-//            var_dump($temp);
-//            exit();
-
             $_POST = array_merge($_POST,$temp);
             $_REQUEST = array_merge($_REQUEST,$temp);
             $_GET = array_merge($_GET,$temp);
@@ -178,10 +199,15 @@ final class Kbylin {
         //其他行为
         false === spl_autoload_register(isset($this->_convention['CLASS_LOADER'])?
             $this->_convention['CLASS_LOADER']:[$this,'_autoLoad']) and die('spl autoload register failed!');
-        set_error_handler(isset($this->_convention['ERROR_HANDLER'])?$this->_convention['EXCEPTION_HANDLER']:[$this,'_handleError']) ;
-        set_exception_handler(isset($this->_convention['EXCEPTION_HANDLER'])?$this->_convention['EXCEPTION_HANDLER']:[$this,'_handleException']);
+        set_error_handler(isset($this->_convention['ERROR_HANDLER'])?$this->_convention['EXCEPTION_HANDLER']:
+            [KbylinException::class,'handleError']) ;
+        set_exception_handler(isset($this->_convention['EXCEPTION_HANDLER'])?$this->_convention['EXCEPTION_HANDLER']:
+            [KbylinException::class,'handleException']);
         register_shutdown_function([$this,'_onShutDown']);
 
+//        true and KbylinException::throwing(1,2,3);
+
+//        exit();//到此为止加载了SEK和KbylinException类
         self::recordStatus('funcpack_load_begin');
         include SYSTEM_PATH.'Common/functions.php'; // 加载系统函数包
         if($this->_convention['FUNC_PACK_LIST']){
@@ -311,64 +337,6 @@ final class Kbylin {
             IS_WIN and $this->_classes[$classname] = str_replace('/', '\\', realpath($this->_classes[$classname]));
         }
         return $this->_classes[$classname];
-    }
-
-    /**
-     * 系统默认的错误处理函数
-     * @param $errno
-     * @param $errstr
-     * @param $errfile
-     * @param $errline
-     * @return void
-     */
-    public function _handleError($errno,$errstr,$errfile,$errline){
-
-        IS_AJAX and Response::failed($errstr);
-
-        //错误信息
-        if(!is_string($errstr)) $errstr = serialize($errstr);
-        ob_start();
-        debug_print_backtrace();
-        $vars = [
-            'message'   => "{$errno} {$errstr}",
-            'position'  => "File:{$errfile}   Line:{$errline}",
-            'trace'     => ob_get_clean(),  //回溯信息
-        ];
-        if(DEBUG_MODE_ON){
-            SEK::loadTemplate('error',$vars);
-        }else{
-            SEK::loadTemplate('user_error');
-        }
-        //异常处理完成后仍然会继续执行，需要强制退出
-        exit;
-    }
-
-    /**
-     * 处理异常的发生
-     * 开放模式下允许将Exception打印打浏览器中
-     * 部署模式下不建议这么做，因为回退栈中可能保存敏感信息
-     * @param Exception $e
-     * @return void
-     */
-    public function _handleException(Exception $e){
-        IS_AJAX and Response::failed($e->getMessage());
-
-        Response::cleanOutput();
-//        $trace = $e->getTrace();
-        $traceString = $e->getTraceAsString();
-        //错误信息
-        $vars = [
-            'message'   => get_class($e).' : '.$e->getMessage(),
-            'position'  => 'File:'.$e->getFile().'   Line:'.$e->getLine(),
-            'trace'     => $traceString,//回溯信息，可能会暴露数据库等敏感信息
-        ];
-        if(DEBUG_MODE_ON){
-            SEK::loadTemplate('exception',$vars);
-        }else{
-            SEK::loadTemplate('user_error');
-        }
-        //异常处理完成后仍然会继续执行，需要强制退出
-        exit;
     }
 
 }

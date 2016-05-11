@@ -576,43 +576,91 @@ class Dao {
 
     /**
      * 查询表的数据
-     * @param string $tablename
-     * @param string|array|null $fields
-     * @param string|array|null $whr
+     * @param array|null|string $options 如果是字符串是代表查询这张表中的所有数据并直接返回
      * @param bool $toexec 是否直接执行
      * @return array|bool
      * @throws KbylinException
      */
-    public function select($tablename=null,$fields=null,$whr=null,$toexec=true){
-        $bind = null;
+    public function select($options=null,$toexec=true){
+        if(is_string($options)){
+            $sql  = "SELECT * FROM {$options}";
+            return $this->query($sql,null);
+        }
+        is_array($options) or KbylinException::throwing('The first parameter of Dao->select should be array(components) of string(tablename)!',$options);
+        $components = [
+            'distinct'  => false,
+            'fields'    => null,//select all fields while '==' to false
+            'join'      => [],
+            'table'     => null,
+            'where'     => [],
+            'order'     => [],
+            'group'     => [],
+        ];
+        $components = array_merge($components,$options);
+//        extract($components,EXTR_OVERWRITE);
+        $sql = $components['distinct']? 'SELECT DISTINCT':'SELECT ';
+        $inputs = null;
+
         //设置选取字段
-        if(empty($fields)){
-            $fields = ' * ';
-        }elseif($fields and is_array($fields)){
+        if(empty($components['fields'])){
+            $components['fields'] = ' * ';
+        }elseif(is_array($components['fields'])){/*此时可以保证不是空数组,在第一关的时候已经被过滤掉了*/
             //默认转义
             array_map(function($param){
                 return $this->driver->escape($param);
-            },$fields);
-            $fields = implode(',',$fields);
-        }elseif(!is_string($fields)){
-            throw new KbylinException('Parameter 2 require the type of "null","array","string" ,now is invalid!');
+            },$components['fields']);
+            $components['fields'] = implode(',',$components['fields']);
+        }
+        !is_string($components['fields']) and KbylinException::throwing('Fields should be string !',$components['fields']);
+        $sql ="{$sql} {$components['fields']} ";
+
+        if(!empty($components['join'])){
+            if(is_array($components['join'])){
+                foreach ($components['join'] as $join){
+                    $sql .= "\n{$join}\n";
+                }
+            }elseif (is_string($components['join'])){
+                $sql .= "\n{$components['join']}\n";
+            }else{
+                KbylinException::throwing('Wrong join for select!',$components['join']);//不为空却非法
+            }
         }
 
-        if(null === $whr){
-            $sql = "select {$fields} from {$tablename};";
-        }elseif(is_array($whr)){
-            $whr  = is_string($whr)? [$whr,null] :$this->translateSegments($whr,self::CONNECT_AND);
-            $sql = "select {$fields} from {$tablename} where {$whr[0]};";
-            $bind = $whr[1];
-        }elseif(is_string($whr)){
-            $sql = "select {$fields} from {$tablename} where {$whr};";
+        if(empty($components['table'])){
+            KbylinException::throwing('Could not select data from an empty table',$components['table']);
         }else{
-            throw new KbylinException('Parameter 3 require the type of "null","array","string" ,now is invalid!');
+            $sql .= "FROM \n{$components['table']}\n";
         }
 
-        if(!$toexec) return [$sql,$bind];
+        if(!empty($components['where'])){
+            if(is_array($components['where'])){
+                $temp = $this->translateSegments($components['where'],self::CONNECT_AND);
+                $components['where'] = $temp[0];
+                $inputs = $components['where'][1];
+            }
+            !is_string($components['where']) and KbylinException::throwing('Where should be the type of array or string!',$components['where']);
+            $sql .= "WHERE {$components['where']} ";
+        }
 
-        if(false === $this->prepare($sql)->execute($bind) ){
+        if(!empty($components['group'])){
+            if(is_array($components['group'])){
+                $components['group'] = implode(',',$components['group']);
+            }
+            !is_string($components['group']) and KbylinException::throwing('Group should be the type of array or string!',$components['group']);
+            $sql .= "GROUP BY {$components['group']} ";
+        }
+
+        if(!empty($components['order'])){
+            if(is_array($components['order'])){
+                $components['order'] = implode(',',$components['order']);
+            }
+            !is_string($components['order']) and KbylinException::throwing('Order should be the type of array or string!',$components['order']);
+            $sql .= "ORDER BY {$components['order']} ";
+        }
+
+        if(!$toexec) return [$sql,$inputs];
+
+        if(false === $this->prepare($sql)->execute($inputs) ){
             return false;
         }
         return $this->fetchAll();

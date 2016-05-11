@@ -25,6 +25,7 @@ class SQLServer extends DaoAbstract {
      * @return string
      */
     public function escape($fieldname){
+//        dumpout($this->_l_quote,$fieldname,$this->_r_quote);
         return $this->_l_quote.$fieldname.$this->_r_quote;
     }
     /**

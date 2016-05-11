@@ -52,10 +52,12 @@
         var editModal = Dazzling.modal.create('#editModule',{
             'title':'编辑模块',
             'confirm':function () {
-                Dazzling.post(ctler_uri+'updateModule',Dazzling.form.serialize("#form_module"),function (data) {
+                var obj = Kbylin.parseStr(Dazzling.form.serialize("#form_module"));
+                Dazzling.post(ctler_uri+'updateModule',obj,function (data) {
                     console.log(data);
                     if(data['_type'] > 0){
-
+                        //更新对象
+                        Dazzling.datatables.update(obj);
                         //只有成功时才会自动消失
                         Dazzling.modal.hide(editModal);
                     }

@@ -24,6 +24,8 @@ class Model {
 
     const TABLE_NAME = '';//用于指定本模型对应的表,只允许字符串类型
     const TABLE_FIELDS = [];//用于指定本模型对应的字段列表,键为字段名称,值为字段默认值
+    const TABLE_ORDER = ''; // 用于指定查询数据的默认排序如: [order] DESC (数字越大越靠前)
+//    const TABLE_GROUP = '';
 
     /**
      * 操作类型
@@ -56,6 +58,16 @@ class Model {
     private $_where = [];
 
     /**
+     * @var string 默认排序
+     */
+    private $_order = '';
+
+//    /**
+//     * @var string 默认分组
+//     */
+//    private $_group = '';
+
+    /**
      * 使用private将之私有以
      * @var Dao[]
      */
@@ -77,21 +89,21 @@ class Model {
      * 单参数为非null时就指定了该表的数据库和字段,来对制定的表进行操作
      * @param string $tablename 表的实际名称,不指定时候将使用类常量中定义的值
      * @param string $fields 字段数组,不指定时候将使用类常量中定义的值
+     * @param string $order 用于指定默认排序
      * @throws KbylinException
      */
-    public function __construct($tablename=null,$fields=null){
-        if(null !== $tablename){
-            $this->_table = $tablename;
-        }else{
-            $classname = static::class;
-            $this->_table = $classname::TABLE_NAME;
+    public function __construct($tablename=null,$fields=null,$order=null){
+        if(is_array($tablename)){
+            $fields = empty($tablename['fields'])?null:$tablename['fields'];
+            $order = empty($tablename['order'])?null:$tablename['order'];
+            $tablename = empty($tablename['table'])?null:$tablename['table'];
         }
-        if(null !== $fields){
-            $this->_fields = $fields;
-        }else{
-            $classname = static::class;
-            $this->_fields = $classname::TABLE_FIELDS;
-        }
+        $classname = static::class;
+
+        $this->_table = $tablename?$tablename:$classname::TABLE_NAME;
+        $this->_fields = $fields?$fields:$classname::TABLE_FIELDS;
+        $this->_order = $order?$order:$classname::TABLE_ORDER;
+
         if(!is_string($this->_table)){
             throw new KbylinException('Constant TABLE_NAME require to be string !');
         }
@@ -245,12 +257,26 @@ class Model {
 
     /**
      * 从数据库中获取指定条件的数据对象
+     * @param array $options 可以是components或者tablename
      * @return array|bool 返回数组或者false(发生了错误)
      * @throws KbylinException
      */
-    public function select(){
-        if(null === $this->_table) throw new KbylinException('Module has no table binded!');
-        $list = $this->getDao()->select($this->_table,$this->_where);
+    public function select(array $options = []){
+        null === $this->_table and KbylinException::throwing('Module has no table binded!');
+        empty($options['table']) and $options['table'] = $this->_table;
+        if(empty($options['fields'])){
+            $options['fields'] = [];
+            foreach ($this->_fields as $fieldName=>$defaultValue) {
+                null === $defaultValue or $options['fields'] = $options['fields'][] = $fieldName;
+            }
+        }
+        if(empty($options['where'])){
+            $options['where'] = [];
+            foreach ($this->_where as $fieldName=>$defaultValue) {
+                null === $defaultValue or $options['where'] = $options['where'][] = $fieldName;
+            }
+        }
+        $list = $this->getDao()->select($options);
         $this->clear();
         return $list;
     }
@@ -286,8 +312,8 @@ class Model {
     public function build($type){
         switch ($type){
             case self::DATA_SELECT:
-                $this->getDao()->select($this->_table,$this->_fields,$this->_where);
-                $this->clear();
+//                $this->getDao()->select($this->_table,$this->_fields,$this->_where);
+//                $this->clear();
                 break;
             case self::DATA_CREATE:
 

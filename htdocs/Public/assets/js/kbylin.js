@@ -30,6 +30,23 @@ var Kbylin = (function (public_url) {
         'public_url':''
 
     };
+    /**
+     * PHP中的parse_url 的javascript实现
+     * @param str
+     * @returns {{}}
+     */
+    var parseStr = function (str) {
+        var obj = {};
+        if(!str) return obj;
+
+        str = decodeURI(str);
+        var arr = str.split("&");
+        for(var i=0;i<arr.length;i++){
+            var d = arr[i].split("=");
+            obj[d[0]] = d[1]?d[1]:'';
+        }
+        return obj;
+    };
 
     var writeMetas = function () {
         //TODO:写入meta信息,否!!!
@@ -210,6 +227,7 @@ var Kbylin = (function (public_url) {
         'ieVersion':ieVersion,
         'str2Obj':str2Obj,
         //格式化日期
-        'date':formatDate
+        'date':formatDate,
+        'parseStr':parseStr
     };
 })();
