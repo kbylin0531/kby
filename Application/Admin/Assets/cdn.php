@@ -12,7 +12,7 @@ return [
                 'assets/plugins/toastr/toastr.min.css',
 
                 'assets/css/themes/darkblue.css',
-                'assets/css/dazzling.global.css',
+                'assets/css/dazzling.css',
             ],
             'js'    => [
                 'assets/plugins/bootstrap/js/bootstrap.min.js',
@@ -27,8 +27,8 @@ return [
             'js_lt9'    =>[
                 'assets/plugins/html5shiv/dist/html5shiv.min.js',
                 'assets/plugins/respond/dest/respond.min.js',
+                'assets/plugins/jquery-placeholder/jquery.placeholder.min.js',
                 'assets/js/jquery-1.11.3.min.js',
-                'assets/plugins/jquery-placeholder/jquery.placeholder.min.js'
             ],
             //非IE或者大于等于9
             'js_gt9'    => [

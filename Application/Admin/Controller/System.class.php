@@ -21,7 +21,6 @@ class System extends AdminController{
      * 显示系统管理页面默认主页
      */
     public function index(){
-
         $this->displayManagement();
     }
 
@@ -40,18 +39,9 @@ class System extends AdminController{
     }
 
     /**
-     * 操作分组管理
-     * 控制器管理
-     */
-    public function PageActionGroupManagement(){
-        $this->displayManagement();
-    }
-
-    /**
      * 操作管理页面
      */
     public function PageActionManagement(){
-        $this->displayManagement();
     }
 
     /**

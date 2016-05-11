@@ -223,6 +223,19 @@ var Kbylin = (function (public_url) {
             }
             return Kbylin;
         },
+        //获取可视窗口的大小
+        'getViewPort':function () {
+            var win = window;
+            var type = 'inner';
+            if (!('innerWidth' in window)) {
+                type = 'client';
+                win = document.documentElement || document.body;
+            }
+            return {
+                width: win[type + 'Width'],
+                height: win[type + 'Height']
+            };
+        },
         'load':load,
         'getBrowserInfo':getBrowserInfo,
         'ieVersion':ieVersion,

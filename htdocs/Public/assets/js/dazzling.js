@@ -65,127 +65,26 @@ var Dazzling = (function () {
 
         return sizes[size] ? sizes[size] : 0;
     };
-    var getViewPort = function() {
-        var e = window,
-            a = 'inner';
-        if (!('innerWidth' in window)) {
-            a = 'client';
-            e = document.documentElement || document.body;
-        }
-
-        return {
-            width: e[a + 'Width'],
-            height: e[a + 'Height']
-        };
-    };
-
-    //SlimScroll相关
-    var createSlimScroll = function(el) {
-        $(el).each(function() {
-            if ($(this).attr("data-initialized")) return; // 避免重复初始化
-
-            var height;
-            var data_always_visible = $(this).attr("data-always-visible") == "1" ;
-
-            if ($(this).attr("data-height")) {
-                height = $(this).attr("data-height");
-            } else {
-                height = $(this).css('height');
-            }
-
-            $(this).slimScroll({
-                allowPageScroll: true, // allow page scroll when the element scroll is ended
-                size: '7px',
-                color: ($(this).attr("data-handle-color") ? $(this).attr("data-handle-color") : '#bbb'),
-                wrapperClass: ($(this).attr("data-wrapper-class") ? $(this).attr("data-wrapper-class") : 'slimScrollDiv'),
-                railColor: ($(this).attr("data-rail-color") ? $(this).attr("data-rail-color") : '#eaeaea'),
-                position: 'left',
-                height: height,
-                alwaysVisible: data_always_visible,
-                railVisible: data_always_visible,
-                disableFadeOut: true
-            });
-
-            $(this).attr("data-initialized", "1");//标记初始化
-        });
-    };
-    var destroySlimScroll = function(el) {
-        $(el).each(function() {
-            if ($(this).attr("data-initialized") === "1") { // destroy existing instance before updating the height
-                $(this).removeAttr("data-initialized");
-                $(this).removeAttr("style");
-
-                var attrList = {};
-
-                // store the custom attribures so later we will reassign.
-                if ($(this).attr("data-handle-color")) {
-                    attrList["data-handle-color"] = $(this).attr("data-handle-color");
-                }
-                if ($(this).attr("data-wrapper-class")) {
-                    attrList["data-wrapper-class"] = $(this).attr("data-wrapper-class");
-                }
-                if ($(this).attr("data-rail-color")) {
-                    attrList["data-rail-color"] = $(this).attr("data-rail-color");
-                }
-                if ($(this).attr("data-always-visible")) {
-                    attrList["data-always-visible"] = $(this).attr("data-always-visible");
-                }
-                if ($(this).attr("data-rail-visible")) {
-                    attrList["data-rail-visible"] = $(this).attr("data-rail-visible");
-                }
-
-                $(this).slimScroll({
-                    wrapperClass: ($(this).attr("data-wrapper-class") ? $(this).attr("data-wrapper-class") : 'slimScrollDiv'),
-                    destroy: true
-                });
-
-                var the = $(this);
-
-                // reassign custom attributes
-                $.each(attrList, function(key, value) {
-                    the.attr(key, value);
-                });
-
-            }
-        });
-    };
     //布局初始化
     var resBreakpointMd = getResponsiveBreakpoint('md');
 
-    //侧边栏高度处理
-    var handleSidebarAndContentHeight = function () {
-        var content = page_content;
-        var sidebar = page_sidebar;
-        var body = thisbody;
+    //自动调整page-container的高度(包括sidebar和content)
+    var autoAdjustPageContainerHeight = function () {
         var height;
 
-        if (body.hasClass("page-footer-fixed") === true && body.hasClass("page-sidebar-fixed") === false) {
-            var available_height = getViewPort().height - page_footer.outerHeight() - page_header.outerHeight();
-            if (content.height() < available_height) {
-                content.attr('style', 'min-height:' + available_height + 'px');
-            }
+        var headerHeight = page_header.outerHeight();
+        var footerHeight = page_footer.outerHeight();
+
+        if (Kbylin.getViewPort().width < resBreakpointMd) {
+            height = Kbylin.getViewPort().height - headerHeight - footerHeight;
         } else {
-            if (body.hasClass('page-sidebar-fixed')) {
-                height = _calculateFixedSidebarViewportHeight();
-                if (body.hasClass('page-footer-fixed') === false) {
-                    height = height - page_footer.outerHeight();
-                }
-            } else {
-                var headerHeight = page_header.outerHeight();
-                var footerHeight = page_footer.outerHeight();
-
-                if (getViewPort().width < resBreakpointMd) {
-                    height = getViewPort().height - headerHeight - footerHeight;
-                } else {
-                    height = sidebar.height() + 20;
-                }
-
-                if ((height + headerHeight + footerHeight) <= getViewPort().height) {
-                    height = getViewPort().height - headerHeight - footerHeight;
-                }
-            }
-            content.attr('style', 'min-height:' + height + 'px');
+            height = page_sidebar.height() + 20;
         }
+
+        if ((height + headerHeight + footerHeight) <= Kbylin.getViewPort().height) {
+            height = Kbylin.getViewPort().height - headerHeight - footerHeight;
+        }
+        page_content.attr('style', 'min-height:' + height + 'px');
     };
 
     // Handle sidebar menu
@@ -194,24 +93,20 @@ var Dazzling = (function () {
         page_sidebar_menu.on('click', 'li > a.nav-toggle, li > a > span.nav-toggle', function (e) {
             var that = $(this).closest('.nav-item').children('.nav-link');
 
-            if (getViewPort().width >= resBreakpointMd && !page_sidebar_menu.attr("data-initialized") && thisbody.hasClass('page-sidebar-closed') &&  that.parent('li').parent('.page-sidebar-menu').size() === 1) {
+            if (Kbylin.getViewPort().width >= resBreakpointMd && !page_sidebar_menu.attr("data-initialized") && thisbody.hasClass('page-sidebar-closed') &&  that.parent('li').parent('.page-sidebar-menu').size() === 1) {
                 return;
             }
 
             var hasSubMenu = that.next().hasClass('sub-menu');
 
-            if (getViewPort().width >= resBreakpointMd && that.parents('.page-sidebar-menu-hover-submenu').size() === 1) { // exit of hover sidebar menu
+            if (Kbylin.getViewPort().width >= resBreakpointMd && that.parents('.page-sidebar-menu-hover-submenu').size() === 1) { // exit of hover sidebar menu
                 return;
             }
 
             if (hasSubMenu === false) {
-                if (getViewPort().width < resBreakpointMd && page_sidebar.hasClass("in")) { // close the menu on mobile view while laoding a page
+                if (Kbylin.getViewPort().width < resBreakpointMd && page_sidebar.hasClass("in")) { // close the menu on mobile view while laoding a page
                     page_header.find('.responsive-toggler').click();
                 }
-                return;
-            }
-
-            if (that.next().hasClass('sub-menu always-open')) {
                 return;
             }
 
@@ -226,7 +121,7 @@ var Dazzling = (function () {
 
             if (!keepExpand) {
                 parent.children('li.open').children('a').children('.arrow').removeClass('open');
-                parent.children('li.open').children('.sub-menu:not(.always-open)').slideUp(slideSpeed);
+                parent.children('li.open').children('.sub-menu').slideUp(slideSpeed);
                 parent.children('li.open').removeClass('open');
             }
 
@@ -237,88 +132,30 @@ var Dazzling = (function () {
                 the.parent().removeClass("open");
                 sub.slideUp(slideSpeed, function () {
                     if (autoScroll === true && thisbody.hasClass('page-sidebar-closed') === false) {
-                        if (thisbody.hasClass('page-sidebar-fixed')) {
-                            menu.slimScroll({
-                                'scrollTo': (the.position()).top
-                            });
-                        } else {
-                            scrollTo(the, slideOffeset);
-                        }
+                        scrollTo(the, slideOffeset);
                     }
-                    handleSidebarAndContentHeight();
+                    autoAdjustPageContainerHeight();
                 });
             } else if (hasSubMenu) {
                 $('.arrow', the).addClass("open");
                 the.parent().addClass("open");
                 sub.slideDown(slideSpeed, function () {
                     if (autoScroll === true && thisbody.hasClass('page-sidebar-closed') === false) {
-                        if (thisbody.hasClass('page-sidebar-fixed')) {
-                            menu.slimScroll({
-                                'scrollTo': (the.position()).top
-                            });
-                        } else {
-                            scrollTo(the, slideOffeset);
-                        }
+                        scrollTo(the, slideOffeset);
                     }
-                    handleSidebarAndContentHeight();
+                    autoAdjustPageContainerHeight();
                 });
             }
 
             e.preventDefault();
         });
 
-        // handle menu close for angularjs version
 
-        // handle scrolling to top on responsive menu toggler click when header is fixed for mobile view
-        $(document).on('click', '.page-header-fixed-mobile .page-header .responsive-toggler', function(){
-            scrollTop();
-        });
-
-        // handle sidebar hover effect
-        handleFixedSidebarHoverEffect();
-    };
-
-    // Helper function to calculate sidebar height for fixed sidebar layout.
-    var _calculateFixedSidebarViewportHeight = function () {
-        var sidebarHeight = getViewPort().height - page_header.outerHeight(true);
-        if (thisbody.hasClass("page-footer-fixed")) {
-            sidebarHeight = sidebarHeight - page_footer.outerHeight();
-        }
-        return sidebarHeight;
-    };
-
-    // Handles fixed sidebar
-    var handleFixedSidebar = function () {
-        destroySlimScroll(page_sidebar_menu);
-        if ($('.page-sidebar-fixed').size() === 0) {
-            return handleSidebarAndContentHeight();
-        }
-        if (getViewPort().width >= resBreakpointMd) {
-            page_sidebar_menu.attr("data-height", _calculateFixedSidebarViewportHeight());
-            createSlimScroll(page_sidebar_menu);
-            handleSidebarAndContentHeight();
-        }
-    };
-
-    // Handles sidebar toggler to close/hide the sidebar.
-    var handleFixedSidebarHoverEffect = function () {
-        var body = thisbody;
-        if (body.hasClass('page-sidebar-fixed')) {
-            page_sidebar.on('mouseenter', function () {
-                if (body.hasClass('page-sidebar-closed')) {
-                    $(this).find('.page-sidebar-menu').removeClass('page-sidebar-menu-closed');
-                }
-            }).on('mouseleave', function () {
-                if (body.hasClass('page-sidebar-closed')) {
-                    $(this).find('.page-sidebar-menu').addClass('page-sidebar-menu-closed');
-                }
-            });
-        }
     };
 
     // Hanles sidebar toggler
     var handleSidebarToggler = function () {
-        if ($.cookie && $.cookie('sidebar_closed') === '1' && getViewPort().width >= resBreakpointMd) {
+        if ($.cookie && $.cookie('sidebar_closed') === '1' && Kbylin.getViewPort().width >= resBreakpointMd) {
             thisbody.addClass('page-sidebar-closed');
             page_sidebar_menu.addClass('page-sidebar-menu-closed');
         }
@@ -336,9 +173,6 @@ var Dazzling = (function () {
             } else {
                 thisbody.addClass("page-sidebar-closed");
                 sidebarMenu.addClass("page-sidebar-menu-closed");
-                if (thisbody.hasClass("page-sidebar-fixed")) {
-                    sidebarMenu.trigger("mouseleave");
-                }
                 if ($.cookie) {
                     $.cookie('sidebar_closed', '1');
                 }
@@ -382,61 +216,17 @@ var Dazzling = (function () {
         });
     };
 
-    // Handles quick sidebar chats
-    var handleQuickSidebarChat = function () {
-        var wrapper = $('.page-quick-sidebar-wrapper');//quick-sidebar内容区
-        var wrapperContenItem = wrapper.find('.tab-content-item');
-
-        var rebuildSlimScroll = function (el,height) {
-            destroySlimScroll(el);
-            el.attr("data-height", height);
-            createSlimScroll(el);
-        };
-
-        var initChatSlimScroll = function () {
-            var wrapperContentItemList      = wrapper.find('.page-quick-sidebar-item-list');
-            var wrapperContentItemContent   = wrapperContenItem.find('.page-quick-sidebar-item-content');
-
-            var wrapperContentItemListHeight = wrapper.height() - wrapper.find('.nav-tabs').outerHeight(true);
-
-            // chat user list
-            rebuildSlimScroll(wrapperContentItemList,wrapperContentItemListHeight);
-
-            var wrapperContentItemContentHeight = wrapperContentItemListHeight - wrapperContenItem.find('.page-quick-sidebar-nav').outerHeight(true);//减去返回按钮的高度
-            // user chat messages
-            rebuildSlimScroll(wrapperContentItemContent,wrapperContentItemContentHeight);
-        };
-
-
-        //点击显示
-        wrapper.find('.page-quick-sidebar-item-list .media-list > .godetail').click(function () {
-            wrapperContenItem.addClass("page-quick-sidebar-content-item-shown");
-        });
-        //点击返回
-        wrapper.find('.page-quick-sidebar-item-wrapper .page-quick-sidebar-back-to-list').click(function () {
-            wrapperContenItem.removeClass("page-quick-sidebar-content-item-shown");
-        });
-
-        // reinitialize on window resize
-        var _resizeSlimOnWindowsResized = function(){
-            initChatSlimScroll();
-        };
-        _resizeSlimOnWindowsResized();
-        resizeHandlers.push(_resizeSlimOnWindowsResized); // reinitialize on window resize
-    };
-
     //sidebar相关的初始化
     var initSidebar = function () {
-        handleFixedSidebar(); // handles fixed sidebar menu
+        autoAdjustPageContainerHeight();
         handleSidebarMenu(); // handles main menu
         handleSidebarToggler(); // handles sidebar hide/show
-        resizeHandlers.push(handleFixedSidebar); // reinitialize fixed sidebar on window resize
 
         // handle bootstrah tabs
         thisbody.on('shown.bs.tab', 'a[data-toggle="tab"]', function () {
-            handleSidebarAndContentHeight();
+            autoAdjustPageContainerHeight();
         });
-        resizeHandlers.push(handleSidebarAndContentHeight);// recalculate sidebar & content height on window resize
+        resizeHandlers.push(autoAdjustPageContainerHeight);// recalculate sidebar & content height on window resize
 
     };
     //返回顶部
@@ -525,8 +315,6 @@ var Dazzling = (function () {
         $('.dropdown-quick-sidebar-toggler a, .page-quick-sidebar-toggler').click(function () {
             $('body').toggleClass('page-quick-sidebar-open');
         });
-        //初始化聊天界面
-        handleQuickSidebarChat();
     };
 
 
@@ -808,13 +596,12 @@ var Dazzling = (function () {
         //设置标题
         pageinfo.hasOwnProperty('title') && $("title").text(pageinfo['title']);
         pageinfo.hasOwnProperty('logo') && $("#dazz_logo").attr('src',pageinfo['logo']);
+        pageinfo.hasOwnProperty('coptright') && $("#dazz_copyright").html(pageinfo['coptright']);
 
         initHeaderMenu(pageinfo['header_menu']);
         initSidebarMenu(pageinfo['sidebar_menu']);
     };
-    var setActive = function () {
-
-    };
+    var setActive = function () {};
     /**
      * 随机获取一个GUID
      * @returns {string}
@@ -1015,11 +802,25 @@ var Dazzling = (function () {
 
     };
 
+    var pageTool = {
+        'page_action_list':null,
+        'init':function (selector) {
+            if(undefined === selector) selector = '#dazz_page_action';//默认的选择器
+            !this.page_action_list && (this.page_action_list = Dazzling.utils.toJquery(selector));
+        },
+        //注册操作:操作名称,点击时候的回调函数
+        'registerAction':function (actionName, callback) {
+            this.init();
+            var li = $("<li></li>");
+            var a = $('<a href="javascript:void(0);" id="la_'+Dazzling.utils.guid()+'">'+actionName+'</a>');
+            this.page_action_list.append(li.append(a));
+            a.click(callback);
+        }
+    };
+
     return {
         //初始化应用
         'init':init,
-        //滚动到
-        'scrollTo':scrollTo,
         //定制的方法,定制过程中避免对jquery中的方法进行修改
         'post':dazzlingPost,
         //初始化用户信息
@@ -1035,6 +836,8 @@ var Dazzling = (function () {
             //投入string类型的jquery选择器或者dom对象或者jquery对象本身,返回实打实的jquery对象
             'toJquery':toJquery
         },
+        //页面工具
+        'page':pageTool,
         //datatable表格工具,一次只能操作一个表格API对象
         //datatable.find("tbody").on('dblclick','tr',function () {});//可以设置为双击编辑
         'datatables': {

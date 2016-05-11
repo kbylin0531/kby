@@ -7,6 +7,7 @@
  */
 namespace System\Library\View;
 use System\Core\Exception\FileNotFoundException;
+use System\Core\KbylinException;
 use System\Library\View;
 use System\Utils\Network;
 
@@ -115,7 +116,7 @@ class SmartyEngine implements ViewEngineInterface {
         //拟上下文转化成数组
         $context = &$this->_context;
         //判断模板文件是否存在（改为由模板引擎判断）
-        if(!is_file($template)) throw new FileNotFoundException($template);
+        if(!is_file($template)) KbylinException::throwing('Could not find the template file of this action',$context['a']);
 
 //        dump($context);
         //编译缓存目录
