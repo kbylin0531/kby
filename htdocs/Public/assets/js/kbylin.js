@@ -166,6 +166,8 @@ var Kbylin = (function (public_url) {
     };
     /**
      * 判断是否是Object类的实例,也可以指定参数二来判断是否是某一个类的实例
+     * 例如:isObject({}) 得到 [object Object]
+     *     isObject([]) 得到 [object Array]
      *
      * 测试代码:
      * var obj = new Date();
@@ -178,10 +180,9 @@ var Kbylin = (function (public_url) {
      */
     var isObject  =function (obj,classname) {
         if(undefined === classname){
-            return typeof obj === 'object';
-        }else{
-            return Object.prototype.toString.call(obj) === '[object '+classname+']';
+            classname = 'Object';
         }
+        return Object.prototype.toString.call(obj) === '[object '+classname+']';
     };
     /**
      * 对Date的扩展，将 Date 转化为指定格式的String

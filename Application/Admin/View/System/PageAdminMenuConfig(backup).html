@@ -1,0 +1,75 @@
+{extends file="../Common/datatables.html"}
+
+{block name='page_css'}
+{/block}
+
+{block name="stage_content"}
+<div>
+
+    <menu id="nestable-menu">
+        <button type="button" id="expand">Expand </button>
+        <button type="button" id="collapse">Collapse </button>
+        <button type="button" id="export">Export</button>
+    </menu>
+
+    <div class="dd" id="nestable3">
+        <ol class="dd-list">
+            <li class="dd-item dd3-item" data-id="13">
+                <div class="dd-handle dd3-handle">Drag</div>
+                <div class="dd3-content">Item 13</div>
+            </li>
+            <li class="dd-item dd3-item" data-id="14">
+                <div class="dd-handle dd3-handle">Drag</div>
+                <div class="dd3-content">Item 14</div>
+            </li>
+            <li class="dd-item dd3-item" data-id="15">
+                <div class="dd-handle dd3-handle">Drag</div>
+                <div class="dd3-content">Item 15</div>
+                <ol class="dd-list">
+                    <li class="dd-item dd3-item" data-id="16">
+                        <div class="dd-handle dd3-handle">Drag</div>
+                        <div class="dd3-content">Item 16</div>
+                    </li>
+                    <li class="dd-item dd3-item" data-id="17">
+                        <div class="dd-handle dd3-handle">Drag</div>
+                        <div class="dd3-content">Item 17</div>
+                    </li>
+                    <li class="dd-item dd3-item" data-id="18">
+                        <div class="dd-handle dd3-handle">Drag</div>
+                        <div class="dd3-content">Item 18</div>
+                    </li>
+                </ol>
+            </li>
+        </ol>
+    </div>
+
+</div>
+{/block}
+
+{block name='page_js'}
+<script>
+    Kbylin.load('/assets/plugins/jquery.nestable/jquery.nestable.js', 'js');
+    Kbylin.load('/assets/plugins/jquery.nestable/jquery.nestable.css');
+
+    $(function () { 
+
+        var n3 = $('#nestable3');
+
+        n3.nestable();
+
+        $("#expand").click(function () { 
+            $('.dd').nestable('expandAll');
+        });
+
+        $("#collapse").click(function () { 
+            $('.dd').nestable('collapseAll');
+        });
+
+        $("#export").click(function () { 
+            console.log(n3.nestable('serialize'));
+        });
+
+    });
+
+</script>
+{/block}

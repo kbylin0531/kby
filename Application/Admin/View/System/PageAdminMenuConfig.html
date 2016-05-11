@@ -1,0 +1,122 @@
+{extends file="../Common/datatables.html"}
+
+{block name="stage_content"}
+
+<div class="portlet light bordered">
+    <div class="portlet-body ">
+        <div class="row">
+            <div class="col-md-2">
+                <div class="margin-bottom-3">
+                    <button type="button" class="btn dazzling" id="expandall">
+                        <i class="icon-magnifier-add "></i> 全部打开</button>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="margin-bottom-3">
+                    <button type="button" class="btn dazzling" id="collapseall">
+                        <i class="icon-magnifier-remove "></i> 全部折叠</button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <h3>Serialised Output (per list)</h3>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="dd" id="modules">
+            <ol class="dd-list">
+                <li class="dd-item dd3-item" data-id="13">
+                    <div class="dd-handle dd3-handle"></div>
+                    <div class="dd3-content"> Item 13</div>
+                </li>
+                <li class="dd-item dd3-item" data-id="14">
+                    <div class="dd-handle dd3-handle"></div>
+                    <div class="dd3-content"> Item 14</div>
+                </li>
+                <li class="dd-item dd3-item" data-id="15">
+                    <div class="dd-handle dd3-handle"></div>
+                    <div class="dd3-content"> Item 15</div>
+                    <ol class="dd-list">
+                        <li class="dd-item dd3-item" data-id="16">
+                            <div class="dd-handle dd3-handle"></div>
+                            <div class="dd3-content"> Item 16</div>
+                        </li>
+                        <li class="dd-item dd3-item" data-id="17">
+                            <div class="dd-handle dd3-handle"></div>
+                            <div class="dd3-content"> Item 17</div>
+                        </li>
+                        <li class="dd-item dd3-item" data-id="18">
+                            <div class="dd-handle dd3-handle"></div>
+                            <div class="dd3-content"> Item 18</div>
+                        </li>
+                    </ol>
+                </li>
+            </ol>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="dd" id="actiongroup">
+            <ol class="dd-list">
+                <li class="dd-item dd3-item" data-id="13">
+                    <div class="dd-handle dd3-handle"></div>
+                    <div class="dd3-content"> Item 13</div>
+                </li>
+                <li class="dd-item dd3-item" data-id="14">
+                    <div class="dd-handle dd3-handle"></div>
+                    <div class="dd3-content"> Item 14</div>
+                </li>
+                <li class="dd-item dd3-item" data-id="15">
+                    <div class="dd-handle dd3-handle"></div>
+                    <div class="dd3-content"> Item 15</div>
+                    <ol class="dd-list">
+                        <li class="dd-item dd3-item" data-id="16">
+                            <div class="dd-handle dd3-handle"></div>
+                            <div class="dd3-content"> Item 16</div>
+                        </li>
+                        <li class="dd-item dd3-item" data-id="17">
+                            <div class="dd-handle dd3-handle"></div>
+                            <div class="dd3-content"> Item 17</div>
+                        </li>
+                        <li class="dd-item dd3-item" data-id="18">
+                            <div class="dd-handle dd3-handle"></div>
+                            <div class="dd3-content"> Item 18</div>
+                        </li>
+                    </ol>
+                </li>
+            </ol>
+        </div>
+    </div>
+</div>
+
+{/block}
+
+{block name='page_js'}
+<script>
+    Kbylin.load('/assets/plugins/jquery.nestable/jquery.nestable.js');
+    Kbylin.load('/assets/plugins/jquery.nestable/jquery.nestable.css');
+
+
+    $(function () {
+        var n1 = $("#modules");
+        var n2 = $("#actiongroup");
+        n1.nestable({ group: 1}).on("change", function () {
+            console.log(n1.nestable("serialize"));
+        });
+        n2.nestable({ group: 2}).on("change", function () {
+            console.log(n2.nestable("serialize"));
+        });
+
+        $("#expandall").click(function () {
+            $(".dd").nestable("expandAll");
+        });
+        $("#collapseall").click(function () {
+            $(".dd").nestable("collapseAll");
+        });
+
+    });
+</script>
+{/block}

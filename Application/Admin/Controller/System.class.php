@@ -17,14 +17,40 @@ use System\Utils\Response;
 
 class System extends AdminController{
 
-    public function PageActionManagement(){
-        $this->displayManagement();
-    }
-
     /**
      * 显示系统管理页面默认主页
      */
     public function index(){
+
+        $this->displayManagement();
+    }
+
+    /**
+     * 管理员首页菜单控制
+     */
+    public function PageAdminMenuConfig(){
+        $this->displayManagement();
+    }
+
+    /**
+     * 模块管理页面
+     */
+    public function PageModuleManagement(){
+        $this->displayManagement();
+    }
+
+    /**
+     * 操作分组管理
+     * 控制器管理
+     */
+    public function PageActionGroupManagement(){
+        $this->displayManagement();
+    }
+
+    /**
+     * 操作管理页面
+     */
+    public function PageActionManagement(){
         $this->displayManagement();
     }
 

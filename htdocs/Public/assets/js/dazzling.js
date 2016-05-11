@@ -1,5 +1,6 @@
 /**
- * 框架基础执行工具
+ * Dazzling 粲
+ * 框架高级执行工具
  * @type object
  */
 var Dazzling = (function () {
@@ -675,8 +676,7 @@ var Dazzling = (function () {
         'requestExpireTime':400
     };
 
-    var init = function (config) {
-
+    var init = function () {
         handleCompatibility();//处理常见的兼容性问题
 
         initApplication();//初始化应用
@@ -989,32 +989,30 @@ var Dazzling = (function () {
      * 自动填写表单
      * @param form 表单对象或者表单选择器
      * @param data 待设置的数据 如 {'key':'value'}
-     * @param map 数据映射 如{'key':'input_name'} 如果input_name设置为null等false值时 input_name即key的名称
+     * @param map 数据映射 如[],{'data_key':'input_name'}
      */
     var autoFillForm = function (form, data, map) {
         if(typeof form === 'string') form = $(form);
         if(!(form instanceof jQuery)) throw "Parameter 1 expect to be jquery ";
-        var target,i;
-        if(Kbylin.isArray(map)){
-            for(i = 0 ; i < map.length; i++){
-                target = form.find("[name="+map[i]+"]");
-                // console.log(target,target.length,data);
-                if(!target.length) continue;
-                target.val(data[map[i]]);
-            }
-        }else if(Kbylin.isObject(map) ){
-            for(i in map ){
-                if(!map.hasOwnProperty(i)) continue;
-                if(!data.hasOwnProperty(i)) continue;
+        var target,key;
+        var mapDefined = Kbylin.isObject(map,'Object');
 
-                if(!map[i]) map[i] = i;//值未设置时使用键作为默认的名称  如:'id':null,
-                target = form.find("[name="+map[i]+"]");
-                if(!target.length) continue;
+        for (key in data){
+            if(!data.hasOwnProperty(key)) continue;
 
-                target.val(data[i]);
+            if(mapDefined && map.hasOwnProperty(key)){
+                target = form.find("[name="+map[key]+"]");
+            }else{
+                target = form.find("[name="+key+"]");
             }
-            
+
+            if(target.length) {/*表单中存在这个name的输入元素*/
+                target.val(data[key]);
+            }else{
+                form.append($('<input name="'+key+'" value="'+data[key]+'" type="hidden">'));
+            }
         }
+
     };
 
     return {
@@ -1038,18 +1036,33 @@ var Dazzling = (function () {
             'toJquery':toJquery
         },
         //datatable表格工具,一次只能操作一个表格API对象
+        //datatable.find("tbody").on('dblclick','tr',function () {});//可以设置为双击编辑
         'datatables': {
-            'tableApi':null,
+            'tableApi':null,//datatable的API对象
+            'dtJquery':null, // datatable的jquery对象
             'current_row':null,//当前操作的行,可能是一群行
             //设置之后的操作所指定的DatatableAPI对象
-            'bind':function (api) {
-                this.tableApi = api; return this;/* this 对象同于链式调用 */
+            'bind':function (dtJquery,options) {
+                dtJquery = Dazzling.utils.toJquery(dtJquery);
+                this.dtJquery = dtJquery;
+                this.tableApi = dtJquery.DataTable(options);
+                return this;/* this 对象同于链式调用 */
             },
             //为tableapi对象加载数据,参数二用于清空之前的数据
             'load':function (data,clear) {
-                if(!this.tableApi) throw "No Datatable binded!";
-                if(undefined === clear || clear) this.tableApi.clear();//清除之前的表格内容
+                if(!this.tableApi) throw "No Datatable API binded!";
+                if(undefined === clear || clear) this.tableApi.clear();//clear为true或者未设置时候都会清除之前的表格内容
                 this.tableApi.rows.add(data).draw();
+                return this;
+            },
+            //表格发生了draw事件时设置调用函数(表格加载,翻页都会发生draw事件)
+            'onDraw':function (callback) {
+                if(!this.dtJquery) throw "No Datatables binded";
+                this.dtJquery.on( 'draw.dt', function (event,settings) {
+                    callback(event,settings);
+                    // console.log( 'Redraw occurred at: '+new Date().getTime() );
+                } );
+                return this;
             },
             //获取表格指定行的数据
             'data':function (element) {
@@ -1064,6 +1077,7 @@ var Dazzling = (function () {
                             this.update(newdata,line[i]);
                         }
                     }else{
+                        //注意:如果出现这样的错误"DataTables warning: table id=[dtable 实际的表的ID] - Requested unknown parameter ‘acceptId’ for row X 第几行出现了错误 "
                         return this.tableApi.row(line).data(newdata).draw(false);
                     }
                 }

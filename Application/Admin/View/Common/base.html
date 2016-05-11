@@ -8,7 +8,6 @@
     <script src="{$smarty.const.PUBLIC_URI}assets/js/kbylin.js"></script>
 
     <script>
-
         var infos = Kbylin.str2Obj('{$infos}');
         var cdn = infos['cdn'];
         var options = {
@@ -119,7 +118,6 @@
 {block name='js'}{/block}
 <script>
     Dazzling.init();
-
     Dazzling.initUserInfo(infos['user'],['avatar.src','nickname','menu']);
     Dazzling.initPageInfo(infos['page'],['headermenu','metas!']);
 

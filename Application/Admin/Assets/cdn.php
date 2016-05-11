@@ -11,9 +11,8 @@ return [
                 'assets/plugins/bootstrap/css/bootstrap.min.css',
                 'assets/plugins/toastr/toastr.min.css',
 
-                'assets/css/themes/darkblue.min.css',
-                'assets/css/components.css',
-                'assets/css/layout.css'
+                'assets/css/themes/darkblue.css',
+                'assets/css/dazzling.global.css',
             ],
             'js'    => [
                 'assets/plugins/bootstrap/js/bootstrap.min.js',

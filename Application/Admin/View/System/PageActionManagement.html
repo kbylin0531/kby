@@ -4,8 +4,7 @@
     $(function () {
         var ctler_uri = '{$smarty.const.__CONTROLLER__}/';
         var datatable = $('#dtable');
-
-        var tableapi = datatable.DataTable({
+        Dazzling.datatables.bind(datatable,{
             "dom": '<"toolbar">frtip',
             'columns':[
                 {
@@ -24,7 +23,8 @@
                     'width':'8%',
                     'className':'text_align_center',
                     'data':function(row){
-                        return row.status?'启用':'禁止';
+//                        console.log(row)
+                        return parseInt(row.status)?'启用':'禁止';
                     }
                 },
                 {
@@ -43,18 +43,45 @@
                     'data':'description'
                 }
             ]
+        }).onDraw(function () {
+            //设置上下文菜单
+            Dazzling.contextmenu.create(
+                    datatable.find("tr"),
+                    [
+                        {
+                            'edit':'编辑',
+                            'delete':'删除'
+                        },
+                        {
+                            'deleteSelected':'删除选中'
+                        }
+                    ],
+                    function(element,tabindex,title){
+                        var data = Dazzling.datatables.data(element);
+//                                    console.log(tabindex,title,element);
+                        switch (tabindex){
+                            case 'edit':
+                                Dazzling.form.autoFill("#form_module",data,[
+                                    'id','title','order','description','status',
+                                    'code','parent'
+                                ]);
+                                Dazzling.modal.show(editModal);
+                                break;
+                            case 'delete':
+                                break;
+                            case 'deleteSelect':
+                                break;
+                        }
+                    }
+            );
         });
 
-        datatable.find("tbody").on('dblclick','tr',function () {
-            var data = tableapi.row(this).data();
-            console.log(data);
-        });
         var editModal = Dazzling.modal.create('#editModule',{
             'title':'编辑模块',
             'confirm':function () {
                 var obj = Kbylin.parseStr(Dazzling.form.serialize("#form_module"));
                 Dazzling.post(ctler_uri+'updateModule',obj,function (data) {
-                    console.log(data);
+//                    console.log(data);
                     if(data['_type'] > 0){
                         //更新对象
                         Dazzling.datatables.update(obj);
@@ -67,47 +94,20 @@
                 Dazzling.modal.hide(editModal);
             }
         });
-        Dazzling.datatables.bind(tableapi);
         var loadData = function () {
             Dazzling.post(
                     ctler_uri+'listModule',
                     {},
                     function (data) {
                         Dazzling.datatables.load(data);
-
-                        //设置上下文菜单
-                        Dazzling.contextmenu.create(
-                                "#dtable tr",
-                                [
-                                    {
-                                        'edit':'编辑',
-                                        'delete':'删除'
-                                    },
-                                    {
-                                        'deleteSelected':'删除选中'
-                                    }
-                                ],
-                                function(element,tabindex,title){
-                                    var data = Dazzling.datatables.data(element);
-//                                    console.log(tabindex,title,element);
-                                    switch (tabindex){
-                                        case 'edit':
-                                            Dazzling.form.autoFill("#form_module",data,[
-                                                'id','title','order','description','status'
-                                            ]);
-                                            Dazzling.modal.show(editModal);
-                                            break;
-                                        case 'delete':
-                                            break;
-                                        case 'deleteSelect':
-                                            break;
-                                    }
-                                }
-                        );
                     }
             );
         };
-        $("#reload").click(loadData).trigger('click');
+        loadData();
+        $("#reload").click(function () {
+            loadData();
+            Dazzling.toast.success('加载完成!');
+        });
 
     });
 </script>
@@ -119,11 +119,10 @@
 
 <div id="editModule" >
     <form class="form-horizontal" id="form_module">
-        <input name="id" type="hidden">
         <div class="form-body">
             <div class="form-group">
                 <label class="control-label col-md-2">名称</label>
-                <div class="col-md-2">
+                <div class="col-md-4">
                     <input class="form-control input-sm" name="title" type="text" />
                     <span class="help-block"> </span>
                 </div>
@@ -138,7 +137,7 @@
                     <span class="help-block">  </span>
                 </div>
                 <label class="control-label col-md-2">排序</label>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <input class="form-control input-sm" name="order"  type="text" />
                     <span class="help-block">  </span>
                 </div>
