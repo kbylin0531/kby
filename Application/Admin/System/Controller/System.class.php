@@ -44,47 +44,6 @@ class System extends AdminController{
     public function PageActionManagement(){
     }
 
-    /**
-     * 获取模块列表
-     * @access public
-     * @return void
-     */
-    public function listModule(){
-        $moduleModel = new ModuleModel();
-
-        $list = $moduleModel->listModule();
-        if(false === $list){
-            Response::failed('获取模块列表失败!'.$list);
-        }else{
-//            $list[0]['id'] = time().$list[0]['id'];//检验数据确实发生了变化
-            Response::ajaxBack($list);
-        }
-    }
-
-    /**
-     * 修改模块信息
-     * @param $id
-     * @param $title
-     * @param $description
-     * @param $order
-     * @param $status
-     */
-    public function updateModule($id,$title,$description,$order,$status){
-        $moduleModel = new ModuleModel();
-        $result = $moduleModel->updateModule([
-            'title'     => $title,
-            'description'    => $description,
-            'order'     => $order,
-            'status'    => $status,
-        ],$id);
-        if(false === $result){
-            Response::failed("更新出错:".$moduleModel->getError());
-        }else{
-            Response::success('修改成功');
-        }
-    }
-
-
 
     public function scan(){
         $manager = new ActionManager(new CwebsActionScannerAdapter());
@@ -110,9 +69,9 @@ class System extends AdminController{
         //错误信息
 
         //清空之前的操作的数据
-        $moduleModel->clean();
-        $actionGroupModel->clean();
-        $actionModel->clean();
+//        $moduleModel->clean();
+//        $actionGroupModel->clean();
+//        $actionModel->clean();
 
         foreach ($modules as $module){
             if($moduleModel->field('code',$module)->create()){

@@ -6,7 +6,7 @@
  * Time: 11:39 AM
  */
 
-namespace Application\Admin\Model;
+namespace Application\Admin\System\Model;
 use System\Library\Model;
 use System\Utils\SEK;
 

@@ -65,8 +65,9 @@ var Dazzling = (function () {
     //布局初始化
     var resBreakpointMd = getResponsiveBreakpoint('md');
 
-    //自动调整page-container的高度(包括sidebar和content)
-    var autoAdjustPageContainerHeight = function () {
+
+    var adjustMinHeight = function (selector) {
+        selector = toJquery(selector);
         var height;
         var headerHeight = page_header.outerHeight();
         var footerHeight = page_footer.outerHeight();
@@ -80,8 +81,15 @@ var Dazzling = (function () {
         if ((height + headerHeight + footerHeight) <= Kbylin.getViewPort().height) {
             height = Kbylin.getViewPort().height - headerHeight - footerHeight;
         }
-        page_content.attr('style', 'min-height:' + height + 'px');
+        selector.attr('style', 'min-height:' + height + 'px');
     };
+
+    //自动调整page-container的高度(包括sidebar和content)
+    var autoAdjustPageContainerHeight = function () {
+        adjustMinHeight(page_content);
+    };
+
+
 
     // Handle sidebar menu
     var handleSidebarMenu = function () {
@@ -652,104 +660,6 @@ var Dazzling = (function () {
     };
 
     /**
-     *
-     * 注意:(弃用)
-     * ①第一次创建时会把选择器中的元素'拐走',所以要记得保存热modal对象
-     var remodal = null;
-     ...
-     if(! remodal) remodal = Dazzling.modal.create('#fortest',{});
-     remodal.open();
-
-     * @param modalBodySelector
-     * @param option
-     */
-    var createModal = function (modalBodySelector,option) {
-        var config = {
-            'title':null,
-            'confirmText':'提交',
-            'cancelText':'取消',
-            'fade':true,
-
-            //确认和取消的回调函数
-            'confirm':null,
-            'cancel':null,
-
-            'show':null,//即将显示
-            'shown':null,//显示完毕
-            'hide':null,//即将隐藏
-            'hidden':null,//隐藏完毕
-
-            'backdrop':'static',
-            'keyboard':true
-        };
-
-        //初始化
-        for(var x in option){
-            if(!option.hasOwnProperty(x)) continue;
-            config[x] = option[x];
-        }
-
-        var id = 'modal_'+Dazzling.utils.guid();
-
-        var modal = $('<div class="modal" id="'+id+'" aria-hidden="true"></div>');
-        if(typeof config['backdrop'] !== "string"){
-            config['backdrop'] = config['backdrop']?'true':'false';
-        }
-        if(config['fade']) modal.addClass('fade');
-        modal.attr('data-backdrop',config['backdrop']);
-        modal.attr('data-keyboard',config['keyboard']?'true':'false');
-
-        var dialog = $('<div class="modal-dialog"></div>');
-        modal.append(dialog);
-
-        var content = $('<div class="modal-content"></div>');
-        dialog.append(content);
-
-        if(config['title']){
-            var header = $('<div class="modal-header"></div>');
-            var close = $('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>');
-            header.append(close).append($('<h4 class="modal-title">'+config['title']+'</h4>'));
-            content.append(header);
-        }
-
-        var body = $('<div class="modal-body"></div>');
-        body.appendTo(content);
-        body.append(toJquery(modalBodySelector));
-
-
-        var footer = $('<div class="modal-footer"></div>');
-        var cancel = $('<button type="button" class="btn btn-default" data-dismiss="modal">'+config['cancelText']+'</button>');
-        var confirm = $('<button type="button" class="btn btn-primary">'+config['confirmText']+'</button>');
-        content.append(footer.append(cancel).append(confirm));
-
-        //确认和取消事件注册
-        confirm.click(function (e) {
-            if(config['confirm']){
-                config['confirm'](e);
-            }
-        });
-        cancel.click(function (e) {
-            if(config['cancel']){
-                config['cancel'](e);
-            }
-        });
-        //事件注册
-
-        thisbody.append(modal);
-
-        var instance = $("#"+id);
-
-        var events = ['show','shown','hide','hidden'];
-        for(var i =0; i < events.length; i++){
-            var eventname = events[i];
-            config[eventname] && instance.on(eventname+'.bs.modal', function () {
-            });
-        }
-
-        return instance.modal('hide');
-    };
-
-    /**
      * 自动填写表单
      * @param form 表单对象或者表单选择器
      * @param data 待设置的数据 如 {'key':'value'}
@@ -800,60 +710,6 @@ var Dazzling = (function () {
         }
     };
 
-    var nestableTool = {
-        //穿件OL节点
-        '_createOl' : function (children) {
-            var ol = $('<ol class="dd-list"></ol>');
-
-            for(var index in children){
-                if(!children.hasOwnProperty(index)) continue;
-                var item = children[index];
-
-                //设置基本的两个属性
-                if(!item.hasOwnProperty('id') || !item.hasOwnProperty('title')) return Dazzling.toast.error("The id/title of item should not be empty");;
-                var li = $('<li class="dd-item dd3-item" data-id="'+item['id']+'"></li>').append($('<div class="dd-handle dd3-handle">'));
-                var content = $('<div class="dd3-content">'+item['title']+'</div>');
-                li.append(content);
-
-                //设置其他附加属性(title id除外)
-                for(var x in item){
-                    if(!item.hasOwnProperty(x)) continue;
-                    (x !== 'title') && (x !== 'id') && li.attr("data-"+x,item[x]);
-                }
-
-                children.hasOwnProperty('children') && li.append(this._createOl(item['children']));
-                ol.append(li);
-            }
-            return ol;
-        },
-        /**
-         * 创建并添加到指定元素下
-         * @param serialization 配置序列或者配置对象 (必须)
-         * @param group 分组
-         * @param attatchment 创建并添加的对象,如果指定了ID将添加到指定的对象上并返回nestable对象;否则返回创建的jquery对象
-         */
-        'create':function (serialization,group,attatchment) {
-            serialization = Kbylin.str2Obj(serialization);
-
-            var id = 'nestable_'+guid();
-            var div = $('<div class="dd" id="'+id+'"></div>');
-            div.append(this._createOl(serialization));
-
-            if(undefined === group) group = id;
-            div.nestable({ group: group});
-
-            if(undefined !== attatchment) {
-                attatchment = toJquery(attatchment);
-                attatchment.html('');
-                if(attatchment.length) {
-                    // console.log(attatchment,div);
-                    attatchment.append(div);
-                }
-            }
-            return div;
-        }
-    };
-
     var breadcrumb = {
         'createItem':function (title,href) {
             var li = $(document.createElement("li"));
@@ -888,7 +744,22 @@ var Dazzling = (function () {
             //随机获取一个GUID
             'guid':guid,
             //投入string类型的jquery选择器或者dom对象或者jquery对象本身,返回实打实的jquery对象
-            'toJquery':toJquery
+            'toJquery':toJquery,
+            //自动调整组件最小高度
+            adjustMinHeight:adjustMinHeight,
+            //获取一个单例的操作对象作为上下文环境的深度拷贝
+            newInstance:function (context) {
+                var Yan = function () {return {target:null};};
+                var instance = new Yan();
+                if(context){
+                    for(var x in context){
+                        if(context.hasOwnProperty(x)) {
+                            instance[x] = context[x];
+                        }
+                    }
+                }
+                return instance;
+            }
         },
         //页面工具
         'page':pageTool,
@@ -902,7 +773,7 @@ var Dazzling = (function () {
             //设置之后的操作所指定的DatatableAPI对象
             'bind':function (dtJquery,options) {
                 dtJquery = Dazzling.utils.toJquery(dtJquery);
-                var newinstance = new Dazzling.datatables;
+                var newinstance = Dazzling.utils.newInstance(this);
                 newinstance.dtJquery = dtJquery;
                 newinstance.tableApi = dtJquery.DataTable(options);
                 return newinstance;/* this 对象同于链式调用 */
@@ -971,7 +842,91 @@ var Dazzling = (function () {
         },
         'modal':{
             //创建一个Modal对象,会将HTML中指定的内容作为自己的一部分拐走
-            'create':createModal,
+            'create':function (selector,option) {
+                var config = {
+                    'title':null,
+                    'confirmText':'提交',
+                    'cancelText':'取消',
+                    'fade':true,
+
+                    //确认和取消的回调函数
+                    'confirm':null,
+                    'cancel':null,
+
+                    'show':null,//即将显示
+                    'shown':null,//显示完毕
+                    'hide':null,//即将隐藏
+                    'hidden':null,//隐藏完毕
+
+                    'backdrop':'static',
+                    'keyboard':true
+                };
+
+                //初始化
+                for(var x in option){
+                    if(!option.hasOwnProperty(x)) continue;
+                    config[x] = option[x];
+                }
+
+                var id = 'modal_'+Dazzling.utils.guid();
+
+                var modal = $('<div class="modal" id="'+id+'" aria-hidden="true" role="dialog"></div>');
+                if(typeof config['backdrop'] !== "string"){
+                    config['backdrop'] = config['backdrop']?'true':'false';
+                }
+                if(config['fade']) modal.addClass('fade');
+                modal.attr('data-backdrop',config['backdrop']);
+                modal.attr('data-keyboard',config['keyboard']?'true':'false');
+
+                var dialog = $('<div class="modal-dialog"></div>');
+                modal.append(dialog);
+
+                var content = $('<div class="modal-content"></div>');
+                dialog.append(content);
+
+                if(config['title']){
+                    var header = $('<div class="modal-header"></div>');
+                    var close = $('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>');
+                    header.append(close).append($('<h4 class="modal-title">'+config['title']+'</h4>'));
+                    content.append(header);
+                }
+
+                var body = $('<div class="modal-body"></div>');
+                body.appendTo(content);
+                body.append(toJquery(selector));
+
+
+                var footer = $('<div class="modal-footer"></div>');
+                var cancel = $('<button type="button" class="btn btn-default" data-dismiss="modal">'+config['cancelText']+'</button>');
+                var confirm = $('<button type="button" class="btn btn-primary">'+config['confirmText']+'</button>');
+                content.append(footer.append(cancel).append(confirm));
+
+                //确认和取消事件注册
+                confirm.click(function (e) {
+                    if(config['confirm']){
+                        config['confirm'](e);
+                    }
+                });
+                cancel.click(function (e) {
+                    if(config['cancel']){
+                        config['cancel'](e);
+                    }
+                });
+                //事件注册
+
+                thisbody.append(modal);
+
+                var instance = $("#"+id);
+
+                var events = ['show','shown','hide','hidden'];
+                for(var i =0; i < events.length; i++){
+                    var eventname = events[i];
+                    config[eventname] && instance.on(eventname+'.bs.modal', function () {
+                    });
+                }
+
+                return instance.modal('hide');
+            },
             //检查是否是有效的Remodal对象,简单地判断
             '_check':function (modal) {
                 if(!(modal instanceof Object)) return Dazzling.toast.error("Require Remodal Object!");
@@ -994,7 +949,83 @@ var Dazzling = (function () {
                 return selector.serialize();
             }
         },
-        'nestable':nestableTool
+        'nestable':{
+            //穿件OL节点
+            createItemList : function (children,target) {
+                var ol = $('<ol class="dd-list"></ol>');
+                for(var index in children){
+                    if(!children.hasOwnProperty(index)) continue;
+                    this.createItem(children[index],ol);
+                }
+                if(!target || !target.length) target = this.target;
+
+                //如果已经存在该节点,删除它
+                var targetol = target.children('ol');
+                if(targetol.length) targetol.remove();
+
+                target.append(ol);
+                return this;
+            },
+            createItem : function (item,target) {
+                item = Kbylin.str2Obj(item);
+
+                //设置基本的两个属性
+                if(!item.hasOwnProperty('id') || !item.hasOwnProperty('title')) return Dazzling.toast.error("The id/title of item should not be empty");
+                var li = $('<li class="dd-item dd3-item" data-id="'+item['id']+'"></li>');
+                li.append($('<div class="dd-handle dd3-handle">'));
+                var content = $('<div class="dd3-content">'+item['title']+'</div>');
+                li.append(content);
+
+                //设置其他附加属性(title id除外)
+                for(var x in item){
+                    if(!item.hasOwnProperty(x)) continue;
+                    (x !== 'title') && (x !== 'id' && (x !== 'children')) && li.attr("data-"+x,item[x]);
+                }
+
+                item.hasOwnProperty('children') && this.createItemList(item['children'],li);
+
+                if(!target || !target.length ) target = this.target;
+                var targetol = target.children('ol');
+                if(targetol.length){
+                    targetol.prepend(li);
+                }
+                // console.log(this.target)
+                return this;
+            },
+            /**
+             * 创建并添加到指定元素下
+             * @param serialization 配置序列或者配置对象 (必须)
+             * @param group 分组
+             * @param attatchment 创建并添加的对象,如果指定了ID将添加到指定的对象上并返回nestable对象;否则返回创建的jquery对象
+             */
+            create : function (serialization,group,attatchment) {
+                serialization = Kbylin.str2Obj(serialization);
+
+                var instance = Dazzling.utils.newInstance(this);
+
+                var id = 'nestable_'+guid();
+                var topdiv = $('<div class="dd" id="'+id+'"></div>');
+                this.createItemList(serialization,topdiv);//参数二可以不要,因为本来就是this.target
+                instance.target = topdiv.nestable({group: group?group:id});
+                undefined === attatchment || instance.target.prependTo(attatchment);
+                // console.log(instance);
+                return instance;
+            },
+            prependTo :function (attatchment) {
+                attatchment = toJquery(attatchment);
+                attatchment.html('');
+                if(attatchment.length) {
+                    attatchment.prepend(this.target);
+                }
+            },
+            appendTo :function (attatchment) {
+                attatchment = toJquery(attatchment);
+                attatchment.html('');
+                if(attatchment.length) {
+                    attatchment.appendTo(this.target);
+                }
+            }
+        }
     };
 })();
 

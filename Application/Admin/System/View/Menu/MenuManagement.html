@@ -2,7 +2,6 @@
 {block name="page_css"}
 <style>
     .nestable_container {
-        min-height: 600px;
         border: 1px solid #eeeeee;
     }
 </style>
@@ -15,46 +14,40 @@
     $(function () {
         var ctler_uri = '{$smarty.const.__CONTROLLER__}/';
 
-        var loadModule = function () {
-            Dazzling.post(ctler_uri+'listTopMenu',{},function (data) {
-                console.log(data);
-                Dazzling.nestable.create(data,1,"#top_nestable_attach");
-                return false;
-            });
-        };
-        loadModule();
-
-        Dazzling.nestable.create();
-
-        var n1 = $("#modules");
-        var n2 = $("#actions");
-        n1.nestable({ group: 1}).on("change", function () {
-            console.log(n1.nestable("serialize"));
-        });
-        n2.nestable({ group: 2}).on("change", function () {
-            console.log(n2.nestable("serialize"));
-        });
-
-        $("#expandall").click(function () {
-            $(".dd").nestable("expandAll");
-        });
-        $("#collapseall").click(function () {
-            $(".dd").nestable("collapseAll");
-        });
-
-        $("#saveall").click(function () {
-            var seria = n2.nestable("serialize");
-            console.log(seria,Kbylin.str2Obj(seria));
-        });
-
         Dazzling.page.registerAction('全部展开',function () {
             $(".dd").nestable("expandAll");
         },"icon-resize-full");
         Dazzling.page.registerAction('全部折叠',function () {
             $(".dd").nestable("collapseAll");
         },"icon-resize-small");
+        $(window).resize(function () {
+            Dazzling.utils.adjustMinHeight(".nestable_container");
+        }).trigger('resize');
 
-        $("#addTop").click(function () { });
+        var top_nestable_attach;
+        var side_nestable_attach;
+
+        var addTopForm = Dazzling.modal.create("#addTopForm",{
+            'title':'添加顶部菜单项目',
+            'confirmText':'添加',
+            'cancelText':'取消',
+            //确认和取消的回调函数
+            'confirm':null,
+            'cancel':null
+        });
+
+
+        var loadModule = function () {
+            Dazzling.post(ctler_uri+'listTopMenu',{},function (data) {
+                top_nestable_attach = Dazzling.nestable.create(data,1,"#top_nestable_attach");
+            });
+            return this;
+        };
+
+        $("#addTop").click(function () {
+                Dazzling.modal.show(addTopForm);
+//            top_nestable_attach.createItem({ id:1,title:'yes bean'});
+        });
         $("#rmTop").click(function () { });
         $("#saveTop").click(function () { });
 
@@ -62,20 +55,51 @@
         $("#rmSide").click(function () { });
         $("#saveSide").click(function () { });
 
+
+        loadModule();
     });
 </script>
 {/block}
 {block name="stage_content"}
+<div id="icon-select-modal">
+    <!--
+     TODO 图标选择界面
+     -->
+</div>
+
+
+<div id="addTopForm">
+    <form class="form-horizontal" id="form_module">
+        <div class="form-body">
+            <div class="form-group">
+                <label class="control-label col-md-2">名称</label>
+                <div class="col-md-4">
+                    <input class="form-control input-sm" name="title" type="text" />
+                    <span class="help-block">显示在菜单栏上的名称</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-2">图标</label>
+                <div class="col-md-3">
+                    <button class="btn dazzling btn-sm">选择</button>
+                    <span class="help-block">菜单项显示的图标</span>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
 <div class="row">
     <div class="col-md-12">
         <div class="col-md-6">
             <div class="col-md-4">
-                <h3>顶部菜单  </h3>
+                <h5>顶部菜单  </h5>
             </div>
         </div>
         <div class="col-md-6">
             <div class="col-md-4">
-                <h3>侧边菜单</h3>
+                <h5>侧边菜单</h5>
             </div>
         </div>
     </div>
