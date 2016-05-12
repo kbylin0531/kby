@@ -17,6 +17,12 @@ class AdminController extends Controller{
         $this->checkLogin() or $this->redirectLoginPage();
     }
 
+    /**
+     * @param string|null $template 如果是null,将自动获取调用本方法的名称并去掉开头的Page前缀
+     * @param null $cache_id
+     * @param null $compile_id
+     * @param null $parent
+     */
     protected function displayManagement($template = null, $cache_id = null, $compile_id = null, $parent = null){
         //加载模块和菜单
 
@@ -31,7 +37,7 @@ class AdminController extends Controller{
 
         //获取调用自己的函数
         null === $template and $template = SEK::getCallPlace(SEK::CALL_ELEMENT_FUNCTION,SEK::CALL_PLACE_FORWARD)[SEK::CALL_ELEMENT_FUNCTION];
-        $this->display($template , $cache_id , $compile_id, $parent);
+        $this->display(substr($template,4) /* 第五个字符开始 */, $cache_id , $compile_id, $parent);
     }
 
     /**

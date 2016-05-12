@@ -6,9 +6,8 @@ return [
     'solution_list' => [
         0   => [
             'css'   => [
-                'assets/plugins/font-awesome/css/font-awesome.min.css',
-                'assets/plugins/simple-line-icons/simple-line-icons.min.css',
                 'assets/plugins/bootstrap/css/bootstrap.min.css',
+                'assets/plugins/font-awesome/css/font-awesome.min.css',
                 'assets/plugins/toastr/toastr.min.css',
 
                 'assets/css/themes/darkblue.css',
@@ -21,7 +20,7 @@ return [
                 'assets/plugins/toastr/toastr.min.js',
                 'assets/plugins/bootstrap-contextmenu/bootstrap-contextmenu.js',
 
-                'assets/js/dazzling.js'
+                'assets/js/dazzling.js',
             ],
             //IE8
             'js_lt9'    =>[
@@ -32,7 +31,7 @@ return [
             ],
             //非IE或者大于等于9
             'js_gt9'    => [
-                'assets/js/jquery-2.2.3.min.js'
+                'assets/js/jquery-2.2.3.min.js',
             ],
             'ico'   => [
                 'https://elementary.io/favicon.ico',

@@ -1,0 +1,121 @@
+{extends file="../Common/datatables.html"}
+
+{block name="stage_content"}
+
+<div>
+    <div class="row">
+        <div class="col-md-2">
+            <div class="margin-bottom-3">
+                <button type="button" class="btn dazzling" id="expandall">
+                    <i class="icon-plus"></i> 全部打开</button>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="margin-bottom-3">
+                <button type="button" class="btn dazzling" id="collapseall">
+                    <i class="icon-minus"></i> 全部折叠</button>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="margin-bottom-3 col-md-offset-9">
+                <button type="button" class="btn dazzling" id="saveall">
+                    <i class="icon-building"></i> 保存</button>
+            </div>
+        </div>
+
+
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <h3>模块列表</h3>
+        </div>
+        <div class="col-md-6">
+            <h3>操作列表</h3>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6" id="modules_attachment">
+    </div>
+    <div class="col-md-6">
+        <div class="dd" id="actions">
+            <ol class="dd-list">
+                <li class="dd-item dd3-item" data-name="bean" data-id="13">
+                    <div class="dd-handle dd3-handle"></div>
+                    <div class="dd3-content"> Item 13</div>
+                </li>
+                <li class="dd-item dd3-item" data-name="bean" data-id="14">
+                    <div class="dd-handle dd3-handle"></div>
+                    <div class="dd3-content"> Item 14</div>
+                </li>
+                <li class="dd-item dd3-item"  data-name="bean" data-id="15">
+                    <div class="dd-handle dd3-handle"></div>
+                    <div class="dd3-content"> Item 15</div>
+                    <ol class="dd-list">
+                        <li class="dd-item dd3-item" data-id="16">
+                            <div class="dd-handle dd3-handle"></div>
+                            <div class="dd3-content"> Item 16</div>
+                        </li>
+                        <li class="dd-item dd3-item" data-id="17">
+                            <div class="dd-handle dd3-handle"></div>
+                            <div class="dd3-content"> Item 17</div>
+                        </li>
+                        <li class="dd-item dd3-item" data-id="18">
+                            <div class="dd-handle dd3-handle"></div>
+                            <div class="dd3-content"> Item 18</div>
+                        </li>
+                    </ol>
+                </li>
+            </ol>
+        </div>
+    </div>
+</div>
+
+{/block}
+
+{block name='page_js'}
+<script>
+    Kbylin.load('/assets/plugins/jquery.nestable/jquery.nestable.js');
+    Kbylin.load('/assets/plugins/jquery.nestable/jquery.nestable.css');
+
+    $(function () {
+
+        var ctler_uri = '{$smarty.const.__CONTROLLER__}/';
+
+        var loadModule = function () {
+            Dazzling.post(ctler_uri+'listModule',{},function (data) {
+                console.log(data);
+                Dazzling.nestable.create(data,1,"#modules_attachment");
+            });
+        };
+
+
+        loadModule();
+
+
+        Dazzling.nestable.create();
+
+        var n1 = $("#modules");
+        var n2 = $("#actions");
+        n1.nestable({ group: 1}).on("change", function () {
+            console.log(n1.nestable("serialize"));
+        });
+        n2.nestable({ group: 2}).on("change", function () {
+            console.log(n2.nestable("serialize"));
+        });
+
+        $("#expandall").click(function () {
+            $(".dd").nestable("expandAll");
+        });
+        $("#collapseall").click(function () {
+            $(".dd").nestable("collapseAll");
+        });
+
+        $("#saveall").click(function () {
+            var seria = n2.nestable("serialize");
+            console.log(seria,Kbylin.str2Obj(seria));
+        });
+    });
+</script>
+{/block}

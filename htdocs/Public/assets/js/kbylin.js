@@ -55,7 +55,10 @@ var Kbylin = (function (public_url) {
 
     var load = function (path,type) {
         if(typeof path === 'object'){
-            for (var i = 0; i < path.length; i++) load(path[i],type);
+            for(var x in path){
+                if(!path.hasOwnProperty(x)) continue;
+                load(path[x]);
+            }
         }else{
             // if(!configuration['public_url']) throw "Public uri not defined!";
             if(undefined === type){
@@ -71,9 +74,8 @@ var Kbylin = (function (public_url) {
                         type = 'ico';
                         break;
                     default:
-                        throw "Invalid path";
+                        return ;
                 }
-
             }
             if(path.substr(0,4) !== 'http'){
                 path = configuration['public_url']+path;
@@ -86,10 +88,10 @@ var Kbylin = (function (public_url) {
                     document.write('<scri'+'pt src="'+path+'"></s'+'cript>');
                     break;
                 case 'ico':
-                    document.write('<link rel="shortcut icon" href="'+path+' />');
+                    document.write('<link rel="shortcut icon" href="'+path+'" />');
                     break;
                 default:
-                    throw "Undefained type";
+                    return;
             }
         }
         return Kbylin;
@@ -152,6 +154,7 @@ var Kbylin = (function (public_url) {
          由于json是以”{}”的方式来开始以及结束的，在JS中，它会被当成一个语句块来处理，所以必须强制性的将它转换成一种表达式。
          加上圆括号的目的是迫使eval函数在处理JavaScript代码的时候强制将括号内的表达式（expression）转化为对象，而不是作为语句（statement）来执行
          */
+        if(str instanceof Object)return str;
         return eval ("(" + str + ")");
     };
 

@@ -53,16 +53,13 @@ var Dazzling = (function () {
             scrollTop: pos
         }, 'slow');
     };
-
     var getResponsiveBreakpoint = function(size) {
-        // bootstrap responsive breakpoints
         var sizes = {
             'xs' : 480,     // extra small
             'sm' : 768,     // small
             'md' : 992,     // medium
             'lg' : 1200     // large
         };
-
         return sizes[size] ? sizes[size] : 0;
     };
     //布局初始化
@@ -71,7 +68,6 @@ var Dazzling = (function () {
     //自动调整page-container的高度(包括sidebar和content)
     var autoAdjustPageContainerHeight = function () {
         var height;
-
         var headerHeight = page_header.outerHeight();
         var footerHeight = page_footer.outerHeight();
 
@@ -283,11 +279,7 @@ var Dazzling = (function () {
             if (isIE8 && (currheight == document.documentElement.clientHeight)) return; //quite event since only body resized not window.
             if (resize) clearTimeout(resize);
             resize = setTimeout(function() {
-                //执行调整函数
-                for (var i = 0; i < resizeHandlers.length; i++) {
-                    var each = resizeHandlers[i];
-                    each.call();
-                }
+                for (var i = 0; i < resizeHandlers.length; i++)  resizeHandlers[i].call();//执行调整函数
             }, 50); // wait 50ms until window resize finishes.
             isIE8 && (currheight = document.documentElement.clientHeight); // store last body client height
         });
@@ -310,13 +302,6 @@ var Dazzling = (function () {
             $(this).addClass('hover-initialized');
         });
     };
-    //quick-sidebar
-    var initQuickSidebar = function () {
-        $('.dropdown-quick-sidebar-toggler a, .page-quick-sidebar-toggler').click(function () {
-            $('body').toggleClass('page-quick-sidebar-open');
-        });
-    };
-
 
     /**
      * 获取超链接
@@ -332,28 +317,22 @@ var Dazzling = (function () {
 
         if(attrs.hasOwnProperty('icon')){
             var i = $(document.createElement('i'));
-            i.addClass('fa '+attrs.icon);
+            i.addClass(attrs.icon);
             iconAhead?i.prependTo(a):i.appendTo(a);
         }
         return a;
     };
 
     var _getAnchor4Sidebar = function (attrs,hasSubmenu) {
-        var a = $(document.createElement('a'));
-        a.addClass(hasSubmenu?'nav-link nav-toggle':'nav-link');
-
-        //未传入参数的清空
         if(undefined === hasSubmenu) hasSubmenu = attrs.hasOwnProperty('submenu');
 
-        //icon 默认为 icon-doc
-        if(!attrs.hasOwnProperty('icon')) attrs['icon'] = 'icon-doc';
-        a.append($('<i class="'+attrs['icon']+'"></i>'));
+        var a = $(document.createElement('a')).addClass(hasSubmenu?'nav-link nav-toggle':'nav-link');
 
-        //必要属性
-        a.append($('<span class="title">'+attrs['title']+'</span>'));
+        //未传入参数的清空
+        if(!attrs.hasOwnProperty('icon')) attrs['icon'] = 'icon-circle-blank';//默认图标
 
-        hasSubmenu && a.append($('<span class="arrow"></span>'));
-
+        a.append($('<i class="'+attrs['icon']+'"></i>')).append($('<span class="title"> '+attrs['title']+' </span>'));
+        hasSubmenu && a.append($('<i class="float-right icon-angle-right"></i>'));
         return a;
     };
 
@@ -426,7 +405,7 @@ var Dazzling = (function () {
 
             var hasSubmenu = menuitem.hasOwnProperty('submenu');
 
-            if(hasSubmenu) menuitem['icon'] = 'fa-angle-down';
+            if(hasSubmenu) menuitem['icon'] = ' icon-angle-down';
             li.append(_getAnchor4Header(menuitem,false));
             if(hasSubmenu) li.append(_getUnorderedLists4Header(menuitem));
 
@@ -474,8 +453,6 @@ var Dazzling = (function () {
         initSidebar();//初始化sidebar
         initGotoTop();//处理足部的Go to top 按钮
 
-        //初始化quick-sidebar
-        initQuickSidebar();//初始化quick-sidebar
     };
 
     /**
@@ -818,6 +795,78 @@ var Dazzling = (function () {
         }
     };
 
+    var nestableTool = {
+        //穿件OL节点
+        '_createOl' : function (children) {
+            var ol = $('<ol class="dd-list"></ol>');
+
+            for(var index in children){
+                if(!children.hasOwnProperty(index)) continue;
+                var item = children[index];
+
+                //设置基本的两个属性
+                if(!item.hasOwnProperty('id') || !item.hasOwnProperty('title')) throw "The id/title of item should not be empty";
+                var li = $('<li class="dd-item dd3-item" data-id="'+item['id']+'"></li>').append($('<div class="dd-handle dd3-handle">'));
+                var content = $('<div class="dd3-content">'+item['title']+'</div>');
+                li.append(content);
+
+                //设置其他附加属性(title id除外)
+                for(var x in item){
+                    if(!item.hasOwnProperty(x)) continue;
+                    (x !== 'title') && (x !== 'id') && li.attr("data-"+x,item[x]);
+                }
+
+                children.hasOwnProperty('children') && li.append(this._createOl(item['children']));
+                ol.append(li);
+            }
+            return ol;
+        },
+        /**
+         * 创建并添加到指定元素下
+         * @param serialization 配置序列或者配置对象 (必须)
+         * @param group 分组
+         * @param attatchment 创建并添加的对象,如果指定了ID将添加到指定的对象上并返回nestable对象;否则返回创建的jquery对象
+         */
+        'create':function (serialization,group,attatchment) {
+            serialization = Kbylin.str2Obj(serialization);
+
+            var id = 'nestable_'+guid();
+            var div = $('<div class="dd" id="'+id+'"></div>');
+            div.append(this._createOl(serialization));
+
+            if(undefined === group) group = id;
+            div.nestable({ group: group});
+
+            if(undefined !== attatchment) {
+                attatchment = toJquery(attatchment);
+                attatchment.html('');
+                if(attatchment.length) {
+                    // console.log(attatchment,div);
+                    attatchment.append(div);
+                }
+            }
+            return div;
+        }
+    };
+
+    var breadcrumb = {
+        'createItem':function (title,href) {
+            var li = $(document.createElement("li"));
+            var a = $(document.createElement("a"));
+            href && a.attr('href',href);
+            return li.append(a);
+        },
+        'create':function (list,attatchment) {
+            attatchment = toJquery(attatchment);
+            if(attatchment.length){
+                for(var x in list){
+                    if(!list.hasOwnProperty(x)) continue;
+                    attatchment.append(this.createItem(list[x]['title']));
+                }
+            }
+        }
+    };
+
     return {
         //初始化应用
         'init':init,
@@ -840,6 +889,7 @@ var Dazzling = (function () {
         'page':pageTool,
         //datatable表格工具,一次只能操作一个表格API对象
         //datatable.find("tbody").on('dblclick','tr',function () {});//可以设置为双击编辑
+        //改造成return new this;
         'datatables': {
             'tableApi':null,//datatable的API对象
             'dtJquery':null, // datatable的jquery对象
@@ -847,9 +897,10 @@ var Dazzling = (function () {
             //设置之后的操作所指定的DatatableAPI对象
             'bind':function (dtJquery,options) {
                 dtJquery = Dazzling.utils.toJquery(dtJquery);
-                this.dtJquery = dtJquery;
-                this.tableApi = dtJquery.DataTable(options);
-                return this;/* this 对象同于链式调用 */
+                var newinstance = new Dazzling.datatables;
+                newinstance.dtJquery = dtJquery;
+                newinstance.tableApi = dtJquery.DataTable(options);
+                return newinstance;/* this 对象同于链式调用 */
             },
             //为tableapi对象加载数据,参数二用于清空之前的数据
             'load':function (data,clear) {
@@ -937,7 +988,8 @@ var Dazzling = (function () {
                 selector = toJquery(selector);
                 return selector.serialize();
             }
-        }
+        },
+        'nestable':nestableTool
     };
 })();
 
