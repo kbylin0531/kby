@@ -7,6 +7,8 @@
  */
 namespace Application\Admin\System\Controller;
 use Application\Admin\Library\AdminController;
+use Application\Admin\System\Model\MenuModel;
+use System\Utils\Response;
 
 /**
  * Class Menu 菜单管理控制器
@@ -24,7 +26,15 @@ class Menu extends AdminController {
     /**
      * 获取顶级菜单列表
      */
-    public function listTopMenu(){}
+    public function listTopMenu(){
+        $menuModel = new MenuModel();
+        $config = $menuModel->getTopMenuConfig();
+        if(false === $config){
+            Response::failed('获取顶级菜单失败'.$menuModel->getError());
+        }else{
+            Response::ajaxBack($config,Response::AJAX_STRING);//直接返回文本
+        }
+    }
 
     /**
      * 获取次级菜单列表

@@ -91,7 +91,7 @@ class KbylinException extends \Exception{
      * @return void
      */
     public static function handleError($errno,$errstr,$errfile,$errline){
-        IS_AJAX and Response::failed($errstr);
+        IS_AJAX and Response::failed([$errno,$errstr,$errfile,$errline]);
 
         //错误信息
         if(!is_string($errstr)) $errstr = serialize($errstr);

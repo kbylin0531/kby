@@ -98,8 +98,20 @@ class Model {
             $order = empty($tablename['order'])?null:$tablename['order'];
             $tablename = empty($tablename['table'])?null:$tablename['table'];
         }
-        $classname = static::class;
+        $this->reset($tablename,$fields,$order);
+    }
 
+
+    /**
+     * 重置
+     * @param string $tablename 表的实际名称,不指定时候将使用类常量中定义的值
+     * @param string $fields 字段数组,不指定时候将使用类常量中定义的值
+     * @param string $order 用于指定默认排序
+     * @return void
+     * @throws KbylinException
+     */
+    protected function reset($tablename=null,$fields=null,$order=null){
+        $classname = static::class;
         $this->_table = $tablename?$tablename:$classname::TABLE_NAME;
         $this->_fields = $fields?$fields:$classname::TABLE_FIELDS;
         $this->_order = $order?$order:$classname::TABLE_ORDER;
@@ -111,6 +123,8 @@ class Model {
             throw new KbylinException('Constant TABLE_FIELDS require to be array !');
         }
     }
+
+
 
     /**
      * 获取$_fields字段值
@@ -162,23 +176,15 @@ class Model {
 
     /**
      * 设置where条件,where条件设置为null或者任何empty值时表示不对之进行限制
-     * @param array $where
+     * @param array|string $where
      * @return $this
      */
-    public function where(array $where){
-        foreach ($where as $key=>$val)  key_exists($key,$this->_fields) and $this->_where[$key] = $val;
+    public function where($where){
+        if(is_array($where)){
+            foreach ($where as $key=>$val)  key_exists($key,$this->_fields) and $this->_where[$key] = $val;
+        }
+        $this->_where = $where;
         return $this;
-    }
-
-    /**
-     * 清除字段的预设
-     * @return void
-     */
-    protected function clear(){
-        //清空设置/查询字段表
-        if($this->_fields) foreach ($this->_fields as $fieldname=>&$fieldval) $fieldval = null;
-        //清空where字段表
-        if($this->_where) foreach ($this->_where as $fieldname=>&$fieldval) $fieldval = null;
     }
 
     /**
@@ -200,7 +206,7 @@ class Model {
      * @param null|int|string $index 角标的Index,设置成null时表示恢复默认
      * @return $this;
      */
-    protected function useDao($index){
+    protected function using($index){
         $this->_cur_dao_index = $index;
         return $this;
     }
@@ -218,15 +224,14 @@ class Model {
 
     /**
      * 获取查询的错误
-     * @param null|int|string $index
      * @return string
      */
-    public function getError($index=null){
+    public function getError(){
         if($this->_errors){
-            $error = $this->_errors.PHP_EOL.$this->getDao($index)->getError();
+            $error = $this->_errors.PHP_EOL.$this->getDao()->getError();
             $this->_errors = '';
         }else{
-            $error = $this->getDao($index)->getError();
+            $error = $this->getDao()->getError();
         }
         return $error;
     }
@@ -239,7 +244,7 @@ class Model {
     public function create(){
         if(null === $this->_table) throw new KbylinException('Module has no table binded!');
         $result =  $this->getDao()->create($this->_table,$this->_fields);
-        $this->clear();
+        $this->reset();
         return $result;
     }
 
@@ -251,7 +256,7 @@ class Model {
     public function delete(){
         if(null === $this->_table) throw new KbylinException('Module has no table binded!');
         $result = $this->getDao()->delete($this->_table,$this->_where);
-        $this->clear();
+        $this->reset();
         return $result;
     }
 
@@ -266,18 +271,23 @@ class Model {
         empty($options['table']) and $options['table'] = $this->_table;
         if(empty($options['fields'])){
             $options['fields'] = [];
-            foreach ($this->_fields as $fieldName=>$defaultValue) {
-                null === $defaultValue or $options['fields'] = $options['fields'][] = $fieldName;
+            if($this->_fields){
+                foreach ($this->_fields as $fieldName=>$defaultValue) {
+                    null === $defaultValue or $options['fields'][] = $fieldName;
+                }
             }
         }
         if(empty($options['where'])){
-            $options['where'] = [];
-            foreach ($this->_where as $fieldName=>$defaultValue) {
-                null === $defaultValue or $options['where'] = $options['where'][] = $fieldName;
+            if(is_array($this->_where)){
+                $options['where'] = [];
+                foreach ($this->_where as $fieldName=>$defaultValue) {
+                    null === $defaultValue or $options['where'] = $options['where'][] = $fieldName;
+                }
             }
+            $options['where'] = $this->_where;
         }
         $list = $this->getDao()->select($options);
-        $this->clear();
+        $this->reset();
         return $list;
     }
 
@@ -288,46 +298,20 @@ class Model {
      */
     public function update(){
         if(null === $this->_table) throw new KbylinException('Module has no table binded!');
-//        dumpout($this->_fields,$this->_where);
         $fields = [];
         foreach ($this->_fields as $key=>$value) isset($value) and $fields[$key] = $value;
         $result = $this->getDao()->update($this->_table,$fields,$this->_where);
-        $this->clear();
+        $this->reset();
         return $result;
     }
 
     /**
      * 清空一张表
+     * 只允许内部调用
      * @return bool 是否成功删除
      */
-    public function clean(){
+    protected function clean(){
         return $this->getDao()->delete($this->_table,null);
-    }
-
-    /**
-     * 获取SQL及其输入参数
-     * @param $type
-     * @throws KbylinException
-     */
-    public function build($type){
-        switch ($type){
-            case self::DATA_SELECT:
-//                $this->getDao()->select($this->_table,$this->_fields,$this->_where);
-//                $this->clear();
-                break;
-            case self::DATA_CREATE:
-
-                break;
-            case self::DATA_UPDATE:
-
-                break;
-            case self::DATA_DELETE:
-
-                break;
-            default:
-                throw new KbylinException('Unexpected operation!');
-        }
-
     }
 
 

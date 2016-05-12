@@ -14,8 +14,12 @@ use System\Core\Log;
 use System\Utils\SEK;
 use System\Core\KbylinException;
 
-const AJAX_JSON = 0;
-const AJAX_XML = 1;
+/**
+ * 数据返回形式
+ */
+const AJAX_JSON     = 0;
+const AJAX_XML      = 1;
+const AJAX_STRING   = 2;
 
 /**
  * PHP变量类型

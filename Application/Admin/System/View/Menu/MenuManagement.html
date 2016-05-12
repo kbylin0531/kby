@@ -1,98 +1,28 @@
-{extends file="../Common/datatables.html"}
-
-{block name="stage_content"}
-
-<div>
-    <div class="row">
-        <div class="col-md-2">
-            <div class="margin-bottom-3">
-                <button type="button" class="btn dazzling" id="expandall">
-                    <i class="icon-plus"></i> 全部打开</button>
-            </div>
-        </div>
-        <div class="col-md-2">
-            <div class="margin-bottom-3">
-                <button type="button" class="btn dazzling" id="collapseall">
-                    <i class="icon-minus"></i> 全部折叠</button>
-            </div>
-        </div>
-
-        <div class="col-md-2">
-            <div class="margin-bottom-3 col-md-offset-9">
-                <button type="button" class="btn dazzling" id="saveall">
-                    <i class="icon-building"></i> 保存</button>
-            </div>
-        </div>
-
-
-    </div>
-    <div class="row">
-        <div class="col-md-6">
-            <h3>模块列表</h3>
-        </div>
-        <div class="col-md-6">
-            <h3>操作列表</h3>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-6" id="modules_attachment">
-    </div>
-    <div class="col-md-6">
-        <div class="dd" id="actions">
-            <ol class="dd-list">
-                <li class="dd-item dd3-item" data-name="bean" data-id="13">
-                    <div class="dd-handle dd3-handle"></div>
-                    <div class="dd3-content"> Item 13</div>
-                </li>
-                <li class="dd-item dd3-item" data-name="bean" data-id="14">
-                    <div class="dd-handle dd3-handle"></div>
-                    <div class="dd3-content"> Item 14</div>
-                </li>
-                <li class="dd-item dd3-item"  data-name="bean" data-id="15">
-                    <div class="dd-handle dd3-handle"></div>
-                    <div class="dd3-content"> Item 15</div>
-                    <ol class="dd-list">
-                        <li class="dd-item dd3-item" data-id="16">
-                            <div class="dd-handle dd3-handle"></div>
-                            <div class="dd3-content"> Item 16</div>
-                        </li>
-                        <li class="dd-item dd3-item" data-id="17">
-                            <div class="dd-handle dd3-handle"></div>
-                            <div class="dd3-content"> Item 17</div>
-                        </li>
-                        <li class="dd-item dd3-item" data-id="18">
-                            <div class="dd-handle dd3-handle"></div>
-                            <div class="dd3-content"> Item 18</div>
-                        </li>
-                    </ol>
-                </li>
-            </ol>
-        </div>
-    </div>
-</div>
-
+{extends file="../../../View/datatables.html"}
+{block name="page_css"}
+<style>
+    .nestable_container {
+        min-height: 600px;
+        border: 1px solid #eeeeee;
+    }
+</style>
 {/block}
-
 {block name='page_js'}
 <script>
     Kbylin.load('/assets/plugins/jquery.nestable/jquery.nestable.js');
     Kbylin.load('/assets/plugins/jquery.nestable/jquery.nestable.css');
 
     $(function () {
-
         var ctler_uri = '{$smarty.const.__CONTROLLER__}/';
 
         var loadModule = function () {
-            Dazzling.post(ctler_uri+'listModule',{},function (data) {
+            Dazzling.post(ctler_uri+'listTopMenu',{},function (data) {
                 console.log(data);
-                Dazzling.nestable.create(data,1,"#modules_attachment");
+                Dazzling.nestable.create(data,1,"#top_nestable_attach");
+                return false;
             });
         };
-
-
         loadModule();
-
 
         Dazzling.nestable.create();
 
@@ -116,6 +46,70 @@
             var seria = n2.nestable("serialize");
             console.log(seria,Kbylin.str2Obj(seria));
         });
+
+        Dazzling.page.registerAction('全部展开',function () {
+            $(".dd").nestable("expandAll");
+        },"icon-resize-full");
+        Dazzling.page.registerAction('全部折叠',function () {
+            $(".dd").nestable("collapseAll");
+        },"icon-resize-small");
+
+        $("#addTop").click(function () { });
+        $("#rmTop").click(function () { });
+        $("#saveTop").click(function () { });
+
+        $("#addSide").click(function () { });
+        $("#rmSide").click(function () { });
+        $("#saveSide").click(function () { });
+
     });
 </script>
+{/block}
+{block name="stage_content"}
+<div class="row">
+    <div class="col-md-12">
+        <div class="col-md-6">
+            <div class="col-md-4">
+                <h3>顶部菜单  </h3>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="col-md-4">
+                <h3>侧边菜单</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="col-md-6">
+            <div class="col-md-2">
+                <button type="button" class="btn btn-sm dazzling" id="addTop"><i class="icon-plus"></i> 添加</button>
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-sm dazzling" id="rmTop"><i class="icon-minus"></i> 删除</button>
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-sm dazzling" id="saveTop"><i class="icon-save"></i> 保存</button>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="col-md-2">
+                <button type="button" class="btn btn-sm dazzling" id="addSide"><i class="icon-plus"></i> 添加</button>
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-sm dazzling" id="rmSide"><i class="icon-minus"></i> 删除</button>
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-sm dazzling" id="saveSide"><i class="icon-save"></i> 保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12">&nbsp;</div>
+
+    <div class="col-md-12">
+        <div class="col-md-6 nestable_container" id="top_nestable_attach" ></div>
+        <div class="col-md-6 nestable_container" id="side_nestable_attach"></div>
+    </div>
+</div>
 {/block}

@@ -6,7 +6,7 @@
 var Dazzling = (function () {
 
     // for(var x in config) if(x in convention) convention[x] = config[x];
-    if(!jQuery ) throw "Require Jquery!";
+    if(!jQuery ) return Dazzling.toast.error("Require Jquery!");
 
     var thishtml = $('html');
     var thisbody = $('body');
@@ -32,7 +32,7 @@ var Dazzling = (function () {
             }else if(selector instanceof jQuery){
                 return selector;
             }else{
-                throw "Invalid parameter";
+                return Dazzling.toast.error("Invalid arguments!");
             }
         }
     };
@@ -493,20 +493,20 @@ var Dazzling = (function () {
             async: async,
             data: data,
             success:function (data) {
-                var result = callback(data);
-
-                if(result) return ;
-
+                var message_type = 1;
+                var isMsg =  (data instanceof Object) && data.hasOwnProperty('_type') && data.hasOwnProperty('_message');
                 //通知处理
-                if(data instanceof Object){
-                    if(data.hasOwnProperty('_type') && data.hasOwnProperty('_message')){
-                        if(data['_type'] > 0){
-                            return Dazzling.toast.success(data['_message']);
-                        }else if(data['_type'] < 0){
-                            return Dazzling.toast.warning(data['_message']);
-                        }else{
-                            return Dazzling.toast.error(data['_message']);
-                        }
+                isMsg && (message_type = parseInt(data['_type']));
+
+                if(callback(data,isMsg,message_type)) return true;//如果用户的回调明确声明返回true,表示已经处理得当,无需默认的参与
+
+                if(isMsg){
+                    if(message_type > 0){
+                        return Dazzling.toast.success(data['_message']);
+                    }else if(message_type < 0){
+                        return Dazzling.toast.warning(data['_message']);
+                    }else{
+                        return Dazzling.toast.error(data['_message']);
                     }
                 }
             }
@@ -757,7 +757,7 @@ var Dazzling = (function () {
      */
     var autoFillForm = function (form, data, map) {
         if(typeof form === 'string') form = $(form);
-        if(!(form instanceof jQuery)) throw "Parameter 1 expect to be jquery ";
+        if(!(form instanceof jQuery))  return Dazzling.toast.error("Parameter 1 expect to be jquery ");
         var target,key;
         var mapDefined = Kbylin.isObject(map,'Object');
 
@@ -786,10 +786,15 @@ var Dazzling = (function () {
             !this.page_action_list && (this.page_action_list = Dazzling.utils.toJquery(selector));
         },
         //注册操作:操作名称,点击时候的回调函数
-        'registerAction':function (actionName, callback) {
+        'registerAction':function (actionName, callback,icon) {
             this.init();
             var li = $("<li></li>");
-            var a = $('<a href="javascript:void(0);" id="la_'+Dazzling.utils.guid()+'">'+actionName+'</a>');
+            var a;
+            if(icon){
+                a = $('<a href="javascript:void(0);" id="la_'+Dazzling.utils.guid()+'"><i class="'+icon+'"></i> '+actionName+'</a>');
+            }else{
+                a = $('<a href="javascript:void(0);" id="la_'+Dazzling.utils.guid()+'"> '+actionName+'</a>');
+            }
             this.page_action_list.append(li.append(a));
             a.click(callback);
         }
@@ -805,7 +810,7 @@ var Dazzling = (function () {
                 var item = children[index];
 
                 //设置基本的两个属性
-                if(!item.hasOwnProperty('id') || !item.hasOwnProperty('title')) throw "The id/title of item should not be empty";
+                if(!item.hasOwnProperty('id') || !item.hasOwnProperty('title')) return Dazzling.toast.error("The id/title of item should not be empty");;
                 var li = $('<li class="dd-item dd3-item" data-id="'+item['id']+'"></li>').append($('<div class="dd-handle dd3-handle">'));
                 var content = $('<div class="dd3-content">'+item['title']+'</div>');
                 li.append(content);
@@ -904,14 +909,14 @@ var Dazzling = (function () {
             },
             //为tableapi对象加载数据,参数二用于清空之前的数据
             'load':function (data,clear) {
-                if(!this.tableApi) throw "No Datatable API binded!";
+                if(!this.tableApi) return Dazzling.toast.error("No Datatable API binded!");
                 if(undefined === clear || clear) this.tableApi.clear();//clear为true或者未设置时候都会清除之前的表格内容
                 this.tableApi.rows.add(data).draw();
                 return this;
             },
             //表格发生了draw事件时设置调用函数(表格加载,翻页都会发生draw事件)
             'onDraw':function (callback) {
-                if(!this.dtJquery) throw "No Datatables binded";
+                if(!this.dtJquery) return Dazzling.toast.error("No Datatables binded!");
                 this.dtJquery.on( 'draw.dt', function (event,settings) {
                     callback(event,settings);
                     // console.log( 'Redraw occurred at: '+new Date().getTime() );
@@ -945,18 +950,18 @@ var Dazzling = (function () {
             },
             'success':function (msg,title) {
                 this.init();
-                return toastr.success(msg,title)
+                window.toastr.success(msg,title);
             },
             'warning':function (msg,title) {
                 this.init();
-                return toastr.warning(msg,title)
+                toastr.warning(msg,title);
             },
             'error':function (msg,title) {
                 this.init();
-                return toastr.error(msg,title)
+                toastr.error(msg,title);
             },
             'clear':function () {
-                return toastr.clear()
+                toastr.clear();
             }
         },
         //上下文菜单工具
@@ -969,7 +974,7 @@ var Dazzling = (function () {
             'create':createModal,
             //检查是否是有效的Remodal对象,简单地判断
             '_check':function (modal) {
-                if(!(modal instanceof Object)) throw "Require Remodal Object!";
+                if(!(modal instanceof Object)) return Dazzling.toast.error("Require Remodal Object!");
             },
             'show':function (modal) {
                 this._check(modal);

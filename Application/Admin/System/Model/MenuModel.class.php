@@ -6,30 +6,35 @@
  * Time: 4:18 PM
  */
 
-namespace Application\Admin\Model;
+namespace Application\Admin\System\Model;
 use System\Library\Model;
 
 /**
  * Class AdminMenuModel 系统菜单管理
  * @package Application\Admin\Model
  */
-class AdminMenuModel extends Model{
+class MenuModel extends Model{
 
     const TABLE_NAME = 'kl_config_menu';
     const TABLE_FIELDS = [
         'id'        => null,
-        'title'     => '[untitled]',
-        'value'     => '[]',
-        'order'     => 0,
+        'title'     => null,
+        'value'     => null,
+        'order'     => null,
         'icon'      => null,
     ];
 
     /**
      * 获取顶级菜单设置
-     * @return string|null 序列化的配置值,如果配置缺失,则返回null表示空的配置
+     * 注:顶级菜单的ID等于1
+     * @return array|bool array中的title和value可能是有用的值,返回false表示发生了错误
      */
     public function getTopMenuConfig(){
-
+        $config = $this->where('id = 1')->select();
+        if(isset($config[0]['value'])){
+            return $config[0]['value'];
+        }
+        return false;
     }
 
     /**
@@ -38,7 +43,10 @@ class AdminMenuModel extends Model{
      * @return bool
      */
     public function setTopMenuConfig($config){
-
+        if(!is_string($config)) $config = serialize($config);
+        return $this->where('id = 1')->fields([
+            'value' => $config,
+        ])->update();
     }
 
     /**
