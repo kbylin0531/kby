@@ -504,7 +504,7 @@ var Dazzling = (function () {
                 //通知处理
                 isMsg && (message_type = parseInt(data['_type']));
 
-                if(callback(data,isMsg,message_type)) return true;//如果用户的回调明确声明返回true,表示已经处理得当,无需默认的参与
+                if(callback && callback(data,isMsg,message_type)) return true;//如果用户的回调明确声明返回true,表示已经处理得当,无需默认的参与
 
                 if(isMsg){
                     if(message_type > 0){
@@ -738,10 +738,6 @@ var Dazzling = (function () {
             }
         }
     };
-
-
-
-    var nestableCreateItemList = func
 
 
     return {
@@ -988,8 +984,13 @@ var Dazzling = (function () {
                 target.append(ol);
                 return this;
             },
-            serialize:function () {
-                return this.target.nestable('serialize');
+            serialize:function (tostring) {
+                var value = this.target.nestable('serialize');
+                if(tostring){
+                    if(!JSON) return Dazzling.toast.warning('你的浏览器无法支持JSON功能!');
+                    value = JSON.stringify(value);
+                }
+                return value;
             },
             createItem : function (item,target) {
                 item = Kbylin.str2Obj(item);

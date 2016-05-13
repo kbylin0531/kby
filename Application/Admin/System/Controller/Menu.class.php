@@ -36,6 +36,21 @@ class Menu extends AdminController {
         }
     }
 
+    public function saveTopMenu($topset){
+        $topset = json_decode($topset);
+        if(is_array($topset)){
+            Response::failed('无法解析前台传递的序列化的信息!');
+        }
+        $menuModel = new MenuModel();
+        if($menuModel->setTopMenuSet($topset)){
+            Response::success('顶部菜单设置成功!');
+        }else{
+            Response::failed('设置失败!'.$menuModel->getError());
+        }
+
+    }
+
+
     /**
      * @param $title
      * @param null $icon

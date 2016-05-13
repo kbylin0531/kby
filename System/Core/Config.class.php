@@ -11,7 +11,6 @@ use System\Core\Config\File;
 use System\Core\Exception\DriverInavailableException;
 use System\Core\Exception\ParameterInvalidException;
 use System\Traits\Crux;
-use System\Utils\SEK;
 
 /**
  * Class Configure 设定管理器
@@ -63,32 +62,6 @@ class Config {
     }
 
     /**
-     * <不存在依赖关系>
-     * 读取全局配置
-     * 设定在 'CONFIG_PATH' 目录下的配置文件的名称
-     * @param string|array $itemname 自定义配置项名称
-     * @return array|mixed 配置项存在的情况下返回array，否则返回参数$replacement的值
-     * @throws ParameterInvalidException
-     */
-    public static function readGlobal($itemname) {
-        $type = gettype($itemname);
-        if ('array' === $type) {
-            $result = [];
-            foreach($itemname as $item){
-                $temp = self::readGlobal($item);
-                null !== $temp and SEK::merge($result,$temp);
-            }
-        } elseif('string' === $type) {
-            $path = CONFIG_PATH."{$itemname}.php";
-            if(!is_file($path)) return null;
-            $result = include $path;
-        } else {
-            throw new ParameterInvalidException($itemname);
-        }
-        return $result;
-    }
-
-    /**
      * 读取所有全局配置
      * @param string|array $list 配置列表,可以是数组，也可以是都好分隔的字符串
      * @return array 返回全部配置，配置名称为键
@@ -103,7 +76,7 @@ class Config {
         if(is_string($list)) $list = explode(',',$list);
         //无法读取驱动内部的缓存或者缓存不存在  => 重新读取配置并生成缓存
         foreach($list as $item){
-            self::$confcache[$item] = self::readGlobal($item);
+            self::$confcache[$item] = Crux::readGlobal($item);
         }
         return self::$confcache;
     }

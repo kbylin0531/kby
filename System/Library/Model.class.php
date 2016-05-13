@@ -216,10 +216,11 @@ class Model {
      * 设置模型的错误
      * 在下次调用getError(会将该错误一起返回)
      * @param string $error
-     * @return void
+     * @return false 返回的false表示发生了错误,并不代表自身发生了错误
      */
     public function setError($error){
         $this->_errors = $this->_errors.PHP_EOL.$error;
+        return false;
     }
 
     /**
@@ -260,6 +261,34 @@ class Model {
         return $result;
     }
 
+    /**
+     * 获取查询选项中满足条件的记录数目
+     * @param array $options 查询选项
+     * @return int 返回表中的数据的条数,发生了错误将不会返回数据
+     * @throws KbylinException
+     */
+    public function count(array $options = []){
+        null === $this->_table and KbylinException::throwing('Module has no table binded!');
+        empty($options['table']) and $options['table'] = $this->_table;
+        $options['fields'] = ' count(*) as c';
+        if(empty($options['where'])){
+            if(is_array($this->_where)){
+                $options['where'] = [];
+                foreach ($this->_where as $fieldName=>$defaultValue) {
+                    null === $defaultValue or $options['where'] = $options['where'][] = $fieldName;
+                }
+            }
+            $options['where'] = $this->_where;
+        }
+        $result = $this->getDao()->select($options);
+        if(isset($result[0]['c'])){
+            $result = intval($result[0]['c']);
+        }else{
+            KbylinException::throwing($options,$result);
+        }
+        $this->reset();
+        return $result;
+    }
     /**
      * 从数据库中获取指定条件的数据对象
      * @param array $options 可以是components或者tablename

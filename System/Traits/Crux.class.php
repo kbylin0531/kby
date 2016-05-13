@@ -5,25 +5,20 @@
  * Time: 16:32
  */
 namespace System\Traits;
-use StdClass;
-use System\Core\Exception\Driver\DriverNotFoundException;
+use stdClass;
 use System\Core\KbylinException;
-use System\Core\Config;
 use System\Utils\SEK;
 
 /**
  * Class Crux 系统运行关键组件
  *
- * 集成单例设计模式和类配置自动加载
+ * 管理类的初始化和驱动实例设置
  *
- * 集合初始化方法和单例设计模式的类
  * 注释：
  *  ① 将所有的self替换成static表示调用该继承类的对应方法而不是父类的方法，在子类中调用self表示该类的该方法（允许的）
- *  ② 在trait类中设置const常量‘CONF_NAME’可以设置将要加载的config目录下的文件的名称
- *  ③ 更多详细内容参照Test目录下的testCrux.php文件
- *  ④ 类本身的管理配置为const常量'CONF_CONVENTION'定义的宿主
- *
- * @package System\Core
+ *  ② 在trait类中设置const常量‘CONF_NAME’可以设置将要加载的配置目录下的文件的名称
+ *  ③ 类本身的管理配置为const常量'CONF_CONVENTION'定义的宿主
+ * @package System\Traits
  */
 trait Crux {
 
@@ -60,26 +55,17 @@ trait Crux {
         $classname = static::class;//调用该方法的类的名称
 
         //读取类的惯例配置
-        $conventionconst = "{$classname}::CONF_CONVENTION";
-        if(defined($conventionconst)){
-            static::$_conventions[$classname] = $classname::CONF_CONVENTION;
-        }
+        $const_convention = "{$classname}::CONF_CONVENTION";
+        static::$_conventions[$classname] = defined($const_convention)?$classname::CONF_CONVENTION:[];
 
         //加载外部配置
         if(null === $conf){
-            //检查调用类中是否定义了此常量，是则获取之作为自己的配置文件名称，否则将自动根据类名称获取配置文件名
-            $confconstant = "{$classname}::CONF_NAME";
-            if(defined($confconstant)){
-                $conf = $classname::CONF_NAME;
-            }else{
-                //未定义该常量时自动更具类名获取
-                $pos = strrpos($classname,'\\');
-                $conf = strtolower(false === $pos?$classname:substr($classname,$pos+1));//调用该方法的类的短名称
-            }
-            $conf = Config::readGlobal($conf);
-        }elseif(is_string($conf)){
-            $conf = Config::readGlobal($conf);
+            //通过类中的常量定义 获取其配置文件名称
+            $outer_config = "{$classname}::CONF_NAME";
+            defined($outer_config) and $conf = $classname::CONF_NAME;//只有在定义了该常量的情况下才获取外部配置,否则只要遵循默认的配置就可以了
         }
+
+        if(is_string($conf)) $conf = Crux::readGlobal($conf);
         is_array($conf) and SEK::merge(static::$_conventions[$classname],$conf);
 
         //默认的追加配置
@@ -90,38 +76,63 @@ trait Crux {
     }
 
     /**
+     * <不存在依赖关系>
+     * 读取全局配置
+     * 设定在 'CONFIG_PATH' 目录下的配置文件的名称
+     * @param string|array $itemname 自定义配置项名称
+     * @param string $conf_path 配置文件的路径
+     * @return array|mixed 配置项存在的情况下返回array，否则返回参数$replacement的值
+     * @throws
+     */
+    public static function readGlobal($itemname, $conf_path=CONFIG_PATH) {
+        $result = [];
+
+        $type = gettype($itemname);
+        switch ($type){
+            case 'array':
+                foreach($itemname as $item){
+                    $temp = self::readGlobal($item);
+                    null !== $temp and SEK::merge($result,$temp);
+                }
+            break;
+            case 'string':
+                $path = $conf_path."{$itemname}.php";
+                if(!is_file($path)) KbylinException::throwing($path,'not found!');
+                $result = include $path;
+                break;
+            default:
+                KbylinException::throwing($itemname,'expect string/array(multiple)');
+        }
+        return $result;
+    }
+
+    /**
      * 检查是否经理初始化
-     * @param bool $doinit 在未初始化的情况下是否继续进行初始化
-     * @param string|array|null $conf 配置文件名称或者配置数组
+     * @param bool $dowhilenot 在未初始化的情况下是否继续进行初始化
      * @return bool
      * @throws KbylinException
      */
-    protected static function checkInitialized($doinit=false,$conf=null){
-        return isset(static::$_conventions[static::class])?
-            true:$doinit?static::initialize($conf):false;
+    protected static function checkInitialized($dowhilenot=false){
+        return isset(static::$_conventions[static::class])?true:$dowhilenot?static::initialize():false;
     }
 
     /**
      * 获取本例示例
      * @param int|string $index
-     * @param mixed $conf 详细说明参考
      * @return mixed
      * @throws KbylinException
      */
-    public static function getDriverInstance($index=null,$conf=null){
-        //检查初始化情况
-        isset(static::$_conventions[static::class]) or static::initialize($conf);
+    public static function getDriverInstance($index=null){
+        static::checkInitialized(true);
 
-        //实例不存在时候创建
+        //本类的实例列表为空时创建
         isset(self::$classes[static::class]) or self::$classes[static::class] = [];
 
-        $thisinstances = &static::$classes[static::class];
+        $thisinstances = static::$classes[static::class];
 
         if(!isset($thisinstances[$index])){
             $info = self::getDriverInfo($index);
-
-            $driverclass = $info[0];
-            $thisinstances[$index] = new $driverclass($info[1]);
+            $thisinstances[$index] = new $info[0]($info[1]);
         }
 
         return $thisinstances[$index];
@@ -133,18 +144,19 @@ trait Crux {
      * @return array
      * @throws KbylinException
      */
-    public static function getDriverInfo($index=null) {
+    protected static function getDriverInfo($index=null) {
         $thisconvention = static::getConventions();
+
         null === $index and $index = $thisconvention['DRIVER_DEFAULT_INDEX'];
 
-        if(!isset($thisconvention['DRIVER_CLASS_LIST'][$index])) {
-            throw new DriverNotFoundException(['Index'=>$index,'config'=>$thisconvention['DRIVER_CLASS_LIST']]);
-        }
+        isset($thisconvention['DRIVER_CLASS_LIST'][$index]) or KbylinException::throwing($thisconvention['DRIVER_CLASS_LIST'],'do not have',$index);
 
         if(isset($thisconvention['DRIVER_CONFIG_LIST'][$index])){
             $driverconfig = $thisconvention['DRIVER_CONFIG_LIST'][$index];
         }else{
-            $first = reset($thisconvention['DRIVER_CONFIG_LIST']);//参阅reset返回值
+            //不存在时返回第一个配置
+            //reset:mixed the value of the first array element, or false if the array is empty.
+            $first = reset($thisconvention['DRIVER_CONFIG_LIST']);
             $driverconfig = false === $first?null:$first;
         }
 

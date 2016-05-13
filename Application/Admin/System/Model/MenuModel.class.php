@@ -38,6 +38,61 @@ class MenuModel extends Model{
     }
 
     /**
+     * @param array $topset
+     * @param bool $flag 标记第一次进入的标记
+     * @return bool
+     */
+    public function setTopMenuSet(array $topset, $flag=true){
+        if($topset){
+
+            $flag and $this->getDao()->beginTransaction();
+
+            foreach ($topset as $object){
+                if(empty($object['id']) or empty($object['title'])){
+                    return $this->setError('Id/Title should not be empty!');
+                }
+
+                $where = 'id = '.intval($object['id']);
+
+                $count = $this->where($where)->count();
+                if($count > 0){
+                    $fields = [
+                        'title' => $object['title'];
+                    ];
+                    isset($object['icon']) and $fields['icon'] = $object['icon'];
+                    $result = $this->where($where)->fields($fields)->update();
+                }else{
+
+                }
+                
+                $sql = " ";
+                $input = [
+                    ':id'   => $object['id'],
+                    ':title'   => $object['title'],
+                ];
+                $result = $this->getDao()->exec($sql,$input);
+                if(false === $result){
+                    $this->getDao()->rollBack();
+                    return false;
+                }
+
+                //递归执行
+                if(!empty($object['children'])){
+                    $result = $this->setTopMenuSet($object['children'],false);
+                    if(false === $result){
+                        $this->getDao()->rollBack();
+                        return false;
+                    }
+                }
+            }
+            $flag and $this->getDao()->commit();
+        }
+        return true;
+    }
+
+
+
+    /**
      * 写入修改后的顶级菜单设置
      * @param string $config 写入序列化的配置
      * @return bool

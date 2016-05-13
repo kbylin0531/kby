@@ -40,7 +40,6 @@
             Dazzling.utils.adjustMinHeight(".nestable_container");
         }).trigger('resize');
 
-
         var top_nestable ;
 
 
@@ -48,26 +47,32 @@
             Dazzling.post(public_url + 'listTopMenu', {}, function (data) {
                 top_nestable = Dazzling.nestable.create(data,0,'#top_nestable_attach');
             });
-            return this;
         };
+        loadModule();
 
         var addTopForm = Dazzling.modal.create("#addTopForm", {
             'title': '添加顶部菜单项目',
             'confirmText': '添加',
-            'cancelText': '取消',
+            'cancelText': '关闭窗口',
             //确认和取消的回调函数
             'confirm': function () {
                 var obj = Kbylin.parseStr(Dazzling.form.serialize("#form_menu"));
                 obj.id = ++ maxMenuId;
                 top_nestable.createItem(obj,top_nestable);
             },
-            'cancel': null
+            'cancel': function () {
+                Dazzling.modal.hide(addTopForm);
+            }
         });
+
+
         $("#addTop").click(function () {
             Dazzling.modal.show(addTopForm);
         });
         $("#saveTop").click(function () {
-            console.log(top_nestable.serialize());//获取序列化
+            var value = top_nestable.serialize(true);
+            console.log(value);//获取序列化
+            Dazzling.post(public_url+'saveTopMenu',{ topset:value});
         });
 
         $("#addSide").click(function () {
@@ -77,7 +82,6 @@
         $("#saveSide").click(function () {
         });
 
-        loadModule();
 
     });
 </script>

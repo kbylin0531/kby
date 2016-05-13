@@ -6,14 +6,13 @@
  * Time: 16:23
  */
 namespace System\Core;
-use PDO;
 use System\Core\Dao\DaoAbstract;
 use System\Core\Dao\MySQL;
 use System\Core\Dao\OCI;
 use System\Core\Dao\SQLServer;
 use System\Traits\Crux;
 use PDOStatement;
-use System\Utils\SEK;
+use PDO;
 
 /**
  * Class Dao 数据入口对象(Data Access Object)
@@ -27,9 +26,7 @@ use System\Utils\SEK;
  */
 class Dao {
     use Crux;
-
     const CONF_NAME = 'dao';
-
     const CONF_CONVENTION = [
         'AUTO_ESCAPE_ON'    => true,
         'DRIVER_DEFAULT_INDEX' => 0,
@@ -85,13 +82,6 @@ class Dao {
     ];
 
     /**
-     * 自身实例
-     * @var Dao[]
-     */
-    private static $_instances = null;
-
-
-    /**
      * 连接符号
      */
     CONST CONNECT_AND = ' AND ';
@@ -101,21 +91,21 @@ class Dao {
     /**
      * 运算符
      */
-    CONST OPERATOR_EQUAL = '=';
-    CONST OPERATOR_NOTEQUAL = '!=';
-    CONST OPERATOR_LIKE = 'LIKE';
-    CONST OPERATOR_NOTLIKE = 'NOT LIKE';
-    CONST OPERATOR_IN = 'IN';
-    CONST OPERATOR_NOTIN = 'NOT IN';
-
+    CONST OPERATOR_EQUAL = ' = ';
+    CONST OPERATOR_NOTEQUAL = ' != ';
+    CONST OPERATOR_LIKE = ' LIKE ';
+    CONST OPERATOR_NOTLIKE = ' NOT LIKE ';
+    CONST OPERATOR_IN = ' IN ';
+    CONST OPERATOR_NOTIN = ' NOT IN ';
 
     /**
+     * 每一个Dao的驱动实现
      * @var DaoAbstract
      */
     private $driver = null;
 
     /**
-     * 指向当前的PDOStatement对象
+     * 当前操作的PDOStatement对象
      * @var PDOStatement
      */
     private $curStatement = null;
@@ -127,37 +117,45 @@ class Dao {
 
     /**
      * 获取Dao实例
-     * @param int|string|array $index int或者
-     * @param array|null $config 自定义配置
+     * @param int|string|array $driver_index 驱动器角标
      * @return Dao
      */
-    public static function getInstance($index=null,array $config = null){
-        if(null !== $config){
-            //自己设定的数据库访问
-            $key = md5(serialize($config));
-            if(!isset(self::$_instances[$key])){
-                self::$_instances[$key] = new Dao($index,$config);
-            }
-            return self::$_instances[$key];
-        }elseif(!isset(self::$_instances[$index])){
-            self::$_instances[$index] = new Dao($index);
+    public static function getInstance($driver_index=null){
+        static $_daoInstances = [];//Dao[]
+        if(!isset($_daoInstances[$driver_index])){
+            $_daoInstances[$driver_index] = new Dao($driver_index);
         }
-        return self::$_instances[$index];
+        return $_daoInstances[$driver_index];
+    }
+
+
+    /**
+     * 获取PDO对象中的错误信息
+     * @param PDO $pdo PDO对象或者继承类的实例
+     * @return null|string null表示未发生错误,string表示序列化的错误信息
+     */
+    public static function fetchPDOError(PDO $pdo){
+        $pdoError = $pdo->errorInfo();
+        return null !== $pdoError[0]? "PDO Error:{$pdoError[0]} >>> [{$pdoError[1]}]:[{$pdoError[2]}]":null;// PDO错误未被设置或者错误未发生,0位的值为null
+    }
+
+    /**
+     * 获取PDOStatemnent对象上查询时发生的错误
+     * 错误代号参照ANSI CODE ps: https://docs.oracle.com/cd/F49540_01/DOC/server.815/a58231/appd.htm
+     * @param PDOStatement|null $statement 发生了错误的PDOStatement对象
+     * @return string|null 错误未发生时返回null
+     */
+    public static function fetchStatementError(PDOStatement $statement){
+        $stmtError = $statement->errorInfo();
+        return 0 !== intval($stmtError[0])?"Error Code:[{$stmtError[0]}]::[{$stmtError[1]}]:[{$stmtError[2]}]":null;//代号为0时表示错误未发生
     }
 
     /**
      * Dao constructor.
-     * @param int|string $index 驱动器角标
-     * @param array|null $config 自定义配置，可以作为自定义配置或者是对固定值的修正
+     * @param int|string|array $index 驱动器角标,数组形式则为配置
      */
-    private function __construct($index=null,array $config = null){
-        if(is_array($config)){
-            $info = self::getDriverInfo($index);
-            $drivername = $info[0];
-            $this->driver = new $drivername($config);
-        }else{
-            $this->driver = self::getDriverInstance($index);
-        }
+    private function __construct($index=null){
+        $this->driver = self::getDriverInstance($index);
     }
 
     /**
@@ -383,9 +381,10 @@ class Dao {
      * @return bool 返回true表示发生了错误并成功设置错误信息，返回false表示模块未捕捉到错误
      */
     private function setPdoError($errorInfo=null){
-        null === $errorInfo and $errorInfo = SEK::fetchPDOError($this->driver);
-        return ($this->error = $errorInfo)===null?false:true;
+        null === $errorInfo and $errorInfo = Dao::fetchPDOError($this->driver);
     }
+
+
 
     /**
      * 设置PDOStatement上设置的错误
@@ -393,7 +392,7 @@ class Dao {
      * @return bool
      */
     public function setPdoStatementError($errorString=null){
-        null === $errorString and $errorString = SEK::fetchStatementError($this->curStatement);
+        null === $errorString and $errorString = Dao::fetchStatementError($this->curStatement);
         return ($this->error = $errorString)===null?false:true;
     }
 
@@ -534,25 +533,27 @@ class Dao {
     /**
      * 更新数据表
      * @param string $tablename
-     * @param string|array $flds
-     * @param string|array $whr
-     * @param bool $toexec
+     * @param string|array $fields
+     * @param string|array $where
      * @return bool
      * @throws KbylinException
      */
-    public function update($tablename,$flds,$whr,$toexec=true){
-        $inputs = [];
-//        dumpout($flds,$whr);
-        $fields = is_string($flds)?[$flds]:$this->translateSegments($flds,self::CONNECT_COMMA);
-        $where  = is_string($whr) ?[$whr] :$this->translateSegments($whr, self::CONNECT_AND);
+    public function update($tablename, $fields, $where){
+        $input_parameters = [];
+        if(is_array($fields)){
+            $fields = $this->translateSegments($fields,Dao::CONNECT_COMMA);
+
+        }
+        $fields = is_string($fields)?[$fields]:$this->translateSegments($fields,self::CONNECT_COMMA);
+        $where  = is_string($where) ?[$where] :$this->translateSegments($where, self::CONNECT_AND);
 
 //        dumpout($fields,$where);
-        empty($fields[1]) or $inputs = $fields[1];
-        empty($where[1]) or $inputs = array_merge($inputs,$where[1]);
+        empty($fields[1]) or $input_parameters = $fields[1];
+        empty($where[1]) or $input_parameters = array_merge($input_parameters,$where[1]);
         $sql = "UPDATE {$tablename} SET {$fields[0]} WHERE {$where[0]};";
 
 //        dumpout($sql,$inputs);
-        return $toexec?$this->prepare($sql)->execute($inputs):[$sql,$inputs];
+        return $this->prepare($sql)->execute($input_parameters);
     }
 
     /**
@@ -579,11 +580,10 @@ class Dao {
     /**
      * 查询表的数据
      * @param array|null|string $options 如果是字符串是代表查询这张表中的所有数据并直接返回
-     * @param bool $toexec 是否直接执行
      * @return array|bool
      * @throws KbylinException
      */
-    public function select($options=null,$toexec=true){
+    public function select($options=null){
         if(is_string($options)){
             $sql  = "SELECT * FROM {$options}";
             return $this->query($sql,null);
@@ -660,8 +660,6 @@ class Dao {
             $sql .= "ORDER BY {$components['order']} ";
         }
 
-        if(!$toexec) return [$sql,$inputs];
-
         if(false === $this->prepare($sql)->execute($inputs) ){
             return false;
         }
@@ -689,25 +687,21 @@ class Dao {
      * @return array
      * @throws KbylinException
      */
-    private function translateField($fieldName, $fieldValue, $operator=self::OPERATOR_EQUAL, $escape=false){
-        $fieldName = trim($fieldName,' :[]');
-        $bindFieldName = null;
+    private function translateField($fieldName, $fieldValue, $operator=Dao::OPERATOR_EQUAL, $escape=false){
+        $bindname = null;
         if(false !== strpos($fieldName,'.')){
             //字段被制定了表的情况下
             $arr = explode('.',$fieldName);
-            $bindFieldName = ':'.array_pop($arr);
+            $bindname = ':'.array_pop($arr);
         }elseif(mb_strlen($fieldName,'utf-8') < strlen($fieldName)){//其他编码
             //中文字段的清空下取md5值作为占位符
-            $bindFieldName = ':'.md5($fieldName);
+            $bindname = ':'.md5($fieldName);
         }else{
-            $bindFieldName = ":{$fieldName}";
+            $bindname = ":{$fieldName}";
         }
 
-        $operator = strtolower($operator);
-
-//        $sql = $this->escape($fieldName);//
         $sql = (self::$_conventions[self::class]['AUTO_ESCAPE_ON'] or $escape)? $this->escape($fieldName):" {$fieldName} ";
-        $bind = array();
+        $input_parameter = [];
 
 
         switch($operator){
@@ -715,23 +709,19 @@ class Dao {
             case self::OPERATOR_NOTEQUAL:
             case self::OPERATOR_LIKE:
             case self::OPERATOR_NOTLIKE:
-                $sql .= " {$operator} {$bindFieldName} ";
-                $bind[$bindFieldName] = $fieldValue;
+                $sql .= " {$operator} {$bindname} ";
+                $input_parameter[$bindname] = $fieldValue;
                 break;
             case self::OPERATOR_IN:
             case self::OPERATOR_NOTIN:
-                if(is_string($fieldValue)){
-                    $sql .= " {$operator} ({$fieldValue}) ";
-                }elseif(is_array($fieldValue)){
-                    $sql .= " {$operator} ('".implode("','",$fieldValue)."')";
-                }else{
-                    throw new KbylinException("The parameter 1 '{$fieldValue}' is invalid!");
-                }
+                if(is_array($fieldValue)) $fieldValue = "'".implode("','",$fieldValue)."'";
+                is_string($fieldValue) or KbylinException::throwing($fieldValue);
+                $sql .= " {$operator} ({$fieldValue}) ";
                 break;
             default:
-                throw new KbylinException("The parameter 2 '{$operator}' is invalid!");
+                KbylinException::throwing($operator);
         }
-        return [$sql,$bind];
+        return [$sql,$input_parameter];
     }
 
     /**
@@ -756,35 +746,36 @@ class Dao {
      * @return array
      * @throws KbylinException
      */
-    private function translateSegments($segments, $connect=self::CONNECT_AND){
-        if(empty($segments)){
-            throw new KbylinException(empty($segments),$segments,'Segment should not be empty!');
-        }
+    private function translateSegments($segments, $connect=Dao::CONNECT_AND){
+        $segments or KbylinException::throwing($segments,$connect);
 
         $sql = '';
         $bind = [];
 
         //元素连接
-        foreach($segments as $key=> $val){
-            if(is_numeric($key)){
+        foreach($segments as $field=> $segment){
+            if(is_numeric($field)){
                 //第二中情况,符合形式组成
-                $result = $this->translateSegments($val[0],$val[1]);
+                $result = $this->translateSegments($segment[0],$segment[1]);
                 $sql .= " {$result[0]} {$connect}";
                 $bind = array_merge($bind, $result[1]);
-            }elseif(is_array($val) and strpos($val[0],':') === 0){
+            }
+            elseif(is_array($segment) and strpos($segment[0],':') === 0){
                 //第三种情况,过于复杂而选择由用户自定义
-                $sql .= " {$key} {$connect}";
-                $bind[$val[0]] = $val[1];
-            }else{
+                $sql .= " {$field} {$connect}";
+                $bind[$segment[0]] = $segment[1];
+            }
+            else{
                 //第一种情况
                 $escape = false;
-                $operator = self::OPERATOR_EQUAL;
-                if(is_array($val)){
-                    $escape = isset($val[2])?$val[2]:false;
-                    $operator = isset($val[1])?$val[1]:self::OPERATOR_EQUAL;
-                    $val = $val[0];
+                $operator = Dao::OPERATOR_EQUAL;
+
+                if(is_array($segment)){
+                    $escape = isset($segment[2])?$segment[2]:false;
+                    $operator = isset($segment[1])?$segment[1]:Dao::OPERATOR_EQUAL;
+                    $segment = $segment[0];
                 }
-                $rst = $this->translateField($key,trim($val),$operator,$escape);//第一种情况一定是'='的情况
+                $rst = $this->translateField($field,trim($segment),$operator,$escape);//第一种情况一定是'='的情况
                 if(is_array($rst)){
                     $sql .= " {$rst[0]} {$connect}";
                     $bind = array_merge($bind, $rst[1]);
@@ -793,8 +784,9 @@ class Dao {
         }
 
         return [
-            substr($sql,0,strlen($sql)-strlen($connect)),//去除最后一个and
+            substr($sql,0,strlen($sql)-strlen($connect)),
             $bind,
         ];
     }
+
 }
