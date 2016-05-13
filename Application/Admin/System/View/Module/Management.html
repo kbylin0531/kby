@@ -81,7 +81,6 @@
             'confirm':function () {
                 var obj = Kbylin.parseStr(Dazzling.form.serialize("#form_module"));
                 Dazzling.post(ctler_uri+'updateModule',obj,function (data) {
-//                    console.log(data);
                     if(data['_type'] > 0){
                         //更新对象
                         tableManager.update(obj);
@@ -114,36 +113,33 @@
 {/block}
 {block name='stage_content'}
 <div id="editModule" >
-    <form class="form-horizontal" id="form_module">
-        <div class="form-body">
-            <div class="form-group">
-                <label class="control-label col-md-2">名称</label>
-                <div class="col-md-4">
-                    <input class="form-control input-sm" name="title" type="text" />
-                    <span class="help-block"> </span>
-                </div>
+    <form class="form-horizontal" id="form_module" role="form" >
+        <div class="form-group">
+            <label class="col-sm-2 control-label">名称</label>
+            <div class="col-sm-6">
+                <input type="text" class="form-control input-sm" name="title" placeholder="请输入模块名称">
             </div>
-            <div class="form-group">
-                <label class="control-label col-md-2">启用状态</label>
-                <div class="col-md-3">
-                    <select class="input-sm" name="status">
-                        <option value="1">启用</option>
-                        <option value="0">禁用</option>
-                    </select>
-                    <span class="help-block">  </span>
-                </div>
-                <label class="control-label col-md-2">排序</label>
-                <div class="col-md-3">
-                    <input class="form-control input-sm" name="order"  type="text" />
-                    <span class="help-block">  </span>
-                </div>
+        </div>
+        <div class="form-group">
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">描述</label>
+            <div class="col-md-10">
+                <input type="text" class="form-control input-sm" name="description" placeholder="描述模块的信息">
             </div>
-            <div class="form-group">
-                <label class="control-label col-md-2">描述</label>
-                <div class="col-md-10">
-                    <input class="form-control input-sm" name="description" type="text" />
-                    <span class="help-block">  </span>
-                </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">排序</label>
+            <div class="col-sm-4">
+                <input type="text" value="0" class="form-control input-sm" name="order" placeholder="">
+                <span class="help-block">大的序号可以保持模块在列表中处于靠前 </span>
+            </div>
+            <label class="col-sm-2 control-label">启用状态</label>
+            <div class="checkbox col-md-4">
+                <label>
+                    <input type="radio" value="1" name="status"> 启用
+                    <input type="radio" value="0" name="status"> 禁用
+                </label>
             </div>
         </div>
     </form>

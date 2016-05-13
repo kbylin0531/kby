@@ -182,6 +182,7 @@ class Dao {
             //直接使用PDO的查询功能
             try{
                 $statement = $this->driver->query($sql);//返回PDOstatement,失败时返回false(或者抛出异常)，视错误的处理方式而定
+
                 if(false !== $statement){
                     //query成功时返回PDOStatement对象
                     return $statement->fetchAll();//成功返回
@@ -196,6 +197,7 @@ class Dao {
                 //简介调用PDOStatement的查询功能
                 $statement = $this->driver->prepare($sql);
                 if(false !== $statement and false !== $statement->execute($inputs)){
+                    dumpout($statement->fetch());
                     return $statement->fetchAll();
                 }
             }catch(\PDOException $e){

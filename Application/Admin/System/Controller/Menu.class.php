@@ -19,7 +19,7 @@ class Menu extends AdminController {
     /**
      * 顶级菜单(顶部的菜单项)和次级菜单(侧边栏菜单)管理
      */
-    public function PageMenuManagement(){
+    public function PageManagement(){
         $this->displayManagement();
     }
 
@@ -35,6 +35,21 @@ class Menu extends AdminController {
             Response::ajaxBack($config,Response::AJAX_STRING);//直接返回文本
         }
     }
+
+    /**
+     * @param $title
+     * @param null $icon
+     */
+    public function createMenuItem($title,$icon=null){
+        $menuModel = new MenuModel();
+        $result = $menuModel->createMenuItem($title,$icon);
+        if(false === $result){
+            Response::failed('添加菜单项目失败!'.$menuModel->getError());
+        }else{
+            Response::ajaxBack(['id'=>$result]);
+        }
+    }
+
 
     /**
      * 获取次级菜单列表

@@ -59,6 +59,33 @@ class MenuModel extends Model{
     }
 
     /**
+     * @param $title
+     * @param $icon
+     * @return bool
+     * @throws \System\Core\KbylinException
+     */
+    public function createMenuItem($title,$icon=null){
+        if($icon){
+            $sql = 'INSERT INTO [kl_config_menu] ([title], [value], [order], [icon]) VALUES (\'sdsdsds\', \'[]\', 0, :icon);SELECT @@identity as [id]';
+            $input = [
+                ':title'    => $title,
+                'icon'      => $icon,
+            ];
+        }else{
+            $sql = 'INSERT INTO [kl_config_menu] ([title], [value], [order]) VALUES (\'sdsdsds\', \'[]\', 0);SELECT @@identity as [id]';
+            $input = [
+                ':title'    => $title,
+            ];
+        }
+
+        $result = $this->getDao()->query($sql);
+        if(false !== $result and isset($result[0]['id'])){
+            return $result[0]['id'];
+        }
+        return false;
+    }
+
+    /**
      * @param int $id 次级菜单ID
      * @param string $config 次级菜单配置
      */

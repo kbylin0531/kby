@@ -286,11 +286,6 @@ TODO
 @media (max-width:480px){.page-sidebar,.page-sidebar.in{margin:0 10px 10px 10px!important}
     .page-header-fixed.page-header-fixed-mobile .page-sidebar,.page-header-fixed.page-header-fixed-mobile .page-sidebar.in{margin-top:10px!important}
 }
-.page-title{padding:0;font-size:28px;letter-spacing:-1px;display:block;color:#666;margin:0 0 15px 0;font-weight:300}
-.page-title small{font-size:14px;letter-spacing:0;font-weight:300;color:#888}
-.page-container-bg-solid .page-title,.page-content-white .page-title{color:#666;margin-bottom:20px;margin-top:20px}
-.page-container-bg-solid .page-title small,.page-content-white .page-title small{color:#666}
-.page-content-white .page-title{margin:25px 0;font-size:24px}
 .page-bar{padding:0;background-color:#f1f4f7;margin-bottom:25px;-webkit-border-radius:4px;-moz-border-radius:4px;-ms-border-radius:4px;-o-border-radius:4px;border-radius:4px}
 .page-bar:after,.page-bar:before{content:" ";display:table}
 .page-bar:after{clear:both}

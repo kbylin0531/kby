@@ -73,8 +73,7 @@ class Dispatcher{
             if($thisconvention['EMPTY_ACTION'] and method_exists($classInstance,$thisconvention['EMPTY_ACTION'])){
                 $action = $thisconvention['EMPTY_ACTION'];
             }else{
-                dumpout($action);  
-                throw new ActionNotFoundException($action);
+                KbylinException::throwing($className,$action,'The method do not exits!');
             }
         }
 
@@ -91,7 +90,7 @@ class Dispatcher{
                 self::$_result = $targetMethod->invoke($classInstance);
             }
         } else {
-            throw new KbylinException($className, $action);
+            KbylinException::throwing($className, $action);
         }
 
         \Kbylin::recordStatus('execute_end');
@@ -133,7 +132,7 @@ class Dispatcher{
             }elseif($param->isDefaultValueAvailable()){
                 $args[] =   $param->getDefaultValue();
             }else{
-                throw new KbylinException("The action miss the param '{$paramName}'!");
+                KbylinException::throwing("The action miss the param '{$paramName}'!");
             }
         }
 

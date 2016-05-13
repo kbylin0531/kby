@@ -59,8 +59,15 @@ function dump(){// ob_end_clean();//取消注释时打印会清空之前的输�
 }
 
 function dumpout(){
-//    echo "<pre>";var_dump(func_get_args());exit();
-    call_user_func_array('dump',func_get_args());
+    $params = func_get_args();
+    $color='#';$str='9ABCDEF';//随机浅色背景
+    for($i=0;$i<6;$i++) $color=$color.$str[rand(0,strlen($str)-1)];
+    $traces = debug_backtrace();//0表示dump本身//如果是dumpout的内部调用,则1和2表现为call_user_func_array和dumpout,此时需要获取的是3开始的位置
+//    array_shift($traces);
+//    echo "<pre>";var_dump($params,$traces );exit();
+    echo "<pre style='background: {$color};width: 100%;'><h3 style='color: midnightblue'><b>File:</b>{$traces[0]['file']} << <b>Line:</b>{$traces[0]['line']} >> </h3>";
+    foreach ($params as $key=>$val) echo '<b>Param '.$key.':</b><br />'.var_export($val, true).'<br />';
+    echo '</pre>';
     exit();
 }
 
@@ -273,7 +280,7 @@ final class Kbylin {
 //            Router::create($result[0],$result[1]),            '/cms/index.php/Admin/User'
 //            Router::create($result[0],$result[1],$result[2])  '/cms/index.php/Admin/User/index3'
 //            );
-        define('__APP__',Router::create());
+        define('__APPLICATION__',Router::create());
         define('__MODULE__',Router::create($result[0]));
         define('__CONTROLLER__',Router::create($result[0],$result[1]));
         define('__ACTION__',Router::create($result[0],$result[1],$result[2]));

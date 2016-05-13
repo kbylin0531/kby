@@ -1,0 +1,14 @@
+.row{ margin-left:-20px}
+.row:after,.row:before{ display:table;content:"";line-height:0}
+.row:after{ clear:both}
+[class*=span]{ float:left;min-height:1px;margin-left:20px}
+.span12{ width:940px}
+.span3{ width:220px}
+.container{ margin-right:auto;margin-left:auto}
+.container:after,.container:before{ display:table;content:"";line-height:0}
+.container:after{ clear:both}
+.the-icons{ list-style-type:none;margin:0}
+.the-icons li{ cursor:pointer;line-height:32px;height:32px;padding-left:12px;-webkit-border-radius:6px;-moz-border-radius:6px;border-radius:6px}
+.the-icons li [class*=" icon-"],.the-icons li [class^=icon-]{ width:32px;font-size:14px}
+.the-icons li:hover{ background-color:#fbf4f4}
+.the-icons li:hover [class*=" icon-"]:before,.the-icons li:hover [class^=icon-]:before{ font-size:28px;vertical-align:-5px}

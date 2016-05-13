@@ -28,8 +28,15 @@ var Kbylin = (function (public_url) {
     var configuration = {
         //公共资源目录
         'public_url':''
-
     };
+
+
+    Array.prototype.kleach = function (fn) {
+        for (var i = 0, len = this.length; i < len;) {
+            fn.call(this[i++], arguments);
+        }
+    };
+
     /**
      * PHP中的parse_url 的javascript实现
      * @param str
@@ -245,6 +252,57 @@ var Kbylin = (function (public_url) {
         'str2Obj':str2Obj,
         //格式化日期
         'date':formatDate,
-        'parseStr':parseStr
+        'parseStr':parseStr,
+        isEqual:function (s,d,type) {
+            switch (type){
+                case 0:
+                case undefined:
+                    return parseInt(s) === parseInt(d);
+                    break;
+                default:throw "Type must be declared except numric!"
+            }
+        }
+        // loading:{
+        //     instance:null,
+        //     //元素点
+        //     element:{
+        //         style : {
+        //             position: "absolute",
+        //             width: "10px",
+        //             height: "10px",
+        //             background: "#fff",
+        //             "border-radius": "50%"
+        //         }
+        //     },
+        //     getInstance:function (config) {
+        //         if(instance) return instance;
+        //         var convention = {
+        //
+        //         };
+        //         for(var x in config){
+        //             if(!config.hasOwnProperty(x) || !convention.hasOwnProperty(x)) continue
+        //         }
+        //         document.createElement('div');
+        //         var viewport = this.getViewPort();
+        //         div.style.width = viewport['width'];
+        //         div.style.height = viewport['height'];
+        //         div.style.backgroundColor = 'green';
+        //
+        //
+        //     },
+        //     timer:null,
+        //     show:function () {
+        //         var instance = this.getInstance();
+        //         instance.style.display = '';
+        //
+        //         if (this.timer) {
+        //             clearTimeout(this.timer);
+        //         }
+        //
+        //     },
+        //     hide:function () {
+        //
+        //     }
+        // }
     };
 })();
