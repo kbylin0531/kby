@@ -25,13 +25,10 @@ class AdminController extends Controller{
      */
     protected function displayManagement($template = null, $cache_id = null, $compile_id = null, $parent = null){
         //加载模块和菜单
-//        dumpout(json_encode($this->getCDN()));
         $this->assign('infos',json_encode([
             'cdn'   => $this->getCDN(),//加载CDN
             'page'  => $this->getPageInfo(),
             'user'  => $this->getUserInfo(),
-//            'modules'  => $this->getModules(),
-//            'actions'  => $this->getActions(),
         ]));
 
         //获取调用自己的函数

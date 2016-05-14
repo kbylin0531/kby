@@ -75,7 +75,10 @@ abstract class DaoAbstract extends PDO {
      * @param string $fieldname 字段名称
      * @return string
      */
-    abstract public function escape($fieldname);
+    public function escape($fieldname){
+        return $this->quote($fieldname);
+    }
+
     /**
      * 根据配置创建DSN
      * @param array $config 数据库连接配置

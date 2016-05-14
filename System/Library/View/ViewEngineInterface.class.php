@@ -15,22 +15,11 @@ use System\Core\Exception\FileNotFoundException;
 interface ViewEngineInterface {
 
     /**
-     * 设置上下文环境
+     * 让模板引擎知道调用的相关上下文环境
      * @param array $context 上下文环境，包括模块、控制器、方法和模板信息可供设置使用
      * @return $this
      */
     public function setContext(array $context);
-
-    /**
-     * 注册一个插件
-     * @param $type
-     * @param $name
-     * @param $callback
-     * @param bool $cacheable
-     * @param null $cache_attr
-     * @return mixed
-     */
-    public function registerPlugin($type, $name, $callback, $cacheable = true, $cache_attr = null);
 
     /**
      * 保存控制器分配的变量

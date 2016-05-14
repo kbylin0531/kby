@@ -6,18 +6,18 @@
  */
 namespace System\Library;
 use System\Core\Exception\FileNotFoundException;
+use System\Core\KbylinException;
 use System\Library\View\SmartyEngine;
 use System\Traits\Crux;
 
 class View {
-
     use Crux;
-
     const CONF_NAME = 'view';
     const CONF_CONVENTION = [
         'DRIVER_DEFAULT_INDEX' => 0,
         'DRIVER_CLASS_LIST' => [
             SmartyEngine::class,
+            KbylinException::class,
         ],
         'DRIVER_CONFIG_LIST' => [
             [
@@ -48,6 +48,12 @@ class View {
     protected static $_context = null;
 
     /**
+     * 驱动实例
+     * @var SmartyEngine
+     */
+    private static $_instance = null;
+
+    /**
      * 保存控制器分配的变量
      * @param string $tpl_var
      * @param null $value
@@ -55,14 +61,7 @@ class View {
      * @return void
      */
     public static function assign($tpl_var,$value=null,$nocache=false){
-        $instance = self::getDriverInstance();
-        if(is_array($tpl_var) and $tpl_var){
-            foreach($tpl_var as $key => $value){
-                $instance->assign($key,$value[0],$value[1]);
-            }
-        }else{
-            $instance->assign($tpl_var,$value,$nocache);
-        }
+        self::getDriverInstance()->assign($tpl_var,$value,$nocache);
     }
 
     /**

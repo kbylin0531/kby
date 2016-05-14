@@ -3,7 +3,10 @@
  * 框架高级执行工具
  * @type object
  */
+
+
 var Dazzling = (function () {
+    "use strict";
 
     // for(var x in config) if(x in convention) convention[x] = config[x];
     if(!jQuery ) return Dazzling.toast.error("Require Jquery!");
@@ -65,21 +68,22 @@ var Dazzling = (function () {
     //布局初始化
     var resBreakpointMd = getResponsiveBreakpoint('md');
 
-
+    //自动调整最小高度
     var adjustMinHeight = function (selector) {
         selector = toJquery(selector);
         var height;
         var headerHeight = page_header.outerHeight();
         var footerHeight = page_footer.outerHeight();
+        var viewport = dazz.context.getViewPort();
 
-        if (Kbylin.getViewPort().width < resBreakpointMd) {
-            height = Kbylin.getViewPort().height - headerHeight - footerHeight;
+        if (viewport.width < resBreakpointMd) {
+            height = viewport.height - headerHeight - footerHeight;
         } else {
             height = page_sidebar.height() + 20;
         }
 
-        if ((height + headerHeight + footerHeight) <= Kbylin.getViewPort().height) {
-            height = Kbylin.getViewPort().height - headerHeight - footerHeight;
+        if ((height + headerHeight + footerHeight) <= viewport.height) {
+            height = viewport.height - headerHeight - footerHeight;
         }
         selector.attr('style', 'min-height:' + height + 'px');
     };
@@ -94,19 +98,20 @@ var Dazzling = (function () {
         // handle sidebar link click
         page_sidebar_menu.on('click', 'li > a.nav-toggle, li > a > span.nav-toggle', function (e) {
             var that = $(this).closest('.nav-item').children('.nav-link');
+            var viewport = dazz.context.getViewPort();
 
-            if (Kbylin.getViewPort().width >= resBreakpointMd && !page_sidebar_menu.attr("data-initialized") && thisbody.hasClass('page-sidebar-closed') &&  that.parent('li').parent('.page-sidebar-menu').size() === 1) {
+            if (viewport.width >= resBreakpointMd && !page_sidebar_menu.attr("data-initialized") && thisbody.hasClass('page-sidebar-closed') &&  that.parent('li').parent('.page-sidebar-menu').size() === 1) {
                 return;
             }
 
             var hasSubMenu = that.next().hasClass('sub-menu');
 
-            if (Kbylin.getViewPort().width >= resBreakpointMd && that.parents('.page-sidebar-menu-hover-submenu').size() === 1) { // exit of hover sidebar menu
+            if (viewport.width >= resBreakpointMd && that.parents('.page-sidebar-menu-hover-submenu').size() === 1) { // exit of hover sidebar menu
                 return;
             }
 
             if (hasSubMenu === false) {
-                if (Kbylin.getViewPort().width < resBreakpointMd && page_sidebar.hasClass("in")) { // close the menu on mobile view while laoding a page
+                if (viewport.width < resBreakpointMd && page_sidebar.hasClass("in")) { // close the menu on mobile view while laoding a page
                     page_header.find('.responsive-toggler').click();
                 }
                 return;
@@ -157,7 +162,8 @@ var Dazzling = (function () {
 
     // Hanles sidebar toggler
     var handleSidebarToggler = function () {
-        if ($.cookie && $.cookie('sidebar_closed') === '1' && Kbylin.getViewPort().width >= resBreakpointMd) {
+
+        if ($.cookie && $.cookie('sidebar_closed') === '1' && dazz.context.getViewPort().width >= resBreakpointMd) {
             thisbody.addClass('page-sidebar-closed');
             page_sidebar_menu.addClass('page-sidebar-menu-closed');
         }
@@ -263,7 +269,7 @@ var Dazzling = (function () {
     //兼容性处理 与 加强
     var handleCompatibility = function () {
         //添加placeholder支持,处理不支持placeholder的浏览器,这里将不支持IE8以下的浏览器,故只有IE9和IE10
-        var browerinfo = Kbylin.getBrowserInfo();
+        var browerinfo = dazz.context.getBrowserInfo();
         var isIE8 = browerinfo.type === 'ie' && 8 === browerinfo.version;
         var isIE9 = browerinfo.type === 'ie' && 9 === browerinfo.version;
         if(isIE8 || isIE9) $('input, textarea').placeholder();
@@ -272,7 +278,7 @@ var Dazzling = (function () {
     var initApplication = function () {
         var resize;
         var currheight;
-        var browerinfo = Kbylin.getBrowserInfo();
+        var browerinfo = dazz.context.getBrowserInfo();
         var isIE8 = browerinfo.type === 'ie' && 8 === browerinfo.version;
         var isIE9 = browerinfo.type === 'ie' && 9 === browerinfo.version;
         var isIE10 = browerinfo.type === 'ie' && 10 === browerinfo.version;
@@ -442,7 +448,6 @@ var Dazzling = (function () {
     };
 
 
-    var lastRequestTime = null;
 
     var convention = {
         //post刷新间隔
@@ -461,6 +466,7 @@ var Dazzling = (function () {
 
     };
 
+    var _lastRequestTime = null;
     /**
      * 习惯性的jquery方法
      * @param url 请求地址
@@ -473,11 +479,11 @@ var Dazzling = (function () {
     var dazzlingPost = function (url, data, callback, datatype, async) {
 
         var currentMilliTime = (new Date()).valueOf();
-        if(!lastRequestTime){
-            lastRequestTime = currentMilliTime;
+        if(!_lastRequestTime){
+            _lastRequestTime = currentMilliTime;
         }else{
-            var gap = currentMilliTime - lastRequestTime;
-            lastRequestTime = currentMilliTime;
+            var gap = currentMilliTime - _lastRequestTime;
+            _lastRequestTime = currentMilliTime;
             if(gap < convention['requestExpireTime']){
                 return Dazzling.toast.warning('请勿频繁刷新!');
             }
@@ -499,7 +505,7 @@ var Dazzling = (function () {
             async: async,
             data: data,
             success:function (data) {
-                var message_type = 1;
+                var message_type;
                 var isMsg =  (data instanceof Object) && data.hasOwnProperty('_type') && data.hasOwnProperty('_message');
                 //通知处理
                 isMsg && (message_type = parseInt(data['_type']));
@@ -520,14 +526,12 @@ var Dazzling = (function () {
     };
 
     /**
-     * ??
      * @param elements
      * @param infos
      * @param ignores
      */
     var autoFillById = function (elements, infos, ignores) {
-        if(!Kbylin.isArray(ignores)) ignores = [ignores];/* 自动转数组 */
-
+        if(!dazz.utils.isArray(ignores)) ignores = [ignores];/* 自动转数组 */
 
         for(var x in elements){
             if(!elements.hasOwnProperty(x)) continue;
@@ -547,7 +551,7 @@ var Dazzling = (function () {
     };
 
     var initUserInfo = function (userinfo,itemsIds) {
-        if(!(userinfo instanceof Object)) userinfo = Kbylin.str2Obj(userinfo);
+        if(!(userinfo instanceof Object)) userinfo = dazz.utils.toObject(userinfo);
         var usermenu = $("#menu");
 
         autoFillById(itemsIds,userinfo,['menu']);
@@ -574,7 +578,7 @@ var Dazzling = (function () {
     };
 
     var initPageInfo = function (pageinfo) {
-        if(!(pageinfo instanceof Object)) pageinfo = Kbylin.str2Obj(pageinfo);
+        if(!(pageinfo instanceof Object)) pageinfo = dazz.utils.toObject(pageinfo);
 
         //设置标题
         pageinfo.hasOwnProperty('title') && $("title").text(pageinfo['title']);
@@ -585,22 +589,7 @@ var Dazzling = (function () {
         initSidebarMenu(pageinfo['sidebar_menu']);
     };
     var setActive = function () {};
-    /**
-     * 随机获取一个GUID
-     * @returns {string}
-     */
-    var guid = function() {
-        var s = [];
-        var hexDigits = "0123456789abcdef";
-        for (var i = 0; i < 36; i++) {
-            s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
-        }
-        s[14] = "4";  // bits 12-15 of the time_hi_and_version field to 0010
-        s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1);  // bits 6-7 of the clock_seq_hi_and_reserved to 01
-        s[8] = s[13] = s[18] = s[23] = "-";
 
-        return s.join("");
-    };
 
     /**
      * target的格式:
@@ -617,7 +606,7 @@ var Dazzling = (function () {
     var createContextmenu = function (selector,target,handler,onItem,before) {
         var instance = toJquery(selector);
 
-        var id = ("cm_"+Dazzling.utils.guid());
+        var id = ("cm_"+dazz.utils.guid());
 
         var contextmenu = $("<div id='"+id+"'></div>");
         var ul = $('<ul class="dropdown-menu" role="">');
@@ -667,7 +656,7 @@ var Dazzling = (function () {
         if(typeof form === 'string') form = $(form);
         if(!(form instanceof jQuery))  return Dazzling.toast.error("Parameter 1 expect to be jquery ");
         var target,key;
-        var mapDefined = Kbylin.isObject(map,'Object');
+        var mapDefined = dazz.utils.isObject(map,'Object');
 
         for (key in data){
             if(!data.hasOwnProperty(key)) continue;
@@ -683,11 +672,9 @@ var Dazzling = (function () {
                     for(var x in target){
                         if(!target.hasOwnProperty(x)) continue;
                         // if(target[x].type === 'input' )
-                        console.log(target[x],target[x].value,target[x].type);//dom
-                        if(('radio' === target[x].type) && Kbylin.isEqual(target[x].value,data[key])){
+                        // console.log(target[x],target[x].value,target[x].type);//dom
+                        if(('radio' === target[x].type) && parseInt(target[x].value) == parseInt(data[key])){
                             target[x].checked = true;
-                        }else{
-                            target[x].checked = false;
                         }
                     }
                 }else{
@@ -701,6 +688,8 @@ var Dazzling = (function () {
     };
 
     var pageTool = {
+        //自动调整组件最小高度
+        adjustMinHeight:adjustMinHeight,
         'page_action_list':null,
         'init':function (selector) {
             if(undefined === selector) selector = '#dazz_page_action';//默认的选择器
@@ -712,33 +701,211 @@ var Dazzling = (function () {
             var li = $("<li></li>");
             var a;
             if(icon){
-                a = $('<a href="javascript:void(0);" id="la_'+Dazzling.utils.guid()+'"><i class="'+icon+'"></i> '+actionName+'</a>');
+                a = $('<a href="javascript:void(0);" id="la_'+dazz.utils.guid()+'"><i class="'+icon+'"></i> '+actionName+'</a>');
             }else{
-                a = $('<a href="javascript:void(0);" id="la_'+Dazzling.utils.guid()+'"> '+actionName+'</a>');
+                a = $('<a href="javascript:void(0);" id="la_'+dazz.utils.guid()+'"> '+actionName+'</a>');
             }
             this.page_action_list.append(li.append(a));
             a.click(callback);
         }
     };
 
-    var breadcrumb = {
-        'createItem':function (title,href) {
-            var li = $(document.createElement("li"));
-            var a = $(document.createElement("a"));
-            href && a.attr('href',href);
-            return li.append(a);
-        },
-        'create':function (list,attatchment) {
-            attatchment = toJquery(attatchment);
-            if(attatchment.length){
-                for(var x in list){
-                    if(!list.hasOwnProperty(x)) continue;
-                    attatchment.append(this.createItem(list[x]['title']));
-                }
+    // var breadcrumb = {
+    //     'createItem':function (title,href) {
+    //         var li = $(document.createElement("li"));
+    //         var a = $(document.createElement("a"));
+    //         href && a.attr('href',href);
+    //         return li.append(a);
+    //     },
+    //     'create':function (list,attatchment) {
+    //         attatchment = toJquery(attatchment);
+    //         if(attatchment.length){
+    //             for(var x in list){
+    //                 if(!list.hasOwnProperty(x)) continue;
+    //                 attatchment.append(this.createItem(list[x]['title']));
+    //             }
+    //         }
+    //     }
+    // };
+
+
+    var BsModal = {
+        //创建一个Modal对象,会将HTML中指定的内容作为自己的一部分拐走
+        'create':function (selector,option) {
+            var config = {
+                'title':null,
+                'confirmText':'提交',
+                'cancelText':'取消',
+                'fade':true,
+
+                //确认和取消的回调函数
+                'confirm':null,
+                'cancel':null,
+
+                'show':null,//即将显示
+                'shown':null,//显示完毕
+                'hide':null,//即将隐藏
+                'hidden':null,//隐藏完毕
+
+                'backdrop':'static',
+                'keyboard':true
+            };
+
+            config = dazz.utils.initOption(config,option);
+
+            var instance = dazz.newInstance(this);
+            var id = 'modal_'+dazz.utils.guid();
+
+            var modal = $('<div class="modal" id="'+id+'" aria-hidden="true" role="dialog"></div>');
+            if(typeof config['backdrop'] !== "string") config['backdrop'] = config['backdrop']?'true':'false';
+            if(config['fade']) modal.addClass('fade');
+            modal.attr('data-backdrop',config['backdrop']);
+            modal.attr('data-keyboard',config['keyboard']?'true':'false');
+            thisbody.append(modal);
+
+            var dialog = $('<div class="modal-dialog"></div>');
+            modal.append(dialog);
+            var content = $('<div class="modal-content"></div>');
+            dialog.append(content);
+
+            //设置title部分
+            if(config['title']){
+                var header = $('<div class="modal-header"></div>');
+                var close = $('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>');
+                header.append(close).append($('<h4 class="modal-title">'+config['title']+'</h4>'));
+                content.append(header);
             }
+
+            //设置体部分
+            var body = $('<div class="modal-body"></div>');
+            body.appendTo(content);
+            body.append(toJquery(selector));
+
+            //设置足部
+            var cancel = $('<button type="button" class="btn btn-default" data-dismiss="modal">'+config['cancelText']+'</button>');
+            var confirm = $('<button type="button" class="btn btn-primary">'+config['confirmText']+'</button>');
+            content.append($('<div class="modal-footer"></div>').append(cancel).append(confirm));
+
+            //确认和取消事件注册
+            confirm.click(function (e) {
+                config['confirm'] && (config['confirm'])(e);
+            });
+            cancel.click(function (e) {
+                config['cancel'] && (config['cancel'])(e);
+            });
+            //事件注册
+
+            var events = ['show','shown','hide','hidden'];
+            for(var i =0; i < events.length; i++){
+                var eventname = events[i];
+                config[eventname] && modal.on(eventname+'.bs.modal', function (eventname) {
+                    (config[eventname])();
+                });
+            }
+
+            instance.target = modal.modal('hide');
+            return instance;
+        },
+        'show':function () {
+            // console.log(this.target)
+            return this.target.modal('show');
+        },
+        'hide':function () {
+            return this.target.modal('hide');
         }
     };
 
+    var Jnestable = {
+        /**
+         * 创建并添加到指定元素下
+         * @param config 配置序列或者配置对象 (必须)
+         * @param group 分组
+         * @param attatchment 创建并添加的对象,如果指定了ID将添加到指定的对象上并返回nestable对象;否则返回创建的jquery对象
+         */
+        create : function (config,group,attatchment) {
+            config = dazz.utils.toObject(config);
+
+            var instance = dazz.newInstance(this);
+
+            var id = 'nestable_'+dazz.utils.guid();
+            var topdiv = $('<div class="dd" id="'+id+'"></div>');
+            this.createItemList(config,topdiv);
+
+            instance.target = topdiv.nestable({group: group?group:id});
+            attatchment && instance.target.prependTo(attatchment);
+            return instance;
+        },
+        load:function (data) {
+            
+
+        },
+        //创建OL节点,children为子元素数组,target为附加的目标(目标缺失时选用自身)
+        createItemList : function (config) {
+            config = dazz.utils.toObject(config);
+            var ol = $('<ol class="dd-list"></ol>');
+            dazz.utils.each(config,function (item) {
+                this.createItem(item,ol);
+            });
+            if(!this.target) return Dazzling.toast.warning('Nestable require a target to attach!');
+
+            //如果已经存在该节点,删除它
+            var targetol = this.target.children('ol');
+            if(targetol.length) targetol.remove();
+
+            this.target.append(ol);
+            return this;
+        },
+        serialize:function (tostring) {
+            var value = this.target.nestable('serialize');
+            if(tostring){
+                if(!JSON) return Dazzling.toast.warning('你的浏览器不支持JSON对象!');
+                value = JSON.stringify(value);
+            }
+            return value;
+        },
+        createItem : function (item) {
+            item = dazz.utils.toObject(item);
+
+            //设置基本的两个属性
+            if(dazz.utils.checkProperty(item,['id','title']) < 1) return Dazzling.toast.warning("The id/title of item should not be empty");
+            var li = $('<li class="dd-item dd3-item" data-id="'+item['id']+'"></li>');
+            li.append($('<div class="dd-handle dd3-handle">'));
+            var content = $('<div class="dd3-content">'+item['title']+'</div>');
+            li.append(content);
+
+            //设置其他附加属性(title id除外)
+            dazz.utils.each(item,function (name) {
+                if(!$.inArray(name,['title','id','children'])) li.attr("data-"+name,item[name]);
+            });
+
+            //如果存在子元素的情况下创建
+            dazz.utils.checkProperty(item,'children') && this.createItemList(item['children'],li);
+
+            if(!this.target) return Dazzling.toast.warning('Nestable require a target to attach!');
+
+            var targetol = target.children('ol');
+            if(!targetol.length){/* 缺少OL的情况下创建一个空的UL */
+                this.createItemList([],this.target);
+                targetol = this.target.children('ol');
+            }
+            targetol.prepend(li);
+            return this;
+        },
+        prependTo :function (attatchment) {
+            attatchment = toJquery(attatchment);
+            attatchment.html('');
+            if(attatchment.length) {
+                attatchment.prepend(this.target);
+            }
+        },
+        appendTo :function (attatchment) {
+            attatchment = toJquery(attatchment);
+            attatchment.html('');
+            if(attatchment.length) {
+                attatchment.appendTo(this.target);
+            }
+        }
+    };
 
     return {
         //初始化应用
@@ -753,39 +920,22 @@ var Dazzling = (function () {
         'setActive':setActive,
         //工具箱
         'utils':{
-            //随机获取一个GUID
-            'guid':guid,
             //投入string类型的jquery选择器或者dom对象或者jquery对象本身,返回实打实的jquery对象
-            'toJquery':toJquery,
-            //自动调整组件最小高度
-            adjustMinHeight:adjustMinHeight,
-            //获取一个单例的操作对象作为上下文环境的深度拷贝
-            newInstance:function (context) {
-                var Yan = function () {return {target:null};};
-                var instance = new Yan();
-                if(context){
-                    for(var x in context){
-                        if(context.hasOwnProperty(x)) {
-                            instance[x] = context[x];
-                        }
-                    }
-                }
-                return instance;
-            }
+            'toJquery':toJquery
         },
         //页面工具
         'page':pageTool,
         //datatable表格工具,一次只能操作一个表格API对象
         //datatable.find("tbody").on('dblclick','tr',function () {});//可以设置为双击编辑
         //改造成return new this;
-        'datatables': {
+        datatables: {
             'tableApi':null,//datatable的API对象
             'dtJquery':null, // datatable的jquery对象
             'current_row':null,//当前操作的行,可能是一群行
             //设置之后的操作所指定的DatatableAPI对象
             'bind':function (dtJquery,options) {
                 dtJquery = Dazzling.utils.toJquery(dtJquery);
-                var newinstance = Dazzling.utils.newInstance(this);
+                var newinstance = dazz.newInstance(this);
                 newinstance.dtJquery = dtJquery;
                 newinstance.tableApi = dtJquery.DataTable(options);
                 return newinstance;/* this 对象同于链式调用 */
@@ -814,7 +964,7 @@ var Dazzling = (function () {
             'update':function (newdata,line){
                 (line === undefined) && (line = this.current_row);
                 if(line){
-                    if(Kbylin.isArray(line)){
+                    if(dazz.utils.isArray(line)){
                         for (var i = 0; i < line.length ; i ++){
                             this.update(newdata,line[i]);
                         }
@@ -826,7 +976,7 @@ var Dazzling = (function () {
             }
         },
         //页面的Toast工具,toast对象直接属于window对象
-        'toast':{
+        toast:{
             'init':function () {
                 toastr.options.closeButton = true;
                 toastr.options.newestOnTop = true;
@@ -852,111 +1002,13 @@ var Dazzling = (function () {
             }
         },
         //上下文菜单工具
-        'contextmenu': {
+        contextmenu: {
             //创建上下文菜单
             'create': createContextmenu
         },
-        'modal':{
-            //创建一个Modal对象,会将HTML中指定的内容作为自己的一部分拐走
-            'create':function (selector,option) {
-                var config = {
-                    'title':null,
-                    'confirmText':'提交',
-                    'cancelText':'取消',
-                    'fade':true,
-
-                    //确认和取消的回调函数
-                    'confirm':null,
-                    'cancel':null,
-
-                    'show':null,//即将显示
-                    'shown':null,//显示完毕
-                    'hide':null,//即将隐藏
-                    'hidden':null,//隐藏完毕
-
-                    'backdrop':'static',
-                    'keyboard':true
-                };
-
-                //初始化
-                for(var x in option){
-                    if(!option.hasOwnProperty(x)) continue;
-                    config[x] = option[x];
-                }
-
-                var id = 'modal_'+Dazzling.utils.guid();
-
-                var modal = $('<div class="modal" id="'+id+'" aria-hidden="true" role="dialog"></div>');
-                if(typeof config['backdrop'] !== "string"){
-                    config['backdrop'] = config['backdrop']?'true':'false';
-                }
-                if(config['fade']) modal.addClass('fade');
-                modal.attr('data-backdrop',config['backdrop']);
-                modal.attr('data-keyboard',config['keyboard']?'true':'false');
-
-                var dialog = $('<div class="modal-dialog"></div>');
-                modal.append(dialog);
-
-                var content = $('<div class="modal-content"></div>');
-                dialog.append(content);
-
-                if(config['title']){
-                    var header = $('<div class="modal-header"></div>');
-                    var close = $('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>');
-                    header.append(close).append($('<h4 class="modal-title">'+config['title']+'</h4>'));
-                    content.append(header);
-                }
-
-                var body = $('<div class="modal-body"></div>');
-                body.appendTo(content);
-                body.append(toJquery(selector));
-
-
-                var footer = $('<div class="modal-footer"></div>');
-                var cancel = $('<button type="button" class="btn btn-default" data-dismiss="modal">'+config['cancelText']+'</button>');
-                var confirm = $('<button type="button" class="btn btn-primary">'+config['confirmText']+'</button>');
-                content.append(footer.append(cancel).append(confirm));
-
-                //确认和取消事件注册
-                confirm.click(function (e) {
-                    if(config['confirm']){
-                        config['confirm'](e);
-                    }
-                });
-                cancel.click(function (e) {
-                    if(config['cancel']){
-                        config['cancel'](e);
-                    }
-                });
-                //事件注册
-
-                thisbody.append(modal);
-
-                var instance = $("#"+id);
-
-                var events = ['show','shown','hide','hidden'];
-                for(var i =0; i < events.length; i++){
-                    var eventname = events[i];
-                    config[eventname] && instance.on(eventname+'.bs.modal', function () {
-                    });
-                }
-
-                return instance.modal('hide');
-            },
-            //检查是否是有效的Remodal对象,简单地判断
-            '_check':function (modal) {
-                if(!(modal instanceof Object)) return Dazzling.toast.error("Require Remodal Object!");
-            },
-            'show':function (modal) {
-                this._check(modal);
-                return modal.modal('show');
-            },
-            'hide':function (modal) {
-                this._check(modal);
-                return modal.modal('hide');
-            }
-        },
-        'form':{
+        //拟态框
+        modal:BsModal,
+        form:{
             //自动填写表单
             'autoFill':autoFillForm,
             //表单中的所有值序列化
@@ -965,101 +1017,10 @@ var Dazzling = (function () {
                 return selector.serialize();
             }
         },
-        'nestable':{
-            //创建OL节点,children为子元素数组,target为附加的目标(目标缺失时选用自身)
-            createItemList : function (itemlist,target) {
-                itemlist = Kbylin.str2Obj(itemlist);
-                var ol = $('<ol class="dd-list"></ol>');
-                for(var index in itemlist){
-                    if(!itemlist.hasOwnProperty(index)) continue;
-                    this.createItem(itemlist[index],ol);
-                }
-                if(!target || !target.length) target = this.target;
-                if(!target) return Dazzling.toast.warning('Nestable require a target to attach!');
-
-                //如果已经存在该节点,删除它
-                var targetol = target.children('ol');
-                if(targetol.length) targetol.remove();
-
-                target.append(ol);
-                return this;
-            },
-            serialize:function (tostring) {
-                var value = this.target.nestable('serialize');
-                if(tostring){
-                    if(!JSON) return Dazzling.toast.warning('你的浏览器无法支持JSON功能!');
-                    value = JSON.stringify(value);
-                }
-                return value;
-            },
-            createItem : function (item,target) {
-                item = Kbylin.str2Obj(item);
-
-                //设置基本的两个属性
-                if(!item.hasOwnProperty('id') || !item.hasOwnProperty('title')) return Dazzling.toast.warning("The id/title of item should not be empty");
-                var li = $('<li class="dd-item dd3-item" data-id="'+item['id']+'"></li>');
-                li.append($('<div class="dd-handle dd3-handle">'));
-                var content = $('<div class="dd3-content">'+item['title']+'</div>');
-                li.append(content);
-
-                //设置其他附加属性(title id除外)
-                for(var x in item){
-                    if(!item.hasOwnProperty(x)) continue;
-                    if(!$.inArray(x,['title','id','children'])) li.attr("data-"+x,item[x]);
-                }
-
-                //如果存在子元素的情况下创建
-                item.hasOwnProperty('children') && this.createItemList(item['children'],li);
-
-                if(!target || !target.length ) target = this.target;
-                if(!target) return Dazzling.toast.warning('Nestable require a target to attach!');
-
-                var targetol = target.children('ol');
-                if(!targetol.length){/* 缺少OL的情况下创建一个空的UL */
-                    this.createItemList([],target);
-                    targetol = target.children('ol');
-                }
-                targetol.prepend(li);
-                return this;
-            },
-            /**
-             * 创建并添加到指定元素下
-             * @param serialization 配置序列或者配置对象 (必须)
-             * @param group 分组
-             * @param attatchment 创建并添加的对象,如果指定了ID将添加到指定的对象上并返回nestable对象;否则返回创建的jquery对象
-             */
-            create : function (serialization,group,attatchment) {
-                serialization = Kbylin.str2Obj(serialization);
-
-                var instance = Dazzling.utils.newInstance(this);
-
-                var id = 'nestable_'+guid();
-                var topdiv = $('<div class="dd" id="'+id+'"></div>');
-                this.createItemList(serialization,topdiv);
-
-                instance.target = topdiv.nestable({group: group?group:id});
-                undefined === attatchment || instance.target.prependTo(attatchment);
-                // console.log(instance);
-                return instance;
-            },
-            prependTo :function (attatchment) {
-                attatchment = toJquery(attatchment);
-                attatchment.html('');
-                if(attatchment.length) {
-                    attatchment.prepend(this.target);
-                }
-            },
-            appendTo :function (attatchment) {
-                attatchment = toJquery(attatchment);
-                attatchment.html('');
-                if(attatchment.length) {
-                    attatchment.appendTo(this.target);
-                }
-            }
-        },
+        nestable: Jnestable,
         tab:{
             _createNav:function (config) {
-                var id = Dazzling.utils.guid();
+                var id = dazz.utils.guid();
                 var nav = $('<ul id="'+id+'" class="nav nav-tabs"></ul>');
                 var isfirst = true;
                 var node,ul;
@@ -1071,7 +1032,7 @@ var Dazzling = (function () {
 
 
                     if(item.hasOwnProperty('children')){/*下拉*/
-                        var guid = Dazzling.utils.guid();
+                        var guid = dazz.utils.guid();
                         var children = item['children'];
                         node = $(document.createElement('li'));
                         node.append($('<a href="javascript:void(0);" id="'+guid+'" class="dropdown-toggle" data-toggle="dropdown">'+item['title']+'<b class="caret"></b></a>'));
@@ -1101,7 +1062,7 @@ var Dazzling = (function () {
                 return $('<li><a href="#'+node['id']+'" data-toggle="tab">'+node['title']+'</a></li>');
             },
             _createContent:function (config) {
-                var content = $('<div id="'+Dazzling.utils.guid()+'" class="tab-content"></div>');
+                var content = $('<div id="'+dazz.utils.guid()+'" class="tab-content"></div>');
                 for(var x = 0; x < config.length; x ++) {
                     if(config[x].hasOwnProperty('children')){/*下拉*/
                         for(var y in config[x]['children']){
@@ -1130,33 +1091,6 @@ var Dazzling = (function () {
                     attachment.append(nav).append(content);
                 }
                 return [nav,content];
-            },
-            createIconPane:function (config) {
-                var sections = {
-                    'icons-web-app':'<div id="icons-web-app" class="row"><div class="span3"><ul class="the-icons"><li><i class="icon-adjust"></i> icon-adjust</li><li><i class="icon-asterisk"></i> icon-asterisk</li><li><i class="icon-ban-circle"></i> icon-ban-circle</li><li><i class="icon-bar-chart"></i> icon-bar-chart</li><li><i class="icon-barcode"></i> icon-barcode</li><li><i class="icon-beaker"></i> icon-beaker</li><li><i class="icon-beer"></i> icon-beer</li><li><i class="icon-bell"></i> icon-bell</li><li><i class="icon-bell-alt"></i> icon-bell-alt</li><li><i class="icon-bolt"></i> icon-bolt</li><li><i class="icon-book"></i> icon-book</li><li><i class="icon-bookmark"></i> icon-bookmark</li><li><i class="icon-bookmark-empty"></i> icon-bookmark-empty</li><li><i class="icon-briefcase"></i> icon-briefcase</li><li><i class="icon-bullhorn"></i> icon-bullhorn</li><li><i class="icon-calendar"></i> icon-calendar</li><li><i class="icon-camera"></i> icon-camera</li><li><i class="icon-camera-retro"></i> icon-camera-retro</li><li><i class="icon-certificate"></i> icon-certificate</li><li><i class="icon-check"></i> icon-check</li><li><i class="icon-check-empty"></i> icon-check-empty</li><li><i class="icon-circle"></i> icon-circle</li><li><i class="icon-circle-blank"></i> icon-circle-blank</li><li><i class="icon-cloud"></i> icon-cloud</li><li><i class="icon-cloud-download"></i> icon-cloud-download</li><li><i class="icon-cloud-upload"></i> icon-cloud-upload</li><li><i class="icon-coffee"></i> icon-coffee</li><li><i class="icon-cog"></i> icon-cog</li><li><i class="icon-cogs"></i> icon-cogs</li><li><i class="icon-comment"></i> icon-comment</li><li><i class="icon-comment-alt"></i> icon-comment-alt</li><li><i class="icon-comments"></i> icon-comments</li><li><i class="icon-comments-alt"></i> icon-comments-alt</li><li><i class="icon-credit-card"></i> icon-credit-card</li><li><i class="icon-dashboard"></i> icon-dashboard</li><li><i class="icon-desktop"></i> icon-desktop</li><li><i class="icon-download"></i> icon-download</li><li><i class="icon-download-alt"></i> icon-download-alt</li></ul></div><div class="span3"><ul class="the-icons"><li><i class="icon-edit"></i> icon-edit</li><li><i class="icon-envelope"></i> icon-envelope</li><li><i class="icon-envelope-alt"></i> icon-envelope-alt</li><li><i class="icon-exchange"></i> icon-exchange</li><li><i class="icon-exclamation-sign"></i> icon-exclamation-sign</li><li><i class="icon-external-link"></i> icon-external-link</li><li><i class="icon-eye-close"></i> icon-eye-close</li><li><i class="icon-eye-open"></i> icon-eye-open</li><li><i class="icon-facetime-video"></i> icon-facetime-video</li><li><i class="icon-fighter-jet"></i> icon-fighter-jet</li><li><i class="icon-film"></i> icon-film</li><li><i class="icon-filter"></i> icon-filter</li><li><i class="icon-fire"></i> icon-fire</li><li><i class="icon-flag"></i> icon-flag</li><li><i class="icon-folder-close"></i> icon-folder-close</li><li><i class="icon-folder-open"></i> icon-folder-open</li><li><i class="icon-folder-close-alt"></i> icon-folder-close-alt</li><li><i class="icon-folder-open-alt"></i> icon-folder-open-alt</li><li><i class="icon-food"></i> icon-food</li><li><i class="icon-gift"></i> icon-gift</li><li><i class="icon-glass"></i> icon-glass</li><li><i class="icon-globe"></i> icon-globe</li><li><i class="icon-group"></i> icon-group</li><li><i class="icon-hdd"></i> icon-hdd</li><li><i class="icon-headphones"></i> icon-headphones</li><li><i class="icon-heart"></i> icon-heart</li><li><i class="icon-heart-empty"></i> icon-heart-empty</li><li><i class="icon-home"></i> icon-home</li><li><i class="icon-inbox"></i> icon-inbox</li><li><i class="icon-info-sign"></i> icon-info-sign</li><li><i class="icon-key"></i> icon-key</li><li><i class="icon-leaf"></i> icon-leaf</li><li><i class="icon-laptop"></i> icon-laptop</li><li><i class="icon-legal"></i> icon-legal</li><li><i class="icon-lemon"></i> icon-lemon</li><li><i class="icon-lightbulb"></i> icon-lightbulb</li><li><i class="icon-lock"></i> icon-lock</li><li><i class="icon-unlock"></i> icon-unlock</li></ul></div><div class="span3"><ul class="the-icons"><li><i class="icon-magic"></i> icon-magic</li><li><i class="icon-magnet"></i> icon-magnet</li><li><i class="icon-map-marker"></i> icon-map-marker</li><li><i class="icon-minus"></i> icon-minus</li><li><i class="icon-minus-sign"></i> icon-minus-sign</li><li><i class="icon-mobile-phone"></i> icon-mobile-phone</li><li><i class="icon-money"></i> icon-money</li><li><i class="icon-move"></i> icon-move</li><li><i class="icon-music"></i> icon-music</li><li><i class="icon-off"></i> icon-off</li><li><i class="icon-ok"></i> icon-ok</li><li><i class="icon-ok-circle"></i> icon-ok-circle</li><li><i class="icon-ok-sign"></i> icon-ok-sign</li><li><i class="icon-pencil"></i> icon-pencil</li><li><i class="icon-picture"></i> icon-picture</li><li><i class="icon-plane"></i> icon-plane</li><li><i class="icon-plus"></i> icon-plus</li><li><i class="icon-plus-sign"></i> icon-plus-sign</li><li><i class="icon-print"></i> icon-print</li><li><i class="icon-pushpin"></i> icon-pushpin</li><li><i class="icon-qrcode"></i> icon-qrcode</li><li><i class="icon-question-sign"></i> icon-question-sign</li><li><i class="icon-quote-left"></i> icon-quote-left</li><li><i class="icon-quote-right"></i> icon-quote-right</li><li><i class="icon-random"></i> icon-random</li><li><i class="icon-refresh"></i> icon-refresh</li><li><i class="icon-remove"></i> icon-remove</li><li><i class="icon-remove-circle"></i> icon-remove-circle</li><li><i class="icon-remove-sign"></i> icon-remove-sign</li><li><i class="icon-reorder"></i> icon-reorder</li><li><i class="icon-reply"></i> icon-reply</li><li><i class="icon-resize-horizontal"></i> icon-resize-horizontal</li><li><i class="icon-resize-vertical"></i> icon-resize-vertical</li><li><i class="icon-retweet"></i> icon-retweet</li><li><i class="icon-road"></i> icon-road</li><li><i class="icon-rss"></i> icon-rss</li><li><i class="icon-screenshot"></i> icon-screenshot</li><li><i class="icon-search"></i> icon-search</li></ul></div><div class="span3"><ul class="the-icons"><li><i class="icon-share"></i> icon-share</li><li><i class="icon-share-alt"></i> icon-share-alt</li><li><i class="icon-shopping-cart"></i> icon-shopping-cart</li><li><i class="icon-signal"></i> icon-signal</li><li><i class="icon-signin"></i> icon-signin</li><li><i class="icon-signout"></i> icon-signout</li><li><i class="icon-sitemap"></i> icon-sitemap</li><li><i class="icon-sort"></i> icon-sort</li><li><i class="icon-sort-down"></i> icon-sort-down</li><li><i class="icon-sort-up"></i> icon-sort-up</li><li><i class="icon-spinner"></i> icon-spinner</li><li><i class="icon-star"></i> icon-star</li><li><i class="icon-star-empty"></i> icon-star-empty</li><li><i class="icon-star-half"></i> icon-star-half</li><li><i class="icon-tablet"></i> icon-tablet</li><li><i class="icon-tag"></i> icon-tag</li><li><i class="icon-tags"></i> icon-tags</li><li><i class="icon-tasks"></i> icon-tasks</li><li><i class="icon-thumbs-down"></i> icon-thumbs-down</li><li><i class="icon-thumbs-up"></i> icon-thumbs-up</li><li><i class="icon-time"></i> icon-time</li><li><i class="icon-tint"></i> icon-tint</li><li><i class="icon-trash"></i> icon-trash</li><li><i class="icon-trophy"></i> icon-trophy</li><li><i class="icon-truck"></i> icon-truck</li><li><i class="icon-umbrella"></i> icon-umbrella</li><li><i class="icon-upload"></i> icon-upload</li><li><i class="icon-upload-alt"></i> icon-upload-alt</li><li><i class="icon-user"></i> icon-user</li><li><i class="icon-user-md"></i> icon-user-md</li><li><i class="icon-volume-off"></i> icon-volume-off</li><li><i class="icon-volume-down"></i> icon-volume-down</li><li><i class="icon-volume-up"></i> icon-volume-up</li><li><i class="icon-warning-sign"></i> icon-warning-sign</li><li><i class="icon-wrench"></i> icon-wrench</li><li><i class="icon-zoom-in"></i> icon-zoom-in</li><li><i class="icon-zoom-out"></i> icon-zoom-out</li></ul></div></div>',
-                    'icons-text-editor':'<section id="icons-text-editor" class="row"><div class="span3"><ul class="the-icons"><li><i class="icon-file"></i> icon-file</li><li><i class="icon-file-alt"></i> icon-file-alt</li><li><i class="icon-cut"></i> icon-cut</li><li><i class="icon-copy"></i> icon-copy</li><li><i class="icon-paste"></i> icon-paste</li><li><i class="icon-save"></i> icon-save</li><li><i class="icon-undo"></i> icon-undo</li><li><i class="icon-repeat"></i> icon-repeat</li></ul></div><div class="span3"><ul class="the-icons"><li><i class="icon-text-height"></i> icon-text-height</li><li><i class="icon-text-width"></i> icon-text-width</li><li><i class="icon-align-left"></i> icon-align-left</li><li><i class="icon-align-center"></i> icon-align-center</li><li><i class="icon-align-right"></i> icon-align-right</li><li><i class="icon-align-justify"></i> icon-align-justify</li><li><i class="icon-indent-left"></i> icon-indent-left</li><li><i class="icon-indent-right"></i> icon-indent-right</li></ul></div><div class="span3"><ul class="the-icons"><li><i class="icon-font"></i> icon-font</li><li><i class="icon-bold"></i> icon-bold</li><li><i class="icon-italic"></i> icon-italic</li><li><i class="icon-strikethrough"></i> icon-strikethrough</li><li><i class="icon-underline"></i> icon-underline</li><li><i class="icon-link"></i> icon-link</li><li><i class="icon-paper-clip"></i> icon-paper-clip</li><li><i class="icon-columns"></i> icon-columns</li></ul></div><div class="span3"><ul class="the-icons"><li><i class="icon-table"></i> icon-table</li><li><i class="icon-th-large"></i> icon-th-large</li><li><i class="icon-th"></i> icon-th</li><li><i class="icon-th-list"></i> icon-th-list</li><li><i class="icon-list"></i> icon-list</li><li><i class="icon-list-ol"></i> icon-list-ol</li><li><i class="icon-list-ul"></i> icon-list-ul</li><li><i class="icon-list-alt"></i> icon-list-alt</li></ul></div></section>',
-                    'icons-directional':'<section id="icons-directional" class="row"><div class="span3"><ul class="the-icons"><li><i class="icon-angle-left"></i> icon-angle-left</li><li><i class="icon-angle-right"></i> icon-angle-right</li><li><i class="icon-angle-up"></i> icon-angle-up</li><li><i class="icon-angle-down"></i> icon-angle-down</li><li><i class="icon-arrow-down"></i> icon-arrow-down</li><li><i class="icon-arrow-left"></i> icon-arrow-left</li><li><i class="icon-arrow-right"></i> icon-arrow-right</li><li><i class="icon-arrow-up"></i> icon-arrow-up</li></ul></div><div class="span3"><ul class="the-icons"><li><i class="icon-caret-down"></i> icon-caret-down</li><li><i class="icon-caret-left"></i> icon-caret-left</li><li><i class="icon-caret-right"></i> icon-caret-right</li><li><i class="icon-caret-up"></i> icon-caret-up</li><li><i class="icon-chevron-down"></i> icon-chevron-down</li><li><i class="icon-chevron-left"></i> icon-chevron-left</li><li><i class="icon-chevron-right"></i> icon-chevron-right</li><li><i class="icon-chevron-up"></i> icon-chevron-up</li></ul></div><div class="span3"><ul class="the-icons"><li><i class="icon-circle-arrow-down"></i> icon-circle-arrow-down</li><li><i class="icon-circle-arrow-left"></i> icon-circle-arrow-left</li><li><i class="icon-circle-arrow-right"></i> icon-circle-arrow-right</li><li><i class="icon-circle-arrow-up"></i> icon-circle-arrow-up</li><li><i class="icon-double-angle-left"></i> icon-double-angle-left</li><li><i class="icon-double-angle-right"></i> icon-double-angle-right</li><li><i class="icon-double-angle-up"></i> icon-double-angle-up</li><li><i class="icon-double-angle-down"></i> icon-double-angle-down</li></ul></div><div class="span3"><ul class="the-icons"><li><i class="icon-hand-down"></i> icon-hand-down</li><li><i class="icon-hand-left"></i> icon-hand-left</li><li><i class="icon-hand-right"></i> icon-hand-right</li><li><i class="icon-hand-up"></i> icon-hand-up</li><li><i class="icon-circle"></i> icon-circle</li><li><i class="icon-circle-blank"></i> icon-circle-blank</li></ul></div></section>',
-                    'icons-video-player':'<section id="icons-video-player" class="row"><div class="span3"><ul class="the-icons"><li><i class="icon-play-circle"></i> icon-play-circle</li><li><i class="icon-play"></i> icon-play</li><li><i class="icon-pause"></i> icon-pause</li><li><i class="icon-stop"></i> icon-stop</li></ul></div><div class="span3"><ul class="the-icons"><li><i class="icon-step-backward"></i> icon-step-backward</li><li><i class="icon-fast-backward"></i> icon-fast-backward</li><li><i class="icon-backward"></i> icon-backward</li><li><i class="icon-forward"></i> icon-forward</li></ul></div><div class="span3"><ul class="the-icons"><li><i class="icon-fast-forward"></i> icon-fast-forward</li><li><i class="icon-step-forward"></i> icon-step-forward</li><li><i class="icon-eject"></i> icon-eject</li></ul></div><div class="span3"><ul class="the-icons"><li><i class="icon-fullscreen"></i> icon-fullscreen</li><li><i class="icon-resize-full"></i> icon-resize-full</li><li><i class="icon-resize-small"></i> icon-resize-small</li></ul></div></section>'
-                };
-                var div = document.createElement(div);
-
-                if(!config) config = {};
-                for(var x in sections){
-                    if(!sections.hasOwnProperty(x)) continue;
-                    if(!config.hasOwnProperty(x) || config[x] !== false) {/* === false时明确表示不要 */
-                        div.innerHTML += sections[x];
-                    }
-                }
-                return toJquery(div);
-            },
-            getIconPaneConvention:function () {
-                return [
-                    { id:'web-app',title:'Web 应用',content:'#icons-web-app'},
-                    { id:'text-editor',title:'编辑器',content:'#icons-web-app'},
-                    { id:'directional',title:'方向的',content:'#icons-web-app'},
-                    { id:'video-player',title:'播放器',content:'#icons-web-app'}
-                    // { title:'其他',children:[{ id:'nana',title:'娜娜',content:'#sss2'}]}
-                ];
             }
         }
     };

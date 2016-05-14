@@ -96,7 +96,7 @@ final class Kbylin {
         'APP_DIR'       => 'Application/',
         'CONFIG_DIR'    => 'Config/',
         'RUNTIME_DIR'   => 'Runtime/',
-        'PUBLIC_DIR'    => 'Public/',
+        'PUBLIC_DIR'    => '/',//公共目录定义为存放入口文件的目录,Public
         'UPLOAD_DIR'   => 'Upload/',
 
         'CLASS_LOADER'      => null, //用户自定义错误处理函数
@@ -201,7 +201,9 @@ final class Kbylin {
         $script = dirname($_SERVER['SCRIPT_NAME']);
         IS_WIN and $script = str_replace('\\', '/', $script);
         define('BASE_URI',$script);
-        define('PUBLIC_URI',BASE_URI.$this->_convention['PUBLIC_DIR']);
+        define('PUBLIC_URI',BASE_URI);//.$this->_convention['PUBLIC_DIR']
+
+//        dumpout($_SERVER['SCRIPT_NAME'],PUBLIC_URI,BASE_URI,$this->_convention['PUBLIC_DIR']);
 
         self::recordStatus('init_behavior_begin');
         //错误显示和隐藏

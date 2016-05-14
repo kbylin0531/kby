@@ -123,6 +123,8 @@ class KbylinException extends \Exception{
 
         Response::cleanOutput();
 //        $trace = $e->getTrace();
+//        dumpout($trace);
+
         $traceString = $e->getTraceAsString();
         //错误信息
         $vars = [

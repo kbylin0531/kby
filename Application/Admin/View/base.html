@@ -4,22 +4,33 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Kbylin</title>
-    <script src="{$smarty.const.PUBLIC_URI}assets/js/kbylin.js"></script>
-
+    <title>Dazzling</title>
+    <script src="{$smarty.const.PUBLIC_URI}assets/js/dazz.js"></script>
     <script>
-
-        var infos = Kbylin.str2Obj('{$infos}');
+        var infos = dazz.utils.toObject('{$infos}');
         var cdn = infos['cdn'];
         var options = {
-            'public_url':"{$smarty.const.PUBLIC_URI}"
+            'public_url':"{$smarty.const.PUBLIC_URI}",
+            'debug_on':true
         };
-        Kbylin.init(options).load(cdn['ico'],'ico');
-        Kbylin.load(cdn['css'],'css');
-    </script>
+        dazz.init(options).load(cdn['ico'],'ico');
+        dazz.load(cdn['style'],'css');
 
-    {block name='css'}{/block}
-    {block name='page_css'}{/block}
+        var ieVersion = dazz.context.ieVersion();
+        if( ieVersion < 9){
+            dazz.load(cdn['compatible'],'js');
+        }else{
+            dazz.load(cdn['performance'],'js');
+        }
+        dazz.load(cdn['script'],'js');
+        dazz.ready(function () {
+            Dazzling.init();
+            Dazzling.initUserInfo(infos['user'],['avatar.src','nickname','menu']);
+            Dazzling.initPageInfo(infos['page'],['headermenu','metas!']);
+        });
+    </script>
+    {block name='style'}{/block}
+    {block name='script'}{/block}
 </head>
 
 <body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
@@ -81,8 +92,7 @@
                         </div>
                     </div>
                 {/block}
-                {block name='stage_content'}
-                {/block}
+                {block name='stage'}{/block}
             </div>
         </div>
         {block name='quick_sidebar'}{/block}
@@ -92,26 +102,4 @@
         <div class="scroll-to-top"><i class="icon-arrow-up"></i></div>
     </div>
 </body>
-
-<script>
-    var ieVersion = Kbylin.ieVersion();
-    if( ieVersion < 9){
-        Kbylin.load(cdn['js_lt9'],'js');
-    }else{
-        Kbylin.load(cdn['js_gt9'],'js');
-    }
-
-
-    Kbylin.load(cdn['js'],'js');
-
-</script>
-
-{block name='js'}{/block}
-<script>
-    Dazzling.init();
-    Dazzling.initUserInfo(infos['user'],['avatar.src','nickname','menu']);
-    Dazzling.initPageInfo(infos['page'],['headermenu','metas!']);
-
-</script>
-{block name='page_js'}{/block}
 </html>

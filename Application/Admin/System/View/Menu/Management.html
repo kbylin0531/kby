@@ -1,5 +1,5 @@
 {extends file="../../../View/datatables.html"}
-{block name="page_css"}
+{block name="style"}
 <style>
     #logo_pane .nestable_container  { 
         border: 1px solid #eeeeee;
@@ -21,12 +21,12 @@
 
 </style>
 {/block}
-{block name='page_js'}
+{block name='script'}
 <script>
-    Kbylin.load('/assets/plugins/jquery.nestable/jquery.nestable.js');
-    Kbylin.load('/assets/plugins/jquery.nestable/jquery.nestable.css');
+    dazz.load('assets/plugins/jquery.nestable/jquery.nestable.js');
+    dazz.load('assets/plugins/jquery.nestable/jquery.nestable.css');
 
-    $(function () {
+    dazz.ready(function () {
         var public_url = '{$smarty.const.__CONTROLLER__}/';
         var maxMenuId = 1;
 
@@ -37,15 +37,15 @@
             $(".dd").nestable("collapseAll");
         }, "icon-resize-small");
         $(window).resize(function () {
-            Dazzling.utils.adjustMinHeight(".nestable_container");
+            Dazzling.page.adjustMinHeight(".nestable_container");
         }).trigger('resize');
 
-        var top_nestable ;
+        var top_nestable = Dazzling.nestable.create([],0,'#top_nestable_attach');;
 
 
         var loadModule = function () {
             Dazzling.post(public_url + 'listTopMenu', {}, function (data) {
-                top_nestable = Dazzling.nestable.create(data,0,'#top_nestable_attach');
+                top_nestable
             });
         };
         loadModule();
@@ -56,9 +56,9 @@
             'cancelText': '关闭窗口',
             //确认和取消的回调函数
             'confirm': function () {
-                var obj = Kbylin.parseStr(Dazzling.form.serialize("#form_menu"));
+                var obj = dazz.utils.parseUrl(Dazzling.form.serialize("#form_menu"));
                 obj.id = ++ maxMenuId;
-                top_nestable.createItem(obj,top_nestable);
+                top_nestable.createItem(obj);
             },
             'cancel': function () {
                 Dazzling.modal.hide(addTopForm);
@@ -67,7 +67,7 @@
 
 
         $("#addTop").click(function () {
-            Dazzling.modal.show(addTopForm);
+            addTopForm.show();
         });
         $("#saveTop").click(function () {
             var value = top_nestable.serialize(true);
@@ -86,8 +86,8 @@
     });
 </script>
 {/block}
-{block name="stage_content"}
-
+{block name="stage"}
+<!-- 添加顶部菜单 -->
 <div id="addTopForm">
     <form class="form-horizontal" id="form_menu" role="form">
         <div class="form-group">

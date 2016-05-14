@@ -81,16 +81,15 @@ class Controller {
      * $tpl_var =>  array($value,$nocache=false)
      * @param array|string $tpl_var 变量名称 或者 "名称/变量值"键值对数组
      * @param mixed $value 变量值
-     * @param bool $nocache
      * @return $this 可以链式调用
      */
-    protected function assign($tpl_var,$value=null,$nocache=false){
+    protected function assign($tpl_var,$value=null){
         if (is_array($tpl_var)) {
             foreach ($tpl_var as $_key => $_val) {
-                $_key and $this->_tVars[$_key] = [$_val,$nocache];
+                $_key and $this->_tVars[$_key] = $_val;
             }
         } else {
-            $tpl_var and $this->_tVars[$tpl_var] = [$value,$nocache];
+            $tpl_var and $this->_tVars[$tpl_var] = $value;
         }
     }
 

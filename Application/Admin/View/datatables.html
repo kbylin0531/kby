@@ -1,15 +1,14 @@
 {extends file="./base.html"}
-
-{block name='css'}
+{block name='style'}
 <script>
-    Kbylin.load('assets/plugins/datatables/media/css/dataTables.bootstrap.min.css','css');
+    dazz.load('assets/plugins/datatables/media/css/dataTables.bootstrap.min.css','css');
 </script>
 {/block}
-{block name='js'}
+{block name='script'}
 <script>
-    Kbylin.load([
-            'assets/plugins/datatables/media/js/jquery.dataTables.min.js',
-            'assets/plugins/datatables/media/js/dataTables.bootstrap.min.js'
+    dazz.load([
+        'assets/plugins/datatables/media/js/jquery.dataTables.min.js',
+        'assets/plugins/datatables/media/js/dataTables.bootstrap.min.js'
     ]);
 </script>
 {/block}

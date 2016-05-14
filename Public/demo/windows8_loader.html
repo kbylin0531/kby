@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>仿win8等待进度条</title>
+    <style>
+        stage {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: green
+        }
+    </style>
+    <script>
+        var Win8Loader = function () {
+            var elements = [];
+            var recycle = [];
+            var interval = 200;
+            var ponitsum = 6;
+
+            var stage = document.getElementById('stage');
+            stage.style.height = window.innerHeight
+
+            var PointElement = function () {
+                var timer;// 定时器时间对象
+                var delay = 30;// 定时器延迟毫秒
+                var dom =  document.createElement("span");
+                var attr = {
+                    //围绕圆心
+                    fixed: {
+                        left: window.innerWidth / 2,
+                        top: window.innerHeight / 2
+                    },
+                    //位置
+                    position: {
+                        left: 0,
+                        top: 0
+                    },
+                    radius: 70, // 圆半径
+                    angle: 270, // 角度,默认270
+                    // html标签元素样式， position需设置成absolute
+                    style: {
+                        position: "absolute",
+                        width: "10px",
+                        height: "10px",
+                        background: "#fff",
+                        "border-radius": "5px"
+                    }
+                };
+
+                //批量设置属性
+                for (var property in attr.style) {
+                    // js中对象方法可以用.操作符，也可以通过键值对的方式
+                    if(!attr.style.hasOwnProperty(property)) continue;
+                    dom.style[property] = attr.style[property];
+                }
+                // 设置span元素的初始坐标(先计算弧度)
+                var rad = Math.PI * attr.angle / 180;//计算弧度
+                attr.position.left = Math.cos(rad) * attr.radius + attr.fixed.left;
+                attr.position.top = Math.sin(rad) * attr.radius + attr.fixed.top;
+                dom.style.left = attr.position.left + "px";
+                dom.style.top = attr.position.top + "px";
+                // 把span标签添加到documet里面
+                document.body.appendChild(dom);
+                return {
+                    setLeft:function (left) {
+                        attr.fixed.left = left;
+                        return this;
+                    },
+                    setTop:function (top) {
+                        attr.fixed.top = top;
+                        return this;
+                    },
+                    run:function () {
+                        var rad = Math.PI * attr.angle / 180;//计算弧度
+                        attr.position.left = Math.cos(rad) * attr.radius + attr.fixed.left;
+                        attr.position.top = Math.sin(rad) * attr.radius + attr.fixed.top;
+                        dom.style.left = attr.position.left + "px";
+                        dom.style.top = attr.position.top + "px";
+
+                        attr.angle++;
+
+                        if (attr.position.left < attr.fixed.left) {
+                            delay += 0.5;//运行间隔增加,减速
+                        } else {
+                            delay -= 0.5;//间隔减少加速
+                        }
+
+                        var env = this;
+                        timer = setTimeout(function () {
+                            env.run();
+                        }, delay);
+                    },
+                    stop:function () {
+                        clearInterval(timer);
+                    }
+                };
+            };
+
+            for (var i = 0; i < ponitsum; ++i) {
+                elements.push(new PointElement());
+            }
+//
+            window.onresize = function () {
+                for(var i=0;i<elements.length;i++){
+                    elements[i].setLeft(window.innerWidth / 2).setTop(window.innerHeight / 2);
+                }
+            };
+
+            return {
+                run:function () {
+                    var runEle = function () {
+                        if(elements.length){
+                            var element = elements.shift();
+                            recycle.push(element);
+                            element.run();
+                            setTimeout(runEle,interval);
+                        }
+                    };
+                    runEle();
+                },
+                'stop':function () {
+                    for (var i = 0; i < elements.length; ++i) {
+                        elements[i].stop();
+                    }
+                }
+            };
+        }();
+
+        Win8Loader.run();
+    </script>
+</head>
+<body>
+<div id="stage">
+
+</div>
+</body>
+</html> 

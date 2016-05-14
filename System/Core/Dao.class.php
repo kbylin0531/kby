@@ -128,6 +128,9 @@ class Dao {
         return $_daoInstances[$driver_index];
     }
 
+    public static function getInstanceBy($config){
+
+    }
 
     /**
      * 获取PDO对象中的错误信息

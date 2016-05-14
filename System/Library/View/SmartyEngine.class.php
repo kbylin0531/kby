@@ -29,7 +29,7 @@ class SmartyEngine implements ViewEngineInterface {
             'right_delimiter'   => '}',
             //缓存开启和缓存时间
             'caching'        => true,
-            'cache_lifetime'  => 1,
+            'cache_lifetime'  => 1800,
         ],
 
     ];
@@ -48,36 +48,14 @@ class SmartyEngine implements ViewEngineInterface {
     public function __construct(array $config){
         defined('SMARTY_DIR') or define('SMARTY_DIR',$this->convention['SMARTY_DIR']);
         if(!isset($this->smarty)){
-            require_once SMARTY_DIR.'SmartyBC.class.php';
-            $this->smarty = new \SmartyBC();
+            require_once SMARTY_DIR.'Smarty.class.php';
+            $this->smarty = new \Smarty();
             if(isset($this->convention['SMARTY_CONF'])){
-//            $this->smarty->left_delimiter  = $this->convention['DELIMITER_LEFT'];
-//            $this->smarty->right_delimiter = $this->convention['DELIMITER_RIGHT'];
-//            $this->smarty->caching         = $this->convention['CACHING_ON'];
-//            $this->smarty->cache_lifetime  = $this->convention['CACHING_LIFTTIME'];
                 foreach($this->convention['SMARTY_CONF'] as $name=>$value){
                     $this->smarty->{$name} = $value;
                 }
             }
         }
-
-        $this->smarty->registerPlugin('function','U',
-            function($params){
-                return Network::url($params['action'],$params);
-            });
-    }
-
-    /**
-     * 插件注册
-     * @param $type
-     * @param $name
-     * @param $callback
-     * @param bool $cacheable
-     * @param null $cache_attr
-     * @return mixed
-     */
-    public function registerPlugin($type, $name, $callback, $cacheable = true, $cache_attr = null){
-        return $this->registerPlugin($type, $name, $callback, $cacheable , $cache_attr);
     }
 
     /**
@@ -85,10 +63,15 @@ class SmartyEngine implements ViewEngineInterface {
      * @param string $tpl_var
      * @param null $value
      * @param bool $nocache
-     * @return \Smarty_Internal_Data
+     * @return $this
      */
     public function assign($tpl_var,$value=null,$nocache=false){
-        return $this->smarty->assign($tpl_var,$value,$nocache);
+        if(is_array($tpl_var)){
+            $this->_tVars = array_merge($this->_tVars,$tpl_var);
+        }else{
+            $this->_tVars[$tpl_var] =  $value;
+        }
+        return $this;
     }
 
     /**
@@ -125,7 +108,6 @@ class SmartyEngine implements ViewEngineInterface {
         //分配变量
         $this->smarty->assign($this->_tVars);
         //设置模板缓存目录
-//        $this->smarty->setTemplateDir(dirname($template));
         $this->smarty->setCompileDir("{$cachedir}compile/");
         $this->smarty->setCacheDir("{$cachedir}cache/");
         \Kbylin::recordStatus('view_display_begin');

@@ -1,5 +1,5 @@
-{extends file="../../../View/datatables.html"}
-{block name='page_js'}
+{extends file="../../../View/base.html"}
+{block name='script'}
 <script>
     $(function () {
         var ctler_uri = '{$smarty.const.__CONTROLLER__}/';
@@ -79,7 +79,7 @@
         var editModal = Dazzling.modal.create('#editModule',{
             'title':'编辑模块',
             'confirm':function () {
-                var obj = Kbylin.parseStr(Dazzling.form.serialize("#form_module"));
+                var obj = dazz.utils.parseUrl(Dazzling.form.serialize("#form_module"));
                 Dazzling.post(ctler_uri+'updateModule',obj,function (data) {
                     if(data['_type'] > 0){
                         //更新对象
@@ -111,7 +111,7 @@
     });
 </script>
 {/block}
-{block name='stage_content'}
+{block name='stage'}
 <div id="editModule" >
     <form class="form-horizontal" id="form_module" role="form" >
         <div class="form-group">

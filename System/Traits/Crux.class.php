@@ -119,7 +119,7 @@ trait Crux {
     /**
      * 获取本例示例
      * @param int|string $index
-     * @return mixed
+     * @return Object
      * @throws KbylinException
      */
     public static function getDriverInstance($index=null){
@@ -127,8 +127,7 @@ trait Crux {
 
         //本类的实例列表为空时创建
         isset(self::$classes[static::class]) or self::$classes[static::class] = [];
-
-        $thisinstances = static::$classes[static::class];
+        $thisinstances = &static::$classes[static::class];
 
         if(!isset($thisinstances[$index])){
             $info = self::getDriverInfo($index);
