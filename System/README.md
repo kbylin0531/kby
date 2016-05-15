@@ -29,3 +29,9 @@ if(isset($_REQUEST['gokbylin']) and $_REQUEST['gokbylin']){
     include '../Kbylin/index.php';
     exit();
 }
+
+
+//        if(function_exists('mb_strlen') and mb_strlen($fieldName,'utf-8') < strlen($fieldName)){//其他编码
+//            //中文字段的清空下取md5值作为占位符
+//            $holder = ':'.md5($fieldName);
+//        }else

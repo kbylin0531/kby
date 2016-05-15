@@ -7,9 +7,18 @@
 
 var Dazzling = (function () {
     "use strict";
-
-    // for(var x in config) if(x in convention) convention[x] = config[x];
-    if(!jQuery ) return Dazzling.toast.error("Require Jquery!");
+    if(!jQuery ) throw "Require Jquery!";
+    var convention = {
+        //post刷新间隔
+        'requestInterval':400,
+        'responsiveBreakpoint':{
+            'xs' : 480,     // extra small
+            'sm' : 768,     // small
+            'md' : 992,     // medium
+            'lg' : 1200     // large
+        }
+    };
+    var _lastRequestTime = null;//上次发起请求时间
 
     var thishtml = $('html');
     var thisbody = $('body');
@@ -56,17 +65,9 @@ var Dazzling = (function () {
             scrollTop: pos
         }, 'slow');
     };
-    var getResponsiveBreakpoint = function(size) {
-        var sizes = {
-            'xs' : 480,     // extra small
-            'sm' : 768,     // small
-            'md' : 992,     // medium
-            'lg' : 1200     // large
-        };
-        return sizes[size] ? sizes[size] : 0;
-    };
+
     //布局初始化
-    var resBreakpointMd = getResponsiveBreakpoint('md');
+    var resBreakpointMd = convention['responsiveBreakpoint']['md'];
 
     //自动调整最小高度
     var adjustMinHeight = function (selector) {
@@ -88,14 +89,47 @@ var Dazzling = (function () {
         selector.attr('style', 'min-height:' + height + 'px');
     };
 
-    //自动调整page-container的高度(包括sidebar和content)
-    var autoAdjustPageContainerHeight = function () {
-        adjustMinHeight(page_content);
+    //初始化顶部的查询
+    var initHeaderSearchForm = function (handler) {
+        if(!handler) handler = alert;
+        // handle search box expand/collapse
+        page_header.on('click', '.search-form', function () {
+            var form_controll = $(this).find('.form-control');
+            $(this).addClass("open");
+            form_controll.focus();/* 主动聚焦 */
+            form_controll.on('blur', function () {/* 失去焦点时自动关闭 */
+                $(this).closest('.search-form').removeClass("open");
+                $(this).unbind("blur");
+            });
+        });
+
+        // handle hor menu search form on enter press
+        page_header.on('keypress', '.hor-menu .search-form .form-control', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var val = $(this).closest('.search-form').find('.form-control').val();
+            if (e.which == 13) {/* 按下回车自动提交 */
+                return handler(val);
+            }
+            return false;
+        });
+
+        // handle header search button click
+        page_header.on('mousedown', '.search-form.open .submit', function (e) {/* .submit是超链接,需要阻止事件的传播 */
+            e.preventDefault();
+            e.stopPropagation();
+            var val = $(this).closest('.search-form').find('.form-control').val();
+            if(typeof handler === 'function') return handler(val);
+            return false;
+        });
     };
 
-    // Handle sidebar menu
-    var handleSidebarMenu = function () {
-        // handle sidebar link click
+    //sidebar相关的初始化
+    var initSidebar = function () {
+        //调整内容区高度
+        adjustMinHeight(page_content);
+
+        //控制sidebar的菜单
         page_sidebar_menu.on('click', 'li > a.nav-toggle, li > a > span.nav-toggle', function (e) {
             var that = $(this).closest('.nav-item').children('.nav-link');
             var viewport = dazz.context.getViewPort();
@@ -141,7 +175,7 @@ var Dazzling = (function () {
                     if (autoScroll === true && thisbody.hasClass('page-sidebar-closed') === false) {
                         scrollTo(the, slideOffeset);
                     }
-                    autoAdjustPageContainerHeight();
+                    adjustMinHeight(page_content);
                 });
             } else if (hasSubMenu) {
                 $('.arrow', the).addClass("open");
@@ -150,24 +184,18 @@ var Dazzling = (function () {
                     if (autoScroll === true && thisbody.hasClass('page-sidebar-closed') === false) {
                         scrollTo(the, slideOffeset);
                     }
-                    autoAdjustPageContainerHeight();
+                    adjustMinHeight(page_content);
                 });
             }
 
             e.preventDefault();
         });
 
-
-    };
-
-    // Hanles sidebar toggler
-    var handleSidebarToggler = function () {
-
+        // 控制sidebar的显示和隐藏
         if ($.cookie && $.cookie('sidebar_closed') === '1' && dazz.context.getViewPort().width >= resBreakpointMd) {
             thisbody.addClass('page-sidebar-closed');
             page_sidebar_menu.addClass('page-sidebar-menu-closed');
         }
-        // handle sidebar show/hide
         thisbody.on('click', '.sidebar-toggler', function () {
             var sidebar = page_sidebar;
             var sidebarMenu = page_sidebar_menu;
@@ -187,97 +215,20 @@ var Dazzling = (function () {
             }
             $(window).trigger('resize');
         });
-    };
 
-    //初始化顶部的查询
-    var initHeaderSearchForm = function (handler) {
-        if(!handler) handler = alert;
-        // handle search box expand/collapse
-        page_header.on('click', '.search-form', function () {
-            var form_controll = $(this).find('.form-control');
-            $(this).addClass("open");
-            form_controll.focus();/* 主动聚焦 */
-            form_controll.on('blur', function () {/* 失去焦点时自动关闭 */
-                $(this).closest('.search-form').removeClass("open");
-                $(this).unbind("blur");
-            });
-        });
-
-        // handle hor menu search form on enter press
-        page_header.on('keypress', '.hor-menu .search-form .form-control', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            var val = $(this).closest('.search-form').find('.form-control').val();
-            if (e.which == 13) {/* 按下回车自动提交 */
-                return handler(val);
-            }
-            return false;
-        });
-
-        // handle header search button click
-        page_header.on('mousedown', '.search-form.open .submit', function (e) {/* .submit是超链接,需要阻止事件的传播 */
-            e.preventDefault();
-            e.stopPropagation();
-            var val = $(this).closest('.search-form').find('.form-control').val();
-            if(typeof handler === 'function') return handler(val);
-            return false;
-        });
-    };
-
-    //sidebar相关的初始化
-    var initSidebar = function () {
-        autoAdjustPageContainerHeight();
-        handleSidebarMenu(); // handles main menu
-        handleSidebarToggler(); // handles sidebar hide/show
-
+        var autoAdjustPageContainerHeight = function () {
+            adjustMinHeight(page_content);
+        };
         // handle bootstrah tabs
-        thisbody.on('shown.bs.tab', 'a[data-toggle="tab"]', function () {
-            autoAdjustPageContainerHeight();
-        });
+        thisbody.on('shown.bs.tab', 'a[data-toggle="tab"]', autoAdjustPageContainerHeight);
         resizeHandlers.push(autoAdjustPageContainerHeight);// recalculate sidebar & content height on window resize
 
     };
-    //返回顶部
-    var initGotoTop = function () {
-        var offset = 300;
-        var duration = 500;
-        var scrollToTop = $('.scroll-to-top');
-        if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {  // ios supported
-            $(window).bind("touchend touchcancel touchleave", function(){
-                if ($(this).scrollTop() > offset) {
-                    scrollToTop.fadeIn(duration);
-                } else {
-                    scrollToTop.fadeOut(duration);
-                }
-            });
-        }
-        else {  // general
-            $(window).scroll(function() {
-                if ($(this).scrollTop() > offset) {
-                    scrollToTop.fadeIn(duration);
-                } else {
-                    scrollToTop.fadeOut(duration);
-                }
-            });
-        }
-        scrollToTop.click(function(e) {
-            e.preventDefault();
-            $('html, body').animate({scrollTop: 0}, duration);
-            return false;
-        });
-    };
-    //兼容性处理 与 加强
-    var handleCompatibility = function () {
-        //添加placeholder支持,处理不支持placeholder的浏览器,这里将不支持IE8以下的浏览器,故只有IE9和IE10
-        var browerinfo = dazz.context.getBrowserInfo();
-        var isIE8 = browerinfo.type === 'ie' && 8 === browerinfo.version;
-        var isIE9 = browerinfo.type === 'ie' && 9 === browerinfo.version;
-        if(isIE8 || isIE9) $('input, textarea').placeholder();
-    };
-    //初始化应用
-    var initApplication = function () {
-        var resize;
-        var currheight;
+
+
+    var init = function () {
+        var resizehandler;
+        var currentHeight;
         var browerinfo = dazz.context.getBrowserInfo();
         var isIE8 = browerinfo.type === 'ie' && 8 === browerinfo.version;
         var isIE9 = browerinfo.type === 'ie' && 9 === browerinfo.version;
@@ -286,15 +237,17 @@ var Dazzling = (function () {
         isIE8 && thishtml.addClass('ie8 ie'); // detect ie8 version
         isIE9 && thishtml.addClass('ie9 ie'); // detect ie9 version
         isIE10 && thishtml.addClass('ie10 ie'); // detect IE10 version
+        if((isIE8 || isIE9) && ('placeholder' in jQuery)) $('input, textarea').placeholder();//该插件存在时候开启placeholder
 
         $(window).resize(function() {
-            if (isIE8 && (currheight == document.documentElement.clientHeight)) return; //quite event since only body resized not window.
-            if (resize) clearTimeout(resize);
-            resize = setTimeout(function() {
+            if (isIE8 && (currentHeight == document.documentElement.clientHeight)) return; //quite event since only body resized not window.
+            if (resizehandler) clearTimeout(resizehandler);
+            resizehandler = setTimeout(function() {
                 for (var i = 0; i < resizeHandlers.length; i++)  resizeHandlers[i].call();//执行调整函数
-            }, 50); // wait 50ms until window resize finishes.
-            isIE8 && (currheight = document.documentElement.clientHeight); // store last body client height
+            }, 75); // 等待window调整完成
+            isIE8 && (currentHeight = document.documentElement.clientHeight); // store last body client height
         });
+
 
         //处理Tab切换
         if (location.hash) {
@@ -313,160 +266,40 @@ var Dazzling = (function () {
             $(this).dropdownHover();
             $(this).addClass('hover-initialized');
         });
-    };
-
-    /**
-     * 获取超链接
-     * @param attrs
-     * @param iconAhead
-     * @returns {*|jQuery|HTMLElement}
-     */
-    var _getAnchor4Header = function (attrs,iconAhead) {
-        var a = $(document.createElement('a'));
-        attrs.hasOwnProperty('title') && a.text(" "+attrs.title+" ");
-        attrs.hasOwnProperty('href')  && a.attr('href',attrs.href);
-        attrs.hasOwnProperty('submenu')  && a.attr('data-toggle','dropdown');
-
-        if(attrs.hasOwnProperty('icon')){
-            var i = $(document.createElement('i'));
-            i.addClass(attrs.icon);
-            iconAhead?i.prependTo(a):i.appendTo(a);
-        }
-        return a;
-    };
-
-    var _getAnchor4Sidebar = function (attrs,hasSubmenu) {
-        if(undefined === hasSubmenu) hasSubmenu = attrs.hasOwnProperty('submenu');
-
-        var a = $(document.createElement('a')).addClass(hasSubmenu?'nav-link nav-toggle':'nav-link');
-
-        //未传入参数的清空
-        if(!attrs.hasOwnProperty('icon')) attrs['icon'] = 'icon-circle-blank';//默认图标
-
-        a.append($('<i class="'+attrs['icon']+'"></i>')).append($('<span class="title"> '+attrs['title']+' </span>'));
-        hasSubmenu && a.append($('<i class="float-right icon-angle-right"></i>'));
-        return a;
-    };
-
-    /**
-     * 获取ul列表
-     * @param menuitem
-     */
-    var _getUnorderedLists4Header = function(menuitem){
-        if(!menuitem.hasOwnProperty('submenu') || !menuitem.submenu) return;//不存在子菜单时直接返回
-        var li_ul = $('<ul class="dropdown-menu"></ul>');
-        //创建并添加ul
-        for(var x in menuitem.submenu){
-            if(!menuitem.submenu.hasOwnProperty(x)) continue;
-            //子菜单项
-            var subitem =  menuitem.submenu[x];
-
-            var li = $(document.createElement('li'));
-            li.append(_getAnchor4Header(subitem,true));
-            li_ul.append(li);
-            if(subitem.hasOwnProperty('submenu')){
-                li.addClass('dropdown-submenu');
-                li.append(_getUnorderedLists4Header(subitem));
-            }
-        }
-        return li_ul;
-    };
-
-    /**
-     * @param menuitem
-     * @private
-     */
-    var _getUnorderedLists4Sidebar = function (menuitem) {
-        if(!menuitem.hasOwnProperty('submenu') || !menuitem.submenu) return;//不存在子菜单时直接返回
-        var li_ul = $('<ul class="sub-menu"></ul>');
-
-        //创建并添加ul
-        for(var x in menuitem.submenu){
-            if(!menuitem.submenu.hasOwnProperty(x)) continue;
-            //子菜单项
-            var subitem =  menuitem.submenu[x];
-
-            var hasSubmenu = subitem.hasOwnProperty('submenu');
-
-            var li_navitem = $(document.createElement('li'));
-            li_navitem.addClass('nav-item');
-            li_navitem.append(_getAnchor4Sidebar(subitem,hasSubmenu));
-            li_ul.append(li_navitem);
-            if(hasSubmenu){
-                li_navitem.append(_getUnorderedLists4Sidebar(subitem));
-            }
-        }
-        return li_ul;
-    };
-
-    /**
-     * 初始化头部的菜单
-     */
-    var initHeaderMenu = function (header_menu) {
-        var dazz_headermenu = $("#dazz_header_menu");
-
-        var active_index = parseInt(header_menu['active_index']);
-
-        for(var index in header_menu['menu_list']){
-            if(!header_menu['menu_list'].hasOwnProperty(index)) continue;
-            //菜单项
-            var menuitem = header_menu['menu_list'][index];
-
-            var li = $(document.createElement('li'));
-            li.addClass(parseInt(index) === active_index?'active classic-menu-dropdown':'classic-menu-dropdown');
-
-            var hasSubmenu = menuitem.hasOwnProperty('submenu');
-
-            if(hasSubmenu) menuitem['icon'] = ' icon-angle-down';
-            li.append(_getAnchor4Header(menuitem,false));
-            if(hasSubmenu) li.append(_getUnorderedLists4Header(menuitem));
-
-            dazz_headermenu.append(li);
-        }
-    };
-
-    var initSidebarMenu = function (sidebar_menu) {
-        var dazz_sidebar_menu = $("#dazz_sidebar_menu");
-
-        for(var index in sidebar_menu['menu_list']){
-            if(!sidebar_menu['menu_list'].hasOwnProperty(index)) continue;
-            //菜单项
-            var menuitem = sidebar_menu['menu_list'][index];
-
-            var li_navitem = $(document.createElement('li'));
-            li_navitem.addClass('nav-item');
-
-            var hasSubmenu = menuitem.hasOwnProperty('submenu');
-
-            var a = _getAnchor4Sidebar(menuitem,hasSubmenu);
-
-            li_navitem.append(a);
-            hasSubmenu && li_navitem.append(_getUnorderedLists4Sidebar(menuitem));
-
-            dazz_sidebar_menu.append(li_navitem);
-        }
-    };
-
-
-
-    var convention = {
-        //post刷新间隔
-        'requestExpireTime':400
-    };
-
-    var init = function () {
-        handleCompatibility();//处理常见的兼容性问题
-
-        initApplication();//初始化应用
 
         //初始化布局
         initHeaderSearchForm(alert); // handles horizontal menu
         initSidebar();//初始化sidebar
-        initGotoTop();//处理足部的Go to top 按钮
+
+        //处理足部的Go to top 按钮
+        var offset = 300;
+        var duration = 500;
+        var scrollToTop = $('.scroll-to-top');
+        if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {  // ios supported
+            $(window).bind("touchend touchcancel touchleave", function(){
+                if ($(this).scrollTop() > offset) {
+                    scrollToTop.fadeIn(duration);
+                } else {
+                    scrollToTop.fadeOut(duration);
+                }
+            });
+        } else {  // general
+            $(window).scroll(function() {
+                if ($(this).scrollTop() > offset) {
+                    scrollToTop.fadeIn(duration);
+                } else {
+                    scrollToTop.fadeOut(duration);
+                }
+            });
+        }
+        scrollToTop.click(function(e) {
+            e.preventDefault();
+            $('html, body').animate({scrollTop: 0}, duration);
+            return false;
+        });
 
     };
 
-    var _lastRequestTime = null;
     /**
      * 习惯性的jquery方法
      * @param url 请求地址
@@ -484,7 +317,7 @@ var Dazzling = (function () {
         }else{
             var gap = currentMilliTime - _lastRequestTime;
             _lastRequestTime = currentMilliTime;
-            if(gap < convention['requestExpireTime']){
+            if(gap < convention['requestInterval']){
                 return Dazzling.toast.warning('请勿频繁刷新!');
             }
         }
@@ -580,13 +413,122 @@ var Dazzling = (function () {
     var initPageInfo = function (pageinfo) {
         if(!(pageinfo instanceof Object)) pageinfo = dazz.utils.toObject(pageinfo);
 
+        var index,menuitem,hasSubmenu;
         //设置标题
         pageinfo.hasOwnProperty('title') && $("title").text(pageinfo['title']);
         pageinfo.hasOwnProperty('logo') && $("#dazz_logo").attr('src',pageinfo['logo']);
         pageinfo.hasOwnProperty('coptright') && $("#dazz_copyright").html(pageinfo['coptright']);
 
-        initHeaderMenu(pageinfo['header_menu']);
-        initSidebarMenu(pageinfo['sidebar_menu']);
+        //处理顶部菜单
+        var header_menu = pageinfo['header_menu'];
+        var dazz_headermenu = $("#dazz_header_menu");
+        //获取超链接
+        var _getAnchor4Header = function (attrs,iconAhead) {
+            var a = $(document.createElement('a'));
+            attrs.hasOwnProperty('title') && a.text(" "+attrs.title+" ");
+            attrs.hasOwnProperty('href')  && a.attr('href',attrs.href);
+            attrs.hasOwnProperty('submenu')  && a.attr('data-toggle','dropdown');
+
+            if(attrs.hasOwnProperty('icon')){
+                var i = $(document.createElement('i'));
+                i.addClass(attrs.icon);
+                iconAhead?i.prependTo(a):i.appendTo(a);
+            }
+            return a;
+        };
+        var _getUnorderedLists4Header = function(menuitem){
+            if(!menuitem.hasOwnProperty('submenu') || !menuitem.submenu) return;//不存在子菜单时直接返回
+            var li_ul = $('<ul class="dropdown-menu"></ul>');
+            //创建并添加ul
+            for(var x in menuitem.submenu){
+                if(!menuitem.submenu.hasOwnProperty(x)) continue;
+                //子菜单项
+                var subitem =  menuitem.submenu[x];
+
+                var li = $(document.createElement('li'));
+                li.append(_getAnchor4Header(subitem,true));
+                li_ul.append(li);
+                if(subitem.hasOwnProperty('submenu')){
+                    li.addClass('dropdown-submenu');
+                    li.append(_getUnorderedLists4Header(subitem));
+                }
+            }
+            return li_ul;
+        };
+
+        var active_index = parseInt(header_menu['active_index']);
+        for(index in header_menu['menu_list']){
+            if(!header_menu['menu_list'].hasOwnProperty(index)) continue;
+            //菜单项
+            menuitem = header_menu['menu_list'][index];
+
+            var li = $(document.createElement('li'));
+            li.addClass(parseInt(index) === active_index?'active classic-menu-dropdown':'classic-menu-dropdown');
+
+            hasSubmenu = menuitem.hasOwnProperty('submenu');
+
+            if(hasSubmenu) menuitem['icon'] = ' icon-angle-down';
+            li.append(_getAnchor4Header(menuitem,false));
+            if(hasSubmenu) li.append(_getUnorderedLists4Header(menuitem));
+
+            dazz_headermenu.append(li);
+        }
+
+        var sidebar_menu = pageinfo['sidebar_menu'];
+        var dazz_sidebar_menu = $("#dazz_sidebar_menu");
+        var _getAnchor4Sidebar = function (attrs,hasSubmenu) {
+            if(undefined === hasSubmenu) hasSubmenu = attrs.hasOwnProperty('submenu');
+
+            var a = $(document.createElement('a')).addClass(hasSubmenu?'nav-link nav-toggle':'nav-link');
+
+            //未传入参数的清空
+            if(!attrs.hasOwnProperty('icon')) attrs['icon'] = 'icon-circle-blank';//默认图标
+
+            a.append($('<i class="'+attrs['icon']+'"></i>')).append($('<span class="title"> '+attrs['title']+' </span>'));
+            hasSubmenu && a.append($('<i class="float-right icon-angle-right"></i>'));
+            return a;
+        };
+        var _getUnorderedLists4Sidebar = function (menuitem) {
+            if(!menuitem.hasOwnProperty('submenu') || !menuitem.submenu) return;//不存在子菜单时直接返回
+            var li_ul = $('<ul class="sub-menu"></ul>');
+
+            //创建并添加ul
+            for(var x in menuitem.submenu){
+                if(!menuitem.submenu.hasOwnProperty(x)) continue;
+                //子菜单项
+                var subitem =  menuitem.submenu[x];
+
+                var hasSubmenu = subitem.hasOwnProperty('submenu');
+
+                var li_navitem = $(document.createElement('li'));
+                li_navitem.addClass('nav-item');
+                li_navitem.append(_getAnchor4Sidebar(subitem,hasSubmenu));
+                li_ul.append(li_navitem);
+                if(hasSubmenu){
+                    li_navitem.append(_getUnorderedLists4Sidebar(subitem));
+                }
+            }
+            return li_ul;
+        };
+
+        for(index in sidebar_menu['menu_list']){
+            if(!sidebar_menu['menu_list'].hasOwnProperty(index)) continue;
+            //菜单项
+            menuitem = sidebar_menu['menu_list'][index];
+
+            var li_navitem = $(document.createElement('li'));
+            li_navitem.addClass('nav-item');
+
+            hasSubmenu = menuitem.hasOwnProperty('submenu');
+
+            var a = _getAnchor4Sidebar(menuitem,hasSubmenu);
+
+            li_navitem.append(a);
+            hasSubmenu && li_navitem.append(_getUnorderedLists4Sidebar(menuitem));
+
+            dazz_sidebar_menu.append(li_navitem);
+        }
+
     };
     var setActive = function () {};
 
@@ -710,25 +652,6 @@ var Dazzling = (function () {
         }
     };
 
-    // var breadcrumb = {
-    //     'createItem':function (title,href) {
-    //         var li = $(document.createElement("li"));
-    //         var a = $(document.createElement("a"));
-    //         href && a.attr('href',href);
-    //         return li.append(a);
-    //     },
-    //     'create':function (list,attatchment) {
-    //         attatchment = toJquery(attatchment);
-    //         if(attatchment.length){
-    //             for(var x in list){
-    //                 if(!list.hasOwnProperty(x)) continue;
-    //                 attatchment.append(this.createItem(list[x]['title']));
-    //             }
-    //         }
-    //     }
-    // };
-
-
     var BsModal = {
         //创建一个Modal对象,会将HTML中指定的内容作为自己的一部分拐走
         'create':function (selector,option) {
@@ -818,41 +741,64 @@ var Dazzling = (function () {
     var Jnestable = {
         /**
          * 创建并添加到指定元素下
-         * @param config 配置序列或者配置对象 (必须)
+         * @param data 配置序列或者配置对象 (必须)
          * @param group 分组
-         * @param attatchment 创建并添加的对象,如果指定了ID将添加到指定的对象上并返回nestable对象;否则返回创建的jquery对象
+         * @return this
          */
-        create : function (config,group,attatchment) {
-            config = dazz.utils.toObject(config);
+        create : function (data,group) {
+            data = dazz.utils.toObject(data);
 
             var instance = dazz.newInstance(this);
 
             var id = 'nestable_'+dazz.utils.guid();
             var topdiv = $('<div class="dd" id="'+id+'"></div>');
-            this.createItemList(config,topdiv);
+            this.load(data,topdiv);
 
             instance.target = topdiv.nestable({group: group?group:id});
-            attatchment && instance.target.prependTo(attatchment);
             return instance;
         },
-        load:function (data) {
-            
-
+        attachTo:function (selector,isAppend) {
+            selector = toJquery(selector);
+            if(isAppend){
+                selector.append(this.target);
+            }else{
+                selector.prepend(this.target);
+            }
+            return this;
+        },
+        /**
+         * 返回加载过数据后的div
+         * @param data
+         * @param dd 数据附加目的地(nestable div对象)
+         * @returns {jQuery}
+         */
+        load:function (data,dd) {
+            if(!dd) dd = this.target.find('dd');
+            if(!dd.length){
+                dd = $('<div class="dd" id="nestable_'+dazz.utils.guid()+'"></div>');
+            }else{
+                dd.html('');
+            }
+            this.createItemList(data,dd);
+            return dd;
         },
         //创建OL节点,children为子元素数组,target为附加的目标(目标缺失时选用自身)
-        createItemList : function (config) {
+        createItemList : function (config,target) {
             config = dazz.utils.toObject(config);
             var ol = $('<ol class="dd-list"></ol>');
             dazz.utils.each(config,function (item) {
                 this.createItem(item,ol);
             });
-            if(!this.target) return Dazzling.toast.warning('Nestable require a target to attach!');
 
-            //如果已经存在该节点,删除它
-            var targetol = this.target.children('ol');
-            if(targetol.length) targetol.remove();
+            //寻找附加target
+            target = target?target:this.target;
+            if(!target) return Dazzling.toast.warning('Nestable require a target to attach!');
 
-            this.target.append(ol);
+            //设置ol
+            var targetol = target.children('ol');
+            if(targetol.length) targetol.remove();//深处原来的ol
+            target.append(ol);
+
             return this;
         },
         serialize:function (tostring) {
@@ -863,30 +809,42 @@ var Dazzling = (function () {
             }
             return value;
         },
-        createItem : function (item) {
+        createItem : function (item,target) {
             item = dazz.utils.toObject(item);
 
             //设置基本的两个属性
             if(dazz.utils.checkProperty(item,['id','title']) < 1) return Dazzling.toast.warning("The id/title of item should not be empty");
-            var li = $('<li class="dd-item dd3-item" data-id="'+item['id']+'"></li>');
-            li.append($('<div class="dd-handle dd3-handle">'));
-            var content = $('<div class="dd3-content">'+item['title']+'</div>');
-            li.append(content);
-
+            var li = $('<li class="dd-item dd3-item"></li>');
+            li.append($('<div class="dd-handle dd3-handle">')).append($('<div class="dd3-content">'+item['title']+'</div>'));
+            dazz.debug(item);
             //设置其他附加属性(title id除外)
-            dazz.utils.each(item,function (name) {
-                if(!$.inArray(name,['title','id','children'])) li.attr("data-"+name,item[name]);
+            dazz.utils.each(item,function (value,key) {
+                if( key === 'children' ) return ;
+
+                switch (typeof value){
+                    case 'string':
+                    case 'number':
+                        li.attr("data-"+key,value);
+                        break;
+                    case 'boolean':
+                        li.attr("data-"+key,value?'true':'false');
+                        break;
+                    default:
+                }
             });
 
             //如果存在子元素的情况下创建
             dazz.utils.checkProperty(item,'children') && this.createItemList(item['children'],li);
 
-            if(!this.target) return Dazzling.toast.warning('Nestable require a target to attach!');
+            //设置attach目标
+            if(!target) target = this.target;
+            if(!target) return Dazzling.toast.warning('Nestable require a target to attach!');
 
+            //设置attach目标中的ol
             var targetol = target.children('ol');
             if(!targetol.length){/* 缺少OL的情况下创建一个空的UL */
-                this.createItemList([],this.target);
-                targetol = this.target.children('ol');
+                this.createItemList([],target);
+                targetol = target.children('ol');
             }
             targetol.prepend(li);
             return this;
@@ -896,14 +854,18 @@ var Dazzling = (function () {
             attatchment.html('');
             if(attatchment.length) {
                 attatchment.prepend(this.target);
+                return true;
             }
+            return false;
         },
         appendTo :function (attatchment) {
             attatchment = toJquery(attatchment);
             attatchment.html('');
             if(attatchment.length) {
                 attatchment.appendTo(this.target);
+                return true;
             }
+            return false;
         }
     };
 

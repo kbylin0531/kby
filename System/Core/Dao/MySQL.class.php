@@ -12,14 +12,6 @@ use System\Core\Dao;
 
 class MySQL extends DaoAbstract{
 
-    /**
-     * 转义保留字字段名称
-     * @param string $fieldname 字段名称
-     * @return string
-     */
-    public function escape($fieldname){
-        return "`{$fieldname}`";
-    }
 
     /**
      * 根据配置创建DSN
@@ -63,16 +55,6 @@ class MySQL extends DaoAbstract{
             'limit'     => 2,
             'offset'    => 5,
         );
-        $components = array_merge($_components,$components);
-
-        switch($actiontype){
-            case Dao::ACTION_SELECT:
-                return $this->compileSelect($components);
-                break;
-
-            default:
-                throw new KbylinException('Unexpect action type');
-        }
     }
 
     /**

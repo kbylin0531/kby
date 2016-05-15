@@ -21,68 +21,56 @@ class Model {
 
     use Crux;
     const CONF_NAME = 'model';
+    const CONF_FIELDS = [];
 
     const TABLE_NAME = '';//用于指定本模型对应的表,只允许字符串类型
     const TABLE_FIELDS = [];//用于指定本模型对应的字段列表,键为字段名称,值为字段默认值
     const TABLE_ORDER = ''; // 用于指定查询数据的默认排序如: [order] DESC (数字越大越靠前)
-//    const TABLE_GROUP = '';
 
     /**
      * 操作类型
      */
-    const DATA_SELECT = 0;//查询操作,将使用到$_fields和$_where字段
-    const DATA_CREATE = 1;//添加操作,将使用到$_fields字段
-    const DATA_UPDATE = 2;//更新操作,将使用到$_fields和$_where字段
-    const DATA_DELETE = 3;//删除操作,将使用到$_where字段
+    const ACTION_SELECT = 0;//查询操作,将使用到$_fields和$_where字段
+    const ACTION_CREATE = 1;//添加操作,将使用到$_fields字段
+    const ACTION_UPDATE = 2;//更新操作,将使用到$_fields和$_where字段
+    const ACTION_DELETE = 3;//删除操作,将使用到$_where字段
+
 
     /**
-     * 模型对应的实际表的名称
-     * null时表示未存在对应表
-     * @var string
+     * 连接符号
      */
-    private $_table = '';
+    CONST CONNECT_AND = ' AND ';
+    CONST CONNECT_OR = ' OR ';
+    CONST CONNECT_COMMA = ' , ';
 
     /**
-     * 对应表的字段列表
-     * 格式为 ['fieldname'=>'value']
-     * 如果value值为null时表示不对之进行设置,可以调用clear方法进行显示清空
+     * 运算符
+     */
+    CONST OPERATOR_EQUAL = ' = ';
+    CONST OPERATOR_NOTEQUAL = ' != ';
+    CONST OPERATOR_LIKE = ' LIKE ';
+    CONST OPERATOR_NOTLIKE = ' NOT LIKE ';
+    CONST OPERATOR_IN = ' IN ';
+    CONST OPERATOR_NOTIN = ' NOT IN ';
+
+    /**
+     * 当前的查询选项
+     * 具体参照reset方法的内部变量
      * @var array
      */
-    private $_fields = [];
-
+    private $_options = [];
     /**
-     * 对应表的查询字段列表
-     * 为null时表示不限制
-     * @var array|null
+     * 输入参数,数组类型
+     * 按照where,fields设置的进行分类
+     * @var array
      */
-    private $_where = [];
-
-    /**
-     * @var string 默认排序
-     */
-    private $_order = '';
-
-//    /**
-//     * @var string 默认分组
-//     */
-//    private $_group = '';
-
-    /**
-     * 使用private将之私有以
-     * @var Dao[]
-     */
-    private $_daos = [];
+    private $_inputs = [];
 
     /**
      * 默认的dao的角标
      * @var int|string
      */
     private $_cur_dao_index = null;
-
-    /**用户自定义的错误
-     * @var string
-     */
-    private $_errors = '';
 
     /**
      * Model constructor.
@@ -93,84 +81,102 @@ class Model {
      * @throws KbylinException
      */
     public function __construct($tablename=null,$fields=null,$order=null){
-        if(is_array($tablename)){
-            $fields = empty($tablename['fields'])?null:$tablename['fields'];
-            $order = empty($tablename['order'])?null:$tablename['order'];
-            $tablename = empty($tablename['table'])?null:$tablename['table'];
-        }
-        $this->reset($tablename,$fields,$order);
+        $clsnm = static::class;
+        null === $tablename and $tablename = defined($clsnm::TABLE_NAME)?$clsnm::TABLE_NAME:KbylinException::throwing('The table of model should not be empty!');
+        null === $fields and $fields = defined($clsnm::TABLE_FIELDS)?$clsnm::TABLE_FIELDS:KbylinException::throwing('The fields of model should not be empty!');
+        null === $order and $order = defined($clsnm::TABLE_ORDER)?$clsnm::TABLE_ORDER:null;
+
+        is_string($tablename) or KbylinException::throwing('Constant TABLE_NAME require to be string !');
+        is_array($fields) or KbylinException::throwing('Constant TABLE_FIELDS require to be array !');
+        $this->reset([
+            'table'     => $tablename,
+            'fields'    => $fields,
+            'order'     => $order,
+        ]);
     }
 
-
     /**
-     * 重置
-     * @param string $tablename 表的实际名称,不指定时候将使用类常量中定义的值
-     * @param string $fields 字段数组,不指定时候将使用类常量中定义的值
-     * @param string $order 用于指定默认排序
+     * 重置CURD参数
+     * @param array|null $originOption 初始化时使用的参数
      * @return void
      * @throws KbylinException
      */
-    protected function reset($tablename=null,$fields=null,$order=null){
-        $classname = static::class;
-        $this->_table = $tablename?$tablename:$classname::TABLE_NAME;
-        $this->_fields = $fields?$fields:$classname::TABLE_FIELDS;
-        $this->_order = $order?$order:$classname::TABLE_ORDER;
-
-        if(!is_string($this->_table)){
-            throw new KbylinException('Constant TABLE_NAME require to be string !');
+    protected function reset(array $originOption=null){
+        static $origin = [
+            //查询
+            'distinct'  => false,
+            'fields'    => ' * ',//操作的字段,最终将转化成字符串类型.(可以转换的格式为['fieldname'=>'value'])
+            'table'     => null,//操作的数据表名称
+            'join'      => null,
+            'where'     => null,//操作的where信息
+            'group'     => null,
+            'order'     => null,
+            'having'    => null,
+        ];
+        if(null !== $originOption){
+            $origin = array_merge($origin,$originOption);
         }
-        if(!is_array($this->_fields)){
-            throw new KbylinException('Constant TABLE_FIELDS require to be array !');
-        }
+        $this->_options = $origin;
+        $this->_inputs = [];
     }
 
-
-
     /**
-     * 获取$_fields字段值
-     * 不存在该字段时返回null
-     * @param string $name 字段名称
-     * @return mixed|null
+     * 上一次执行的SQL语句
+     * @var string
      */
-    public function __get($name){
-        return isset($this->_fields[$name])?$this->_fields[$name]:null;
-    }
+    private $_lastsql = null;
 
     /**
-     * 设置$_fields字段值
-     * @param $name
-     * @param $value
+     * 获取上一次执行的SQL
+     * @return null|string
+     */
+    public function getLastSql(){
+        return $this->_lastsql;
+    }
+
+/********************************************** 链式操作 **************************************************************************************************/
+
+    /**
+     * 设置distinct
+     * @param bool $dist
      * @return $this
      */
-    public function __set($name, $value){
-        if(isset($this->_fields[$name])){
-            $this->_fields[$name] = $value;
-        }
-        return $this;
-    }
-
-    /**
-     * 设置单个字段
-     * @param string $key 字段名称
-     * @param int|string $value 字段值,字段值未设置时表示将在之后的某个时间点批量执行
-     * @return $this
-     */
-    public function field($key,$value=''){
-        key_exists($key,$this->_fields) and $this->_fields[$key] = $value;
+    public function distinct($dist=true){
+        $this->_options['distinct'] = $dist;
         return $this;
     }
 
     /**
      * 当参数为非null时批量设置字段的值,并将全部字段的值返回
      * 参数为null时获取全部字段的值
-     * @param array|null $fields 加入的字段数组
+     * @param array|string|true $fields 加入的字段数组
      * @return $this
      */
-    public function fields(array $fields=null){
-        if(null !== $fields){
-            foreach ($fields as $key=>$val) key_exists($key,$this->_fields) and $this->_fields[$key] = $val;
-//            $this->_fields = array_merge($this->_fields,$fields);
+    public function fields($fields){
+        if(is_array($fields)){
+            //是数组的情况通常用于update/create
+            $keys = array_keys($fields);
+            array_walk($keys,function(&$field){ $field = $this->getDao()->quote($field);});//对字段进行转义
+            $this->_options['fields'] = implode(',', $keys);
+            $this->_inputs['fields'] = array_values($fields);
+        }elseif(is_string($fields)){
+            //用于select的清空
+            $this->_options['fields'] = $fields;
+        }elseif(true === $fields){
+            $this->_options['fields'] = ' * ';
+        }else{
+            KbylinException::throwing($fields,'expect to be array/string/true!');
         }
+        return $this;
+    }
+
+    /**
+     * 设置当前要操作的数据表
+     * @param $tablename
+     * @return $this
+     */
+    public function table($tablename){
+        $this->_options['table'] = $tablename;
         return $this;
     }
 
@@ -181,26 +187,377 @@ class Model {
      */
     public function where($where){
         if(is_array($where)){
-            foreach ($where as $key=>$val)  key_exists($key,$this->_fields) and $this->_where[$key] = $val;
+            $where = $this->_getSegments($where, Model::CONNECT_AND);
+            $this->_inputs['where'] = $where[1];
+            $where = $where[0];
         }
-        $this->_where = $where;
+        is_string($where) or KbylinException::throwing('Where should be string/array!');
+        $this->_options['where'] = $where;
         return $this;
+    }
+
+    /**
+     * 添加数据对象到数据库中
+     * <code>
+     *      $fldsMap ==> array(
+     *          'fieldName' => 'fieldValue',
+     *      );
+     * </code>
+     *
+     * 插入数据的sql可以是：
+     * ①INSERT INTO 表名称 VALUES (值1, 值2,....)
+     * ②INSERT INTO table_name (列1, 列2,...) VALUES (值1, 值2,....)
+     *
+     * @param string $tablename 表格名称
+     * @param array $data 输入数据
+     * @return bool 是否成功插入
+     * @throws KbylinException
+     */
+    public function create($tablename=null,array $data=null){
+        if($tablename === null){
+            //空参数 - 显式声明是链式调用的终点
+            if($this->_inputs){
+                //所有要插入的参数都需要经过绑定进行插入
+                $holder = rtrim(str_repeat('?,', count($this->_inputs)),',');
+
+                //检查必要的两个字段
+                $tablename = $this->_options['table']?$this->_options['table']:KbylinException::throwing('No table to insert!');
+                $fields = $this->_options['fields']?$this->_options['fields']:KbylinException::throwing('Empty fields is not allowed!');
+
+                return $this->exec("INSERT INTO {$tablename}  {$fields} VALUES ({$holder})",$this->_inputs);
+            }
+            return KbylinException::throwing('No data prepared to insert!');
+        }else{
+            //给定了参数的情况下无需考虑链式调用设置的参数
+            $keys = array_keys($data);
+            $inputs = array_values($data);
+            array_walk($keys,function(&$field){ $field = $this->getDao()->quote($field);});//对字段进行转义
+            $fields = implode(',', $keys);
+            $placeholder = rtrim(str_repeat('?,', count($keys)),',');
+            empty($fields) and KbylinException::throwing('Empty field is not allowed');
+
+            return $this->exec("INSERT INTO {$tablename} ( {$fields} ) VALUES ( {$placeholder} );",$inputs);
+        }
+    }
+
+    /**
+     * 执行EXEC类型的SQL并返回结果
+     * @param string $sql 查询SQL
+     * @param array|null $inputs 输入参数
+     * @return false|int
+     */
+    public function exec($sql,array $inputs=null){
+        $result = $this->getDao()->exec($this->_lastsql=$sql,$inputs);
+        $this->reset();
+        return $result;
+    }
+
+    /**
+     * 执行返回结果集合的SQL并返回结果集合
+     * @param string $sql 查询SQL
+     * @param array|null $inputs 输入参数
+     * @return array|false
+     */
+    public function query($sql,array $inputs=null){
+        $result = $this->getDao()->query($this->_lastsql=$sql,$inputs);
+        $this->reset();
+        return $result;
+    }
+
+    /**
+     * 从数据库中删除指定条件的数据对象
+     * 如果不设置参数，则进行清空表的操作（谨慎使用）
+     * @param string $tablename 数据表的名称
+     * @param array $where 字段映射数组,显示声明为null时表示清空这张表,否则如果提供的where条件为空时会抛出异常
+     * @return bool 是否成功删除
+     * @throws KbylinException
+     */
+    public function delete($tablename=null,array $where=null){
+        if(null === $tablename){
+            //检查必要参数
+            $tablename = $this->_options['table']?$this->_options['table']:KbylinException::throwing('No table to insert!');
+            $where = $this->_options['where']?$this->_options['where']:KbylinException::throwing('Where must be declared!');
+            return $this->getDao()->exec("DELETE FROM {$tablename} WHERE {$where};",$this->_inputs);
+        }else{
+            $where_missing = 'Where should not be empty while execute an delete sql!';
+            $where or KbylinException::throwing($where_missing);
+            $where  = $this->_getSegments($where,Model::CONNECT_AND);
+            empty($where[0]) and KbylinException::throwing($where_missing);
+            return $this->exec("DELETE FROM {$tablename} WHERE {$where[0]};",$where[1]);
+        }
+    }
+
+    /**
+     * 获取查询选项中满足条件的记录数目
+     * @return int 返回表中的数据的条数,发生了错误将不会返回数据
+     * @throws KbylinException
+     */
+    public function count(){
+        empty($this->_options['table']) and KbylinException::throwing('Model has no table binded!');
+        $this->_options['fields'] = ' count(*) as c';
+        $result = $this->select();
+        isset($result[0]['c']) or KbylinException::throwing($this->_options,$result);
+        return intval($result[0]['c']);
+    }
+
+    /**
+     * 从数据库中修改指定的数据
+     * @param string $tablename
+     * @param string|array $fields
+     * @param string|array $where
+     * @return bool
+     * @throws KbylinException
+     */
+    public function update($tablename=null, $fields=null, $where=null){
+        if(null === $tablename){
+            /* 链式链式调用(不带参数) */
+            empty($this->_options['table']) and KbylinException::throwing('Table should not be empty!',$this->_options);
+            $tablename = $this->_options['table'];
+            empty($this->_options['fields']) and KbylinException::throwing('Fields should not be empty!',$this->_options);
+            empty($this->_options['where']) and KbylinException::throwing('Where should not be empty!',$this->_options);
+            $where = $this->_options['where'];
+            $fields = explode(',',$this->_options['fields'] );
+            array_walk($fields,function (&$field){
+                $field = " {$field} = ? ";
+            });
+            $fields = implode(',',$fields);
+            $sql = "UPDATE {$tablename} SET {$fields} WHERE {$where};";
+            return $this->exec($sql,$this->_inputs);
+        }else{
+            $inputs = [];
+            if(is_array($fields)){
+                $fields = $this->_getSegments($fields,Model::CONNECT_COMMA);
+
+            }
+            $fields = is_string($fields)?[$fields]:$this->_getSegments($fields,Model::CONNECT_COMMA);
+            $where  = is_string($where) ?[$where] :$this->_getSegments($where, Model::CONNECT_AND);
+
+            empty($fields[1]) or $inputs = $fields[1];
+            empty($where[1]) or $inputs = array_merge($inputs,$where[1]);
+            $sql = "UPDATE {$tablename} SET {$fields[0]} WHERE {$where[0]};";
+
+            return $this->exec($sql,$inputs);
+        }
+    }
+
+    /**
+     * 从数据库中获取指定条件的数据对象
+     * @param array|null|string $options 如果是字符串是代表查询这张表中的所有数据并直接返回
+     * @return array|bool 返回数组或者false(发生了错误)
+     * @throws KbylinException
+     */
+    public function select($options=null){
+        if(is_string($options)){
+            $sql  = "SELECT * FROM {$options};";
+            return $this->query($sql,null);
+        }
+        is_array($options) or KbylinException::throwing('The first parameter of Dao->select should be array(components) of string(tablename)!',$options);
+        $components = [
+            'distinct'  => false,
+            'fields'    => null,//select all fields while '==' to false
+            'join'      => [],
+            'table'     => null,
+            'where'     => [],
+            'order'     => [],
+            'group'     => [],
+        ];
+        $components = array_merge($components,$options);
+//        extract($components,EXTR_OVERWRITE);
+        $sql = $components['distinct']? 'SELECT DISTINCT':'SELECT ';
+        $inputs = null;
+
+        //设置选取字段
+        if(empty($components['fields'])){
+            $components['fields'] = ' * ';
+        }elseif(is_array($components['fields'])){/*此时可以保证不是空数组,在第一关的时候已经被过滤掉了*/
+            //默认转义
+            array_map(function($param){
+                return $this->getDao()->quote($param);
+            },$components['fields']);
+            $components['fields'] = implode(',',$components['fields']);
+        }
+        !is_string($components['fields']) and KbylinException::throwing('Fields should be string !',$components['fields']);
+        $sql ="{$sql} {$components['fields']} ";
+
+        if(!empty($components['join'])){
+            if(is_array($components['join'])){
+                foreach ($components['join'] as $join){
+                    $sql .= "\n{$join}\n";
+                }
+            }elseif (is_string($components['join'])){
+                $sql .= "\n{$components['join']}\n";
+            }else{
+                KbylinException::throwing('Wrong join for select!',$components['join']);//不为空却非法
+            }
+        }
+
+        if(empty($components['table'])){
+            KbylinException::throwing('Could not select data from an empty table',$components['table']);
+        }else{
+            $sql .= "FROM \n{$components['table']}\n";
+        }
+
+        if(!empty($components['where'])){
+            if(is_array($components['where'])){
+                $temp = $this->_getSegments($components['where'],Model::CONNECT_AND);
+                $components['where'] = $temp[0];
+                $inputs = $components['where'][1];
+            }
+            !is_string($components['where']) and KbylinException::throwing('Where should be the type of array or string!',$components['where']);
+            $sql .= "WHERE {$components['where']} ";
+        }
+
+        if(!empty($components['group'])){
+            if(is_array($components['group'])){
+                $components['group'] = implode(',',$components['group']);
+            }
+            !is_string($components['group']) and KbylinException::throwing('Group should be the type of array or string!',$components['group']);
+            $sql .= "GROUP BY {$components['group']} ";
+        }
+
+        if(!empty($components['order'])){
+            if(is_array($components['order'])){
+                $components['order'] = implode(',',$components['order']);
+            }
+            !is_string($components['order']) and KbylinException::throwing('Order should be the type of array or string!',$components['order']);
+            $sql .= "ORDER BY {$components['order']} ";
+        }
+
+        return $this->query($sql,$inputs);
+    }
+
+    /**
+     * 综合字段绑定的方法
+     * <code>
+     *      $operator = '='
+     *          $fieldName = :$fieldName
+     *          :$fieldName => trim($fieldValue)
+     *
+     *      $operator = 'like'
+     *          $fieldName = :$fieldName
+     *          :$fieldName => dowithbinstr($fieldValue)
+     *
+     *      $operator = 'in|not_in'
+     *          $fieldName in|not_in array(...explode(...,$fieldValue)...)
+     * </code>
+     * @param string $fieldName 字段名称
+     * @param string|array $fieldValue 字段值
+     * @param string $operator 操作符
+     * @param bool $escape 是否对字段名称进行转义,MSSQL中使用[]
+     * @return array
+     * @throws KbylinException
+     */
+    private function _getFieldSegment($fieldName, $fieldValue, $operator=Model::OPERATOR_EQUAL, $escape=false){
+        $holder = null;
+        //该库开启的清空下
+        if(false !== strpos($fieldName,'.')){
+            //字段被制定了表的情况下
+            $arr = explode('.',$fieldName);
+            $holder = ':'.array_pop($arr);
+        }else{
+            $holder = ":{$fieldName}";
+        }
+
+        $sql = (self::$_conventions[self::class]['AUTO_ESCAPE_ON'] or $escape)? $this->getDao()->quote($fieldName):$fieldName;
+        $input = [];
+
+        switch($operator){
+            case Model::OPERATOR_EQUAL:
+            case Model::OPERATOR_NOTEQUAL:
+            case Model::OPERATOR_LIKE:
+            case Model::OPERATOR_NOTLIKE:
+                $sql .= " {$operator} {$holder} ";
+                $input[$holder] = $fieldValue;
+                break;
+            case Model::OPERATOR_IN:
+            case Model::OPERATOR_NOTIN:
+                if(is_array($fieldValue)) $fieldValue = "'".implode("','",$fieldValue)."'";
+                is_string($fieldValue) or KbylinException::throwing($fieldValue);
+                $sql .= " {$operator} ({$fieldValue}) ";
+                break;
+            default:
+                KbylinException::throwing("Unkown operator of '{$operator}'");
+        }
+        return [$sql,$input];
+    }
+
+    /**
+     * 片段翻译(片段转化)
+     * <note>
+     *      片段匹配准则:
+     *      $map == array(
+     *           //第一种情况,连接符号一定是'='//
+     *          'key' => $val,
+     *          'key' => array($val,$operator,true),
+     *
+     *          //第二种情况，数组键，数组值//    -- 现在保留为复杂and和or连接 --
+     *          //array('key','val','like|=',true),//参数4的值为true时表示对key进行[]转义
+     *          //array(array(array(...),'and/or'),array(array(...),'and/or'),...) //此时数组内部的连接形式
+     *
+     *          //第三种情况，字符键，数组值//
+     *          'assignSql' => array(':bindSQLSegment',value)//与第一种情况第二子目相区分的是参数一以':' 开头
+     *      );
+     * </note>
+     * @param array $segments 片段数组
+     * @param string $connect 表示是否使用and作为连接符，false时为,
+     * @return array
+     * @throws KbylinException
+     */
+    private function _getSegments($segments, $connect=Model::CONNECT_AND){
+        $segments or KbylinException::throwing($segments,$connect);
+
+        $sql = '';
+        $bind = [];
+
+        //元素连接
+        foreach($segments as $field=> $segment){
+            if(is_numeric($field)){
+                //第二中情况,符合形式组成
+                $result = $this->_getSegments($segment[0],$segment[1]);
+                $sql .= " {$result[0]} {$connect}";
+                $bind = array_merge($bind, $result[1]);
+            }
+            elseif(is_array($segment) and strpos($segment[0],':') === 0){
+                //第三种情况,过于复杂而选择由用户自定义
+                $sql .= " {$field} {$connect}";
+                $bind[$segment[0]] = $segment[1];
+            }
+            else{
+                //第一种情况
+                $escape = false;
+                $operator = Model::OPERATOR_EQUAL;
+
+                if(is_array($segment)){
+                    $escape = isset($segment[2])?$segment[2]:false;
+                    $operator = isset($segment[1])?$segment[1]:Model::OPERATOR_EQUAL;
+                    $segment = $segment[0];
+                }
+                $rst = $this->_getFieldSegment($field,trim($segment),$operator,$escape);//第一种情况一定是'='的情况
+                if(is_array($rst)){
+                    $sql .= " {$rst[0]} {$connect}";
+                    $bind = array_merge($bind, $rst[1]);
+                }
+            }
+        }
+        return [
+            substr($sql,0,strlen($sql)-strlen($connect)),
+            $bind,
+        ];
     }
 
     /**
      * 获取数据访问接口对象
      * @param null|int|string $index
-     * @param $config
      * @return \System\Core\Dao
      */
-    protected function getDao($index=null,array $config=null){
-        $this->_cur_dao_index = $index;
-        if(!isset($this->_daos[$this->_cur_dao_index])){
-            $this->_daos[$this->_cur_dao_index] = Dao::getInstance($this->_cur_dao_index,$config);
+    public function getDao($index=null){
+        if(null === $index){
+            $index = $this->_cur_dao_index;
+        }else{
+            $this->_cur_dao_index = $index;
         }
-        return $this->_daos[$this->_cur_dao_index];
+        return $this->getDao($index);
     }
-
     /**
      * 设置默认操作的Dao的角标
      * @param null|int|string $index 角标的Index,设置成null时表示恢复默认
@@ -210,138 +567,11 @@ class Model {
         $this->_cur_dao_index = $index;
         return $this;
     }
-
-
-    /**
-     * 设置模型的错误
-     * 在下次调用getError(会将该错误一起返回)
-     * @param string $error
-     * @return false 返回的false表示发生了错误,并不代表自身发生了错误
-     */
-    public function setError($error){
-        $this->_errors = $this->_errors.PHP_EOL.$error;
-        return false;
-    }
-
     /**
      * 获取查询的错误
      * @return string
      */
     public function getError(){
-        if($this->_errors){
-            $error = $this->_errors.PHP_EOL.$this->getDao()->getError();
-            $this->_errors = '';
-        }else{
-            $error = $this->getDao()->getError();
-        }
-        return $error;
+        return $this->getDao()->getError();
     }
-
-    /**
-     * 添加数据对象到数据库中
-     * @return bool 是否成功插入
-     * @throws KbylinException
-     */
-    public function create(){
-        if(null === $this->_table) throw new KbylinException('Module has no table binded!');
-        $result =  $this->getDao()->create($this->_table,$this->_fields);
-        $this->reset();
-        return $result;
-    }
-
-    /**
-     * 从数据库中删除指定条件的数据对象
-     * @return bool 是否成功删除
-     * @throws KbylinException
-     */
-    public function delete(){
-        if(null === $this->_table) throw new KbylinException('Module has no table binded!');
-        $result = $this->getDao()->delete($this->_table,$this->_where);
-        $this->reset();
-        return $result;
-    }
-
-    /**
-     * 获取查询选项中满足条件的记录数目
-     * @param array $options 查询选项
-     * @return int 返回表中的数据的条数,发生了错误将不会返回数据
-     * @throws KbylinException
-     */
-    public function count(array $options = []){
-        null === $this->_table and KbylinException::throwing('Module has no table binded!');
-        empty($options['table']) and $options['table'] = $this->_table;
-        $options['fields'] = ' count(*) as c';
-        if(empty($options['where'])){
-            if(is_array($this->_where)){
-                $options['where'] = [];
-                foreach ($this->_where as $fieldName=>$defaultValue) {
-                    null === $defaultValue or $options['where'] = $options['where'][] = $fieldName;
-                }
-            }
-            $options['where'] = $this->_where;
-        }
-        $result = $this->getDao()->select($options);
-        if(isset($result[0]['c'])){
-            $result = intval($result[0]['c']);
-        }else{
-            KbylinException::throwing($options,$result);
-        }
-        $this->reset();
-        return $result;
-    }
-    /**
-     * 从数据库中获取指定条件的数据对象
-     * @param array $options 可以是components或者tablename
-     * @return array|bool 返回数组或者false(发生了错误)
-     * @throws KbylinException
-     */
-    public function select(array $options = []){
-        null === $this->_table and KbylinException::throwing('Module has no table binded!');
-        empty($options['table']) and $options['table'] = $this->_table;
-        if(empty($options['fields'])){
-            $options['fields'] = [];
-            if($this->_fields){
-                foreach ($this->_fields as $fieldName=>$defaultValue) {
-                    null === $defaultValue or $options['fields'][] = $fieldName;
-                }
-            }
-        }
-        if(empty($options['where'])){
-            if(is_array($this->_where)){
-                $options['where'] = [];
-                foreach ($this->_where as $fieldName=>$defaultValue) {
-                    null === $defaultValue or $options['where'] = $options['where'][] = $fieldName;
-                }
-            }
-            $options['where'] = $this->_where;
-        }
-        $list = $this->getDao()->select($options);
-        $this->reset();
-        return $list;
-    }
-
-    /**
-     * 从数据库中修改指定的数据
-     * @return bool 是否成功
-     * @throws KbylinException
-     */
-    public function update(){
-        if(null === $this->_table) throw new KbylinException('Module has no table binded!');
-        $fields = [];
-        foreach ($this->_fields as $key=>$value) isset($value) and $fields[$key] = $value;
-        $result = $this->getDao()->update($this->_table,$fields,$this->_where);
-        $this->reset();
-        return $result;
-    }
-
-    /**
-     * 清空一张表
-     * 只允许内部调用
-     * @return bool 是否成功删除
-     */
-    protected function clean(){
-        return $this->getDao()->delete($this->_table,null);
-    }
-
-
 }

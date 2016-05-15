@@ -45,7 +45,6 @@ abstract class DaoAbstract extends PDO {
     public function __construct(array $config){
         try {
             $dsn = is_string($config['dsn'])?$config['dsn']:$this->buildDSN($config);
-//            dumpout($dsn,$config['username'],$config['password'],$config['options']);
             parent::__construct($dsn,$config['username'],$config['password'],$config['options']);
         } catch(\PDOException $e){
             throw new KbylinException('连接失败!错误:'.$e->getMessage());
@@ -63,20 +62,6 @@ abstract class DaoAbstract extends PDO {
     public function __call($name,$args){
         if(in_array($name,$this->forbidMethods,true))  return false;
         return call_user_func_array([$this,$name],$args);
-    }
-
-    /**
-     * 转义保留字字段名称
-     *
-     * 注:
-     *  mysql中是 ``
-     *  sqlserver中是 []
-     *  oracle中是 ""
-     * @param string $fieldname 字段名称
-     * @return string
-     */
-    public function escape($fieldname){
-        return $this->quote($fieldname);
     }
 
     /**

@@ -40,8 +40,7 @@ const TYPE_UNKNOWN  = 'unknown type';
 const MODE_RETURN = 0;
 const MODE_EXCEPTION = 1;
 
-//$arr = [];var_dump(empty($arr[0]['yes']));exit();
-function dump(){// ob_end_clean();//取消注释时打印会清空之前的输出//传入空的字符串或者==false的值时 打印文件
+function dump(){
     $params = func_get_args();
     $color='#';$str='9ABCDEF';//随机浅色背景
     for($i=0;$i<6;$i++) $color=$color.$str[rand(0,strlen($str)-1)];
@@ -51,8 +50,6 @@ function dump(){// ob_end_clean();//取消注释时打印会清空之前的输�
         array_shift($traces);
         array_shift($traces);
     }
-    array_shift($traces);
-//    echo "<pre>";var_dump($params,$traces );exit();
     echo "<pre style='background: {$color};width: 100%;'><h3 style='color: midnightblue'><b>File:</b>{$traces[0]['file']} << <b>Line:</b>{$traces[0]['line']} >> </h3>";
     foreach ($params as $key=>$val) echo '<b>Param '.$key.':</b><br />'.var_export($val, true).'<br />';
     echo '</pre>';

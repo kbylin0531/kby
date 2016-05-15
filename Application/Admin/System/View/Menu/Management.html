@@ -40,17 +40,10 @@
             Dazzling.page.adjustMinHeight(".nestable_container");
         }).trigger('resize');
 
-        var top_nestable = Dazzling.nestable.create([],0,'#top_nestable_attach');;
 
+        var topNestable = Dazzling.nestable.create([]).attachTo("#top_nestable_attach");
 
-        var loadModule = function () {
-            Dazzling.post(public_url + 'listTopMenu', {}, function (data) {
-                top_nestable
-            });
-        };
-        loadModule();
-
-        var addTopForm = Dazzling.modal.create("#addTopForm", {
+        var topModal = Dazzling.modal.create("#topModal", {
             'title': '添加顶部菜单项目',
             'confirmText': '添加',
             'cancelText': '关闭窗口',
@@ -58,37 +51,39 @@
             'confirm': function () {
                 var obj = dazz.utils.parseUrl(Dazzling.form.serialize("#form_menu"));
                 obj.id = ++ maxMenuId;
-                top_nestable.createItem(obj);
+                topNestable.createItem(obj);
             },
             'cancel': function () {
-                Dazzling.modal.hide(addTopForm);
+                topModal.hide();
             }
         });
-
+        var loadModule = function () {
+            Dazzling.post(public_url + 'listTopMenu', {}, function (data) {
+                topNestable.load(data);
+            });
+        };
 
         $("#addTop").click(function () {
-            addTopForm.show();
+            topModal.show();
         });
         $("#saveTop").click(function () {
-            var value = top_nestable.serialize(true);
+            var value = topNestable.serialize(true);
             console.log(value);//获取序列化
             Dazzling.post(public_url+'saveTopMenu',{ topset:value});
         });
 
         $("#addSide").click(function () {
         });
-        $("#rmSide").click(function () {
-        });
         $("#saveSide").click(function () {
         });
 
-
+        loadModule();
     });
 </script>
 {/block}
 {block name="stage"}
 <!-- 添加顶部菜单 -->
-<div id="addTopForm">
+<div id="topModal">
     <form class="form-horizontal" id="form_menu" role="form">
         <div class="form-group">
             <label class="col-sm-2 control-label">名称</label>

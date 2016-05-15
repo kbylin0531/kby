@@ -38,10 +38,46 @@ class Menu extends AdminController {
 
     public function saveTopMenu($topset){
         $topset = json_decode($topset);
-        if(is_array($topset)){
+        if(!is_array($topset)){
             Response::failed('无法解析前台传递的序列化的信息!');
         }
         $menuModel = new MenuModel();
+        foreach ($topset as $object){
+            if(empty($object->id) or empty($object->title)){
+                return $this->setError('Id/Title should not be empty!');
+            }
+
+            $where = 'id = '.intval($object->id);
+
+            $count = $this->where($where)->count();
+            $fields = [
+                'title' => $object->title,
+            ];
+            isset($object->icon) and $fields['icon'] = $object->icon;
+            if($count > 0){
+                $result = $this->where($where)->fields($fields)->update();
+            }else{
+                dumpout($fields);
+                $result = $this->fields($fields)->create();
+            }
+            if(false === $result) {
+                $this->getDao()->rollBack();
+                return false;
+            }
+
+            dumpout($result,$this->getError());
+
+            //递归执行
+            if(!empty($object->children)){
+                $result = $this->setTopMenuSet($object->children,false);
+                if(false === $result){
+                    $dao->rollBack();
+                    return false;
+                }
+            }
+        }
+
+
         if($menuModel->setTopMenuSet($topset)){
             Response::success('顶部菜单设置成功!');
         }else{

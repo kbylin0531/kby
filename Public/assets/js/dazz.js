@@ -1,5 +1,7 @@
 /**
  * 原生javascript类库
+ * typeof 运算符把类型信息当作字符串返回。typeof 返回值有六种可能：
+ *  "number," "string," "boolean," "object," "function," 和 "undefined."
  * Created by kbylin on 5/14/16.
  */
 window.dazz = (function () {
@@ -239,7 +241,7 @@ window.dazz = (function () {
          */
         isObject:function (obj,classname) {
             if(undefined === classname){
-                classname = 'Object';
+                return obj instanceof Object;
             }
             return Object.prototype.toString.call(obj) === '[object '+classname+']';
         },
@@ -259,15 +261,45 @@ window.dazz = (function () {
         },
         /**
          * 遍历对象
-         * @param object {{}}
+         * @param object {{}|[]} 待遍历的对象或者数组
          * @param itemcallback
          */
         each:function (object,itemcallback) {
-            if(!this.isObject(object)) throw "Require an object/array!";
-            for(var x in object){
-                if(!object.hasOwnProperty(x)) continue;
-                itemcallback(object[x]);
+            if(this.isArray(object)){
+                for(var i=0; i < object.length; i++){
+                    itemcallback(object[i],i);
+                }
+                return ;
+            }else if(this.isObject(object)){
+                for(var key in object){
+                    if(!object.hasOwnProperty(key)) continue;
+                    itemcallback(object[key],key);
+                }
+                return ;
             }
+            dazz.debug(object);
+            throw "Require an object/array!";
+        },
+        /**
+         * 复制一个数组或者对象
+         * @param array 要拷贝的数组或者对象
+         * @param isObject bool 是否是对象
+         * @returns array|{}
+         */
+        copy:function (array,isObject) {
+            var kakashi;
+            if(!isObject){
+                kakashi = [];
+                for(var i =0;i < array.length;i++){
+                    kakashi[i] = array[i];
+                }
+            }else{
+                kakashi = {};
+                utils.each(array,function (item,key) {
+                    kakashi[key] = item;
+                });
+            }
+            return kakashi;
         },
         /**
          * 检查对象是否有树形
@@ -282,7 +314,6 @@ window.dazz = (function () {
             for(var i = 0; i < prop.length;i++){
                 if(object.hasOwnProperty(prop[i])) count++;
             }
-
             if(count === prop.length) return 1;
             else if(count === 0) return 0;
             else return -1;
@@ -310,26 +341,24 @@ window.dazz = (function () {
             var Yan = function () {return {target:null};};
             var instance = new Yan();
             if(context){
-                //深度拷贝方法和属性
-                for(var x in context){
-                    if(context.hasOwnProperty(x)) {
-                        instance[x] = context[x];
-                    }
-                }
+                utils.each(context,function (item,key) {
+                    instance[key] = item;
+                });
             }
             return instance;
         },
         load:load,
         init:function (config) {
-            for(var i in config){
-                if(!config.hasOwnProperty(i) || !options.hasOwnProperty(i)) continue;
-                options[i] = config[i];
-                return this;
-            }
+            utils.each(config,function (item,key) {
+                options.hasOwnProperty(key) && (options[key] = item);
+            });
+            return this;
         },
         ready:function (callback) {
             readyStack.push(callback);
         },
-        debug:function () {if(options['debug_on']) console.log(arguments);}
+        debug:function () {
+            options['debug_on'] && console.log(utils.copy(arguments));
+        }
     };
 })();

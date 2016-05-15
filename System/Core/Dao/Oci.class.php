@@ -10,20 +10,6 @@ namespace System\Core\Dao;
 class OCI extends DaoAbstract {
 
     /**
-     * 保留字段转义字符
-     * @var string
-     */
-    protected $_l_quote = '"';
-    protected $_r_quote = '"';
-
-
-    /**
-     * 转义保留字字段名称
-     * @param string $fieldname 字段名称
-     * @return string
-     */
-    public function escape($fieldname){}
-    /**
      * 根据配置创建DSN
      * @param array $config 数据库连接配置
      * @return string
