@@ -26,6 +26,35 @@ class MenuModel extends Model{
     ];
 
     /**
+     * 获取顶部菜单设置
+     * @return array|false 错误发生时返回false
+     */
+    public function getTopMenuSetting(){
+        $config = $this->getTopMenuConfig();
+        $config = unserialize($config);
+        if(false === $config){
+            return $this->error('获取顶级菜单失败!');
+        }else{
+            $menuItemModel = new MenuItemModel();
+            $items = $menuItemModel->listMenuItems(true);
+            $this->_arrangeMenu($config, $items);
+        }
+        return $config;
+    }
+
+
+    private function _arrangeMenu(array &$config,array $items){
+        foreach ($config as &$item){
+            $id = $item['id'];
+            if(!isset($items[$id])) continue;
+            $item = array_merge($item,$items[$id]);
+            if(isset($item['children'])){
+                $this->_arrangeMenu($item['children'],$items);
+            }
+        }
+    }
+
+    /**
      * 获取顶级菜单设置
      * 注:顶级菜单的ID等于1
      * @return array|bool array中的title和value可能是有用的值,返回false表示发生了错误

@@ -7,6 +7,7 @@
  */
 namespace Application\Admin\Library;
 
+use Application\Admin\System\Model\MenuModel;
 use System\Library\Controller;
 use System\Utils\Assets;
 use System\Utils\SEK;
@@ -25,6 +26,11 @@ class AdminController extends Controller{
      */
     protected function displayManagement($template = null, $cache_id = null, $compile_id = null, $parent = null){
         //加载模块和菜单
+//        dumpout(([
+//            'cdn'   => $this->getCDN(),//加载CDN
+//            'page'  => $this->getPageInfo(),
+//            'user'  => $this->getUserInfo(),
+//        ]));
         $this->assign('infos',json_encode([
             'cdn'   => $this->getCDN(),//加载CDN
             'page'  => $this->getPageInfo(),
@@ -57,8 +63,85 @@ class AdminController extends Controller{
         $this->assignActionsList();
     }
 
+    /**
+     * 加载页面参数
+     * @return array
+     */
     private function getPageInfo(){
-        return Assets::load('_page');
+        $memuModel = new MenuModel();
+        $pageinfo = [
+            //head部分
+            'title' => 'KbylinFramework',
+            'coptright' => ' 2014 © YZ',
+            //body部分
+            'logo'  => 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFYAAAAOCAYAAAC1i+ttAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4AUHAxccnGNgawAAARBJREFUWMPdV0EOAyEIFLP/Wp+uL6OXmlqrgKC2lsTDRmRhGEcFRHSlAYBrWelX+tTrtQYAZCxJXpQ/3vdrLqV2rKdPnq+/e/Fa5t0hVgOIiGQjqHkOFDYXbn2M7tIUNcKoXizKf3RHfLBz0i4SgRqjjLErk9JKhFSWRhqjYW29picpIin4NaCXsm+k4QSoR2is5kCzADLLvLQYroh8WJTDAqY1BqnhBbga1kqa4zVs+YY8aNi5QxJYYAHAlHxeXw5rrFUSYpUESSO8JLGVbJGytAWUdedYJeEvHginmd+pZbO0dYTJXD0jklAznGL5pSnM8mbfeSVb8W9I6R3QEJpP2qOkoGai9Fk8+27L+ofgHmS+qpSPeE/nAAAAAElFTkSuQmCC',
+
+        ];
+        $menu = [
+            'header_menu'   => [
+                'active_index'  => 0,
+                'menu_list'     => $memuModel->getTopMenuSetting()
+            ],
+            'sidebar_menu'  => [
+                'active_index'  => 0,
+                'menu_list'     => [
+                    [
+                        'title' => 'Dashboard',
+                        'href'  => '#',
+                        'target'=> '_self',
+                        'icon'  => 'icon-control-play',
+                        'children'  => [
+                            [
+                                'title' => 'Section 1',
+                                'href'  => '#',
+                            ],
+                            [
+                                'title' => 'Section 2',
+                                'href'  => '#',
+                            ],
+                        ],
+                    ],
+                    [
+                        'title' => 'Classic',
+                        'href'  => '#',
+                        'target'=> '_self',
+                        'children'  => [
+                            [
+                                'title' => 'Section 1',
+                                'href'  => '#',
+                            ],
+                            [
+                                'title' => 'Section 2',
+                                'href'  => '#',
+                            ],
+                            [
+                                'title' => 'More',
+                                'href'  => '#',
+                                'children'   => [
+                                    [
+                                        'title' => 'SubSection',
+                                        'href'  => '#',
+                                        'children'   => [
+                                            [
+                                                'title' => 'SubSection',
+                                                'href'  => '#',
+                                                'children'   => [
+                                                    [
+                                                        'title' => 'SubSection',
+                                                        'href'  => '#',
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ]
+                    ]
+                ],
+            ],
+        ];
+        return array_merge($pageinfo, $menu);
     }
 
 //    private function getModules(){

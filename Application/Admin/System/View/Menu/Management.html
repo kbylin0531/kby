@@ -44,7 +44,7 @@
             }).trigger('resize');
         })();
 
-        var topNestable = Dazzling.nestable.create([]).attachTo("#top_nestable_attach");
+        var topNestable = Dazzling.nestable.create(1).attachTo("#top_nestable_attach");
         var updateFormId = function (id) {
             if(!id) id = maxMenuId +1;
             $("#form_menu").find("input[name=id]").val(""+id);
@@ -68,7 +68,6 @@
         });
         var loadModule = function () {
             Dazzling.post(public_url + 'listTopMenu', {}, function (data) {
-                dazz.debug(data);
                 topNestable.load(data);
             });
         };

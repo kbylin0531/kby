@@ -8,6 +8,7 @@
     <script src="{$smarty.const.PUBLIC_URI}assets/js/dazz.js"></script>
     <script>
         var infos = dazz.utils.toObject('{$infos}');
+
         var cdn = infos['cdn'];
         var options = {
             'public_url':"{$smarty.const.PUBLIC_URI}",
@@ -15,6 +16,7 @@
         };
         dazz.init(options).load(cdn['ico'],'ico');
         dazz.load(cdn['style'],'css');
+
 
         var ieVersion = dazz.context.ieVersion();
         if( ieVersion < 9){
@@ -26,7 +28,7 @@
         dazz.ready(function () {
             Dazzling.init();
             Dazzling.initUserInfo(infos['user'],['avatar.src','nickname','menu']);
-            Dazzling.initPageInfo(infos['page'],['headermenu','metas!']);
+            Dazzling.initPageInfo(infos['page']);
         });
     </script>
     {block name='style'}{/block}
@@ -63,7 +65,6 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-default" id="menu"></ul>
                     </li>
-                    {block name='quick_sidebar_entry'}{/block}
                 </ul>
             </div>
         </div>
@@ -95,7 +96,6 @@
                 {block name='stage'}{/block}
             </div>
         </div>
-        {block name='quick_sidebar'}{/block}
     </div>
     <div class="page-footer">
         <div class="page-footer-inner" id="dazz_copyright"> </div>

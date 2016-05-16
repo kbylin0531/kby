@@ -604,14 +604,24 @@ class Model {
         $this->_cur_dao_index = $index;
         return $this;
     }
-    /**
-     * 获取查询的错误
-     * @return string
-     */
-    public function getError(){
-        return $this->dao->getError();
-    }
 
+    private $_error = null;
+
+    /**
+     * @param null $error
+     * @return bool|null|string
+     */
+    public function error($error=null){
+        if(isset($error)){
+            //设置了error参数表示设置自定义的错误,同时返回false表示发生了错误
+            $this->_error = $error;
+            return false;
+        }
+        if(null === $this->_error){
+            $this->_error = $this->dao->getError();
+        }
+        return $this->_error;
+    }
     /**
      * 开启事务
      * @return bool

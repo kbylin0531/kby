@@ -383,6 +383,7 @@ var Dazzling = (function () {
         }
     };
 
+
     var initUserInfo = function (userinfo,itemsIds) {
         if(!(userinfo instanceof Object)) userinfo = dazz.utils.toObject(userinfo);
         var usermenu = $("#menu");
@@ -410,6 +411,92 @@ var Dazzling = (function () {
         }
     };
 
+    var HeaderMenuHandler = (function () {
+        //default options
+        var options = {
+            selector:'#dazz_header_menu'
+        };
+        var headermenu = null;
+
+        //检查是否有孩子树形
+        var getChildren = function (element,childrenattrname) {
+            if(!childrenattrname) childrenattrname = 'children';
+            return (element.hasOwnProperty(childrenattrname) && element[childrenattrname])?element[childrenattrname]:null;
+        };
+
+        //获取超链接
+        var _createAnchor = function (element) {
+            var a = $(document.createElement('a'));
+            element.hasOwnProperty('title') || (element.title = 'Untitled');
+            a.text(" "+element.title+" ");
+            element.hasOwnProperty('href') || (element.href = '#');
+            a.attr('href',element.href);
+            //有子菜单,设置下拉属性
+            getChildren(element) && a.attr('data-toggle','dropdown');
+            //设置了图标的情况下创建<i class="XX"></i>
+            if(element.hasOwnProperty('icon')){
+                $(document.createElement('i')).addClass(element.icon).appendTo(a);
+            }
+            return a;
+        };
+        var _createUnorderedLists = function(menuitem){
+            //不存在子菜单或者子菜单为空的情况下时直接返回
+            var children = getChildren(menuitem);
+            if(!children) return;
+
+            var list = $('<ul class="dropdown-menu"></ul>');
+            //创建并添加ul
+            dazz.utils.each(children,function (child) {
+                var li = $(document.createElement('li'));
+                li.append(_createAnchor(child,true));
+                list.append(li);
+                if(getChildren(child)){
+                    li.addClass('dropdown-submenu');
+                    li.append(_createUnorderedLists(child));
+                }
+            });
+            return list;
+        };
+
+        return {
+            //初始化
+            init:function (config) {
+                // console.log(config)
+                options = dazz.utils.initOption(options,config,true);
+                headermenu = toJquery(options.selector);
+                // console.log(headermenu,options,config)
+                return this;
+            },
+            //加载数据
+            load:function (data) {
+                console.log(data);
+                dazz.utils.each(data,function (menuitem) {
+                    var li = $(document.createElement('li'));
+                    li.addClass('classic-menu-dropdown');
+
+                    var haschild = getChildren(menuitem)?true:false;
+
+                    if(haschild) menuitem['icon'] = 'icon-angle-down';
+                    li.append(_createAnchor(menuitem,false));
+                    if(haschild) li.append(_createUnorderedLists(menuitem));
+
+                    headermenu.append(li);
+                });
+                return this;
+            },
+            //将第几个设置为激活状态
+            active:function (index) {
+                var blocks = headermenu.find('.classic-menu-dropdown');
+                if(index < blocks.length){
+                    blocks.eq(index).addClass('active');
+                    return true;
+                }
+                return false;
+            }
+
+        };
+    })();
+
     var initPageInfo = function (pageinfo) {
         if(!(pageinfo instanceof Object)) pageinfo = dazz.utils.toObject(pageinfo);
 
@@ -420,59 +507,7 @@ var Dazzling = (function () {
         pageinfo.hasOwnProperty('coptright') && $("#dazz_copyright").html(pageinfo['coptright']);
 
         //处理顶部菜单
-        var header_menu = pageinfo['header_menu'];
-        var dazz_headermenu = $("#dazz_header_menu");
-        //获取超链接
-        var _getAnchor4Header = function (attrs,iconAhead) {
-            var a = $(document.createElement('a'));
-            attrs.hasOwnProperty('title') && a.text(" "+attrs.title+" ");
-            attrs.hasOwnProperty('href')  && a.attr('href',attrs.href);
-            attrs.hasOwnProperty('submenu')  && a.attr('data-toggle','dropdown');
-
-            if(attrs.hasOwnProperty('icon')){
-                var i = $(document.createElement('i'));
-                i.addClass(attrs.icon);
-                iconAhead?i.prependTo(a):i.appendTo(a);
-            }
-            return a;
-        };
-        var _getUnorderedLists4Header = function(menuitem){
-            if(!menuitem.hasOwnProperty('submenu') || !menuitem.submenu) return;//不存在子菜单时直接返回
-            var li_ul = $('<ul class="dropdown-menu"></ul>');
-            //创建并添加ul
-            for(var x in menuitem.submenu){
-                if(!menuitem.submenu.hasOwnProperty(x)) continue;
-                //子菜单项
-                var subitem =  menuitem.submenu[x];
-
-                var li = $(document.createElement('li'));
-                li.append(_getAnchor4Header(subitem,true));
-                li_ul.append(li);
-                if(subitem.hasOwnProperty('submenu')){
-                    li.addClass('dropdown-submenu');
-                    li.append(_getUnorderedLists4Header(subitem));
-                }
-            }
-            return li_ul;
-        };
-
-        var active_index = parseInt(header_menu['active_index']);
-        for(index in header_menu['menu_list']){
-            if(!header_menu['menu_list'].hasOwnProperty(index)) continue;
-            //菜单项
-            menuitem = header_menu['menu_list'][index];
-
-            var li = $(document.createElement('li'));
-            li.addClass(parseInt(index) === active_index?'active classic-menu-dropdown':'classic-menu-dropdown');
-
-            hasSubmenu = menuitem.hasOwnProperty('submenu');
-
-            if(hasSubmenu) menuitem['icon'] = ' icon-angle-down';
-            li.append(_getAnchor4Header(menuitem,false));
-            if(hasSubmenu) li.append(_getUnorderedLists4Header(menuitem));
-
-            dazz_headermenu.append(li);
-        }
+        HeaderMenuHandler.init(pageinfo).load(pageinfo['header_menu']['menu_list']).active(pageinfo['active_index']);
 
         var sidebar_menu = pageinfo['sidebar_menu'];
         var dazz_sidebar_menu = $("#dazz_sidebar_menu");
@@ -725,7 +760,7 @@ var Dazzling = (function () {
             //事件注册
             dazz.utils.each(['show','shown','hide','hidden'],function (eventname) {
                 modal.on(eventname+'.bs.modal', function () {
-                    // dazz.debug(eventname,config[eventname]);
+                    // console.log(eventname,config[eventname]);
                     config[eventname] && (config[eventname])();
                 });
             });
@@ -743,70 +778,119 @@ var Dazzling = (function () {
 
     var Jnestable = {
         /**
-         * 创建并添加到指定元素下
-         * @param data 配置序列或者配置对象 (必须)
-         * @param group 分组
+         * 创建列表
+         * @param group 分组,如果未设置将自动创建一个GUID
          * @return this
          */
-        create : function (data,group) {
-            data = dazz.utils.toObject(data);
-
+        create : function (group) {
             var instance = dazz.newInstance(this);
 
             var id = 'nestable_'+dazz.utils.guid();
             var dd = $('<div class="dd" id="'+id+'"></div>');
-            this.load(data,dd);
 
-            instance.target = dd.nestable({group: group?group:id});
+            instance.target = this._getJNestable().nestable({group: group?group:id});
             return instance;
         },
-        attachTo:function (selector,isAppend) {
-            selector = toJquery(selector);
-            if(isAppend){
-                selector.append(this.target);
-            }else{
-                selector.prepend(this.target);
-            }
-            return this;
+        _getJNestable:function () {
+            return $('<div class="dd" id="nestable_'+dazz.utils.guid()+'"></div>');
         },
         /**
          * 返回加载过数据后的div
          * @param data
-         * @param dd 数据附加目的地(nestable div对象)
+         * @param target {jQuery}数据附加目的地(nestable div对象)
          * @returns {jQuery}
          */
-        load:function (data,dd) {
-            dazz.debug(data,dd,this.target);
-
-            if(!dd) dd = this.target.find('dd');
-            if(!dd.length){
-                dd = $('<div class="dd" id="nestable_'+dazz.utils.guid()+'"></div>');
-            }else{
-                dd.html('');
+        load:function (data,target) {
+            target = target?target:this.target;
+            if(!target){
+                target = this._getJNestable();
             }
-            this.createItemList(data,dd);
-            return dd;
+            this.createItemList(data,target);
+            return target;
         },
-        //创建OL节点,children为子元素数组,target为附加的目标(目标缺失时选用自身)
-        createItemList : function (config,target) {
-            config = dazz.utils.toObject(config);
-            var ol = $('<ol class="dd-list"></ol>');
+        //创建OL节点,children为子元素数组,target为创建的列表附加的目标(目标缺失时选用this.target,即dd)
+        createItemList : function (data,target) {
+            data = dazz.utils.toObject(data);
             var env = this;
-            dazz.utils.each(config,function (item) {
-                env.createItem(item);
+            var ol = $('<ol class="dd-list"></ol>');
+            dazz.utils.each(data,function (item) {
+                env.createItem(item,ol);
             });
 
             //寻找附加target
-            target = target?target:this.target;
-            if(!target) return Dazzling.toast.warning('Nestable require a target to attach!');
+            if(!(target = target?target:this.target)) return Dazzling.toast.warning('Nestable require a target to attach!');
 
-            //设置ol
-            var targetol = target.children('ol');
-            if(targetol.length) targetol.remove();//深处原来的ol
-            target.append(ol);
-
+            //如果target本身是ol节点,将不符合规则(ol下只能存在li,li下能存在ol)
+            // console.log(target.get(0).tagName);
+            switch (target.get(0).tagName.toUpperCase()){
+                case 'DIV':
+                case 'LI':
+                    //设置ol
+                    var targetol = target.children('ol');
+                    if(targetol.length) targetol.remove();//深处原来的ol
+                    console.log(target);
+                    target.append(ol);
+                    break;
+                case 'OL':
+                default:
+                    throw "无法在该元素上创建列表";
+            }
             return this;
         },
+        createItem : function (data,target) {
+            data = dazz.utils.toObject(data);
+
+            //设置基本的两个属性
+            if(dazz.utils.checkProperty(data,['id','title']) < 1) return Dazzling.toast.warning("The id/title of item should not be empty");
+            var linode = $('<li class="dd-item dd3-item"></li>').append($('<div class="dd-handle dd3-handle">')).append($('<div class="dd3-content">'+data['title']+'</div>'));
+
+            //设置其他附加属性(title id除外)
+            dazz.utils.each(data,function (value,key) {
+                if( key === 'children' ) return ;
+                switch (typeof value){
+                    case 'string':
+                    case 'number':
+                        linode.attr("data-"+key,value);
+                        break;
+                    case 'boolean':
+                        linode.attr("data-"+key,value?'true':'false');
+                        break;
+                    default:
+                }
+            });
+
+            //如果存在子元素的情况下创建
+            dazz.utils.checkProperty(data,'children') && this.createItemList(data['children'],linode);
+
+            // console.log(this.target)
+            //设置attach目标
+            if(!target) target = this.target;
+            if(!target) return Dazzling.toast.warning('Nestable require a target to attach!');
+
+            // console.log(target.get(0).tagName);
+            var tagname = target.get(0).tagName.toUpperCase();
+            console.log(target)
+            switch (tagname){
+                case 'DIV'://直接点击添加时候
+                case 'LI':
+                    //设置ol
+                    var targetol = target.children('ol');
+                    if(!targetol.length){
+                        //不存在ol链表时创建
+                        this.createItemList([],target);
+                        targetol = target.children('ol');
+                    }
+                    targetol.prepend(linode);
+                    break;
+                case 'OL':
+                    target.append(linode);
+                    break;
+                default:
+                    throw "无法在该元素上创建列表:"+tagname;
+            }
+            return this;
+        },
+        //获得序列化的值,可以是对象或者数组
         serialize:function (tostring) {
             var value = this.target.nestable('serialize');
             if(tostring){
@@ -815,45 +899,14 @@ var Dazzling = (function () {
             }
             return value;
         },
-        createItem : function (item,target) {
-            item = dazz.utils.toObject(item);
-
-            //设置基本的两个属性
-            if(dazz.utils.checkProperty(item,['id','title']) < 1) return Dazzling.toast.warning("The id/title of item should not be empty");
-            var li = $('<li class="dd-item dd3-item"></li>');
-            li.append($('<div class="dd-handle dd3-handle">')).append($('<div class="dd3-content">'+item['title']+'</div>'));
-            dazz.debug(item);
-            //设置其他附加属性(title id除外)
-            dazz.utils.each(item,function (value,key) {
-                if( key === 'children' ) return ;
-
-                switch (typeof value){
-                    case 'string':
-                    case 'number':
-                        li.attr("data-"+key,value);
-                        break;
-                    case 'boolean':
-                        li.attr("data-"+key,value?'true':'false');
-                        break;
-                    default:
-                }
-            });
-
-            //如果存在子元素的情况下创建
-            dazz.utils.checkProperty(item,'children') && this.createItemList(item['children'],li);
-
-            //设置attach目标
-            if(!target) target = this.target;
-            if(!target) return Dazzling.toast.warning('Nestable require a target to attach!');
-
-            //设置attach目标中的ol
-            var targetol = target.children('ol');
-            if(!targetol.length){/* 缺少OL的情况下创建一个空的UL */
-                this.createItemList([],target);
-                targetol = target.children('ol');
+        attachTo:function (selector,append) {
+            selector = toJquery(selector);
+            if(append){
+                selector.append(this.target);
+            }else{
+                selector.prepend(this.target);
             }
-            targetol.prepend(li);
-            return true;
+            return this;
         },
         prependTo :function (attatchment) {
             attatchment = toJquery(attatchment);

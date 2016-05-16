@@ -23,7 +23,6 @@ class MenuItemModel extends Model {
         'icon'      => null,
     ];
 
-
     /**
      * 创建菜单项目
      * @param $id
@@ -32,7 +31,7 @@ class MenuItemModel extends Model {
      * @param string $icon
      * @return bool
      */
-    public function createMenuItem($id,$title,$href,$icon){
+    public function createMenuItem($id,$title,$href,$icon) {
         $result = $this->fields([
             'id'        => $id, // 前台保证唯一
             'title'     => $title,
@@ -42,8 +41,22 @@ class MenuItemModel extends Model {
         return $result;
     }
 
-    public function listMenuItems(){
-        return $this->select();
+    /**
+     * 获取菜单项列表
+     * @param bool $idaskey 是否将id作为键
+     * @return array|bool
+     */
+    public function listMenuItems($idaskey=false){
+        $items = $this->select();
+        if($idaskey and $items){
+            $temp = [];
+            foreach ($items as $key=>$item){
+                $temp[$item['id']] = $item;
+                unset($temp[$item['id']]['id']);
+            }
+            $items =$temp;
+        }
+        return $items;
     }
 
     public function hasMenuItemById($id){

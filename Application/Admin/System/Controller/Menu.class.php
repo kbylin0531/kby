@@ -30,40 +30,14 @@ class Menu extends AdminController {
      */
     public function listTopMenu(){
         $menuModel = new MenuModel();
-        $config = $menuModel->getTopMenuConfig();
-        if(false === $menuModel) Response::failed('获取顶部菜单配置失败失败!');
-//        $config = unserialize($config);
-        $config = unserialize($config);
-        if(false === $config){
-            Response::failed('获取顶级菜单失败'.$menuModel->getError());
-        }else{
-            $menuItemModel = new MenuItemModel();
-            $items = $menuItemModel->listMenuItems();
-            $temp = [];
-            if($items){
-                foreach ($items as $key=>$item){
-                    $temp[$item['id']] = $item;
-                    unset($temp[$item['id']]['id']);
-                }
-            }
-//            dumpout($config,$temp);
-            $this->arrangeMenu($config, $temp);
-//            dumpout($config);
-            Response::ajaxBack($config);//直接返回文本
-        }
+        $config  = $menuModel->getTopMenuSetting();
+        if(false === $config) Response::failed('获取顶部菜单失败!'.$menuModel->error());
+        Response::ajaxBack($config);//直接返回文本
     }
-
-    public function arrangeMenu(array &$config,array $items){
-        foreach ($config as &$item){
-            $id = $item['id'];
-            if(!isset($items[$id])) continue;
-            $item = array_merge($item,$items[$id]);
-            if(isset($item['children'])){
-                $this->arrangeMenu($item['children'],$items);
-            }
-        }
-    }
-
+    /**
+     * 需要注意的是,更新过之后需要刷新模板引擎的缓存
+     * @param $topset
+     */
     public function saveTopMenu($topset){
         $topset = json_decode($topset);
         if(!is_array($topset)){
@@ -73,14 +47,14 @@ class Menu extends AdminController {
         $menuItemModel->beginTransaction();
 
         if(!$this->_setMenu($topset,$menuItemModel,true)){
-            Response::failed('设置出错:'.$menuItemModel->getError());
+            Response::failed('设置出错:'.$menuItemModel->error());
         }
 
         //更新菜单配置
         $menuModel = new MenuModel();
         if(!$menuModel->setTopMenu($topset)){
             $menuItemModel->rollBack();
-            Response::failed('更新顶部配置时出现了错误!'.$menuModel->getError());
+            Response::failed('更新顶部配置时出现了错误!'.$menuModel->error());
         }
 
         $menuItemModel->commit();

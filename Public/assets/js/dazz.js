@@ -187,8 +187,8 @@ window.dazz = (function () {
          * 原先的设计是在Object中添加一个方法,但与jquery的遍历难兼容
          *  Object.prototype.utils
          * 避免发生错误修改为参数加返回值的设计
-         * @param options
-         * @param config
+         * @param options {{}}
+         * @param config {{}}
          * @param covermode
          * @returns {*}
          */
@@ -278,7 +278,6 @@ window.dazz = (function () {
                 }
                 return ;
             }
-            dazz.debug(object);
             throw "Require an object/array!";
         },
         /**
@@ -303,9 +302,9 @@ window.dazz = (function () {
             return kakashi;
         },
         /**
-         * 检查对象是否有树形
+         * 检查对象是否有指定的属性
          * @param object {{}}
-         * @param prop
+         * @param prop 属性数组
          * @return int 返回1表示全部属性都拥有,返回0表示全部都没有,部分有的清空下返回-1
          */
         checkProperty:function (object, prop) {
@@ -357,9 +356,6 @@ window.dazz = (function () {
         },
         ready:function (callback) {
             readyStack.push(callback);
-        },
-        debug:function () {
-            options['debug_on'] && console.log(utils.copy(arguments));
         }
     };
 })();
