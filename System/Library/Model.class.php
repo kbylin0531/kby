@@ -73,6 +73,12 @@ class Model {
     private $_cur_dao_index = null;
 
     /**
+     * 数据访问对象
+     * @var Dao
+     */
+    private $dao = null;
+
+    /**
      * Model constructor.
      * 单参数为非null时就指定了该表的数据库和字段,来对制定的表进行操作
      * @param string $tablename 表的实际名称,不指定时候将使用类常量中定义的值
@@ -82,15 +88,17 @@ class Model {
      */
     public function __construct($tablename=null,$fields=null,$order=null){
         $clsnm = static::class;
-        null === $tablename and $tablename = defined($clsnm::TABLE_NAME)?$clsnm::TABLE_NAME:KbylinException::throwing('The table of model should not be empty!');
-        null === $fields and $fields = defined($clsnm::TABLE_FIELDS)?$clsnm::TABLE_FIELDS:KbylinException::throwing('The fields of model should not be empty!');
-        null === $order and $order = defined($clsnm::TABLE_ORDER)?$clsnm::TABLE_ORDER:null;
+        null === $tablename and $tablename = defined("$clsnm::TABLE_NAME")?$clsnm::TABLE_NAME:KbylinException::throwing('The table of model should not be empty on constructor!');
+        null === $fields and $fields = defined("$clsnm::TABLE_FIELDS")?$clsnm::TABLE_FIELDS:KbylinException::throwing('The fields of model should not be empty on constructor!');
+        null === $order and $order = defined("$clsnm::TABLE_ORDER")?$clsnm::TABLE_ORDER:null;
 
         is_string($tablename) or KbylinException::throwing('Constant TABLE_NAME require to be string !');
         is_array($fields) or KbylinException::throwing('Constant TABLE_FIELDS require to be array !');
+
+        $this->dao = Dao::getInstance();
+
         $this->reset([
             'table'     => $tablename,
-            'fields'    => $fields,
             'order'     => $order,
         ]);
     }
@@ -113,9 +121,8 @@ class Model {
             'order'     => null,
             'having'    => null,
         ];
-        if(null !== $originOption){
-            $origin = array_merge($origin,$originOption);
-        }
+        null !== $originOption and $origin = array_merge($origin,$originOption);
+
         $this->_options = $origin;
         $this->_inputs = [];
     }
@@ -124,14 +131,23 @@ class Model {
      * 上一次执行的SQL语句
      * @var string
      */
-    private $_lastsql = null;
+    public static $_lastSql = null;
+    /**
+     * 返回上一次查询的SQL输入参数
+     * @var array
+     */
+    public static $_lastInputs = null;
 
     /**
      * 获取上一次执行的SQL
      * @return null|string
      */
-    public function getLastSql(){
-        return $this->_lastsql;
+    public static function getLastSql(){
+        return Model::$_lastSql;
+    }
+
+    public static function getLastInputs(){
+        return Model::$_lastInputs;
     }
 
 /********************************************** 链式操作 **************************************************************************************************/
@@ -156,7 +172,8 @@ class Model {
         if(is_array($fields)){
             //是数组的情况通常用于update/create
             $keys = array_keys($fields);
-            array_walk($keys,function(&$field){ $field = $this->getDao()->quote($field);});//对字段进行转义
+            array_walk($keys,function(&$field){ $field = $this->dao->escape($field);});//对字段进行转义
+//            dumpout($fields);
             $this->_options['fields'] = implode(',', $keys);
             $this->_inputs['fields'] = array_values($fields);
         }elseif(is_string($fields)){
@@ -216,22 +233,24 @@ class Model {
     public function create($tablename=null,array $data=null){
         if($tablename === null){
             //空参数 - 显式声明是链式调用的终点
-            if($this->_inputs){
-                //所有要插入的参数都需要经过绑定进行插入
-                $holder = rtrim(str_repeat('?,', count($this->_inputs)),',');
+            empty($this->_inputs['fields']) and KbylinException::throwing('No data prepared to insert!');
 
-                //检查必要的两个字段
-                $tablename = $this->_options['table']?$this->_options['table']:KbylinException::throwing('No table to insert!');
-                $fields = $this->_options['fields']?$this->_options['fields']:KbylinException::throwing('Empty fields is not allowed!');
+            //所有要插入的参数都需要经过绑定进行插入
+            $holder = rtrim(str_repeat('?,', count($this->_inputs['fields'])),',');
 
-                return $this->exec("INSERT INTO {$tablename}  {$fields} VALUES ({$holder})",$this->_inputs);
-            }
-            return KbylinException::throwing('No data prepared to insert!');
+            //检查必要的两个字段
+            $tablename = $this->_options['table']?$this->_options['table']:KbylinException::throwing('No table to insert!');
+            $fields = $this->_options['fields']?$this->_options['fields']:KbylinException::throwing('Empty fields is not allowed!');
+            //输入参数只使用到了fields字段
+
+            $inputs = $this->_inputs['fields'];
+            $sql = "INSERT INTO {$tablename}  ( {$fields} ) VALUES ({$holder});";
+            return $this->exec($sql,$inputs);
         }else{
             //给定了参数的情况下无需考虑链式调用设置的参数
             $keys = array_keys($data);
             $inputs = array_values($data);
-            array_walk($keys,function(&$field){ $field = $this->getDao()->quote($field);});//对字段进行转义
+            array_walk($keys,function(&$field){ $field = $this->dao->escape($field);});//对字段进行转义
             $fields = implode(',', $keys);
             $placeholder = rtrim(str_repeat('?,', count($keys)),',');
             empty($fields) and KbylinException::throwing('Empty field is not allowed');
@@ -247,7 +266,7 @@ class Model {
      * @return false|int
      */
     public function exec($sql,array $inputs=null){
-        $result = $this->getDao()->exec($this->_lastsql=$sql,$inputs);
+        $result = $this->dao->exec(Model::$_lastSql=$sql,Model::$_lastInputs = $inputs);
         $this->reset();
         return $result;
     }
@@ -259,7 +278,7 @@ class Model {
      * @return array|false
      */
     public function query($sql,array $inputs=null){
-        $result = $this->getDao()->query($this->_lastsql=$sql,$inputs);
+        $result = $this->dao->query(Model::$_lastSql=$sql,Model::$_lastInputs = $inputs);
         $this->reset();
         return $result;
     }
@@ -277,7 +296,7 @@ class Model {
             //检查必要参数
             $tablename = $this->_options['table']?$this->_options['table']:KbylinException::throwing('No table to insert!');
             $where = $this->_options['where']?$this->_options['where']:KbylinException::throwing('Where must be declared!');
-            return $this->getDao()->exec("DELETE FROM {$tablename} WHERE {$where};",$this->_inputs);
+            return $this->exec("DELETE FROM {$tablename} WHERE {$where};",$this->_inputs);
         }else{
             $where_missing = 'Where should not be empty while execute an delete sql!';
             $where or KbylinException::throwing($where_missing);
@@ -309,20 +328,34 @@ class Model {
      * @throws KbylinException
      */
     public function update($tablename=null, $fields=null, $where=null){
+//        static $c = 0;
         if(null === $tablename){
             /* 链式链式调用(不带参数) */
             empty($this->_options['table']) and KbylinException::throwing('Table should not be empty!',$this->_options);
             $tablename = $this->_options['table'];
+            //设置更新字段
             empty($this->_options['fields']) and KbylinException::throwing('Fields should not be empty!',$this->_options);
-            empty($this->_options['where']) and KbylinException::throwing('Where should not be empty!',$this->_options);
-            $where = $this->_options['where'];
             $fields = explode(',',$this->_options['fields'] );
             array_walk($fields,function (&$field){
                 $field = " {$field} = ? ";
             });
             $fields = implode(',',$fields);
+            //where条件设置
+            empty($this->_options['where']) and KbylinException::throwing('Where should not be empty!',$this->_options);
+            $where = $this->_options['where'];
+
+
             $sql = "UPDATE {$tablename} SET {$fields} WHERE {$where};";
-            return $this->exec($sql,$this->_inputs);
+
+            if(isset($this->_inputs['fields'])) $inputs = $this->_inputs['fields'];
+            else $inputs = [];
+            if(isset($this->_inputs['where'])) $inputs = array_merge($inputs,$this->_options['where']);
+
+//            if(++$c === 4) dumpout([$sql,$inputs]);
+
+            $result = $this->exec($sql,$inputs);
+//            dumpout([$sql,$inputs],$result);
+            return $result;
         }else{
             $inputs = [];
             if(is_array($fields)){
@@ -347,6 +380,23 @@ class Model {
      * @throws KbylinException
      */
     public function select($options=null){
+        if(null === $options){
+            //链式操作
+            $sql = $this->_options['distinct']?'SELECT DISTINCE ':'SELECT';
+            empty($this->_options['table']) and KbylinException::throwing('Model has no table binded!');
+//            dumpout($this->_options['fields']);
+            $sql .= $this->_options['fields'].' FROM '.$this->_options['table'];
+            $this->_options['where'] and $sql .= ' WHERE '.$this->_options['where'];
+            $this->_options['group'] and $sql .= ' GROUP BY '.$this->_options['group'];
+            $this->_options['order'] and $sql .= ' ORDER BY '.$this->_options['order'];
+
+            if(isset($this->_inputs['fields'])) $inputs = $this->_inputs['fields'];
+            else $inputs = [];
+            if(isset($this->_inputs['where'])) $inputs = array_merge($inputs,$this->_options['where']);
+//            dump($sql,$inputs);
+            return $this->query($sql,$inputs);
+        }
+
         if(is_string($options)){
             $sql  = "SELECT * FROM {$options};";
             return $this->query($sql,null);
@@ -372,7 +422,7 @@ class Model {
         }elseif(is_array($components['fields'])){/*此时可以保证不是空数组,在第一关的时候已经被过滤掉了*/
             //默认转义
             array_map(function($param){
-                return $this->getDao()->quote($param);
+                return $this->dao->escape($param);
             },$components['fields']);
             $components['fields'] = implode(',',$components['fields']);
         }
@@ -458,7 +508,7 @@ class Model {
             $holder = ":{$fieldName}";
         }
 
-        $sql = (self::$_conventions[self::class]['AUTO_ESCAPE_ON'] or $escape)? $this->getDao()->quote($fieldName):$fieldName;
+        $sql = (self::$_conventions[self::class]['AUTO_ESCAPE_ON'] or $escape)? $this->dao->escape($fieldName):$fieldName;
         $input = [];
 
         switch($operator){
@@ -546,19 +596,6 @@ class Model {
     }
 
     /**
-     * 获取数据访问接口对象
-     * @param null|int|string $index
-     * @return \System\Core\Dao
-     */
-    public function getDao($index=null){
-        if(null === $index){
-            $index = $this->_cur_dao_index;
-        }else{
-            $this->_cur_dao_index = $index;
-        }
-        return $this->getDao($index);
-    }
-    /**
      * 设置默认操作的Dao的角标
      * @param null|int|string $index 角标的Index,设置成null时表示恢复默认
      * @return $this;
@@ -572,6 +609,37 @@ class Model {
      * @return string
      */
     public function getError(){
-        return $this->getDao()->getError();
+        return $this->dao->getError();
     }
+
+    /**
+     * 开启事务
+     * @return bool
+     */
+    public function beginTransaction(){
+        return $this->dao->beginTransaction();
+    }
+
+    /**
+     * 提交事务
+     * @return bool
+     */
+    public function commit(){
+        return $this->dao->commit();
+    }
+    /**
+     * 回滚事务
+     * @return bool
+     */
+    public function rollBack(){
+        return $this->dao->rollBack();
+    }
+    /**
+     * 确认是否在事务中
+     * @return bool
+     */
+    public function inTransaction(){
+        return $this->dao->inTransaction();
+    }
+
 }

@@ -567,15 +567,17 @@ WHERE  {$filter} ";
      * @param $fileno
      * @param $rem
      * @param $info
+     * @param $year
+     * @param $term
      * @return int|string
      */
-    public function insertRegisteries($studentno,$date,$fileno,$rem,$info){
+    public function insertRegisteries($studentno,$date,$fileno,$rem,$info,$year,$term){
         $sql = '
 INSERT INTO [REGISTRIES]
-([INFOTYPE], [DATE], [FILENO], [REM], [STUDENTNO],
-[studentname], [major], [majoritem], [schoolname], [classname])
+([INFOTYPE], [DATE], [FILENO], [REM],year,term,
+ [STUDENTNO],[studentname], [major], [majoritem], [schoolname], [classname])
 SELECT
-:info ,:date, :fileno, :rem,
+:info ,:date, :fileno, :rem,:year,:term
 RTRIM(STUDENTS.STUDENTNO),
 RTRIM(STUDENTS.NAME),
 RTRIM(majorcode.NAME ),
@@ -594,6 +596,8 @@ WHERE STUDENTS.STUDENTNO = :studentno';
             ':date' => $date,
             ':fileno' => $fileno,
             ':rem' => $rem,
+            ':year' => $year,
+            ':term' => $term,
             ':studentno' => $studentno,
         )));
     }

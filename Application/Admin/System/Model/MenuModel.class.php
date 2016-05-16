@@ -7,6 +7,7 @@
  */
 
 namespace Application\Admin\System\Model;
+use System\Core\KbylinException;
 use System\Library\Model;
 
 /**
@@ -31,6 +32,7 @@ class MenuModel extends Model{
      */
     public function getTopMenuConfig(){
         $config = $this->where('id = 1')->select();
+//        dumpout($config);
         if(isset($config[0]['value'])){
             return $config[0]['value'];
         }
@@ -39,33 +41,36 @@ class MenuModel extends Model{
 
     /**
      * @param array $topset
-     * @param bool $flag 标记第一次进入的标记
      * @return bool
      */
-    public function setTopMenuSet(array $topset, $flag=true){
-        static $rstset = null;
-        static $dao = null;
-        static $menuItemMoedel = null;
-        if($topset){
-            if($flag){//重置
-                $dao = $this->getDao();
-                $menuItemMoedel = new MenuItemModel();
-                $rstset = [
-                    'isuccess'   => 0,
-                    'ifailed'    => 0,
-                    'usuccess'   => 0,
-                    'ufailed'    => 0,
-                ];
-            }
-            $flag and $dao->beginTransaction();
+    public function setTopMenu($topset){
+        if(is_string($topset)) $topset = json_decode($topset);
+        is_array($topset) or KbylinException::throwing('Menu setting should be array/string(json)');
 
-
-            $flag and $dao->commit();
+        $config = $this->travelThrough($topset);
+        if(empty($config)){
+            $config = '[]';
+        }else{
+            $config = serialize($config);
         }
-        return true;
+//        dumpout($config);;
+        return $this->fields([
+            'value' => $config,
+        ])->where('id = 1')->update();
     }
 
-
+    private function travelThrough(array $topset){
+        $result = [];
+        foreach ($topset as $object){
+            $item = [];
+            $item['id'] = $object->id;
+            if(isset($object->children)){
+                $item['children'] = $this->travelThrough($object->children);
+            }
+            $result[] = $item;
+        }
+        return $result;
+    }
 
     /**
      * 写入修改后的顶级菜单设置
@@ -78,51 +83,5 @@ class MenuModel extends Model{
             'value' => $config,
         ])->update();
     }
-
-    /**
-     * 获取次级菜单配置
-     * @param int $id 次级菜单ID,如果为null表示获取全部的次级菜单(以数组的形式返回,id作为键位)
-     * @return string|array
-     */
-    public function getJuniorMenu($id=null){
-
-    }
-
-    /**
-     * @param $title
-     * @param $icon
-     * @return bool
-     * @throws \System\Core\KbylinException
-     */
-    public function createMenuItem($title,$icon=null){
-        if($icon){
-            $sql = 'INSERT INTO [kl_config_menu] ([title], [value], [order], [icon]) VALUES (\'sdsdsds\', \'[]\', 0, :icon);SELECT @@identity as [id]';
-            $input = [
-                ':title'    => $title,
-                'icon'      => $icon,
-            ];
-        }else{
-            $sql = 'INSERT INTO [kl_config_menu] ([title], [value], [order]) VALUES (\'sdsdsds\', \'[]\', 0);SELECT @@identity as [id]';
-            $input = [
-                ':title'    => $title,
-            ];
-        }
-
-        $result = $this->getDao()->query($sql);
-        if(false !== $result and isset($result[0]['id'])){
-            return $result[0]['id'];
-        }
-        return false;
-    }
-
-    /**
-     * @param int $id 次级菜单ID
-     * @param string $config 次级菜单配置
-     */
-    public function setJuniorMenu($id,$config){
-
-    }
-
-
 
 }

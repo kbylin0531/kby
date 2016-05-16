@@ -7,6 +7,7 @@
 namespace System\Utils;
 use System\Core\Exception\ParameterInvalidException;
 use System\Core\KbylinException;
+use System\Library\Model;
 
 /**
  * Class SEK 系统执行工具(System Execute Kits)
@@ -162,6 +163,8 @@ final class SEK {
                     'SessionID' => session_id(),
                     'Cookie'    => var_export($_COOKIE,true),
                     'Obcache-Size'  => number_format((ob_get_length()/1024),2).' KB (Unexpect Trace Page!)',//不包括trace
+                    'LastSQL'       => Model::getLastSql(),
+                    'LastInputs'    => Model::getLastInputs(),
                 ],
                 'Trace'         => self::$_traces,
                 'Files'         => array_merge(['Total'=>count($info)],$info),
@@ -643,6 +646,21 @@ final class SEK {
             }
         }
         return $ghost;
+    }
+
+    /**
+     * 分析XML属性
+     * @access private
+     * @param string $attrs  XML属性字符串
+     * @return array
+     */
+    public static function parseXmlAttrs($attrs) {
+        $xml        =   '<tpl><tag '.$attrs.' /></tpl>';
+        $xml        =   simplexml_load_string($xml);
+        false === $xml and KbylinException::throwing('Filed to parse XML attributes!',$attrs);
+        $xml        =   (array)($xml->tag->attributes());
+        $array      =   array_change_key_case($xml['@attributes']);
+        return $array;
     }
 
 }

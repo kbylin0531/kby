@@ -862,6 +862,8 @@ class StatusAction extends RightAction{
      * @param string $studentno
      */
     public function addxuejiyidong($studentno=''){
+        $model = new CommonModel();
+        $this->assign('yearterm',$model->getYearTerm());
         $this->xiala('infotype','infotype');
         $this->assign('studentno',$studentno);
         $this->display();
@@ -912,13 +914,9 @@ class StatusAction extends RightAction{
      * @param $rem
      * @param $info
      */
-    public function insertRegisteries($studentno,$date,$fileno,$rem,$info){
-//        $abc=$this->model1->sqlFind('select SCHOOL from TEACHERS where TEACHERNO=:teacherno',array(':teacherno'=>$_SESSION['S_USER_INFO']['TEACHERNO']));
-//        if(!isDeanByUsername(getUsername())){
-//            exit('只有教务处的人才可以添加学籍异动');
-//        }
+    public function insertRegisteries($studentno,$date,$fileno,$rem,$info,$year,$term){
         $statusModel = new StatusModel();
-        $rst = $statusModel->insertRegisteries($studentno,$date,$fileno,$rem,$info);
+        $rst = $statusModel->insertRegisteries($studentno,$date,$fileno,$rem,$info,$year,$term);
         exit((is_string($rst) or !$rst )? '添加失败!'.$rst:'添加成功');
     }
 

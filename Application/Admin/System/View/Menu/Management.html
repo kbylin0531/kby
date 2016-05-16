@@ -26,32 +26,41 @@
     dazz.load('assets/plugins/jquery.nestable/jquery.nestable.js');
     dazz.load('assets/plugins/jquery.nestable/jquery.nestable.css');
 
+    var public_url = '{$smarty.const.__CONTROLLER__}/';
+    var maxMenuId = 1;
+
     dazz.ready(function () {
-        var public_url = '{$smarty.const.__CONTROLLER__}/';
-        var maxMenuId = 1;
 
-        Dazzling.page.registerAction('全部展开', function () {
-            $(".dd").nestable("expandAll");
-        }, "icon-resize-full");
-        Dazzling.page.registerAction('全部折叠', function () {
-            $(".dd").nestable("collapseAll");
-        }, "icon-resize-small");
-        $(window).resize(function () {
-            Dazzling.page.adjustMinHeight(".nestable_container");
-        }).trigger('resize');
-
+        //初始化代码快
+        (function () {
+            Dazzling.page.registerAction('全部展开', function () {
+                $(".dd").nestable("expandAll");
+            }, "icon-resize-full");
+            Dazzling.page.registerAction('全部折叠', function () {
+                $(".dd").nestable("collapseAll");
+            }, "icon-resize-small");
+            $(window).resize(function () {
+                Dazzling.page.adjustMinHeight(".nestable_container");
+            }).trigger('resize');
+        })();
 
         var topNestable = Dazzling.nestable.create([]).attachTo("#top_nestable_attach");
-
+        var updateFormId = function (id) {
+            if(!id) id = maxMenuId +1;
+            $("#form_menu").find("input[name=id]").val(""+id);
+        };
         var topModal = Dazzling.modal.create("#topModal", {
             'title': '添加顶部菜单项目',
             'confirmText': '添加',
             'cancelText': '关闭窗口',
+            'shown':function () {
+                updateFormId();
+            },
             //确认和取消的回调函数
             'confirm': function () {
                 var obj = dazz.utils.parseUrl(Dazzling.form.serialize("#form_menu"));
-                obj.id = ++ maxMenuId;
-                topNestable.createItem(obj);
+                topNestable.createItem(obj) && maxMenuId++;
+                updateFormId();
             },
             'cancel': function () {
                 topModal.hide();
@@ -59,6 +68,7 @@
         });
         var loadModule = function () {
             Dazzling.post(public_url + 'listTopMenu', {}, function (data) {
+                dazz.debug(data);
                 topNestable.load(data);
             });
         };
@@ -85,10 +95,19 @@
 <!-- 添加顶部菜单 -->
 <div id="topModal">
     <form class="form-horizontal" id="form_menu" role="form">
+        <input name="href" type="hidden">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">菜单项ID</label>
+            <div class="col-sm-6">
+                <input type="text" class="form-control input-sm" name="id" placeholder="">
+                <p class="help-block">在没有发生ID冲突的情况下不建议修改</p>
+            </div>
+        </div>
         <div class="form-group">
             <label class="col-sm-2 control-label">名称</label>
             <div class="col-sm-6">
                 <input type="text" class="form-control input-sm" name="title" placeholder="请输入显示名称">
+                <p class="help-block">用于显示在菜单上的文字,不建议过长</p>
             </div>
         </div>
         <div class="form-group">

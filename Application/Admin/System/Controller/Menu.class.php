@@ -7,7 +7,9 @@
  */
 namespace Application\Admin\System\Controller;
 use Application\Admin\Library\AdminController;
+use Application\Admin\System\Model\MenuItemModel;
 use Application\Admin\System\Model\MenuModel;
+use System\Core\Dao;
 use System\Utils\Response;
 
 /**
@@ -29,10 +31,36 @@ class Menu extends AdminController {
     public function listTopMenu(){
         $menuModel = new MenuModel();
         $config = $menuModel->getTopMenuConfig();
+        if(false === $menuModel) Response::failed('获取顶部菜单配置失败失败!');
+//        $config = unserialize($config);
+        $config = unserialize($config);
         if(false === $config){
             Response::failed('获取顶级菜单失败'.$menuModel->getError());
         }else{
-            Response::ajaxBack($config,Response::AJAX_STRING);//直接返回文本
+            $menuItemModel = new MenuItemModel();
+            $items = $menuItemModel->listMenuItems();
+            $temp = [];
+            if($items){
+                foreach ($items as $key=>$item){
+                    $temp[$item['id']] = $item;
+                    unset($temp[$item['id']]['id']);
+                }
+            }
+//            dumpout($config,$temp);
+            $this->arrangeMenu($config, $temp);
+//            dumpout($config);
+            Response::ajaxBack($config);//直接返回文本
+        }
+    }
+
+    public function arrangeMenu(array &$config,array $items){
+        foreach ($config as &$item){
+            $id = $item['id'];
+            if(!isset($items[$id])) continue;
+            $item = array_merge($item,$items[$id]);
+            if(isset($item['children'])){
+                $this->arrangeMenu($item['children'],$items);
+            }
         }
     }
 
@@ -41,104 +69,66 @@ class Menu extends AdminController {
         if(!is_array($topset)){
             Response::failed('无法解析前台传递的序列化的信息!');
         }
+        $menuItemModel = new MenuItemModel();
+        $menuItemModel->beginTransaction();
+
+        if(!$this->_setMenu($topset,$menuItemModel,true)){
+            Response::failed('设置出错:'.$menuItemModel->getError());
+        }
+
+        //更新菜单配置
         $menuModel = new MenuModel();
+        if(!$menuModel->setTopMenu($topset)){
+            $menuItemModel->rollBack();
+            Response::failed('更新顶部配置时出现了错误!'.$menuModel->getError());
+        }
+
+        $menuItemModel->commit();
+
+        Response::success('成功更新了了'.$this->_success['u'].'条数据,添加了'.$this->_success['c'].'条数据!');
+    }
+
+    private $_success =null;
+    /**
+     * 设置菜单项,包括修改和添加
+     * @param array $topset
+     * @param MenuItemModel $model
+     * @param bool $reset
+     * @return bool
+     */
+    private function _setMenu($topset,$model,$reset=false){
+        $reset and $this->_success =  ['c'=>0,'u'=>0];
         foreach ($topset as $object){
             if(empty($object->id) or empty($object->title)){
-                return $this->setError('Id/Title should not be empty!');
+                Response::failed('Id/Title should not be empty!');
             }
+            $object->href = isset($object->href)?$object->href:'#';
+            $object->icon = isset($object->icon)?$object->icon:'';
 
-            $where = 'id = '.intval($object->id);
+            //检查ID是否存在
+            $count = $model->hasMenuItemById($object->id);
+            if(false === $count) Response::failed('failed to query whether if id exist!');
 
-            $count = $this->where($where)->count();
-            $fields = [
-                'title' => $object->title,
-            ];
-            isset($object->icon) and $fields['icon'] = $object->icon;
-            if($count > 0){
-                $result = $this->where($where)->fields($fields)->update();
-            }else{
-                dumpout($fields);
-                $result = $this->fields($fields)->create();
-            }
+//            dump($count,[$object->id,$object->title,$object->href,$object->icon]);
+            $result = call_user_func_array([$model,$count?'updateMenuItem':'createMenuItem'], [$object->id,$object->title,$object->href,$object->icon]);
+
             if(false === $result) {
-                $this->getDao()->rollBack();
-                return false;
+                $model->rollBack();
+                Response::failed(($count?'修改失败':'添加失败').$model->getError());
+            }else{
+                $this->_success[$count?'u':'c']++;
             }
-
-            dumpout($result,$this->getError());
 
             //递归执行
             if(!empty($object->children)){
-                $result = $this->setTopMenuSet($object->children,false);
-                if(false === $result){
-                    $dao->rollBack();
-                    return false;
+                if(false === $this->_setMenu($object->children,$model)){
+                    $model->rollBack();
+                    Response::failed('设置子菜单失败');
                 }
             }
         }
-
-
-        if($menuModel->setTopMenuSet($topset)){
-            Response::success('顶部菜单设置成功!');
-        }else{
-            Response::failed('设置失败!'.$menuModel->getError());
-        }
-
+        return true;
     }
 
-
-    /**
-     * @param $title
-     * @param null $icon
-     */
-    public function createMenuItem($title,$icon=null){
-        $menuModel = new MenuModel();
-        $result = $menuModel->createMenuItem($title,$icon);
-        if(false === $result){
-            Response::failed('添加菜单项目失败!'.$menuModel->getError());
-        }else{
-            Response::ajaxBack(['id'=>$result]);
-        }
-    }
-
-
-    /**
-     * 获取次级菜单列表
-     * 列表以菜单项目ID为键
-     */
-    public function listJuniorMenu(){}
-
-    /**
-     * 修改顶级菜单项配置
-     * @param string $config 菜单项目序列化的值
-     */
-    public function updateTopMenu($config){
-
-    }
-
-    /**
-     * 修改次级菜单项列表
-     * @param int $id 次级菜单项ID
-     * @param string $config 次级菜单项配置
-     */
-    public function updateJuniorMenu($id,$config){
-
-    }
-
-    /**
-     * 添加一个次级菜单项
-     * @param string $config 次级菜单项配置
-     */
-    public function createJuniorMenu($config){
-
-    }
-
-    /**
-     * 删除次级菜单项列表
-     * @param int $id 次级菜单项ID
-     */
-    public function deleteJuniorMenu($id){
-
-    }
 
 }

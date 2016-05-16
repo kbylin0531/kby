@@ -23,16 +23,39 @@ class MenuItemModel extends Model {
         'icon'      => null,
     ];
 
-    public function createMenuItem($fields){
-        if($fields instanceof \stdClass){
-            $fields['title'] = $fields->title;
-            $fields['value'] = $fields->value;
-            $fields['icon'] = isset($fields->icon)?$fields->icon:'';
-        }
-        return $this->fields($fields)->create();
+
+    /**
+     * 创建菜单项目
+     * @param $id
+     * @param $title
+     * @param string $href
+     * @param string $icon
+     * @return bool
+     */
+    public function createMenuItem($id,$title,$href,$icon){
+        $result = $this->fields([
+            'id'        => $id, // 前台保证唯一
+            'title'     => $title,
+            'href'     => $href,
+            'icon'      => $icon,
+        ])->create();
+        return $result;
     }
-    public function updateMenuItem($fields,$where){
-        return $this->where($where)->fields($fields)->update();
+
+    public function listMenuItems(){
+        return $this->select();
+    }
+
+    public function hasMenuItemById($id){
+        return $this->where('id = '.intval($id))->count();
+    }
+
+    public function updateMenuItem($id,$title,$href,$icon){
+        return $this->fields([
+            'title'     => $title,
+            'href'     => $href,
+            'icon'      => $icon,
+        ])->where('id='.intval($id))->update();
     }
 
 

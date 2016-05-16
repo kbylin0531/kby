@@ -51,6 +51,7 @@ abstract class DaoAbstract extends PDO {
         }
     }
 
+    abstract public function escape($field);
 
     /**
      * 调用不存在的方法时
@@ -63,6 +64,8 @@ abstract class DaoAbstract extends PDO {
         if(in_array($name,$this->forbidMethods,true))  return false;
         return call_user_func_array([$this,$name],$args);
     }
+
+
 
     /**
      * 根据配置创建DSN

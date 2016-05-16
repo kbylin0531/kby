@@ -30,6 +30,10 @@ class SQLServer extends DaoAbstract {
         return $dsn;
     }
 
+    public function escape($field){
+        return "[{$field}]";
+    }
+
 
     /**
      * 编译组件成适应当前数据库的SQL字符串

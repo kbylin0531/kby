@@ -160,12 +160,12 @@ class Dao {
     /**
      * 简单地查询一段SQL，并且将解析出所有的结果集合
      * @param string $sql 查询的SQL
-     * @param array|null $inputs 输入参数
+     * @param array $inputs 输入参数
      *                          如果输入参数未设置或者为null（显示声明），则直接查询
      *                          如果输入参数为非空数组，则使用PDOStatement对象查询
      * @return array|false 返回array类型表述查询结果，返回false表示查询出错，可能是数据表不存在等数据库返回的错误信息
      */
-    public function query($sql,array $inputs=null){
+    public function query($sql,array $inputs=[]){
         $this->error = null;
         if(empty($inputs)){
             //直接使用PDO的查询功能
@@ -205,7 +205,8 @@ class Dao {
      * @return int|false 返回受到影响的行数，但是可能不会太可靠，需要用===判断返回值是0还是false
      *                   返回false表示了错误，可以用getError获取错误信息
      */
-    public function exec($sql,array $inputs=null){
+    public function exec($sql,array $inputs=[]){
+//        static $c = 0;
         $this->error = null;
         if(empty($inputs)){
             //调用PDO的查询功能
@@ -223,7 +224,14 @@ class Dao {
                 if(false === $statement){
                     $this->error = Dao::fetchPdoError($this->driver);
                 }else{
+//                    if($c === 3) dumpout($inputs);
+                    array_walk($inputs,function ($value){
+                        if(is_array($value)){
+                            KbylinException::throwing(['Input item shold be string(or convertable)!',$value]);
+                        }
+                    } );
                     if(false !== $statement->execute($inputs)){
+//                        $c ++;
                         return $statement->rowCount();
                     }
                 }
@@ -356,7 +364,9 @@ class Dao {
      * @return bool
      */
     public function beginTransaction(){
-        return $this->driver->beginTransaction();
+        $result = $this->driver->beginTransaction();
+//        dumpout($result,$this->driver->inTransaction());
+        return $result;
     }
 
     /**
@@ -364,6 +374,7 @@ class Dao {
      * @return bool
      */
     public function commit(){
+        $this->driver->inTransaction() or KbylinException::throwing('Not in transaction!');
         return $this->driver->commit();
     }
     /**
@@ -388,8 +399,8 @@ class Dao {
      * @param string $fieldname 字段名称
      * @return string
      */
-    public function quote($fieldname){
-        return $this->driver->quote($fieldname);
+    public function escape($fieldname){
+        return $this->driver->escape($fieldname);
     }
 
 }

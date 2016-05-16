@@ -263,17 +263,18 @@ window.dazz = (function () {
          * 遍历对象
          * @param object {{}|[]} 待遍历的对象或者数组
          * @param itemcallback
+         * @param userdata
          */
-        each:function (object,itemcallback) {
+        each:function (object,itemcallback,userdata) {
             if(this.isArray(object)){
                 for(var i=0; i < object.length; i++){
-                    itemcallback(object[i],i);
+                    itemcallback(object[i],i,userdata);
                 }
                 return ;
             }else if(this.isObject(object)){
                 for(var key in object){
                     if(!object.hasOwnProperty(key)) continue;
-                    itemcallback(object[key],key);
+                    itemcallback(object[key],key,userdata);
                 }
                 return ;
             }

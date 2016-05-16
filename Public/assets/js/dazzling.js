@@ -653,7 +653,12 @@ var Dazzling = (function () {
     };
 
     var BsModal = {
-        //创建一个Modal对象,会将HTML中指定的内容作为自己的一部分拐走
+        /**
+         * 创建一个Modal对象,会将HTML中指定的内容作为自己的一部分拐走
+         * @param selector 要把哪些东西添加到modal中的选择器
+         * @param option modal配置
+         * @returns {*}
+         */
         'create':function (selector,option) {
             var config = {
                 'title':null,
@@ -673,7 +678,6 @@ var Dazzling = (function () {
                 'backdrop':'static',
                 'keyboard':true
             };
-
             config = dazz.utils.initOption(config,option);
 
             var instance = dazz.newInstance(this);
@@ -716,17 +720,16 @@ var Dazzling = (function () {
             cancel.click(function (e) {
                 config['cancel'] && (config['cancel'])(e);
             });
-            //事件注册
-
-            var events = ['show','shown','hide','hidden'];
-            for(var i =0; i < events.length; i++){
-                var eventname = events[i];
-                config[eventname] && modal.on(eventname+'.bs.modal', function (eventname) {
-                    (config[eventname])();
-                });
-            }
-
             instance.target = modal.modal('hide');
+
+            //事件注册
+            dazz.utils.each(['show','shown','hide','hidden'],function (eventname) {
+                modal.on(eventname+'.bs.modal', function () {
+                    // dazz.debug(eventname,config[eventname]);
+                    config[eventname] && (config[eventname])();
+                });
+            });
+
             return instance;
         },
         'show':function () {
@@ -751,10 +754,10 @@ var Dazzling = (function () {
             var instance = dazz.newInstance(this);
 
             var id = 'nestable_'+dazz.utils.guid();
-            var topdiv = $('<div class="dd" id="'+id+'"></div>');
-            this.load(data,topdiv);
+            var dd = $('<div class="dd" id="'+id+'"></div>');
+            this.load(data,dd);
 
-            instance.target = topdiv.nestable({group: group?group:id});
+            instance.target = dd.nestable({group: group?group:id});
             return instance;
         },
         attachTo:function (selector,isAppend) {
@@ -773,6 +776,8 @@ var Dazzling = (function () {
          * @returns {jQuery}
          */
         load:function (data,dd) {
+            dazz.debug(data,dd,this.target);
+
             if(!dd) dd = this.target.find('dd');
             if(!dd.length){
                 dd = $('<div class="dd" id="nestable_'+dazz.utils.guid()+'"></div>');
@@ -786,8 +791,9 @@ var Dazzling = (function () {
         createItemList : function (config,target) {
             config = dazz.utils.toObject(config);
             var ol = $('<ol class="dd-list"></ol>');
+            var env = this;
             dazz.utils.each(config,function (item) {
-                this.createItem(item,ol);
+                env.createItem(item);
             });
 
             //寻找附加target
@@ -847,7 +853,7 @@ var Dazzling = (function () {
                 targetol = target.children('ol');
             }
             targetol.prepend(li);
-            return this;
+            return true;
         },
         prependTo :function (attatchment) {
             attatchment = toJquery(attatchment);

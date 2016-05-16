@@ -261,7 +261,7 @@ class CommonAction extends Action {
      * @return mixed
      * @throws Exception
      */
-    public function assignYearTerm($type){
+    public function assignYearTerm($type='S'){
         static $model = null;
         if(!isset($model)){
             $model = new CommonModel();// M("SqlsrvModel:");
