@@ -29,9 +29,8 @@ class SmartyEngine implements ViewEngineInterface {
             'right_delimiter'   => '}',
             //缓存开启和缓存时间
             'caching'        => true,
-            'cache_lifetime'  => 1800,
+            'cache_lifetime'  => 15,
         ],
-
     ];
 
     /**

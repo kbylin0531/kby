@@ -23,6 +23,20 @@ window.dazz = (function () {
             return -1;
         };
     }
+    if (!Array.prototype.max){
+        Array.prototype.max = function(){
+            return Math.max.apply({},this)
+        };
+    }
+    if (!Array.prototype.min){
+        Array.prototype.min = function(){
+            return Math.min.apply({},this)
+        };
+    }
+
+    Object.dazz = (function () {
+        return {};
+    })();
 
     var options = {
         //公共资源目录

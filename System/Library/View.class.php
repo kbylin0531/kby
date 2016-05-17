@@ -22,17 +22,17 @@ class View {
         'DRIVER_CONFIG_LIST' => [
             [
                 'SMARTY_DIR'        => SYSTEM_PATH.'Vendor/smarty3/libs/',
-                'TEMPLATE_CACHE_DIR'    => RUNTIME_PATH.'View/',
+                'TEMPLATE_CACHE_DIR'    => RUNTIME_PATH.'Template/',
 
-                'SMARTY_CONF'       => [ // 对应着smarty的配置项
+                'SMARTY_CONF'       => [
                     //模板变量分割符号
                     'left_delimiter'    => '{',
                     'right_delimiter'   => '}',
                     //缓存开启和缓存时间
                     'caching'        => true,
-                    'cache_lifetime'  => 1,
+                    'cache_lifetime'  => 15,
                 ],
-            ]
+            ],
         ],
 
         //模板文件后缀名

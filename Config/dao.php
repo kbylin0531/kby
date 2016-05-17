@@ -47,7 +47,7 @@ return [
             'dbname'    => 'yzzj_jwgl',//选择的数据库
             'username'  => 'sa',
             'password'  => 'ASD123zxc',
-            'host'      => '192.168.200.171',
+            'host'      => 'localhost',
             'port'      => '1433',
             'charset'   => 'UTF8',
             'dsn'       => null,//默认先检查差DSN是否正确,直接写dsn而不设置其他的参数可以提高效率，也可以避免潜在的bug

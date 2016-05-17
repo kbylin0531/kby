@@ -12,13 +12,12 @@ return array(
 
     //数据库配置信息
     'DB_TYPE'   => 'sqlsrv', // 数据库类型
-    'DB_HOST'   => '192.168.200.171', // 服务器地址
+    'DB_HOST'   => 'localhost', // 服务器地址
     'DB_NAME'   => 'yzzj_jwgl', // 数据库名
     'DB_USER'   => 'sa', // 用户名
     'DB_PWD'    => 'ASD123zxc', // 密码
     'DB_PORT'   => 1433, // 端口
     'DB_PREFIX' => '', // 数据库表前缀
-
 
     //其他项目配置参数
     'TMPL_PARSE_STRING'  =>array(

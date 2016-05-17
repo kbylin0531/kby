@@ -1,10 +1,7 @@
 /**
  * Dazzling 粲
- * 框架高级执行工具
  * @type object
  */
-
-
 var Dazzling = (function () {
     "use strict";
     if(!jQuery ) throw "Require Jquery!";
@@ -469,7 +466,7 @@ var Dazzling = (function () {
             },
             //加载数据
             load:function (data) {
-                console.log(data);
+                // console.log(data);
                 dazz.utils.each(data,function (menuitem) {
                     var li = $(document.createElement('li'));
                     li.addClass('classic-menu-dropdown');
@@ -566,62 +563,6 @@ var Dazzling = (function () {
 
     };
     var setActive = function () {};
-
-
-    /**
-     * target的格式:
-     * [
-     * //对象可以声明角标
-     {
-         'index':'edit',
-         'title':'Edit'
-     },
-     //数组按照顺序填写tabindex和title
-     //不同对象之间以hr划分
-     ]
-     */
-    var createContextmenu = function (selector,target,handler,onItem,before) {
-        var instance = toJquery(selector);
-
-        var id = ("cm_"+dazz.utils.guid());
-
-        var contextmenu = $("<div id='"+id+"'></div>");
-        var ul = $('<ul class="dropdown-menu" role="">');
-        contextmenu.append(ul);
-        for(var index in target){
-            if(!target.hasOwnProperty(index)) continue;
-
-            var group = target[index];
-            for(var i in group){
-                if(!group.hasOwnProperty(i)) continue;
-                var tabindex = i;
-                var title = group[i];
-                ul.append('<li><a tabindex="'+tabindex+'">'+title+'</a></li>');
-            }
-
-            ul.append($('<li class="divider"></li>'));//对象之间划割
-        }
-        thisbody.prepend(contextmenu);
-
-        before || (before = function (e,c) {
-        });
-        onItem || (onItem = function (c,e) {
-        });
-
-        handler || (handler = function (element,tabindex,title) {});
-
-        return instance.contextmenu({
-            target:'#'+id,
-            // execute on menu item selection
-            onItem: function (context,event) {
-                onItem(context,event);
-                var target  = event.target;
-                handler(context,target.getAttribute('tabindex'),target.innerText);
-            },
-            // execute code before context menu if shown
-            before: before
-        });
-    };
 
     /**
      * 自动填写表单
@@ -797,24 +738,21 @@ var Dazzling = (function () {
         /**
          * 返回加载过数据后的div
          * @param data
-         * @param target {jQuery}数据附加目的地(nestable div对象)
+         * @param callback {callback}数据附加目的地(nestable div对象)
          * @returns {jQuery}
          */
-        load:function (data,target) {
-            target = target?target:this.target;
-            if(!target){
-                target = this._getJNestable();
-            }
-            this.createItemList(data,target);
-            return target;
+        load:function (data,callback){
+            callback || (callback = null);//显示声明为空
+            this.createItemList(data,this.target,callback);
+            return this.target;
         },
         //创建OL节点,children为子元素数组,target为创建的列表附加的目标(目标缺失时选用this.target,即dd)
-        createItemList : function (data,target) {
+        createItemList : function (data,target,callback) {
             data = dazz.utils.toObject(data);
             var env = this;
             var ol = $('<ol class="dd-list"></ol>');
             dazz.utils.each(data,function (item) {
-                env.createItem(item,ol);
+                env.createItem(item,ol,callback);
             });
 
             //寻找附加target
@@ -828,16 +766,16 @@ var Dazzling = (function () {
                     //设置ol
                     var targetol = target.children('ol');
                     if(targetol.length) targetol.remove();//深处原来的ol
-                    console.log(target);
+                    // console.log(target);
                     target.append(ol);
                     break;
                 case 'OL':
                 default:
                     throw "无法在该元素上创建列表";
             }
-            return this;
+            return ol;
         },
-        createItem : function (data,target) {
+        createItem : function (data,target,callback) {
             data = dazz.utils.toObject(data);
 
             //设置基本的两个属性
@@ -860,7 +798,7 @@ var Dazzling = (function () {
             });
 
             //如果存在子元素的情况下创建
-            dazz.utils.checkProperty(data,'children') && this.createItemList(data['children'],linode);
+            dazz.utils.checkProperty(data,'children') && this.createItemList(data['children'],linode,callback);
 
             // console.log(this.target)
             //设置attach目标
@@ -869,7 +807,7 @@ var Dazzling = (function () {
 
             // console.log(target.get(0).tagName);
             var tagname = target.get(0).tagName.toUpperCase();
-            console.log(target)
+            // console.log(target)
             switch (tagname){
                 case 'DIV'://直接点击添加时候
                 case 'LI':
@@ -888,7 +826,9 @@ var Dazzling = (function () {
                 default:
                     throw "无法在该元素上创建列表:"+tagname;
             }
-            return this;
+            // console.log(data)
+            callback && callback(data,linode);//每次遍历一项回调
+            return linode;
         },
         //获得序列化的值,可以是对象或者数组
         serialize:function (tostring) {
@@ -1024,8 +964,69 @@ var Dazzling = (function () {
         },
         //上下文菜单工具
         contextmenu: {
-            //创建上下文菜单
-            'create': createContextmenu
+            //Uncaught TypeError: Cannot read property 'left' of undefined
+            //while the target menu do not exist,it will throw the error
+            /**
+             * target的格式:
+             * [
+             * //对象可以声明角标
+             {
+                 'index':'edit',
+                 'title':'Edit'
+             },
+             //数组按照顺序填写tabindex和title
+             //不同对象之间以hr划分
+             *
+             * @param selector 上下文菜单依附的元素的选择器,也可以是jquery对象
+             * @param menus 菜单设置设置
+             * @param handler 菜单点击时的处理函数
+             * @param onItem
+             * @param before
+             */
+            'create': function (menus,handler,onItem,before) {
+                var instance = dazz.newInstance(this);
+
+                var id = 'cm_'+dazz.utils.guid();
+                var contextmenu = $(document.createElement('div'));
+                contextmenu.attr('id',id);
+                var ul = $(document.createElement('ul'));
+                ul.addClass('dropdown-menu');
+                ul.attr('role',"menu");
+                contextmenu.append(ul);
+
+                var flag = false;
+                //菜单项
+                dazz.utils.each(menus,function (group) {
+                    flag && ul.append($('<li class="divider"></li>'));//对象之间划割
+                    dazz.utils.each(group,function (value, key) {
+                        ul.append('<li><a tabindex="'+key+'">'+value+'</a></li>');
+                    });
+                    flag = true;
+                });
+                $("body").prepend(contextmenu);
+
+                before || (before = function (e,c) {});
+                onItem || (onItem = function (c,e) {});
+                handler || (handler = function (element,tabindex,title) {});
+
+                //这里的target的上下文意思是 公共配置组
+                instance.target = {
+                    target:'#'+id,
+                    // execute on menu item selection
+                    onItem: function (context,event) {
+                        onItem(context,event);
+                        var target  = event.target;
+                        handler(context,target.getAttribute('tabindex'),target.innerText);
+                    },
+                    // execute code before context menu if shown
+                    before: before
+                };
+                return instance;
+            },
+            bind :function (selector) {
+                selector = toJquery(selector);
+                selector.contextmenu(this.target);
+            }
         },
         //拟态框
         modal:BsModal,

@@ -1,24 +1,15 @@
 {extends file="../../../View/datatables.html"}
 {block name="style"}
 <style>
-    #logo_pane .nestable_container  { 
-        border: 1px solid #eeeeee;
-    }
     #logo_pane .row { margin-left:-20px}
     #logo_pane .row:after,.row:before { display:table;content:"";line-height:0}
     #logo_pane .row:after { clear:both}
-    #logo_pane [class*=span] { float:left;min-height:1px;margin-left:20px}
-    #logo_pane .container { width:940px}
-    #logo_pane .span12 { width:940px}
-    #logo_pane .span3 { width:220px}
     #logo_pane li { line-height:20px}
-    #logo_pane  [class*=" icon-"],[class^=icon-] { display:inline-block;width:14px;height:14px;line-height:14px;vertical-align:text-top;background-position:14px 14px;background-repeat:no-repeat;margin-top:1px}
-    #logo_pane .the-icons {  list-style-type:none;margin:0}
+    #logo_pane  [class*=" icon-"] { display:inline-block;width:14px;height:14px;line-height:14px;vertical-align:text-top;background-position:14px 14px;background-repeat:no-repeat;margin-top:1px}
     #logo_pane .the-icons li {  cursor:pointer;line-height:32px;height:32px;padding-left:12px;-webkit-border-radius:6px;-moz-border-radius:6px;border-radius:6px}
-    #logo_pane  .the-icons li [class*=" icon-"],.the-icons li [class^=icon-] {  width:32px;font-size:14px}
+    #logo_pane  .the-icons li [class*=" icon-"]{  width:32px;font-size:14px}
     #logo_pane .the-icons li:hover {  background-color:#fbf4f4}
-    #logo_pane .the-icons li:hover [class*=" icon-"]:before,.the-icons li:hover [class^=icon-]:before {  font-size:28px;vertical-align:-5px}
-
+    #logo_pane .the-icons li:hover [class*=" icon-"]:before {  font-size:28px;vertical-align:-5px}
 </style>
 {/block}
 {block name='script'}
@@ -27,6 +18,7 @@
     dazz.load('assets/plugins/jquery.nestable/jquery.nestable.css');
 
     var public_url = '{$smarty.const.__CONTROLLER__}/';
+    var idLibrary = [];
     var maxMenuId = 1;
 
     dazz.ready(function () {
@@ -45,39 +37,65 @@
         })();
 
         var topNestable = Dazzling.nestable.create(1).attachTo("#top_nestable_attach");
-        var updateFormId = function (id) {
-            if(!id) id = maxMenuId +1;
-            $("#form_menu").find("input[name=id]").val(""+id);
+        //显示和添加item后自动递增ID
+        var updateFormId = function (selector,id) {
+            if(!id) id = idLibrary.max() +1;
+            $(selector).find("input[name=id]").val(""+id);
         };
-        var topModal = Dazzling.modal.create("#topModal", {
-            'title': '添加顶部菜单项目',
+        //上下文菜单对象
+        var AddMenuItemContextMenu = Dazzling.contextmenu.create([{
+                'edit':'修改',
+                'delete':'删除'
+            }],function (element,tabindex) {
+            console.log(element,tabindex);
+        });
+
+        var MenuItemAddPane = Dazzling.modal.create("#MenuItemAddPane", {
+            'title': '添加顶部菜单',
             'confirmText': '添加',
             'cancelText': '关闭窗口',
             'shown':function () {
-                updateFormId();
+                updateFormId("#MenuItemAddForm");
             },
             //确认和取消的回调函数
             'confirm': function () {
-                var obj = dazz.utils.parseUrl(Dazzling.form.serialize("#form_menu"));
-                topNestable.createItem(obj) && maxMenuId++;
-                updateFormId();
+                var obj = dazz.utils.parseUrl(Dazzling.form.serialize("#MenuItemAddForm"));
+                var item = topNestable.createItem(obj);
+                if(item){
+                    AddMenuItemContextMenu.bind(item);
+                    idLibrary.push(obj.id);
+                    updateFormId("#MenuItemAddForm");
+                    Dazzling.toast.success('添加成功!');
+                }else{
+                    Dazzling.toast.error('添加失败!');
+                }
             },
             'cancel': function () {
-                topModal.hide();
+                MenuItemAddPane.hide();
             }
         });
-        var loadModule = function () {
-            Dazzling.post(public_url + 'listTopMenu', {}, function (data) {
-                topNestable.load(data);
-            });
-        };
+
+        //操作列表
+        var operator = (function () {
+            return {
+                loadTopModule : function () {
+                    Dazzling.post(public_url + 'listTopMenu', {}, function (data) {
+                        topNestable.load(data,function (data,element) {
+                            AddMenuItemContextMenu.bind(element);
+                            idLibrary.push(parseInt(data.id));
+                        });
+//                        console.log(idLibrary)
+                    });
+                }
+            };
+        })();
 
         $("#addTop").click(function () {
-            topModal.show();
+            MenuItemAddPane.show();
         });
         $("#saveTop").click(function () {
             var value = topNestable.serialize(true);
-            console.log(value);//获取序列化
+//            console.log(value);//获取序列化
             Dazzling.post(public_url+'saveTopMenu',{ topset:value});
         });
 
@@ -86,14 +104,14 @@
         $("#saveSide").click(function () {
         });
 
-        loadModule();
+        operator.loadTopModule();
     });
 </script>
 {/block}
 {block name="stage"}
 <!-- 添加顶部菜单 -->
-<div id="topModal">
-    <form class="form-horizontal" id="form_menu" role="form">
+<div id="MenuItemAddPane">
+    <form class="form-horizontal" id="MenuItemAddForm" role="form">
         <input name="href" type="hidden">
         <div class="form-group">
             <label class="col-sm-2 control-label">菜单项ID</label>
@@ -111,14 +129,13 @@
         </div>
         <div class="form-group">
             <label class="col-sm-2 control-label">图标选择</label>
-            <div class="col-md-10" id="logo_pane">
+            <div class="col-md-10">
                 <input type="text" class="form-control input-sm" name="icon" placeholder="请输入图标名称,如'icon-circle-blank'">
                 <p class="help-block"><a href="{$smarty.const.__APPLICATION__}Admin/PublicAction/PageIconSelection" target="_blank">点我查看有哪些图标</a></p>
             </div>
         </div>
     </form>
 </div>
-
 
 <div class="row">
     <div class="col-md-12">
@@ -148,16 +165,11 @@
                 <button type="button" class="btn btn-sm dazzling" id="addSide"><i class="icon-plus"></i> 添加</button>
             </div>
             <div class="col-md-2">
-                <button type="button" class="btn btn-sm dazzling" id="rmSide"><i class="icon-minus"></i> 删除</button>
-            </div>
-            <div class="col-md-2">
                 <button type="button" class="btn btn-sm dazzling" id="saveSide"><i class="icon-save"></i> 保存</button>
             </div>
         </div>
     </div>
-
     <div class="col-md-12">&nbsp;</div>
-
     <div class="col-md-12">
         <div class="col-md-6 nestable_container" id="top_nestable_attach"></div>
         <div class="col-md-6 nestable_container" id="side_nestable_attach"></div>

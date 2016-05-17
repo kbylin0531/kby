@@ -179,7 +179,9 @@ TODO
 .float-right {
     float: right;
 }
-
+.dd3-content{
+    cursor: pointer;
+}
 /**
 TODO
 */
