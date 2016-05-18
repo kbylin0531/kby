@@ -23,9 +23,6 @@ class StorageTest {
 //        $this->testUnlink();
 //        $this->testWrite();
         $this->testAppend();
-
-
-
     }
 
 

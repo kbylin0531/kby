@@ -6,22 +6,12 @@
  * Time: 10:35
  */
 namespace Application\Test\Controller;
-use System\Traits\Controller\Render;
+use System\Library\Controller;
 
-class Index {
-
-    use Render;
+class Index extends Controller{
 
     public function __construct(){
         defined('RESOURSE_PATH') or define('RESOURSE_PATH',PUBLIC_PATH.'resourse/');
-    }
-
-    public function main(){
-        $this->display();
-    }
-
-    public function left(){
-        $this->display();
     }
 
     public function index(){

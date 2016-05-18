@@ -24,6 +24,22 @@ class MenuItemModel extends Model {
     ];
 
     /**
+     * update the menu item by id
+     * @param $id
+     * @param $title
+     * @param $icon
+     * @param $href
+     * @return bool
+     */
+    public function updateMenuItemById($id,$title,$icon,$href){
+        return $this->fields([
+            'title' => $title,
+            'icon' => $icon,
+            'href' => $href,
+        ])->where('id = '.intval($id))->update();
+    }
+
+    /**
      * 创建菜单项目
      * @param $id
      * @param $title

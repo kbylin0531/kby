@@ -24,8 +24,7 @@
             $('#main').contextmenu({
                 target: '#context-menu',
                 before: function (e) {
-                    // This function is optional.
-                    // Here we use it to stop the event if the user clicks a span
+                    // This function is optional.Here we use it to stop the event if the user clicks a span
                     e.preventDefault();
                     if (e.target.tagName == 'SPAN') {
                         e.preventDefault();

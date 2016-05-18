@@ -88,7 +88,7 @@ class Menu extends AdminController {
 
             if(false === $result) {
                 $model->rollBack();
-                Response::failed(($count?'修改失败':'添加失败').$model->getError());
+                Response::failed(($count?'修改失败':'添加失败').$model->error());
             }else{
                 $this->_success[$count?'u':'c']++;
             }
@@ -102,6 +102,22 @@ class Menu extends AdminController {
             }
         }
         return true;
+    }
+
+    /**
+     * update the menu item
+     * @param $id
+     * @param $title
+     * @param $icon
+     * @param $href
+     */
+    public function updateMenuItem($id,$title,$icon,$href){
+        $menuModel = new MenuItemModel();
+        if(false === $menuModel->updateMenuItemById($id, $title, $icon, $href)){
+            Response::failed('Failed to update the menu item!'.$menuModel->error());
+        }else{
+            Response::success('Success to update the menu item');
+        }
     }
 
 

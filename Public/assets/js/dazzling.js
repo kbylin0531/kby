@@ -685,35 +685,56 @@ var Dazzling = (function () {
             body.append(toJquery(selector));
 
             //设置足部
-            var cancel = $('<button type="button" class="btn btn-default" data-dismiss="modal">'+config['cancelText']+'</button>');
-            var confirm = $('<button type="button" class="btn btn-primary">'+config['confirmText']+'</button>');
+            var cancel = $('<button type="button" class="btn btn-default cancelbtn" data-dismiss="modal">'+config['cancelText']+'</button>');
+            var confirm = $('<button type="button" class="btn btn-primary confirmbtn">'+config['confirmText']+'</button>');
             content.append($('<div class="modal-footer"></div>').append(cancel).append(confirm));
 
+            // config['confirm'] && (instance.confirm = config['confirm']);
+            // config['cancel'] && (instance.cancel = config['cancel']);
+
             //确认和取消事件注册
-            confirm.click(function (e) {
-                config['confirm'] && (config['confirm'])(e);
-            });
-            cancel.click(function (e) {
-                config['cancel'] && (config['cancel'])(e);
-            });
+            confirm.click(instance.confirm);
+            cancel.click(instance.cancel);
             instance.target = modal.modal('hide');
 
             //事件注册
-            dazz.utils.each(['show','shown','hide','hidden'],function (eventname) {
+            dazz.utils.each(['show','shown','hide','hidden'],function (eventname){
                 modal.on(eventname+'.bs.modal', function () {
                     // console.log(eventname,config[eventname]);
                     config[eventname] && (config[eventname])();
                 });
             });
-
             return instance;
         },
+        confirm:function () {
+            console.log('You click the confirm button,but not resister anything!')
+        },
+        cancel:function () {
+            console.log('You click the cancel button,but not resister anything!')
+        },
+        onConfirm:function (callback) {
+            // this.confirm = callback;
+            // var btn = this.target.find(".confirmbtn");//it worked worse ,why?
+            this.target.find(".confirmbtn").unbind("click").click(callback);
+            return this;
+        },
+        onCancel:function(callback){
+            // this.cancel = callback;
+            this.target.find(".cancelbtn").unbind("click").click(callback);
+            return this;
+        },
+        //update title
+        title:function (newtitle) {
+            this.target.find(".modal-title").text(newtitle);
+            return this;
+        },
         'show':function () {
-            // console.log(this.target)
-            return this.target.modal('show');
+            this.target.modal('show');
+            return this;
         },
         'hide':function () {
-            return this.target.modal('hide');
+            this.target.modal('hide');
+            return this;
         }
     };
 
@@ -775,14 +796,8 @@ var Dazzling = (function () {
             }
             return ol;
         },
-        createItem : function (data,target,callback) {
-            data = dazz.utils.toObject(data);
-
-            //设置基本的两个属性
-            if(dazz.utils.checkProperty(data,['id','title']) < 1) return Dazzling.toast.warning("The id/title of item should not be empty");
-            var linode = $('<li class="dd-item dd3-item"></li>').append($('<div class="dd-handle dd3-handle">')).append($('<div class="dd3-content">'+data['title']+'</div>'));
-
-            //设置其他附加属性(title id除外)
+        //update the data hold by item node,but except 'children'
+        updateItemData:function (linode,data,titlecallback) {//titlecallback means update the display text(include html tag)
             dazz.utils.each(data,function (value,key) {
                 if( key === 'children' ) return ;
                 switch (typeof value){
@@ -795,6 +810,23 @@ var Dazzling = (function () {
                         break;
                     default:
                 }
+            });
+            //update the showing content
+            var title = null;
+            if(titlecallback) title = titlecallback(linode,data);
+            !title && (title = ('title' in data)?data['title']:'Untitled');
+            linode.children(".dd3-content").html(title);
+        },
+        createItem : function (data,target,callback) {
+            data = dazz.utils.toObject(data);
+
+            //设置基本的两个属性
+            if(dazz.utils.checkProperty(data,['id','title']) < 1) return Dazzling.toast.warning("The id/title of item should not be empty");
+            var linode = $('<li class="dd-item dd3-item"></li>').append($('<div class="dd-handle dd3-handle">')).append($('<div class="dd3-content">'+data['title']+'</div>'));
+
+            //set attribute for this item expect 'children'
+            this.updateItemData(linode,data,function (ele,obj) {
+                return '<i class="'+obj['icon']+'"></i> '+obj['title'];
             });
 
             //如果存在子元素的情况下创建
@@ -895,7 +927,7 @@ var Dazzling = (function () {
             'current_row':null,//当前操作的行,可能是一群行
             //设置之后的操作所指定的DatatableAPI对象
             'bind':function (dtJquery,options) {
-                dtJquery = Dazzling.utils.toJquery(dtJquery);
+                dtJquery = toJquery(dtJquery);
                 var newinstance = dazz.newInstance(this);
                 newinstance.dtJquery = dtJquery;
                 newinstance.tableApi = dtJquery.DataTable(options);
@@ -977,7 +1009,6 @@ var Dazzling = (function () {
              //数组按照顺序填写tabindex和title
              //不同对象之间以hr划分
              *
-             * @param selector 上下文菜单依附的元素的选择器,也可以是jquery对象
              * @param menus 菜单设置设置
              * @param handler 菜单点击时的处理函数
              * @param onItem
@@ -1034,9 +1065,11 @@ var Dazzling = (function () {
             //自动填写表单
             'autoFill':autoFillForm,
             //表单中的所有值序列化
-            'serialize':function(selector){
+            'serialize':function(selector,toobj){/* 'toobj' means to parse thr url and return the object */
                 selector = toJquery(selector);
-                return selector.serialize();
+                var value = selector.serialize();
+                if(toobj) value = dazz.utils.parseUrl(value);
+                return value;
             }
         },
         nestable: Jnestable,
