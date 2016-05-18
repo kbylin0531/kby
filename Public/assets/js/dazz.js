@@ -334,8 +334,6 @@ window.dazz = (function () {
         }
     };
 
-
-
     //监听窗口状态变化
     window.document.onreadystatechange = function(){
         if( window.document.readyState === "complete" ){
@@ -370,6 +368,7 @@ window.dazz = (function () {
         },
         ready:function (callback) {
             readyStack.push(callback);
+            // console.log(readyStack)
         }
     };
 })();

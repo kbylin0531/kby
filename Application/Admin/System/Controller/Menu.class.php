@@ -34,15 +34,46 @@ class Menu extends AdminController {
         if(false === $config) Response::failed('获取顶部菜单失败!'.$menuModel->error());
         Response::ajaxBack($config);//直接返回文本
     }
+
+    public function listMenuConfig(){
+        $menuModel = new MenuModel();
+        $config  = $menuModel->getMenuConfig();
+        if(false === $config) Response::failed('Failed to get menu config!'.$menuModel->error());
+        Response::ajaxBack($config);//直接返回文本
+    }
+
+    /**
+     * update the side-config
+     * @param string $sideset
+     * @param int $id
+     */
+    public function saveSidebarMenu($sideset,$id){
+        $sideset = json_decode($sideset);
+        if(!is_array($sideset)) Response::failed('无法解析前台传递的序列化的信息!');
+        $menuItemModel = new MenuItemModel();
+        $menuItemModel->beginTransaction();
+
+        if(!$this->_setMenu($sideset,$menuItemModel,true)){
+            Response::failed('设置出错:'.$menuItemModel->error());
+        }
+
+        //更新菜单配置
+        $menuModel = new MenuModel();
+        if(!$menuModel->setSideMenu($sideset,$id)){
+            $menuItemModel->rollBack();
+            Response::failed('更新顶部配置时出现了错误!'.$menuModel->error());
+        }
+        $menuItemModel->commit();
+
+        Response::success('成功更新了了'.$this->_success['u'].'条数据,添加了'.$this->_success['c'].'条数据!');
+    }
     /**
      * 需要注意的是,更新过之后需要刷新模板引擎的缓存
      * @param $topset
      */
     public function saveTopMenu($topset){
         $topset = json_decode($topset);
-        if(!is_array($topset)){
-            Response::failed('无法解析前台传递的序列化的信息!');
-        }
+        if(!is_array($topset)) Response::failed('无法解析前台传递的序列化的信息!');
         $menuItemModel = new MenuItemModel();
         $menuItemModel->beginTransaction();
 
@@ -56,7 +87,6 @@ class Menu extends AdminController {
             $menuItemModel->rollBack();
             Response::failed('更新顶部配置时出现了错误!'.$menuModel->error());
         }
-
         $menuItemModel->commit();
 
         Response::success('成功更新了了'.$this->_success['u'].'条数据,添加了'.$this->_success['c'].'条数据!');
@@ -112,9 +142,22 @@ class Menu extends AdminController {
      * @param $href
      */
     public function updateMenuItem($id,$title,$icon,$href){
-        $menuModel = new MenuItemModel();
-        if(false === $menuModel->updateMenuItemById($id, $title, $icon, $href)){
-            Response::failed('Failed to update the menu item!'.$menuModel->error());
+        $menuItemModel = new MenuItemModel();
+        if(false === $menuItemModel->updateMenuItemById($id, $title, $icon, $href)){
+            Response::failed('Failed to update the menu item!'.$menuItemModel->error());
+        }else{
+            Response::success('Success to update the menu item');
+        }
+    }
+
+    /**
+     * delete menu item by id
+     * @param string|int $id
+     */
+    public function deleteMenuItem($id){
+        $menuItemModel = new MenuItemModel();
+        if(false === $menuItemModel->deleteMenuItemById($id)){
+            Response::failed('Failed to update the menu item!'.$menuItemModel->error());
         }else{
             Response::success('Success to update the menu item');
         }

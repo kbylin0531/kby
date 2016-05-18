@@ -51,6 +51,7 @@
     box-sizing: border-box; -moz-box-sizing: border-box;
 }
 .dd3-content:hover { color: #2ea8e5; background: #fff; }
+.dd3-content.active { color: #2ea8e5; background: #e7ecf1;  }
 
 .dd-dragel > .dd3-item > .dd3-content { margin: 0; }
 

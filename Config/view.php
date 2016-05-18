@@ -21,7 +21,7 @@ return [
                 'left_delimiter'    => '{',
                 'right_delimiter'   => '}',
                 //缓存开启和缓存时间
-                'caching'        => true,
+                'caching'        => false,
                 'cache_lifetime'  => 1,
             ],
         ]

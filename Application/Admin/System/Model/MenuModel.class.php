@@ -42,10 +42,35 @@ class MenuModel extends Model{
         return $config;
     }
 
+    /**
+     * get all menu config with arranged
+     * @return array|bool return array if success while false on failed
+     */
+    public function getMenuConfig(){
+        $configs = $this->select();
+        if(false === $configs or empty($configs)){
+            return false;
+        }else{
+            $temp = [];
+            //menu item
+            $menuItemModel = new MenuItemModel();
+            $items = $menuItemModel->listMenuItems(true);
+            if(empty($items)) return false;
+
+            foreach ($configs as $config){
+                $id = $config['id'];
+                $config = unserialize($config['value']);
+                $this->_arrangeMenu($config, $items);
+                $temp[$id] = $config;
+            }
+            return $temp;
+        }
+    }
+
 
     private function _arrangeMenu(array &$config,array $items){
         foreach ($config as &$item){
-            $id = $item['id'];
+            $id = $item['parent'];
             if(!isset($items[$id])) continue;
             $item = array_merge($item,$items[$id]);
             if(isset($item['children'])){
@@ -66,6 +91,40 @@ class MenuModel extends Model{
             return $config[0]['value'];
         }
         return false;
+    }
+
+    /**
+     * @param array $sideset
+     * @param int $id
+     * @return bool
+     */
+    public function setSideMenu($sideset,$id){
+        if(is_string($sideset)) $sideset = json_decode($sideset);
+        is_array($sideset) or KbylinException::throwing('Menu setting should be array/string(json)');
+
+        $config = $this->travelThrough($sideset);
+        if(empty($config)){
+            $config = '[]';
+        }else{
+            $config = serialize($config);
+        }
+
+        $where = 'parent = '.intval($id);
+        //check if exist
+        $result = $this->where($where)->count();
+        if(false === $result){
+            return false;
+        }
+        if($result){
+            return $this->fields([
+                'value' => $config,
+            ])->where($where)->update();
+        }else{
+            return $this->fields([
+                'value'     =>  $config,
+                'parent'    =>  $id,
+            ])->create();
+        }
     }
 
     /**

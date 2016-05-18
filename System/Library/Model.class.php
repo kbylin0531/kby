@@ -265,7 +265,7 @@ class Model {
      * @param array|null $inputs 输入参数
      * @return false|int
      */
-    public function exec($sql,array $inputs=null){
+    public function exec($sql,array $inputs=[]){
         $result = $this->dao->exec(Model::$_lastSql=$sql,Model::$_lastInputs = $inputs);
         $this->reset();
         return $result;
@@ -295,8 +295,9 @@ class Model {
         if(null === $tablename){
             //检查必要参数
             $tablename = $this->_options['table']?$this->_options['table']:KbylinException::throwing('No table to insert!');
-            $where = $this->_options['where']?$this->_options['where']:KbylinException::throwing('Where must be declared!');
-            return $this->exec("DELETE FROM {$tablename} WHERE {$where};",$this->_inputs);
+            $where = $this->_options['where']?$this->_options['where']:KbylinException::throwing('Where condition should be declared while deleting records!!');
+            $inputs = isset($this->_inputs['where'])?$this->_inputs['where']:[];
+            return $this->exec("DELETE FROM {$tablename} WHERE {$where};",$inputs);
         }else{
             $where_missing = 'Where should not be empty while execute an delete sql!';
             $where or KbylinException::throwing($where_missing);
@@ -384,15 +385,20 @@ class Model {
             //链式操作
             $sql = $this->_options['distinct']?'SELECT DISTINCE ':'SELECT';
             empty($this->_options['table']) and KbylinException::throwing('Model has no table binded!');
-//            dumpout($this->_options['fields']);
+
+            //set the mastable parameters(fields and table)
             $sql .= $this->_options['fields'].' FROM '.$this->_options['table'];
+
+            //set the choosable parameters
             $this->_options['where'] and $sql .= ' WHERE '.$this->_options['where'];
             $this->_options['group'] and $sql .= ' GROUP BY '.$this->_options['group'];
             $this->_options['order'] and $sql .= ' ORDER BY '.$this->_options['order'];
 
+            //set the input parameters
             if(isset($this->_inputs['fields'])) $inputs = $this->_inputs['fields'];
             else $inputs = [];
             if(isset($this->_inputs['where'])) $inputs = array_merge($inputs,$this->_options['where']);
+
 //            dump($sql,$inputs);
             return $this->query($sql,$inputs);
         }

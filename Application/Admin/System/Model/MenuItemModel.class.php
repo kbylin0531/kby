@@ -40,6 +40,15 @@ class MenuItemModel extends Model {
     }
 
     /**
+     * delete menu item by id
+     * @param $id
+     * @return bool
+     */
+    public function deleteMenuItemById($id){
+        return $this->where('id = '.intval($id))->delete();
+    }
+
+    /**
      * 创建菜单项目
      * @param $id
      * @param $title
