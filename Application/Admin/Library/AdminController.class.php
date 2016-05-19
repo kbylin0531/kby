@@ -26,11 +26,6 @@ class AdminController extends Controller{
      */
     protected function displayManagement($template = null, $cache_id = null, $compile_id = null, $parent = null){
         //加载模块和菜单
-//        dumpout(([
-//            'cdn'   => $this->getCDN(),//加载CDN
-//            'page'  => $this->getPageInfo(),
-//            'user'  => $this->getUserInfo(),
-//        ]));
         $this->assign('infos',json_encode([
             'cdn'   => $this->getCDN(),//加载CDN
             'page'  => $this->getPageInfo(),
@@ -80,7 +75,7 @@ class AdminController extends Controller{
         $menu = [
             'header_menu'   => [
                 'active_index'  => 0,
-                'menu_list'     => $memuModel->getTopMenuSetting()
+                'menu_list'     => $memuModel->getTopMenuConfig()
             ],
             'sidebar_menu'  => [
                 'active_index'  => 0,

@@ -36,21 +36,18 @@ dazz.ready(function () {
     var operator = (function () {
         var menu_configs = [];
         var current_index = 0;//current sidebar config index
-        var new_sidebar_menuitems = [];
         return {
-            // getNewSidebarMenuItems:function () {
-            //     return new_sidebar_menuitems;
-            // },
             //load the top menu(whose index is 1)
             loadTopMenu:function (menuconfig) {
                 var isfirst = true;
-                // console.log(menuconfig)
+                console.log(menuconfig)
                 HeaderNestable.load(menuconfig,function (data, element) {
+                    // console.log(element);
                     MenuItemContextMenu.bind(element);
                     if(isfirst) {
                         //active the first element default
                         active_index = data['id'];
-                        Dazzling.nestable.active(element,"#top_nestable_attach");
+                        Dazzling.nestable.active(element);
                         isfirst = false;
                     }
                     // console.log(element);
@@ -59,19 +56,22 @@ dazz.ready(function () {
             },
             loadSidebarMenu:function (index) {
                 current_index = index;
-                console.log(index,menu_configs)
-                SiderNestable.load(menu_configs[index],function (data,element) {
-                    MenuItemContextMenu.bind(element);
-                    idLibrary.push(parseInt(data.id));
-                });
+                console.log('current index:',index,'current config',menu_configs[index]);
+                if(menu_configs[index]){
+                    SiderNestable.load(menu_configs[index]['config'],function (data,element) {
+                        MenuItemContextMenu.bind(element);
+                        idLibrary.push(parseInt(data.id));
+                    });
+                }
             },
             loadMenus : function () {
                 var env = this;
                 Dazzling.post(public_url + 'listMenuConfig', {}, function (data) {
                     menu_configs = data;
+                    // return console.log(data);
                     // console.log(data);
                     //load the top menus
-                    env.loadTopMenu(menu_configs[1]);
+                    env.loadTopMenu(menu_configs[1]['config']);
                     //load the sidebar menu of actived top menu item
                     env.loadSidebarMenu(active_index);
                 });

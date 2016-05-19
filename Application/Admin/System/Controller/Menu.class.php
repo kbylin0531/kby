@@ -26,19 +26,13 @@ class Menu extends AdminController {
     }
 
     /**
-     * 获取顶级菜单列表
+     * get the menu-config list
+     * @throws \System\Core\KbylinException
      */
-    public function listTopMenu(){
-        $menuModel = new MenuModel();
-        $config  = $menuModel->getTopMenuSetting();
-        if(false === $config) Response::failed('获取顶部菜单失败!'.$menuModel->error());
-        Response::ajaxBack($config);//直接返回文本
-    }
-
     public function listMenuConfig(){
         $menuModel = new MenuModel();
         $config  = $menuModel->getMenuConfig();
-        if(false === $config) Response::failed('Failed to get menu config!'.$menuModel->error());
+        false === $config and Response::failed('Failed to get menu config!'.$menuModel->error());
         Response::ajaxBack($config);//直接返回文本
     }
 

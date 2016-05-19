@@ -29,8 +29,8 @@ class MenuModel extends Model{
      * 获取顶部菜单设置
      * @return array|false 错误发生时返回false
      */
-    public function getTopMenuSetting(){
-        $config = $this->getTopMenuConfig();
+    public function getTopMenuConfig(){
+        $config = $this->_getTopMenuConfig();
         $config = unserialize($config);
         if(false === $config){
             return $this->error('获取顶级菜单失败!');
@@ -55,42 +55,42 @@ class MenuModel extends Model{
             //menu item
             $menuItemModel = new MenuItemModel();
             $items = $menuItemModel->listMenuItems(true);
-            if(empty($items)) return false;
 
-            foreach ($configs as $config){
-                $id = $config['id'];
-                $config = unserialize($config['value']);
-                $this->_arrangeMenu($config, $items);
-                $temp[$id] = $config;
+            if(empty($items)) return false;
+//            dumpout($configs,$items);
+            foreach ($configs as &$config){
+                $parent = $config['parent'];
+                $title  = $config['title'];
+
+                if(!empty($config['value'])){
+                    $config = unserialize($config['value']);
+                    $this->_arrangeMenu($config, $items);
+                }else{
+                    $config = [];
+                }
+                $temp[$parent] = [
+                    'title' => $title,
+                    'config'=> $config,
+                ];
             }
             return $temp;
         }
     }
 
-
+    /**
+     * apply menuitem to menu config
+     * @param array $config
+     * @param array $items
+     */
     private function _arrangeMenu(array &$config,array $items){
-        foreach ($config as &$item){
-            $id = $item['parent'];
+        foreach ($config as &$configitem){
+            $id = $configitem['id'];
             if(!isset($items[$id])) continue;
-            $item = array_merge($item,$items[$id]);
-            if(isset($item['children'])){
-                $this->_arrangeMenu($item['children'],$items);
+            $configitem = array_merge($configitem,$items[$id]);
+            if(isset($configitem['children'])){
+                $this->_arrangeMenu($configitem['children'],$items);
             }
         }
-    }
-
-    /**
-     * 获取顶级菜单设置
-     * 注:顶级菜单的ID等于1
-     * @return array|bool array中的title和value可能是有用的值,返回false表示发生了错误
-     */
-    public function getTopMenuConfig(){
-        $config = $this->where('id = 1')->select();
-//        dumpout($config);
-        if(isset($config[0]['value'])){
-            return $config[0]['value'];
-        }
-        return false;
     }
 
     /**
@@ -102,7 +102,7 @@ class MenuModel extends Model{
         if(is_string($sideset)) $sideset = json_decode($sideset);
         is_array($sideset) or KbylinException::throwing('Menu setting should be array/string(json)');
 
-        $config = $this->travelThrough($sideset);
+        $config = $this->_travelThrough($sideset);
         if(empty($config)){
             $config = '[]';
         }else{
@@ -135,7 +135,7 @@ class MenuModel extends Model{
         if(is_string($topset)) $topset = json_decode($topset);
         is_array($topset) or KbylinException::throwing('Menu setting should be array/string(json)');
 
-        $config = $this->travelThrough($topset);
+        $config = $this->_travelThrough($topset);
         if(empty($config)){
             $config = '[]';
         }else{
@@ -147,13 +147,17 @@ class MenuModel extends Model{
         ])->where('id = 1')->update();
     }
 
-    private function travelThrough(array $topset){
+    /**
+     * @param array $topset
+     * @return array
+     */
+    private function _travelThrough(array $topset){
         $result = [];
         foreach ($topset as $object){
             $item = [];
             $item['id'] = $object->id;
             if(isset($object->children)){
-                $item['children'] = $this->travelThrough($object->children);
+                $item['children'] = $this->_travelThrough($object->children);
             }
             $result[] = $item;
         }
@@ -161,15 +165,17 @@ class MenuModel extends Model{
     }
 
     /**
-     * 写入修改后的顶级菜单设置
-     * @param string $config 写入序列化的配置
-     * @return bool
+     * 获取顶级菜单设置
+     * 注:顶级菜单的ID等于1
+     * @return array|bool array中的title和value可能是有用的值,返回false表示发生了错误
      */
-    public function setTopMenuConfig($config){
-        if(!is_string($config)) $config = serialize($config);
-        return $this->where('id = 1')->fields([
-            'value' => $config,
-        ])->update();
+    public function _getTopMenuConfig(){
+        $config = $this->where('id = 1')->select();
+//        dumpout($config);
+        if(isset($config[0]['value'])){
+            return $config[0]['value'];
+        }
+        return false;
     }
 
 }

@@ -1038,9 +1038,6 @@ var Dazzling = (function () {
                         return '<i class="'+obj['icon']+'"></i> '+obj['title'];
                     });
 
-                    //如果存在子元素的情况下创建
-                    dazz.utils.checkProperty(data,'children') && this.createItemList(data['children'],linode,callback);
-
                     // console.log(this.target)
                     //设置attach目标
                     if(!target) target = this.target;
@@ -1071,6 +1068,10 @@ var Dazzling = (function () {
                     }
                     // console.log(data)
                     callback && callback(data,linode);//每次遍历一项回调
+
+                    //look through children if attach success
+                    dazz.utils.checkProperty(data,'children') && this.createItemList(data['children'],linode,callback);
+
                     return linode;
                 },
                 _serialize:function (data) {
