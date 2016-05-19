@@ -113,6 +113,28 @@ window.dazz = (function () {
 
     //上下文环境相关的信息
     var context = {
+        /**
+         * get script path
+         * there are some diffrence between domain access(virtual machine) and ip access of href
+         * domian   :http://192.168.1.29:8085/edu/Public/admin.php/Admin/System/Menu/PageManagement#dsds
+         * ip       :http://edu.kbylin.com:8085/admin.php/Admin/System/Menu/PageManagement#dsds
+         * what we should do is SPLIT '.php' from href
+         *
+         * ps:location.hash
+         */
+        getBaseUri:function () {
+            var href = location.href;
+            var index = href.indexOf('.php');
+            if(index > 0 ){//exist
+                return href.substring(0,index+4);
+            }else{
+                if(location.origin){
+                    return location.origin;
+                }else{
+                    return location.protocol+"//"+location.host;
+                }
+            }
+        },
         //获得可视区域的大小
         getViewPort:function () {
             var win = window;
@@ -336,6 +358,7 @@ window.dazz = (function () {
 
     //监听窗口状态变化
     window.document.onreadystatechange = function(){
+        console.log(window.document.readyState);
         if( window.document.readyState === "complete" ){
             if(readyStack.length){
                 for(var i=0;i<readyStack.length;i++) {

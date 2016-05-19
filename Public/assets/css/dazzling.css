@@ -211,9 +211,6 @@ TODO
 .page-sidebar .page-sidebar-menu>li.open>a{font-size:14px}
 .page-sidebar .page-sidebar-menu>li.active>a{border:none;text-shadow:none;font-size:14px}
 .page-sidebar .page-sidebar-menu>li.active>a>.selected{display:block;background-image:none;float:right;position:absolute;right:0;top:8px;background:0 0;width:0;height:0;border-top:12px solid transparent;border-bottom:12px solid transparent;border-right:12px solid #fff}
-.page-sidebar-reversed .page-sidebar .page-sidebar-menu>li.active>a>.selected{right:auto;left:0;border-right:0;border-left:8px solid #fff}
-.page-container-bg-solid .page-sidebar .page-sidebar-menu>li.active>a>.selected{border-color:transparent #eef1f5 transparent transparent}
-.page-container-bg-solid.page-sidebar-reversed .page-sidebar .page-sidebar-menu>li.active>a>.selected{border-color:transparent transparent transparent #eef1f5}
 .page-sidebar .page-sidebar-menu li>a>.arrow:before{float:right;width:20px;text-align:center;margin-top:-1px;margin-right:0;margin-left:0;display:inline;font-size:16px;font-family:FontAwesome;height:auto;content:"\f104";font-weight:300;text-shadow:none}
 .page-sidebar .page-sidebar-menu li>a>.arrow.open:before{content:"\f107"}
 .page-sidebar .page-sidebar-menu li>a>.badge{float:right;margin-top:1px;margin-right:0}
@@ -300,16 +297,11 @@ TODO
 .page-bar .page-toolbar{display:inline-block;float:right;padding:0}
 .page-bar .page-toolbar .btn-fit-height{-webkit-border-radius:0 4px 4px 0;-moz-border-radius:0 4px 4px 0;-ms-border-radius:0 4px 4px 0;-o-border-radius:0 4px 4px 0;border-radius:0 4px 4px 0;padding-top:8px;padding-bottom:8px}
 .page-md .page-bar .page-toolbar .btn-fit-height{padding-top:9px;padding-bottom:9px;box-shadow:none!important}
-.page-container-bg-solid .page-bar,.page-content-white .page-bar{background-color:#fff;position:relative;padding:0 20px;margin:-25px -20px 0 -20px}
-.page-container-bg-solid .page-bar .page-breadcrumb,
+.page-content-white .page-bar{background-color:#fff;position:relative;padding:0 20px;margin:-25px -20px 0 -20px}
 .page-content-white .page-bar .page-breadcrumb{padding:11px 0}
-.page-container-bg-solid .page-bar .page-breadcrumb>li>a,
-.page-container-bg-solid .page-bar .page-breadcrumb>li>span,
 .page-content-white .page-bar .page-breadcrumb>li>a,.page-content-white .page-bar .page-breadcrumb>li>span{color:#888}
-.page-container-bg-solid .page-bar .page-breadcrumb>li>i,
 .page-content-white .page-bar .page-breadcrumb>li>i{color:#aaa}
-.page-container-bg-solid .page-bar .page-breadcrumb>li>i.fa-circle,.page-content-white .page-bar .page-breadcrumb>li>i.fa-circle{font-size:5px;margin:0 5px;position:relative;top:-3px;opacity:.4;filter:alpha(opacity=40)}
-.page-container-bg-solid .page-bar .page-breadcrumb>li>i[class*=icon-],
+.page-content-white .page-bar .page-breadcrumb>li>i.fa-circle{font-size:5px;margin:0 5px;position:relative;top:-3px;opacity:.4;filter:alpha(opacity=40)}
 .page-content-white .page-bar .page-breadcrumb>li>i[class*=icon-],.page-content-white .page-bar .page-breadcrumb>li>i[class^=icon-]{color:#8c8c8c}
 .page-content-white .page-bar .page-toolbar{padding:6px 0}
 .page-content-white .page-bar .page-toolbar .btn{margin-top:-2px}

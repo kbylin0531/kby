@@ -25,14 +25,8 @@
             dazz.load(cdn['performance'],'js');
         }
         dazz.load(cdn['script'],'js');
-        dazz.ready(function () {
-            Dazzling.init();
-            Dazzling.initUserInfo(infos['user'],['avatar.src','nickname','menu']);
-            Dazzling.initPageInfo(infos['page']);
-        });
     </script>
     {block name='style'}{/block}
-    {block name='script'}{/block}
 </head>
 
 <body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
@@ -50,7 +44,7 @@
                 <div class="input-group">
                     <input type="text" class="form-control" placeholder="Search..." name="query">
                     <span class="input-group-btn">
-                        <a href="#" class="btn submit"><i class="icon-magnifier"></i></a>
+                        <a href="#" class="btn submit"><i class="icon-search"></i></a>
                     </span>
                 </div>
             </form>
@@ -63,7 +57,7 @@
                             <span class="username" id="nickname"> </span>
                             <i class="icon-angle-down"></i>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-default" id="menu"></ul>
+                        <ul class="dropdown-menu dropdown-menu-default" id="dazz_user_menu"></ul>
                     </li>
                 </ul>
             </div>
@@ -102,4 +96,12 @@
         <div class="scroll-to-top"><i class="icon-arrow-up"></i></div>
     </div>
 </body>
+<script>
+    dazz.ready(function () {
+        Dazzling.init();
+        Dazzling.initUserInfo(infos['user'],['avatar.src','nickname']);
+        Dazzling.initPageInfo(infos['page']);
+    });
+</script>
+{block name='script'}{/block}
 </html>

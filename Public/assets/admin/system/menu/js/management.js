@@ -4,6 +4,8 @@
 dazz.ready(function () {
     "use strict";
 
+    console.log(location);
+
     var idLibrary = [];
 
     var active_index = 0;
@@ -62,6 +64,9 @@ dazz.ready(function () {
                         MenuItemContextMenu.bind(element);
                         idLibrary.push(parseInt(data.id));
                     });
+                }else{
+                    //empty the showing
+                    SiderNestable.load([]);
                 }
             },
             loadMenus : function () {
@@ -140,7 +145,7 @@ dazz.ready(function () {
             $(".dd").nestable("collapseAll");
         }, "icon-resize-small");
         $(window).resize(function () {
-            Dazzling.page.adjustMinHeight(".nestable_container");
+            Dazzling.utils.adjustMinHeight(".nestable_container");
         }).trigger('resize');
         $("#addTop").click(function () {
             operator.updateIdForCreate();
@@ -160,7 +165,6 @@ dazz.ready(function () {
         $("#addSide").click(function () {
             operator.updateIdForCreate();
             MenuItemAddModal.title('添加侧边栏菜单项').show().onConfirm(function () {
-                // var obj = dazz.utils.parseUrl(Dazzling.form.serialize("#MenuItemAddForm"));
                 var obj = $("#MenuItemAddForm").fetchObject();
                 // return console.log(object)
                 var item = SiderNestable.createItem(obj);
@@ -168,7 +172,6 @@ dazz.ready(function () {
 
                 MenuItemContextMenu.bind(item);
                 idLibrary.push(obj.id);
-                // Dazzling.toast.success('添加成功!');
                 operator.updateIdForCreate();
             });
         });
@@ -176,11 +179,6 @@ dazz.ready(function () {
             operator.saveSideMenuConfig();
         });
         HeaderNestable.onItemClick = function (data) {
-            // if(operator.getNewSidebarMenuItems()){
-            //     Dazzling.toast.warning('The menu not saved!');
-            //     return false;
-            // }//it will reject change while not save the last change
-            // console.log(data.id);
             operator.loadSidebarMenu(data.id);
         };
     })();

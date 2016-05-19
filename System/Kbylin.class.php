@@ -197,7 +197,7 @@ final class Kbylin {
         define('APP_NAME',$this->appname);
         $script = dirname($_SERVER['SCRIPT_NAME']);
         IS_WIN and $script = str_replace('\\', '/', $script);
-        define('BASE_URI',$script);
+        define('BASE_URI',rtrim($script,'/\\').'/');
         define('PUBLIC_URI',BASE_URI);//.$this->_convention['PUBLIC_DIR']
 
 //        dumpout($_SERVER['SCRIPT_NAME'],PUBLIC_URI,BASE_URI,$this->_convention['PUBLIC_DIR']);

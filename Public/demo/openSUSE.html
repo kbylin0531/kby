@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title lang="zh_CN">openSUSE - Linux OS. 系统管理员、开发者和桌面用户的上上之选。</title>
+
+    <!--bootstrap + opensuse theme -->
+    <link href="openSUSE/openSUSE.min.css" type="text/css" rel="stylesheet">
+    <!--external libraries CSS -->
+    <link href="openSUSE/vendor.min.css" type="text/css" rel="stylesheet">
+    <!--custom + external libraries JS -->
+    <script type="text/javascript" async="" defer="" src="openSUSE/piwik.js"></script>
+    <!--<script id="facebook-jssdk" src="https://connect.facebook.net/en_US/sdk.js">-->
+    <script src="openSUSE/main.min.js" type="text/javascript"></script>
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="../assets/plugins/html5shiv/dist/html5shiv.min.js"></script>
+        <script src="../assets/plugins/respond/dest/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+<body style="display: block;">
+<header style="top: 0; height: 45px; padding: 8px; z-index: 1000; background: rgb(23, 63, 79);">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-2 logo">
+                <a href="#">
+                    <img src="openSUSE/opensuse-logo.png" class="wow fadeIn" id="opensuseLogo" style="height: 25px;">
+                </a>
+                <i class="fa fa-bars fa-lg pull-left visible-xs" id="open_main_menu"></i>
+            </div>
+            <nav class="hidden-xs col-sm-10 text-right wow fadeIn" id="main-menu"
+                 style="visibility: visible; animation-name: fadeIn;">
+                <ul>
+                    <li>
+                        <a class="smoothScroll" data-linkto="opensuse-os" href="#"
+                           style="font-size: 14px; color: rgb(255, 255, 255);"><span lang="zh_CN">首页</span></a>
+                    </li>
+                    <li>
+                        <a class="smoothScroll" data-linkto="opensuse-tools" href="#"
+                           style="font-size: 14px; color: rgb(255, 255, 255);"><span lang="zh_CN">工具</span></a>
+                    </li>
+                    <li>
+                        <a class="smoothScroll" data-linkto="news" href="#"
+                           style="font-size: 14px; color: rgb(255, 255, 255);"><span lang="zh_CN">新闻</span></a>
+                    </li>
+                    <li>
+                        <a class="smoothScroll" data-linkto="contribute-to-opensuse" href="#"
+                           style="font-size: 14px; color: rgb(255, 255, 255);"><span lang="zh_CN">贡献</span></a>
+                    </li>
+                    <li>
+                        <a class="smoothScroll" data-linkto="opensuse-conferences" href="#"
+                           style="font-size: 14px; color: rgb(255, 255, 255);"><span lang="zh_CN">集会</span></a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</header>
+<aside style="left: -250px;">
+    <ul>
+        <li>
+            <a class="smoothScroll" data-linkto="opensuse-os" href="#"><span
+                    lang="zh_CN">首页</span></a>
+        </li>
+        <li>
+            <a class="smoothScroll" data-linkto="opensuse-tools" href="#"><span
+                    lang="zh_CN">工具</span></a>
+        </li>
+        <li>
+            <a class="smoothScroll" data-linkto="news" href="#"><span
+                    lang="zh_CN">新闻</span></a>
+        </li>
+        <li>
+            <a class="smoothScroll" data-linkto="contribute-to-opensuse" href="#"><span
+                    lang="zh_CN">贡献</span></a>
+        </li>
+        <li>
+            <a class="smoothScroll" data-linkto="opensuse-conferences" href="#"><span
+                    lang="zh_CN">集会</span></a>
+        </li>
+    </ul>
+</aside>
+
+<a href="#" class="smoothScroll go-to-top" data-linkto="opensuse-os" style="display: block;">
+    <i class="fa-chevron-up fa"></i>
+    Up
+</a>
+
+<section id="opensuse-os">
+    <article class="container-fluid">
+        <h3 class="text-center wow fadeInUp" lang="zh_CN" style="visibility: visible; animation-name: fadeInUp;">
+            系统管理员、开发者和桌面用户的上上之选。</h3>
+        <div class="row os-main">
+            <div class="col-sm-6 text-center wow fadeIn" data-wow-delay=".2s"
+                 style="visibility: visible; animation-delay: 0.2s; animation-name: fadeIn;">
+                <div id="tumbleweed">
+                    <div class="distributions-icon">
+                        <img src="openSUSE/tumbleweed-icon.svg" class="wow bounceInDown" data-wow-delay=".7s"
+                             style="visibility: visible; animation-delay: 0.7s; animation-name: bounceInDown;">
+                    </div>
+                    <h1 class="wow fadeIn" data-wow-delay=".5s"
+                        style="visibility: visible; animation-delay: 0.5s; animation-name: fadeIn;">Tumbleweed</h1>
+                    <h4 class="wow fadeIn" data-wow-delay=".6s" lang="zh_CN"
+                        style="visibility: visible; animation-delay: 0.6s; animation-name: fadeIn;">安装我们的滚动版本，获取最新 Linux
+                        软件包。日新月异！整合如一！坚如磐石！久经检验！</h4>
+                    <button class="moreinfo btn btn-default" lang="zh_CN">更多信息</button>
+                    <a href="#" class="moreinfo btn btn-primary">
+                        <span lang="zh_CN">安装 Tumbleweed</span>
+                    </a>
+                    <div class="hidden-content">
+                        <p lang="zh_CN">任何期颐最新软件包的用户，包括但不限于内核、SAMBA、git、桌面环境、办公应用以及许多其它软件包，都会想要使用 Tumbleweed。Tumbleweed
+                            迎合了高级用户、软件开发者和 openSUSE 贡献者。若您需要最新软件堆栈和整合的开发环境，或者需要一个最接近最新 Linux 的稳定平台，Tumbleweed
+                            是您的不二选择。 </p>
+                        <a href="#" target="_blank" class="btn btn-default">
+                            <i class="fa fa-info"></i> <span lang="zh_CN">了解更多</span>
+                        </a>
+                        <a href="#" target="_blank"
+                           class="btn btn-primary">
+                            <i class="fa fa-download"></i> <span lang="zh_CN">安装 Tumbleweed</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 text-center">
+                <div id="openSUSE">
+                    <div class="distributions-icon">
+                        <img src="openSUSE/opensuse-regular-release-icon.svg"
+                             class="distributions-icon wow bounceInDown" data-wow-delay=".7s"
+                             style="visibility: visible; animation-delay: 0.7s; animation-name: bounceInDown;">
+                    </div>
+                    <h1 class="wow fadeIn" data-wow-delay=".5s"
+                        style="visibility: visible; animation-delay: 0.5s; animation-name: fadeIn;">Leap</h1>
+                    <h4 class="wow fadeIn" data-wow-delay=".6s" lang="zh_CN"
+                        style="visibility: visible; animation-delay: 0.6s; animation-name: fadeIn;">安装 openSUSE
+                        最新的常规发布版本，获取最完整的 Linux 发行版体验！ </h4>
+                    <p class="moreinfo btn btn-default" lang="zh_CN">更多信息</p>
+                    <a href="#" target="_blank" class="moreinfo btn btn-primary">
+                        <span lang="zh_CN">安装 Leap</span>
+                    </a>
+                    <div class="hidden-content">
+                        <p lang="zh_CN">新用户和有点经验的 Linux 用户可以使用 openSUSE 的常规版本来获得最可用的 Linux 发行版和稳定的操作系统体验。使用最新的 openSUSE
+                            主力发行版，您可以收取更新和加固您的操作系统。选择桌面环境、简单配置下系统，您就可以享有 Linux 开发者、管理员以及软件制造商所钟情的平台。</p>
+                        <a href="#" target="_blank" class="btn btn-primary">
+                            <i class="fa fa-download"></i> <span lang="zh_CN">安装 Leap</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </article>
+</section>
+<section id="opensuse-tools">
+    <article class="container-fluid">
+        <h1 class="text-center opensuse-blue wow fadeInUp" lang="zh_CN"
+            style="visibility: visible; animation-name: fadeInUp;">openSUSE 工具</h1>
+        <h4 class="text-center wow fadeInUp" lang="zh_CN" style="visibility: visible; animation-name: fadeInUp;">
+            探索我们社区开发的、最好的开源工具</h4>
+        <div class="row tools-container">
+            <div class="col-md-6">
+                <div class="media wow slideInLeft" style="visibility: visible; animation-name: slideInLeft;">
+                    <div class="media-left">
+                        <a href="#" target="_blank">
+                            <img class="media-object" src="openSUSE/obs.svg" alt="Open Build Service (OBS)">
+                        </a>
+                    </div>
+                    <div class="media-body">
+                        <a href="#" target="_blank">
+                            <h4 class="media-heading opensuse-blue strong-title">
+                                Open Build Service (OBS)
+                                <small>
+                                    (<span lang="zh_CN">前往链接</span> <i class="fa fa-external-link"></i> )
+                                </small>
+                            </h4>
+                        </a>
+                        <p lang="zh_CN">我们的构建工具，构建了我们的全部软件包，以及 SUSE Linux Enterprise、Arch、Debian、Fedora、Scientific
+                            Linux、RHEL、CentOS、Ubuntu 甚至更多发行版的部分软件包。</p>
+                    </div>
+                </div>
+                <div class="media wow slideInLeft" style="visibility: visible; animation-name: slideInLeft;">
+                    <div class="media-left">
+                        <a href="#" target="_blank">
+                            <img class="media-object" src="openSUSE/openqa.svg" alt="openQA">
+                        </a>
+                    </div>
+                    <div class="media-body">
+                        <a href="#" target="_blank">
+                            <h4 class="media-heading opensuse-blue strong-title">
+                                openQA
+                                <small>
+                                    (<span lang="zh_CN">前往链接</span> <i class="fa fa-external-link"></i> )
+                                </small>
+                            </h4>
+                        </a>
+                        <p lang="zh_CN">自动测试任何操作系统，可以像用户那样阅读屏幕和控制测试用主机。</p>
+                    </div>
+                </div>
+                <div class="media wow slideInLeft" style="visibility: visible; animation-name: slideInLeft;">
+                    <div class="media-left">
+                        <a href="#" target="_blank">
+                            <img class="media-object" src="openSUSE/yast.svg" alt="YaST">
+                        </a>
+                    </div>
+                    <div class="media-body">
+                        <a href="#" target="_blank">
+                            <h4 class="media-heading opensuse-blue strong-title">
+                                YaST
+                                <small>
+                                    (<span lang="zh_CN">前往链接</span> <i class="fa fa-external-link"></i> )
+                                </small>
+                            </h4>
+                        </a>
+                        <p lang="zh_CN">最好的、唯一的综合性 Linux 系统配置和安装工具。 </p>
+                    </div>
+                </div>
+                <div class="media wow slideInLeft" style="visibility: visible; animation-name: slideInLeft;">
+                    <div class="media-left">
+                        <a href="#" target="_blank">
+                            <img class="media-object" src="openSUSE/kiwi.svg" alt="Kiwi">
+                        </a>
+                    </div>
+                    <div class="media-body">
+                        <a href="#" target="_blank">
+                            <h4 class="media-heading opensuse-blue strong-title">
+                                Kiwi
+                                <small>
+                                    (<span lang="zh_CN">前往链接</span> <i class="fa fa-external-link"></i> )
+                                </small>
+                            </h4>
+                        </a>
+                        <p lang="zh_CN">为在真实硬件、虚拟化环境、现在甚至可以是像 Docker 这样的容器系统上部署创建 Linux 映像。Kiwi 是驱动 SUSE Studio
+                            的引擎。 </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 tools-laptop">
+                <div class="wow slideInUp text-right hidden-sm" style="visibility: visible; animation-name: slideInUp;">
+                    <img src="openSUSE/opensuse-laptop.jpg" class="laptop-responsive">
+                </div>
+
+            </div>
+        </div>
+    </article>
+</section>
+
+<div class="gray-triangular-division wow slideInDown" style="visibility: visible; animation-name: slideInDown;"></div>
+
+<section id="news">
+    <article class="container-fluid">
+        <h2 class="text-center opensuse-blue strong-title">NEWS</h2>
+        <div class="text-center wow slideInDown" style="visibility: visible; animation-name: slideInDown;">
+            <img src="openSUSE/news-icon.png">
+        </div>
+        <div id="owl-slide-news" class="owl-carousel opensuse-news" style="opacity: 0;">
+        </div>
+    </article>
+</section>
+<section id="contribute-to-opensuse" class="text-center">
+    <h2 class="strong-title wow fadeInDown" lang="zh_CN" style="visibility: visible; animation-name: fadeInDown;">
+        群策群力</h2>
+    <h4 class="strong-title wow fadeInDown" data-wow-delay=".5s" lang="zh_CN"
+        style="visibility: visible; animation-delay: 0.5s; animation-name: fadeInDown;">为以下事务出力，成为我们社区的一份子：</h4>
+    <div class="row contribution-columns">
+        <div class="col-xs-6 contribution-code">
+            <div class="contribute-code">
+                <div class="bubble"></div>
+                <div class="text-holder">
+                    <i class="fa fa-5x fa-code opensuse-blue wow slideInLeft"
+                       style="visibility: visible; animation-name: slideInLeft;"></i>
+                    <h1 class="opensuse-blue wow slideInLeft" lang="zh_CN"
+                        style="visibility: visible; animation-name: slideInLeft;">代码</h1>
+                    <h2 lang="zh_CN">详细了解</h2>
+                </div>
+            </div>
+            <div class="hidden-content">
+                <h1 lang="zh_CN">贡献代码</h1>
+                <p lang="zh_CN">openSUSE 坚信最好的结果来自于人们的协作和兴趣。与其它开源社区的不同之处才是 openSUSE 的出彩之处。
+                    我们不是保守的社区，社区的努力可以决定项目的走向。社区的努力已经创造了一些伟大的 Linux 工具和一个了不起的发行版。参与
+                    openSUSE，您可以发出声音，也可以轻松地为项目出力。不管您是一个经验丰富的 Linux 开发者还是一个最终用户，参与 openSUSE 项目吧！您可以加入论坛，维护、更新我们的
+                    wiki，寻找并报告臭虫，校对文档，请愿新软件包及功能，创建并提交补丁，参加开源活动倡导 openSUSE，或者成为一名大使。</p>
+                <p><a class="btn btn-default" href="#" lang="zh_CN"
+                      target="_blank">了解如何参与</a></p>
+            </div>
+        </div>
+        <div class="col-xs-6 contribution-hardware">
+            <div class="contribute-hardware">
+                <div class="bubble"></div>
+                <div class="text-holder">
+                    <i class="fa fa-5x fa-server opensuse-blue wow slideInRight"
+                       style="visibility: visible; animation-name: slideInRight;"></i>
+                    <h1 class="opensuse-blue wow slideInRight" lang="zh_CN"
+                        style="visibility: visible; animation-name: slideInRight;">硬件</h1>
+                    <h2 lang="zh_CN">详细了解</h2>
+                </div>
+            </div>
+            <div class="hidden-content">
+                <h1 lang="zh_CN">贡献硬件</h1>
+                <p lang="zh_CN">对 openSUSE 项目的捐助总是受欢迎的。事实上，也被一些其它开源项目使用着的 Open Build Service，是 AMD
+                    慷慨地捐赠了服务器，才能被社区用上的。这种捐赠使项目及其成员得以兴盛、发展、创新和演进。该项目并不要钱，而是要硬件捐赠，以运用开源社区的专业知识来进行 Linux 开发，为自由开源生态系统提供
+                    openSUSE 的工具，并回馈给开发者、系统管理员和打包者。硬件有助 openSUSE 社区！硬件有助开源社区！并且硬件有助 Linux 开发。要了解如何捐赠硬件给 openSUSE
+                    项目，请邮件</p>
+                <a class="btn btn-default" href="mailto:donations@opensuse.org?subject=Hardware%20Donations"
+                   target="_top">donations@opensuse.org</a>
+            </div>
+        </div>
+    </div>
+    <div id="contribute-details"></div>
+</section>
+<section id="opensuse-conferences">
+    <div class="section-background"></div>
+    <article>
+        <h2 class="strong-title wow slideInDown" lang="zh_CN" style="visibility: visible; animation-name: slideInDown;">
+            来集会邂逅 openSUSE</h2>
+        <a href="#" target="_blank" class="btn btn-default wow zoomIn"
+           style="visibility: visible; animation-name: zoomIn;"><span lang="zh_CN">查看临近的集会</span></a>
+    </article>
+</section>
+<footer>
+    <div class="container-fluid">
+        <div class="row footer-links-area">
+            <div class="col-sm-5">
+                <div class="row">
+                    <div class="col-xs-4">
+                        <ul>
+                            <li>
+                                <a href="#">
+                                    <span lang="zh_CN">撷取软件</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <span lang="zh_CN">维基</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <span lang="zh_CN">Build Service</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-xs-4">
+                        <ul>
+                            <li>
+                                <a href="#">
+                                    <span lang="zh_CN">社交网络</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <span lang="zh_CN">新闻</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <span lang="zh_CN">论坛</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-xs-4">
+                        <ul>
+                            <li>
+                                <a href="#">
+                                    <span lang="zh_CN">商店</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <span lang="zh_CN">博客</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="mailto:press@opensuse.org">
+                                    <span lang="zh_CN">媒体</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-5 col-sm-offset-2 social-networks">
+                <a href="#" target="_blank" class="wow fadeIn"
+                   style="visibility: visible; animation-name: fadeIn;">
+                    <i class="fa fa-twitter-square"></i>
+                </a>
+                <a href="#" target="_blank" class="wow fadeIn"
+                   data-wow-delay=".3s" style="visibility: visible; animation-delay: 0.3s; animation-name: fadeIn;">
+                    <i class="fa fa-google-plus-square"></i>
+                </a>
+                <a href="#" target="_blank" class="wow fadeIn" data-wow-delay=".6s"
+                   style="visibility: visible; animation-delay: 0.6s; animation-name: fadeIn;">
+                    <i class="fa fa-facebook-square"></i>
+                </a>
+                <a href="#" target="_blank" class="wow fadeIn"
+                   data-wow-delay=".9s" style="visibility: visible; animation-delay: 0.9s; animation-name: fadeIn;">
+                    <i class="fa fa-youtube-square"></i>
+                </a>
+            </div>
+        </div>
+        <div class="blue-triangular-division wow slideInDown"
+             style="visibility: visible; animation-name: slideInDown;"></div>
+        <div class="row footer-sponsors-area text-center">
+            <div class="col-sm-6 col-sm-offset-3">
+                <h5 lang="zh_CN">赞助：</h5>
+                <a href="#" target="_blank">
+                    <img src="openSUSE/sponsors.jpg">
+                </a>
+            </div>
+            <div class="col-sm-3 text-left language-selector">
+                <h5 lang="zh_CN">修改语言</h5>
+                <div class="dropup dropup_language-menu">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1"
+                            data-toggle="dropdown" aria-haspopup="false" aria-expanded="true">
+                        <span class="selected-language">中文（简体）</span>
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu languages" aria-labelledby="dropdownMenu1">
+                        <li><a href="#" class="change-language" data-language-value="ca">Catalan</a>
+                        </li>
+                        <li><a href="#" class="change-language" data-language-value="zh_TW">中文（繁體）</a>
+                        </li>
+                        <li><a href="#" class="change-language" data-language-value="zh_CN">中文（简体）</a>
+                        </li>
+                        <li><a href="#" class="change-language"
+                               data-language-value="nl">Dutch</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <p class="text-center">© 2015 SUSE LLC. <span lang="zh_CN">保留所有权利。</span></p>
+    </div>
+</footer>
+<div class="hidden-content">
+    <span lang="zh_CN">返回首页</span>
+</div>
+
+</body>
+</html>
