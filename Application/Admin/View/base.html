@@ -7,6 +7,7 @@
     <title>Dazzling</title>
     <script src="{$smarty.const.PUBLIC_URI}assets/js/dazz.js"></script>
     <script>
+
         var infos = dazz.utils.toObject('{$infos}');
 
         var cdn = infos['cdn'];
@@ -28,7 +29,7 @@
     </script>
     {block name='style'}{/block}
 </head>
-
+<!-- header is always fixed -->
 <body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
 
 <div class="page-header navbar navbar-fixed-top">

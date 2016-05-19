@@ -349,7 +349,6 @@ var Dazzling = function () {
             //the topmenu selector of jquery
             selector: '#dazz_header_menu'
         },
-        headermenu: null,
         /**
          * create and return the handler of topmenu
          * @param config head menu config
@@ -465,10 +464,75 @@ var Dazzling = function () {
         }
     };
 
-    var initPageInfo = function (pageinfo, headeractiveindex) {
+    var SidebarMenuHandler = {
+        options: {
+            //the sidemenu  selector of jquery
+            selector: '#dazz_sidebar_menu'
+        },
+        /**
+         * create and return the handler of topmenu
+         * @param config head menu config
+         * @returns {{}}
+         */
+        getInstance: function (config) {
+            var instance = dazz.newInstance(this);
+            if (!dazz.utils.isObject(config)) return Dazzling.toast.error('Please init sidebar menu-handler with an Object!');
+            options = dazz.utils.initOption(instance.options, config, true);
+            instance.target = GenKits.toJquery(instance.options.selector);
+            return instance;
+        },
+        _getAnchor : function (attrs, hasSubmenu) {
+            hasSubmenu || (hasSubmenu = attrs.hasOwnProperty('submenu'));
+
+            var a = $(document.createElement('a')).addClass(hasSubmenu ? 'nav-link nav-toggle' : 'nav-link');
+
+            //default icon
+            if (!attrs.hasOwnProperty('icon')) attrs['icon'] = 'icon-circle-blank';//默认图标
+
+            a.append($('<i class="' + attrs['icon'] + '"></i>')).append($('<span class="title"> ' + attrs['title'] + ' </span>'));
+            hasSubmenu && a.append($('<i class="float-right icon-angle-right"></i>'));
+            return a;
+        },
+        _getUnorderedLists : function (menuitem) {
+            if (!menuitem.hasOwnProperty('children') || !menuitem.children) return;//不存在子菜单时直接返回
+            var li_ul = $('<ul class="sub-menu"></ul>');
+
+            var env = this;
+            dazz.utils.each(menuitem.children,function (subitem) {
+                var hasSubmenu = subitem.hasOwnProperty('children');
+
+                var li_navitem = $(document.createElement('li'));
+                li_navitem.addClass('nav-item');
+                li_navitem.append(env._getAnchor(subitem, hasSubmenu));
+                li_ul.append(li_navitem);
+                if (hasSubmenu) {
+                    li_navitem.append(env._getUnorderedLists(subitem));
+                }
+            });
+
+            return li_ul;
+        },
+        load:function (data) {
+            var env = this;
+            // console.log(data)
+            dazz.utils.each(data,function (topitemconf) {
+                var li_navitem = $(document.createElement('li')).addClass('nav-item');
+                var hasSubmenu = topitemconf.hasOwnProperty('children');
+
+                var a = env._getAnchor(topitemconf, hasSubmenu);
+                li_navitem.append(a);
+                console.log(a,hasSubmenu,topitemconf);
+                hasSubmenu && li_navitem.append(env._getUnorderedLists(topitemconf));
+
+                env.target.append(li_navitem);
+            });
+            return env;
+        }
+    };
+
+    var initPageInfo = function (pageinfo, headeractiveindex,sideractiveindex) {
         if (!(pageinfo instanceof Object)) pageinfo = dazz.utils.toObject(pageinfo);
 
-        var index, menuitem, hasSubmenu;
         //设置标题
         pageinfo.hasOwnProperty('title') && $("title").text(pageinfo['title']);
         pageinfo.hasOwnProperty('logo') && $("#dazz_logo").attr('src', pageinfo['logo']);
@@ -477,60 +541,9 @@ var Dazzling = function () {
         //处理顶部菜单
         HeaderMenuHandler.getInstance(pageinfo).load(pageinfo['header_menu']['menu_list']).active(headeractiveindex);
 
+        // console.log(pageinfo)
         var sidebar_menu = pageinfo['sidebar_menu'];
-        var dazz_sidebar_menu = $("#dazz_sidebar_menu");
-        var _getAnchor4Sidebar = function (attrs, hasSubmenu) {
-            if (undefined === hasSubmenu) hasSubmenu = attrs.hasOwnProperty('submenu');
-
-            var a = $(document.createElement('a')).addClass(hasSubmenu ? 'nav-link nav-toggle' : 'nav-link');
-
-            //未传入参数的清空
-            if (!attrs.hasOwnProperty('icon')) attrs['icon'] = 'icon-circle-blank';//默认图标
-
-            a.append($('<i class="' + attrs['icon'] + '"></i>')).append($('<span class="title"> ' + attrs['title'] + ' </span>'));
-            hasSubmenu && a.append($('<i class="float-right icon-angle-right"></i>'));
-            return a;
-        };
-        var _getUnorderedLists4Sidebar = function (menuitem) {
-            if (!menuitem.hasOwnProperty('submenu') || !menuitem.submenu) return;//不存在子菜单时直接返回
-            var li_ul = $('<ul class="sub-menu"></ul>');
-
-            //创建并添加ul
-            for (var x in menuitem.submenu) {
-                if (!menuitem.submenu.hasOwnProperty(x)) continue;
-                //子菜单项
-                var subitem = menuitem.submenu[x];
-
-                var hasSubmenu = subitem.hasOwnProperty('submenu');
-
-                var li_navitem = $(document.createElement('li'));
-                li_navitem.addClass('nav-item');
-                li_navitem.append(_getAnchor4Sidebar(subitem, hasSubmenu));
-                li_ul.append(li_navitem);
-                if (hasSubmenu) {
-                    li_navitem.append(_getUnorderedLists4Sidebar(subitem));
-                }
-            }
-            return li_ul;
-        };
-
-        for (index in sidebar_menu['menu_list']) {
-            if (!sidebar_menu['menu_list'].hasOwnProperty(index)) continue;
-            //菜单项
-            menuitem = sidebar_menu['menu_list'][index];
-
-            var li_navitem = $(document.createElement('li'));
-            li_navitem.addClass('nav-item');
-
-            hasSubmenu = menuitem.hasOwnProperty('submenu');
-
-            var a = _getAnchor4Sidebar(menuitem, hasSubmenu);
-
-            li_navitem.append(a);
-            hasSubmenu && li_navitem.append(_getUnorderedLists4Sidebar(menuitem));
-
-            dazz_sidebar_menu.append(li_navitem);
-        }
+        SidebarMenuHandler.getInstance(pageinfo).load(pageinfo['sidebar_menu']['menu_list']);//.active(sideractiveindex);
     };
 
     var BsModal = {

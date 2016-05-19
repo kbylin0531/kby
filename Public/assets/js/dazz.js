@@ -358,7 +358,7 @@ window.dazz = (function () {
 
     //监听窗口状态变化
     window.document.onreadystatechange = function(){
-        console.log(window.document.readyState);
+        // console.log(window.document.readyState);
         if( window.document.readyState === "complete" ){
             if(readyStack.length){
                 for(var i=0;i<readyStack.length;i++) {
@@ -371,6 +371,30 @@ window.dazz = (function () {
     return {
         context:context,
         utils:utils,
+        newElement:function (regular) {
+            var tagname  = regular, classes, id;
+            if(regular.indexOf('.') > 0 ){
+                classes = regular.split(".");
+                regular = classes.shift();
+            }
+            if(regular.indexOf("#") > 0){
+                var tempid = regular.split("#");
+                tagname = tempid[0];
+                id = tempid[1];
+            }else{
+                tagname = regular
+            }
+            var element = document.createElement(tagname);
+            id && element.setAttribute('id',id);
+            if(classes){
+                var ct = '';
+                for (var i =0;i <classes.length; i++){
+                    ct += classes[i];
+                    if(i !== classes.length - 1)  ct += ",";
+                }
+                element.setAttribute('class',ct);
+            }
+        },
         //获取一个单例的操作对象作为上下文环境的深度拷贝
         newInstance:function (context) {
             var Yan = function () {return {target:null};};
