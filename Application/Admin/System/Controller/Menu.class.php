@@ -21,7 +21,7 @@ class Menu extends AdminController {
     /**
      * 顶级菜单(顶部的菜单项)和次级菜单(侧边栏菜单)管理
      */
-    public function PageManagement(){
+    public function Management(){
         $this->displayManagement();
     }
 

@@ -8,12 +8,11 @@ var Dazzling = function () {
 
     var convention = {
         requestInterval: 400,//post刷新间隔
-        sizeXS:480,// extra small
-        sizeSM:768,// small
-        sizeMD:992,// medium
-        sizeLG:1200// large
+        sizeXS: 480,// extra small
+        sizeSM: 768,// small
+        sizeMD: 992,// medium
+        sizeLG: 1200// large
     };
-    var _lqt = null;//last request time
 
     var thishtml = $('html');
     var thisbody = $(document.body);
@@ -30,8 +29,10 @@ var Dazzling = function () {
         SidebarMenu: $('.page-sidebar-menu'),
 
         //methods
-        setHeaderSearchHandler : function (handler) {
-            if (!handler) handler = function () { console.log('No handler has been set for header search');};
+        setHeaderSearchHandler: function (handler) {
+            if (!handler) handler = function () {
+                console.log('No handler has been set for header search');
+            };
 
             // handle search box expand/collapse
             Page.Header.on('click', '.search-form', function () {
@@ -65,15 +66,15 @@ var Dazzling = function () {
                 return false;
             });
         },
-        User : {
+        User: {
             /**
              * init user menu with certain config and element on page
              * @param conf menu config of an array/object
              * @param ele menu element selector
              */
-            initUserMenu : function (conf,ele) {
+            initUserMenu: function (conf, ele) {
                 ele = GenKits.toJquery(ele);
-                dazz.utils.each(conf,function (item) {
+                dazz.utils.each(conf, function (item) {
                     var li = $(document.createElement('li'));
                     var a = $(document.createElement('a'));
                     a.text(item['title']);
@@ -91,11 +92,11 @@ var Dazzling = function () {
                 });
             }
         },
-        General:{
-            autofill:function (ids,valmap) {
-                dazz.utils.each(ids,function (id) {
+        General: {
+            autofill: function (ids, valmap) {
+                dazz.utils.each(ids, function (id) {
                     if (valmap.hasOwnProperty(id)) {
-                        switch (typeof valmap[id]){
+                        switch (typeof valmap[id]) {
                             case 'string':
                                 if (id.indexOf('.') >= 0) {
                                     //set attribute for certain id
@@ -129,9 +130,272 @@ var Dazzling = function () {
             }
             this.page_action_list.append(li.append(a));
             a.click(callback);
+        },
+
+        Status: {
+            isSidebarOn: function () {
+                return thisbody.hasClass("page-sidebar-closed");
+            }
+        },
+
+        Action: {
+            openSidebar: function () {
+                thisbody.removeClass("page-sidebar-closed");
+                Page.SidebarMenu.removeClass("page-sidebar-menu-closed");
+                $.cookie && $.cookie('sidebar_closed', '0');
+            },
+            closeSidebar: function () {
+                thisbody.addClass("page-sidebar-closed");
+                Page.SidebarMenu.addClass("page-sidebar-menu-closed");
+                $.cookie && $.cookie('sidebar_closed', '1');
+            }
+        },
+        DataManager: {}
+    };
+
+    /**
+     * Top Menu Handler
+     * @type {{}}
+     */
+    var HeaderMenuHandler = {
+        options: {
+            //the topmenu selector of jquery
+            selector: '#dazz_header_menu'
+        },
+        /**
+         * create and return the handler of topmenu
+         * @param config head menu config
+         * @returns {{}}
+         */
+        getInstance: function (config) {
+            var instance = dazz.newInstance(this);
+
+            if (!dazz.utils.isObject(config)) return Dazzling.toast.error('Please init header menu-handler with an Object!');
+            options = dazz.utils.initOption(instance.options, config, true);
+
+            instance.target = GenKits.toJquery(instance.options.selector);
+            return instance;
+        },
+        //get the children attribute of element.It will return an array if attribute exist but null while not exist
+        _getChildren: function (element, childrenattrname) {
+            if (!childrenattrname) childrenattrname = 'children';
+            return (element.hasOwnProperty(childrenattrname) && element[childrenattrname]) ?
+                element[childrenattrname] : false;
+        },
+        /**
+         * create and return the anchor by config
+         * @param config
+         * @param isappend default prepend to anchar
+         * @param callback define Anchor href by self,format like 'function(element,config){...}'
+         * @returns {jQuery}
+         * @private
+         */
+        _createAnchor: function (config, isappend, callback) {
+            var a = $(document.createElement('a'));
+            config.hasOwnProperty('title') || (config.title = 'Untitled');
+            a.text(" " + config.title + " ");
+            var href;
+            callback && (href = callback(a, config));//return true value can prevent default value setting
+            if (!href) {
+                config.hasOwnProperty('href') || (config.href = '#');
+                a.attr('href', config.href);
+            }
+            //有子菜单,设置下拉属性
+            this._getChildren(config) && a.attr('data-toggle', 'dropdown');
+            //设置了图标的情况下创建<i class="XX"></i>
+            if (config.hasOwnProperty('icon')) {
+                var icon = $(document.createElement('i')).addClass(config.icon);
+                isappend ? icon.appendTo(a) : icon.prependTo(a);
+                // isPrepend?icon.prependTo(a):icon.appendTo(a);
+            }
+            return a;
+        },
+        /**
+         * create and return the
+         * @param menuitemsconf
+         * @param isappend
+         * @param callback for create anchor
+         * @returns {*|jQuery}
+         * @private
+         */
+        _createUnorderedLists: function (menuitemsconf, isappend, callback) {
+            //不存在子菜单或者子菜单为空的情况下时直接返回
+            var children = this._getChildren(menuitemsconf);
+            var list = $(document.createElement('ul')).addClass('dropdown-menu');
+            if (children) {
+                var env = this;
+                isappend = isappend ? true : false;
+                //创建并添加ul
+                dazz.utils.each(children, function (child) {
+                    var li = $(document.createElement('li'));
+                    li.attr('menu-id', menuitemsconf['id']);//set menu-id for li
+                    li.append(env._createAnchor(child, isappend, callback));
+                    list.append(li);
+                    if (env._getChildren(child)) {
+                        li.addClass('dropdown-submenu');
+                        li.append(env._createUnorderedLists(child));
+                    }
+                });
+            }
+            return list;
+        },
+        /**
+         * load data from header menu
+         * @param data loading data
+         * @param callback create anchor callback
+         * @returns {HeaderMenuHandler}
+         */
+        load: function (data, callback) {
+            var env = this;
+            dazz.utils.each(data, function (menuitem) {
+                // console.log(menuitem)
+                var li = $(document.createElement('li'));
+                li.addClass('classic-menu-dropdown');
+                li.attr('menu-id', menuitem['id']);//set menu-id for li
+
+                var haschild = env._getChildren(menuitem) ? true : false;
+
+                if (haschild) menuitem['icon'] = 'icon-angle-down';
+                li.append(env._createAnchor(menuitem, true, callback));//true is due to 'icon-angle-down' is append
+                if (haschild) li.append(env._createUnorderedLists(menuitem, false, callback));// icon is aheand the inner title
+
+                env.target.append(li);
+            });
+            return env;
+        },
+        /**
+         * active certain li
+         * @param idorhref id or href
+         * @param ishref for judge param 1 is an menu-id or href
+         */
+        active: function (idorhref, ishref) {
+            var blocks = this.target.find(ishref ? 'a[href=' + idorhref + ']' : '[menu-id=' + idorhref + ']');
+            if (blocks.length) {
+                blocks.addClass('active');
+                blocks.parents('#dazz_header_menu li').addClass('active');
+            }
         }
     };
 
+    var SidebarMenuHandler = {
+        options: {
+            //the sidemenu  selector of jquery
+            selector: '#dazz_sidebar_menu'
+        },
+        /**
+         * create and return the handler of topmenu
+         * @param config head menu config
+         * @returns {{}}
+         */
+        getInstance: function (config) {
+            var instance = dazz.newInstance(this);
+            if (!dazz.utils.isObject(config)) return Dazzling.toast.error('Please init sidebar menu-handler with an Object!');
+            options = dazz.utils.initOption(instance.options, config, true);
+            instance.target = GenKits.toJquery(instance.options.selector);
+            return instance;
+        },
+        _getAnchor: function (attrs, hasSubmenu) {
+            console.log(attrs);
+            hasSubmenu || (hasSubmenu = attrs.hasOwnProperty('childrem'));
+
+            var a = $(document.createElement('a')).addClass(hasSubmenu ? 'nav-link nav-toggle' : 'nav-link');
+
+            //default icon
+            if (!attrs.hasOwnProperty('icon')) attrs['icon'] = 'icon-circle-blank';//默认图标
+
+            a.append($('<i class="' + attrs['icon'] + '"></i>')).append($('<span class="title"> ' + attrs['title'] + ' </span>'));
+
+            if (hasSubmenu) {
+                a.append($('<i class="float-right icon-angle-right"></i>'));
+            } else {
+                //create link for this anchor
+                if (attrs['href']) {
+                    attrs['href'] = dazz.context.getBaseUri() + attrs['href'];
+                } else {
+                    attrs['href'] = 'javascript:void(0);';
+                }
+                a.attr('href', attrs['href']);
+            }
+
+            return a;
+        },
+        _getUnorderedLists: function (menuitem) {
+            if (!menuitem.hasOwnProperty('children') || !menuitem.children) return;//不存在子菜单时直接返回
+            var li_ul = $('<ul class="sub-menu"></ul>');
+
+            var env = this;
+            dazz.utils.each(menuitem.children, function (subitem) {
+                var hasSubmenu = subitem.hasOwnProperty('children');
+
+                var li_navitem = $(document.createElement('li'));
+                li_navitem.addClass('nav-item');
+                li_navitem.append(env._getAnchor(subitem, hasSubmenu));
+                li_ul.append(li_navitem);
+                if (hasSubmenu) {
+                    li_navitem.append(env._getUnorderedLists(subitem));
+                }
+            });
+            return li_ul;
+        },
+        /**
+         * load side menu config
+         * @param data sidebar menu config
+         * @param activeid
+         * @returns {SidebarMenuHandler}
+         */
+        load: function (data, activeid) {
+            var env = this;
+
+            var active_menu_parent = this.findOuter(data, activeid);
+            console.log(data[active_menu_parent]);
+            data = data[active_menu_parent]['config'];
+
+            // console.log(data)
+            dazz.utils.each(data, function (topitemconf) {
+                var li_navitem = $(document.createElement('li')).addClass('nav-item');
+                var hasSubmenu = topitemconf.hasOwnProperty('children');
+
+                var a = env._getAnchor(topitemconf, hasSubmenu);
+                li_navitem.append(a);
+                hasSubmenu && li_navitem.append(env._getUnorderedLists(topitemconf));
+                env.target.append(li_navitem);
+            });
+            return env;
+        },
+        findInner: function (items, id2) {
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+
+                if (parseInt(item.id) === parseInt(id2)) {
+                    return true;
+                }
+                if (item.hasOwnProperty('children')) {
+                    // console.log(item.children,id2)
+                    var result = this.findInner(item.children, id2);
+                    // console.log(result)
+                    if (result) return true;
+                }
+            }
+            return false;
+        },
+        /**
+         * find what the menu hold the menuitem of this id
+         * @param menus
+         * @param id
+         * @returns {string}
+         */
+        findOuter: function (menus, id) {
+            for (var x in menus) {
+                if (!menus.hasOwnProperty(x)) continue;
+                var menu = menus[x];
+                var menuconfig = menu.config;
+
+                if (this.findInner(menuconfig, id)) {
+                    return x;
+                }
+            }
+        }
+    };
 
     //do some compatibility relatid work
     (function () {
@@ -151,7 +415,7 @@ var Dazzling = function () {
     //general kits
     var GenKits = (function () {
         return {
-            toJquery : function (selector) {
+            toJquery: function (selector) {
                 if (typeof selector === 'string') {
                     return $(selector);
                 } else if (typeof selector === 'object') {
@@ -159,22 +423,18 @@ var Dazzling = function () {
                         return $(selector);
                     } else if (selector instanceof jQuery) {
                         return selector;
-                    } else {
-                        return Dazzling.toast.error("Invalid arguments!");
                     }
                 }
+                console.log("to jquery failed",selector);
+                throw "Genkits.toJquery!";
             },
-            scrollTo : function (el, offeset) {
+            scrollTo: function (el, offeset) {
                 var pos = (el && el.size() > 0) ? el.offset().top : 0;
-                if (el) {
-                    pos = pos - Page.Header.height() + (offeset ? offeset : -1 * el.height());
-                }
-                $('html,body').animate({
-                    scrollTop: pos
-                }, 'slow');
+                el && (pos = pos - Page.Header.height() + (offeset ? offeset : -1 * el.height()));
+                $('html,body').animate({scrollTop: pos}, 'slow');
             },
-            adjustMinHeight : function (selector) {
-                selector = GenKits.toJquery(selector);
+            adjustMinHeight: function (selector) {
+                selector = this.toJquery(selector);
                 var height;
                 var headerHeight = Page.Header.outerHeight();
                 var footerHeight = Page.Footer.outerHeight();
@@ -189,10 +449,10 @@ var Dazzling = function () {
                 if ((height + headerHeight + footerHeight) <= viewport.height) {
                     height = viewport.height - headerHeight - footerHeight;
                 }
-                selector.attr('style', 'min-height:' + height + 'px');
+                selector.css('min-height:' , height + 'px');
             },
+            _lqt : 0,//last request time
             /**
-             * 习惯性的jquery方法
              * @param url 请求地址
              * @param data 请求数据对象
              * @param callback 服务器响应时的回调,如果回调函数返回false或者无返回值,则允许系统进行通知处理,返回true表示已经处理完毕,无需其他的操作
@@ -200,55 +460,54 @@ var Dazzling = function () {
              * @param async 是否异步,希望同步的清空下使用false,默认为true
              * @returns {*}
              */
-            dazzlingPost : function (url, data, callback, datatype, async) {
-
-            var currentMilliTime = (new Date()).valueOf();
-            if (!_lqt) {
-                _lqt = currentMilliTime;
-            } else {
-                var gap = currentMilliTime - _lqt;
-                _lqt = currentMilliTime;
-                if (gap < convention['requestInterval']) {
-                    return Dazzling.toast.warning('请勿频繁刷新!');
-                }
-            }
-
-            if (undefined === datatype) datatype = "json";
-            if (undefined === async) async = true;
-
-            if (typeof data === 'string') {
-                data = {
-                    '_KBYLIN_': data //后台会进行分解
-                };
-            }
-
-            return jQuery.ajax({
-                url: url,
-                type: 'post',
-                dataType: datatype,
-                async: async,
-                data: data,
-                success: function (data) {
-                    var message_type;
-                    // check if is the system-defined message format(has '' and '' attribute)
-                    var isMsg = (data instanceof Object) && data.hasOwnProperty('_type') && data.hasOwnProperty('_message');
-                    //通知处理
-                    isMsg && (message_type = parseInt(data['_type']));
-
-                    if (callback && callback(data, isMsg, message_type)) return;//如果用户的回调明确声明返回true,表示已经处理得当,无需默认的参与
-
-                    if (isMsg) {
-                        if (message_type > 0) {
-                            return Dazzling.toast.success(data['_message']);
-                        } else if (message_type < 0) {
-                            return Dazzling.toast.warning(data['_message']);
-                        } else {
-                            return Dazzling.toast.error(data['_message']);
-                        }
+            doPost: function (url, data, callback, datatype, async) {
+                var curmillitime = (new Date()).valueOf();
+                if (!this._lqt) {
+                    this._lqt = curmillitime;
+                } else {
+                    var gap = curmillitime - this._lqt;
+                    this._lqt = curmillitime;
+                    if (gap < parseInt(convention['requestInterval'])) {
+                        return Dazzling.toast.warning('请勿频繁刷新!');
                     }
                 }
-            });
-        }
+
+                !datatype && (datatype = "json");
+                !async && (async = true);
+
+                if (typeof data === 'string') {
+                    data = {
+                        '_KBYLIN_': data //后台会进行分解
+                    };
+                }
+
+                return jQuery.ajax({
+                    url: url,
+                    type: 'post',
+                    dataType: datatype,
+                    async: async,
+                    data: data,
+                    success: function (data) {
+                        var message_type;
+                        // check if is the system-defined message format(has '' and '' attribute)
+                        var isMsg = (data instanceof Object) && data.hasOwnProperty('_type') && data.hasOwnProperty('_message');
+                        //通知处理
+                        isMsg && (message_type = parseInt(data['_type']));
+
+                        if (callback && callback(data, isMsg, message_type)) return;//如果用户的回调明确声明返回true,表示已经处理得当,无需默认的参与
+
+                        if (isMsg) {
+                            if (message_type > 0) {
+                                return Dazzling.toast.success(data['_message']);
+                            } else if (message_type < 0) {
+                                return Dazzling.toast.warning(data['_message']);
+                            } else {
+                                return Dazzling.toast.error(data['_message']);
+                            }
+                        }
+                    }
+                });
+            }
         };
     })();
 
@@ -287,15 +546,7 @@ var Dazzling = function () {
             Page.SidebarMenu.addClass('page-sidebar-menu-closed');
         }
         thisbody.find(".sidebar-toggler").click(function () {
-            if (thisbody.hasClass("page-sidebar-closed")) {
-                thisbody.removeClass("page-sidebar-closed");
-                Page.SidebarMenu.removeClass("page-sidebar-menu-closed");
-                $.cookie && $.cookie('sidebar_closed', '0');
-            } else {
-                thisbody.addClass("page-sidebar-closed");
-                Page.SidebarMenu.addClass("page-sidebar-menu-closed");
-                $.cookie && $.cookie('sidebar_closed', '1');
-            }
+            Page.Status.isSidebarOn() ? Page.Action.openSidebar() : Page.Action.closeSidebar();
             $(window).trigger('resize');
         });
         var autoAdjustPageContainerHeight = function () {
@@ -340,197 +591,7 @@ var Dazzling = function () {
         Page.setHeaderSearchHandler(); // handles horizontal menu
     };
 
-    /**
-     * Top Menu Handler
-     * @type {{}}
-     */
-    var HeaderMenuHandler = {
-        options: {
-            //the topmenu selector of jquery
-            selector: '#dazz_header_menu'
-        },
-        /**
-         * create and return the handler of topmenu
-         * @param config head menu config
-         * @returns {{}}
-         */
-        getInstance: function (config) {
-            var instance = dazz.newInstance(this);
-
-            if (!dazz.utils.isObject(config)) return Dazzling.toast.error('Please init header menu-handler with an Object!');
-            options = dazz.utils.initOption(instance.options, config, true);
-
-            instance.target = GenKits.toJquery(instance.options.selector);
-            return instance;
-        },
-        //get the children attribute of element.It will return an array if attribute exist but null while not exist
-        _getChildren: function (element, childrenattrname) {
-            if (!childrenattrname) childrenattrname = 'children';
-            return (element.hasOwnProperty(childrenattrname) && element[childrenattrname]) ?
-                    element[childrenattrname] : false;
-        },
-        /**
-         * create and return the anchor by config
-         * @param config
-         * @param isappend default prepend to anchar
-         * @param callback define Anchor href by self,format like 'function(element,config){...}'
-         * @returns {jQuery}
-         * @private
-         */
-        _createAnchor: function (config, isappend,callback) {
-            var a = $(document.createElement('a'));
-            config.hasOwnProperty('title') || (config.title = 'Untitled');
-            a.text(" " + config.title + " ");
-            var href;
-            callback && (href = callback(a,config));//return true value can prevent default value setting
-            if(!href) {
-                config.hasOwnProperty('href') || (config.href = '#');
-                a.attr('href', config.href);
-            }
-            //有子菜单,设置下拉属性
-            this._getChildren(config) && a.attr('data-toggle', 'dropdown');
-            //设置了图标的情况下创建<i class="XX"></i>
-            if (config.hasOwnProperty('icon')) {
-                var icon = $(document.createElement('i')).addClass(config.icon);
-                isappend ? icon.appendTo(a) : icon.prependTo(a);
-                // isPrepend?icon.prependTo(a):icon.appendTo(a);
-            }
-            return a;
-        },
-        /**
-         * create and return the
-         * @param menuitemsconf
-         * @param isappend
-         * @param callback for create anchor
-         * @returns {*|jQuery}
-         * @private
-         */
-        _createUnorderedLists: function (menuitemsconf,isappend,callback) {
-            //不存在子菜单或者子菜单为空的情况下时直接返回
-            var children = this._getChildren(menuitemsconf);
-            var list = $(document.createElement('ul')).addClass('dropdown-menu');
-            if (children){
-                var env = this;
-                isappend = isappend?true:false;
-                //创建并添加ul
-                dazz.utils.each(children, function (child) {
-                    var li = $(document.createElement('li'));
-                    li.attr('menu-id', menuitemsconf['id']);//set menu-id for li
-                    li.append(env._createAnchor(child, isappend,callback));
-                    list.append(li);
-                    if (env._getChildren(child)) {
-                        li.addClass('dropdown-submenu');
-                        li.append(env._createUnorderedLists(child));
-                    }
-                });
-            }
-            return list;
-        },
-        /**
-         * load data from header menu
-         * @param data loading data
-         * @param callback create anchor callback
-         * @returns {HeaderMenuHandler}
-         */
-        load: function (data,callback) {
-            var env = this;
-            dazz.utils.each(data, function (menuitem) {
-                // console.log(menuitem)
-                var li = $(document.createElement('li'));
-                li.addClass('classic-menu-dropdown');
-                li.attr('menu-id', menuitem['id']);//set menu-id for li
-
-                var haschild = env._getChildren(menuitem) ? true : false;
-
-                if (haschild) menuitem['icon'] = 'icon-angle-down';
-                li.append(env._createAnchor(menuitem, true,callback));//true is due to 'icon-angle-down' is append
-                if (haschild) li.append(env._createUnorderedLists(menuitem,false,callback));// icon is aheand the inner title
-
-                env.target.append(li);
-            });
-            return env;
-        },
-        /**
-         * active certain li
-         * @param idorhref id or href
-         * @param ishref for judge param 1 is an menu-id or href
-         */
-        active: function (idorhref,ishref) {
-            var blocks = this.target.find(ishref ? 'a[href=' + idorhref + ']' : '[menu-id=' + idorhref + ']');
-            if (blocks.length) {
-                blocks.addClass('active');
-                blocks.parents('#dazz_header_menu li').addClass('active');
-            }
-        }
-    };
-
-    var SidebarMenuHandler = {
-        options: {
-            //the sidemenu  selector of jquery
-            selector: '#dazz_sidebar_menu'
-        },
-        /**
-         * create and return the handler of topmenu
-         * @param config head menu config
-         * @returns {{}}
-         */
-        getInstance: function (config) {
-            var instance = dazz.newInstance(this);
-            if (!dazz.utils.isObject(config)) return Dazzling.toast.error('Please init sidebar menu-handler with an Object!');
-            options = dazz.utils.initOption(instance.options, config, true);
-            instance.target = GenKits.toJquery(instance.options.selector);
-            return instance;
-        },
-        _getAnchor : function (attrs, hasSubmenu) {
-            hasSubmenu || (hasSubmenu = attrs.hasOwnProperty('submenu'));
-
-            var a = $(document.createElement('a')).addClass(hasSubmenu ? 'nav-link nav-toggle' : 'nav-link');
-
-            //default icon
-            if (!attrs.hasOwnProperty('icon')) attrs['icon'] = 'icon-circle-blank';//默认图标
-
-            a.append($('<i class="' + attrs['icon'] + '"></i>')).append($('<span class="title"> ' + attrs['title'] + ' </span>'));
-            hasSubmenu && a.append($('<i class="float-right icon-angle-right"></i>'));
-            return a;
-        },
-        _getUnorderedLists : function (menuitem) {
-            if (!menuitem.hasOwnProperty('children') || !menuitem.children) return;//不存在子菜单时直接返回
-            var li_ul = $('<ul class="sub-menu"></ul>');
-
-            var env = this;
-            dazz.utils.each(menuitem.children,function (subitem) {
-                var hasSubmenu = subitem.hasOwnProperty('children');
-
-                var li_navitem = $(document.createElement('li'));
-                li_navitem.addClass('nav-item');
-                li_navitem.append(env._getAnchor(subitem, hasSubmenu));
-                li_ul.append(li_navitem);
-                if (hasSubmenu) {
-                    li_navitem.append(env._getUnorderedLists(subitem));
-                }
-            });
-
-            return li_ul;
-        },
-        load:function (data) {
-            var env = this;
-            // console.log(data)
-            dazz.utils.each(data,function (topitemconf) {
-                var li_navitem = $(document.createElement('li')).addClass('nav-item');
-                var hasSubmenu = topitemconf.hasOwnProperty('children');
-
-                var a = env._getAnchor(topitemconf, hasSubmenu);
-                li_navitem.append(a);
-                console.log(a,hasSubmenu,topitemconf);
-                hasSubmenu && li_navitem.append(env._getUnorderedLists(topitemconf));
-
-                env.target.append(li_navitem);
-            });
-            return env;
-        }
-    };
-
-    var initPageInfo = function (pageinfo, headeractiveindex,sideractiveindex) {
+    var initPageInfo = function (pageinfo) {
         if (!(pageinfo instanceof Object)) pageinfo = dazz.utils.toObject(pageinfo);
 
         //设置标题
@@ -538,12 +599,18 @@ var Dazzling = function () {
         pageinfo.hasOwnProperty('logo') && $("#dazz_logo").attr('src', pageinfo['logo']);
         pageinfo.hasOwnProperty('coptright') && $("#dazz_copyright").html(pageinfo['coptright']);
 
-        //处理顶部菜单
-        HeaderMenuHandler.getInstance(pageinfo).load(pageinfo['header_menu']['menu_list']).active(headeractiveindex);
+        var headerMenuConfig = pageinfo['header_menu'];
+        var sidebarMenuConfig = pageinfo['sidebar_menu'];
+        var active_menuitem_id = pageinfo['menuitem_id'];
 
-        // console.log(pageinfo)
-        var sidebar_menu = pageinfo['sidebar_menu'];
-        SidebarMenuHandler.getInstance(pageinfo).load(pageinfo['sidebar_menu']['menu_list']);//.active(sideractiveindex);
+        // console.log(sidebarMenuConfig,active_menuitem_id);
+
+
+        //处理顶部菜单
+        HeaderMenuHandler.getInstance(pageinfo).load(headerMenuConfig);//.active(headeractiveindex);
+
+
+        SidebarMenuHandler.getInstance(pageinfo).load(sidebarMenuConfig, active_menuitem_id);//.active(sideractiveindex);
     };
 
     var BsModal = {
@@ -595,8 +662,6 @@ var Dazzling = function () {
             header.append(close);
             content.append(header);
 
-            config['title'] && instance.title(config['title']);
-
             //设置体部分
             var body = $('<div class="modal-body"></div>');
             body.appendTo(content);
@@ -607,13 +672,12 @@ var Dazzling = function () {
             var confirm = $('<button type="button" class="btn btn-primary confirmbtn">' + config['confirmText'] + '</button>');
             content.append($('<div class="modal-footer"></div>').append(cancel).append(confirm));
 
-            // config['confirm'] && (instance.confirm = config['confirm']);
-            // config['cancel'] && (instance.cancel = config['cancel']);
-
             //确认和取消事件注册
             confirm.click(instance.confirm);
             cancel.click(instance.cancel);
             instance.target = modal.modal('hide');
+
+            config['title'] && instance.title(config['title']);
 
             //事件注册
             dazz.utils.each(['show', 'shown', 'hide', 'hidden'], function (eventname) {
@@ -668,12 +732,12 @@ var Dazzling = function () {
         //初始化应用
         'init': init,
         //定制的方法,定制过程中避免对jquery中的方法进行修改
-        'post': GenKits.dazzlingPost,
+        'post': GenKits.doPost,
         //初始化用户信息
         'initUserInfo': function (userinfo, itemsIds) {
             userinfo = dazz.utils.toObject(userinfo);
-            Page.General.autofill(itemsIds,userinfo);
-            Page.User.initUserMenu(userinfo['menu'],"#dazz_user_menu");
+            Page.General.autofill(itemsIds, userinfo);
+            Page.User.initUserMenu(userinfo['menu'], "#dazz_user_menu");
         },
         //初始化页面信息
         'initPageInfo': initPageInfo,
@@ -953,7 +1017,10 @@ var Dazzling = function () {
             createItem: function (data, target, callback) {
                 data = dazz.utils.toObject(data);
                 //设置基本的两个属性
-                if (dazz.utils.checkProperty(data, ['id', 'title']) < 1) return Dazzling.toast.warning("The id/title of item should not be empty");
+                if (dazz.utils.checkProperty(data, ['id', 'title']) < 1) {
+                    console.log('id/title should not be empty!');
+                    return;
+                }
 
                 var env = this;
                 var handle = $('<div class="dd-handle dd3-handle">');

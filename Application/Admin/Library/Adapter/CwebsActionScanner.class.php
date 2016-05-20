@@ -7,7 +7,6 @@
  * Time: 5:46 PM
  */
 namespace Application\Admin\Library\Adapter;
-use Application\Admin\Library\Interfaces\ActionScannerAdapterInterface;
 use System\Core\KbylinException;
 use System\Core\Storage;
 
@@ -15,7 +14,7 @@ use System\Core\Storage;
  * Class CwebsActionScanner Cwebs模块扫描器
  * @package Application\Admin\Library\Adapter
  */
-class CwebsActionScannerAdapter implements ActionScannerAdapterInterface{
+class CwebsActionScanner {
 
     /**
      * 扫描目录
@@ -35,7 +34,7 @@ class CwebsActionScannerAdapter implements ActionScannerAdapterInterface{
         $modules = [];
         $files = Storage::read($this->scandir,false);
         foreach ($files as $name=>$path){
-            if(is_dir($path)) $modules[] = $name;
+            if(is_dir($path)) $modules[] = trim($name,'/');
         }
         return $modules;
     }

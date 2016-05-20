@@ -26,7 +26,6 @@
 <!-- 添加顶部菜单 -->
 <div id="MenuItemAddModal">
     <form class="form-horizontal" id="MenuItemAddForm" role="form">
-        <input name="href" type="hidden">
         <div class="form-group">
             <label class="col-sm-2 control-label">菜单项ID</label>
             <div class="col-sm-6">
@@ -46,6 +45,13 @@
             <div class="col-md-10">
                 <input type="text" class="form-control input-sm" name="icon" placeholder="请输入图标名称,如'icon-circle-blank'">
                 <p class="help-block"><a href="{$smarty.const.__APPLICATION__}Admin/PublicAction/PageIconSelection" target="_blank">点我查看有哪些图标</a></p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">值</label>
+            <div class="col-md-10">
+                <input type="text" class="form-control input-sm" name="href" placeholder="">
+                <p class="help-block">请根据不通的类型设置不通的菜单项的值</p>
             </div>
         </div>
     </form>

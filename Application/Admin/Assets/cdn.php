@@ -8,6 +8,7 @@ return [
             'style'   => [
                 'assets/plugins/bootstrap/css/bootstrap.min.css',
                 'assets/plugins/font-awesome/css/font-awesome.min.css',
+                'assets/plugins/fontawesome4.2/css/font-awesome.min.css',
                 'assets/plugins/toastr/toastr.min.css',
 
                 'assets/css/themes/darkblue.css',
@@ -15,7 +16,7 @@ return [
             ],
             'script'    => [
                 'assets/plugins/bootstrap/js/bootstrap.min.js',
-                'assets/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js',
+//                'assets/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js',
                 'assets/plugins/jquery-slimscroll/jquery.slimscroll.min.js',
                 'assets/plugins/toastr/toastr.min.js',
                 'assets/plugins/bootstrap-contextmenu/bootstrap-contextmenu.js',

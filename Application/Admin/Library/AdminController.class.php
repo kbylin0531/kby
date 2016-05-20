@@ -34,7 +34,7 @@ class AdminController extends Controller{
 
         //获取调用自己的函数
         null === $template and $template = SEK::getCallPlace(SEK::CALL_ELEMENT_FUNCTION,SEK::CALL_PLACE_FORWARD)[SEK::CALL_ELEMENT_FUNCTION];
-        $this->display(substr($template,4) /* 第五个字符开始 */, $cache_id , $compile_id, $parent);
+        $this->display($template /* substr($template,4) 第五个字符开始 */, $cache_id , $compile_id, $parent);
     }
 
     /**
@@ -70,82 +70,14 @@ class AdminController extends Controller{
             'coptright' => ' 2014 © YZ',
             //body部分
             'logo'  => 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFYAAAAOCAYAAAC1i+ttAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4AUHAxccnGNgawAAARBJREFUWMPdV0EOAyEIFLP/Wp+uL6OXmlqrgKC2lsTDRmRhGEcFRHSlAYBrWelX+tTrtQYAZCxJXpQ/3vdrLqV2rKdPnq+/e/Fa5t0hVgOIiGQjqHkOFDYXbn2M7tIUNcKoXizKf3RHfLBz0i4SgRqjjLErk9JKhFSWRhqjYW29picpIin4NaCXsm+k4QSoR2is5kCzADLLvLQYroh8WJTDAqY1BqnhBbga1kqa4zVs+YY8aNi5QxJYYAHAlHxeXw5rrFUSYpUESSO8JLGVbJGytAWUdedYJeEvHginmd+pZbO0dYTJXD0jklAznGL5pSnM8mbfeSVb8W9I6R3QEJpP2qOkoGai9Fk8+27L+ofgHmS+qpSPeE/nAAAAAElFTkSuQmCC',
-
         ];
         $menu = [
-            'header_menu'   => [
-                'active_index'  => 0,
-                'menu_list'     => $memuModel->getTopMenuConfig()
-            ],
-            'sidebar_menu'  => [
-                'active_index'  => 0,
-                'menu_list'     => [
-                    [
-                        'title' => 'Dashboard',
-                        'href'  => '#',
-                        'target'=> '_self',
-                        'icon'  => 'icon-control-play',
-                        'children'  => [
-                            [
-                                'title' => 'Section 1',
-                                'href'  => '#',
-                            ],
-                            [
-                                'title' => 'Section 2',
-                                'href'  => '#',
-                            ],
-                        ],
-                    ],
-                    [
-                        'title' => 'Classic',
-                        'href'  => '#',
-                        'target'=> '_self',
-                        'children'  => [
-                            [
-                                'title' => 'Section 1',
-                                'href'  => '#',
-                            ],
-                            [
-                                'title' => 'Section 2',
-                                'href'  => '#',
-                            ],
-                            [
-                                'title' => 'More',
-                                'href'  => '#',
-                                'children'   => [
-                                    [
-                                        'title' => 'SubSection',
-                                        'href'  => '#',
-                                        'children'   => [
-                                            [
-                                                'title' => 'SubSection',
-                                                'href'  => '#',
-                                                'children'   => [
-                                                    [
-                                                        'title' => 'SubSection',
-                                                        'href'  => '#',
-                                                    ],
-                                                ],
-                                            ],
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ]
-                    ]
-                ],
-            ],
+            'menuitem_id'   => 560,//for finding his parent
+            'header_menu'   => $memuModel->getHeaderMenuConfig(),
+            'sidebar_menu'  => $memuModel->getSidebarMenuConfig(),
         ];
         return array_merge($pageinfo, $menu);
     }
-
-//    private function getModules(){
-//        return Assets::load('_menu');
-//    }
-//
-//    private function getActions(){
-//        return Assets::load('_action');
-//    }
 
     /**
      * 分配用户信息列表

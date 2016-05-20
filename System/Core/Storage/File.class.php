@@ -183,8 +183,8 @@ class File implements StorageInterface {
             $fullpath = "{$dirpath}/{$filename}";//子文件的完整路径
 
             if(file_exists($fullpath)) {
-//                dump($fullpath,$_dirpath_toread,strstr($fullpath,$_dirpath_toread));
-                $_file[$this->toProgramEncode(strstr($fullpath,$_dirpath_toread))] = str_replace('\\','/',$this->toProgramEncode($fullpath));
+                $index = strpos($fullpath,$_dirpath_toread);
+                $_file[$this->toProgramEncode(substr($fullpath,$index+strlen($_dirpath_toread)))] = str_replace('\\','/',$this->toProgramEncode($fullpath));
             }
 
             if($recursion and is_dir($fullpath)) {

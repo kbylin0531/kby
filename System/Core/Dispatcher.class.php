@@ -6,8 +6,6 @@
  */
 namespace System\Core;
 use ReflectionMethod;
-use System\Core\Exception\ActionNotFoundException;
-use System\Core\Exception\ControllerNotFoundException;
 use System\Traits\Crux;
 
 /**
@@ -64,11 +62,14 @@ class Dispatcher{
             if($thisconvention['EMPTY_CONTROLLER'] and class_exists($thisconvention['EMPTY_CONTROLLER'])){
                 $className = $thisconvention['EMPTY_CONTROLLER'];
             }else{
-                throw new ControllerNotFoundException($className);
+                KbylinException::throwing("Controller '$className' not found!");
             }
         }
         $classInstance =  new $className();
         //方法名称及存实性检测
+
+//        dumpout($thisconvention['EMPTY_ACTION']);
+
         if(!method_exists($classInstance,$action)){
             if($thisconvention['EMPTY_ACTION'] and method_exists($classInstance,$thisconvention['EMPTY_ACTION'])){
                 $action = $thisconvention['EMPTY_ACTION'];

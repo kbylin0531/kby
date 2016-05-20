@@ -53,11 +53,22 @@ class ModuleModel extends Model{
             'title','description','order','status' //镜像这些数据防止对多余的部分进行修改
         ]);
         if(empty($fields) or empty($id)){
-            $this->setError('没有指定更新的字段!');
+            $this->error('没有指定更新的字段!');
             return false;
         }
 
         return $this->fields($fields)->where(['id'=>$id])->update();
+    }
+
+    public function clean(){
+        $sql = "delete from kl_module;";
+        return $this->exec($sql);
+    }
+
+    public function createModule($code){
+        return $this->fields([
+            'code'  => $code,
+        ])->create();
     }
 
 }

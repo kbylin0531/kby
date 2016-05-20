@@ -18,7 +18,6 @@
         dazz.init(options).load(cdn['ico'],'ico');
         dazz.load(cdn['style'],'css');
 
-
         var ieVersion = dazz.context.ieVersion();
         if( ieVersion < 9){
             dazz.load(cdn['compatible'],'js');
@@ -38,7 +37,7 @@
                 <a href="#"><img src="" id="dazz_logo" alt="logo" class="logo-default" /></a>
                 <div class="menu-toggler sidebar-toggler"></div>
             </div>
-            <div class="hor-menu hor-menu-light hidden-sm hidden-xs">
+            <div class="hor-menu hor-menu-light ">
                 <ul class="nav navbar-nav" id="dazz_header_menu"></ul>
             </div>
             <form class="search-form">

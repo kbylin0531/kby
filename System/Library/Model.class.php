@@ -239,7 +239,7 @@ class Model {
             $holder = rtrim(str_repeat('?,', count($this->_inputs['fields'])),',');
 
             //检查必要的两个字段
-            $tablename = $this->_options['table']?$this->_options['table']:KbylinException::throwing('No table to insert!');
+            $tablename = $this->_options['table']?$this->_options['table']:KbylinException::throwing('No table to insert!',static::class);
             $fields = $this->_options['fields']?$this->_options['fields']:KbylinException::throwing('Empty fields is not allowed!');
             //输入参数只使用到了fields字段
 

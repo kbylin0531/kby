@@ -1,0 +1,36 @@
+{extends file="../../../View/base.html"}
+{block name='style'}
+<style>
+    *{ margin:0;padding:0;list-style-type:none;}
+    /*a,img{ border:0;}*/
+    /*a,a:visited{ color:#5e5e5e; text-decoration:none;}*/
+    /*a:hover{ color:#b52725;text-decoration:underline;}*/
+    .clear{ display:block;overflow:hidden;clear:both;height:0;line-height:0;font-size:0;}
+    .demo{ width:100%;margin:20px auto;border:solid 1px #ddd;padding:0 10px;overflow-y: scroll;overflow-x: hidden}
+    .ranklist{ height:10px;}
+    .ranklist li{ height:16px;line-height:16px;position:relative;padding:0 70px 0 30px;margin:0 10px 10px 0;}
+    .ranklist li .content{ position:absolute;left:0;top:0;color:#999;}
+    .ranklist li .action{ position:absolute;right:0;top:0;color:#999;}
+</style>
+{/block}
+{block name='script'}
+<script>
+
+    var public_uri = '{$smarty.const.__CONTROLLER__}/';
+
+    dazz.load([
+        'assets/admin/system/scanner/index.js'
+    ]);
+</script>
+{/block}
+
+
+{block name='stage'}
+<button class="btn dazzling" id="scan"><i class="icon-search"></i> 扫描</button>
+<button class="btn dazzling" id="writein"><i class="fa fa-plus"></i> 写入</button>
+<h2>操作结果</h2>
+<div class="demo">
+    <div class="ranklist"><ul></ul></div>
+</div>
+{/block}
+

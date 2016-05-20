@@ -2,17 +2,16 @@
 /**
  * Created by PhpStorm.
  * User: kbylin
- * Date: 5/12/16
- * Time: 4:32 PM
+ * Date: 19/05/16
+ * Time: 19:00
  */
 namespace Application\Admin\System\Controller;
-
 use Application\Admin\Library\AdminController;
 
-class Mca extends AdminController{
+class ActionGroup extends AdminController{
 
-    
-
-
+    public function index(){
+        $this->displayManagement();
+    }
 
 }

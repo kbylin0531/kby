@@ -6,6 +6,7 @@
  * Time: 11:55 PM
  */
 namespace Application\Admin\System\Controller;
+use Application\Admin\Library\Adapter\CwebsActionScanner;
 use Application\Admin\Library\AdminController;
 use Application\Admin\System\Model\ModuleModel;
 use System\Utils\Response;
@@ -19,10 +20,19 @@ class Module extends AdminController{
     /**
      * 模块管理页面
      */
-    public function PageManagement(){
+    public function index(){
         $this->displayManagement();
     }
 
+    public function scanCwebsModule(){
+        $scaner = new CwebsActionScanner();
+        $modules = $scaner->scan(BASE_PATH . 'App/Lib/Action/')->fetchModule();
+        dumpout($modules);
+    }
+
+    public function scanKbylinModule(){
+
+    }
 
     /**
      * 获取模块列表
@@ -58,7 +68,7 @@ class Module extends AdminController{
             'status'    => $status,
         ],$id);
         if(false === $result){
-            Response::failed("更新出错:".$moduleModel->getError());
+            Response::failed("更新出错:".$moduleModel->error());
         }else{
             Response::success('修改成功');
         }

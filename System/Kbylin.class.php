@@ -73,7 +73,7 @@ defined('DEBUG_MODE_ON') or define('DEBUG_MODE_ON', true); //是否开启DUBUG�
 //defined('PAGE_TRACE_ON') or define('PAGE_TRACE_ON', true); //是否开启TRACE界面
 
 /**
- * Class Kbylin
+ * Class Kbylin 白麟
  */
 final class Kbylin {
 

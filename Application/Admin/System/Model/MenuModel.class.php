@@ -29,17 +29,27 @@ class MenuModel extends Model{
      * 获取顶部菜单设置
      * @return array|false 错误发生时返回false
      */
-    public function getTopMenuConfig(){
-        $config = $this->_getTopMenuConfig();
-        $config = unserialize($config);
-        if(false === $config){
-            return $this->error('获取顶级菜单失败!');
-        }else{
-            $menuItemModel = new MenuItemModel();
-            $items = $menuItemModel->listMenuItems(true);
-            $this->_arrangeMenu($config, $items);
+    public function getHeaderMenuConfig(){
+        $config = $this->where('id = 1 and parent = 1')->select();
+        if($config){
+            $config =  $this->applyMenuItem($config);
+            if (isset($config[1]['config'])) {
+                return $config[1]['config'];
+            }
         }
-        return $config;
+        return false;
+    }
+
+    /**
+     * @return array|bool
+     */
+    public function getSidebarMenuConfig(){
+        $configs = $this->where('id != 1 and parent != 1')->select();
+
+        if($configs){
+            return $this->applyMenuItem($configs);
+        }
+        return false;
     }
 
     /**
@@ -51,14 +61,20 @@ class MenuModel extends Model{
         if(false === $configs or empty($configs)){
             return false;
         }else{
-            $temp = [];
+            return $this->applyMenuItem($configs);
+        }
+    }
+
+    private function applyMenuItem(array $menuconfigs){
+        $newconf = [];
+        if($menuconfigs){
             //menu item
             $menuItemModel = new MenuItemModel();
             $items = $menuItemModel->listMenuItems(true);
 
             if(empty($items)) return false;
 //            dumpout($configs,$items);
-            foreach ($configs as &$config){
+            foreach ($menuconfigs as &$config){
                 $parent = $config['parent'];
                 $title  = $config['title'];
 
@@ -68,13 +84,13 @@ class MenuModel extends Model{
                 }else{
                     $config = [];
                 }
-                $temp[$parent] = [
+                $newconf[$parent] = [
                     'title' => $title,
                     'config'=> $config,
                 ];
             }
-            return $temp;
         }
+        return $newconf;
     }
 
     /**
@@ -162,20 +178,6 @@ class MenuModel extends Model{
             $result[] = $item;
         }
         return $result;
-    }
-
-    /**
-     * 获取顶级菜单设置
-     * 注:顶级菜单的ID等于1
-     * @return array|bool array中的title和value可能是有用的值,返回false表示发生了错误
-     */
-    public function _getTopMenuConfig(){
-        $config = $this->where('id = 1')->select();
-//        dumpout($config);
-        if(isset($config[0]['value'])){
-            return $config[0]['value'];
-        }
-        return false;
     }
 
 }

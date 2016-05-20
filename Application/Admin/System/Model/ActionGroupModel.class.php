@@ -2,24 +2,40 @@
 /**
  * Created by PhpStorm.
  * User: kbylin
- * Date: 5/4/16
- * Time: 12:33 PM
+ * Date: 20/05/16
+ * Time: 16:07
  */
 
-namespace Application\Admin\Model;
+namespace Application\Admin\System\Model;
+
+
 use System\Library\Model;
 
-class ActionGroupModel extends Model {
+class ActionGroupModel extends Model{
 
-    protected $_table = 'kl_action_group';
-
-    protected $_fields = [
+    const TABLE_NAME = 'kl_action_group';
+    const TABLE_FIELDS = [
+        'id'        => null,
         'title'     => null,
-        'mcode'    => null,
-        'description' => null,
+        'description'=> null,
         'order'     => null,
+        'mcode'     => null,
         'code'      => null,
         'status'    => null,
     ];
+    //默认倒序
+    const TABLE_ORDER = '[order] desc';
+
+    public function clean(){
+        $sql = "delete from kl_action_group;";
+        return $this->exec($sql);
+    }
+
+    public function createActionGroup($code,$mcode){
+        return $this->fields([
+            'code'  => $code,
+            'mcode' => $mcode,
+        ])->create();
+    }
 
 }
