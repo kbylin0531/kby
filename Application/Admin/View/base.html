@@ -2,104 +2,106 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dazzling</title>
     <script src="{$smarty.const.PUBLIC_URI}assets/js/dazz.js"></script>
     <script>
-
         var infos = dazz.utils.toObject('{$infos}');
 
         var cdn = infos['cdn'];
         var options = {
-            'public_url':"{$smarty.const.PUBLIC_URI}",
-            'debug_on':true
+            'public_url': "{$smarty.const.PUBLIC_URI}",
+            'debug_on': true
         };
-        dazz.init(options).load(cdn['ico'],'ico');
-        dazz.load(cdn['style'],'css');
+        dazz.init(options).load(cdn['ico'], 'ico');
+        dazz.load(cdn['style'], 'css');
+
 
         var ieVersion = dazz.context.ieVersion();
-        if( ieVersion < 9){
-            dazz.load(cdn['compatible'],'js');
-        }else{
-            dazz.load(cdn['performance'],'js');
+        if (ieVersion < 9) {
+            dazz.load(cdn['compatible'], 'js');
+        } else {
+            dazz.load(cdn['performance'], 'js');
         }
-        dazz.load(cdn['script'],'js');
+        dazz.load(cdn['script'], 'js');
     </script>
     {block name='style'}{/block}
 </head>
 <!-- header is always fixed -->
-<body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
-
+<body>
 <div class="page-header navbar navbar-fixed-top">
-        <div class="page-header-inner ">
-            <div class="page-logo">
-                <a href="#"><img src="" id="dazz_logo" alt="logo" class="logo-default" /></a>
-                <div class="menu-toggler sidebar-toggler"></div>
-            </div>
-            <div class="hor-menu hor-menu-light ">
-                <ul class="nav navbar-nav" id="dazz_header_menu"></ul>
-            </div>
-            <form class="search-form">
-                <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Search..." name="query">
+    <div class="page-header-inner ">
+        <div class="page-logo">
+            <a href="#" class="text-logo">Nano</a>
+            <div class="menu-toggler sidebar-toggler"></div>
+        </div>
+        <div class="hor-menu hor-menu-light">
+            <ul class="nav navbar-nav" id="dazz_header_menu"></ul>
+        </div>
+        <form class="search-form">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search..." name="query">
                     <span class="input-group-btn">
                         <a href="#" class="btn submit"><i class="icon-search"></i></a>
                     </span>
-                </div>
-            </form>
-            <a href="#" class="menu-toggler responsive-toggler" data-toggle="collapse" data-target=".navbar-collapse"></a>
-            <div class="top-menu">
-                <ul class="nav navbar-nav pull-right">
-                    <li class="dropdown dropdown-user dropdown-dark">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
-                            <img alt="" class="img-circle" src="" id="avatar" />
-                            <span class="username" id="nickname"> </span>
-                            <i class="icon-angle-down"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-default" id="dazz_user_menu"></ul>
-                    </li>
-                </ul>
             </div>
+        </form>
+        <a href="#" class="menu-toggler responsive-toggler" data-toggle="collapse" data-target=".navbar-collapse"></a>
+        <div class="top-menu float-right">
+            <ul class="nav navbar-nav pull-right">
+                <li class="dropdown dropdown-user dropdown-dark">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                        <img alt="" class="img-circle" src="" id="avatar"/>
+                        <span class="username" id="nickname"> </span>
+                        <i class="icon-angle-down"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-default" id="dazz_user_menu"></ul>
+                </li>
+            </ul>
         </div>
     </div>
-    <div class="clearfix"></div>
+</div>
+<div class="clearfix"></div>
 
-    <div class="page-container">
-        <div class="page-sidebar-wrapper">
-            <div class="page-sidebar navbar-collapse collapse">
-                <ul id="dazz_sidebar_menu" class="page-sidebar-menu page-sidebar-menu-light page-sidebar-menu-hover-submenu" data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200" style="padding-top: 20px"></ul>
-            </div>
+<div class="page-container">
+    <div class="page-sidebar-wrapper">
+        <div class="page-sidebar navbar-collapse collapse">
+            <ul id="dazz_sidebar_menu" class="page-sidebar-menu page-sidebar-menu-light page-sidebar-menu-hover-submenu"
+                data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200"
+                style="padding-top: 20px"></ul>
         </div>
-        <div class="page-content-wrapper">
-            <div class="page-content">
-                {block name='stage_top_bar'}
-                    <div class="page-bar">
-                        <!--<ul class="page-breadcrumb">-->
-                        <!--</ul>-->
-                        <div class="page-toolbar">
-                            <div class="btn-group pull-right">
-                                <button type="button" class="btn dazzling btn-default btn-outline dropdown-toggle" data-toggle="dropdown">
-                                    操作 <i class="icon-list"></i>
-                                </button>
-                                <ul class="dropdown-menu pull-right" id="dazz_page_action" role="menu"></ul>
-                            </div>
-                        </div>
+    </div>
+    <div class="page-content-wrapper">
+        <div class="page-content">
+            {block name='stage_top_bar'}
+            <div class="page-bar">
+                <!--<ul class="page-breadcrumb">-->
+                <!--</ul>-->
+                <div class="page-toolbar">
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-default btn-outline dropdown-toggle"
+                                data-toggle="dropdown">
+                            操作 <i class="icon-list"></i>
+                        </button>
+                        <ul class="dropdown-menu pull-right" id="dazz_page_action" role="menu"></ul>
                     </div>
-                {/block}
-                {block name='stage'}{/block}
+                </div>
             </div>
+            {/block}
+            {block name='stage'}{/block}
         </div>
     </div>
-    <div class="page-footer">
-        <div class="page-footer-inner" id="dazz_copyright"> </div>
-        <div class="scroll-to-top"><i class="icon-arrow-up"></i></div>
-    </div>
+</div>
+<div class="page-footer">
+    <div class="page-footer-inner" id="dazz_copyright"></div>
+    <!--<div class="scroll-to-top"><i class="icon-arrow-up"></i></div>-->
+</div>
 </body>
 <script>
     dazz.ready(function () {
         Dazzling.init();
-        Dazzling.initUserInfo(infos['user'],['avatar.src','nickname']);
+        Dazzling.initUserInfo(infos['user'], ['avatar.src', 'nickname']);
         Dazzling.initPageInfo(infos['page']);
     });
 </script>
