@@ -37,7 +37,7 @@
             <div class="menu-toggler sidebar-toggler"></div>
         </div>
         <div class="hor-menu hor-menu-light">
-            <ul class="nav navbar-nav" id="dazz_header_menu"></ul>
+            <ul class="nav navbar-nav"></ul>
         </div>
         <form class="search-form">
             <div class="input-group">
@@ -50,7 +50,7 @@
         <a href="#" class="menu-toggler responsive-toggler" data-toggle="collapse" data-target=".navbar-collapse"></a>
         <div class="top-menu float-right">
             <ul class="nav navbar-nav pull-right">
-                <li class="dropdown dropdown-user dropdown-dark">
+                <li class="dropdown dropdown-user "><!-- dropdown-dark -->
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
                         <img alt="" class="img-circle" src="" id="avatar"/>
                         <span class="username" id="nickname"> </span>
@@ -63,21 +63,18 @@
     </div>
 </div>
 <div class="clearfix"></div>
-
 <div class="page-container">
     <div class="page-sidebar-wrapper">
         <div class="page-sidebar navbar-collapse collapse">
-            <ul id="dazz_sidebar_menu" class="page-sidebar-menu page-sidebar-menu-light page-sidebar-menu-hover-submenu"
+            <ul class="page-sidebar-menu  page-sidebar-menu-hover-submenu"
                 data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200"
                 style="padding-top: 20px"></ul>
         </div>
     </div>
     <div class="page-content-wrapper">
         <div class="page-content">
-            {block name='stage_top_bar'}
             <div class="page-bar">
-                <!--<ul class="page-breadcrumb">-->
-                <!--</ul>-->
+                <ul class="page-breadcrumb"></ul>
                 <div class="page-toolbar">
                     <div class="btn-group pull-right">
                         <button type="button" class="btn btn-default btn-outline dropdown-toggle"
@@ -88,21 +85,18 @@
                     </div>
                 </div>
             </div>
-            {/block}
             {block name='stage'}{/block}
         </div>
     </div>
 </div>
 <div class="page-footer">
-    <div class="page-footer-inner" id="dazz_copyright"></div>
+    <div class="page-footer-inner page-copyright"></div>
     <!--<div class="scroll-to-top"><i class="icon-arrow-up"></i></div>-->
 </div>
 </body>
 <script>
     dazz.ready(function () {
-        Dazzling.init();
-        Dazzling.initUserInfo(infos['user'], ['avatar.src', 'nickname']);
-        Dazzling.initPageInfo(infos['page']);
+        Dazzling.start(infos,['avatar.src', 'nickname']);
     });
 </script>
 {block name='script'}{/block}

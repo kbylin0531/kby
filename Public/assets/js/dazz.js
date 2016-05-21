@@ -135,6 +135,19 @@ window.dazz = (function () {
                 }
             }
         },
+        //get real path to this action
+        getPath:function () {
+            var path = location.pathname;
+            // var path = "/admin.php/Syse/dsds/dsdsds#dsds";
+            var index = path.indexOf('.php');
+            if(index >= 0 ) path = path.substring(index+4);
+            index = path.indexOf('?');
+            if(index >= 0) path = path.substring(0,index);
+            index = path.indexOf("#");
+            if(index >= 0) path = path.substring(0,index);
+            // console.log(index,location.pathname,path);
+            return path;
+        },
         //获得可视区域的大小
         getViewPort:function () {
             var win = window;

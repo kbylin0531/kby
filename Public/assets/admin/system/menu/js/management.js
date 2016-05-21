@@ -4,7 +4,7 @@
 dazz.ready(function () {
     "use strict";
 
-    console.log(location);
+    // console.log(location);
 
     var idLibrary = [];
 
@@ -42,7 +42,7 @@ dazz.ready(function () {
             //load the top menu(whose index is 1)
             loadTopMenu:function (menuconfig) {
                 var isfirst = true;
-                console.log(menuconfig)
+                // console.log(menuconfig)
                 HeaderNestable.load(menuconfig,function (data, element) {
                     // console.log(element);
                     MenuItemContextMenu.bind(element);
@@ -58,7 +58,7 @@ dazz.ready(function () {
             },
             loadSidebarMenu:function (index) {
                 current_index = index;
-                console.log('current index:',index,'current config',menu_configs[index]);
+                // console.log('current index:',index,'current config',menu_configs[index]);
                 if(menu_configs[index]){
                     SiderNestable.load(menu_configs[index]['config'],function (data,element) {
                         MenuItemContextMenu.bind(element);
