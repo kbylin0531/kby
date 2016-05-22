@@ -745,7 +745,6 @@ dazz.ready(function () {
                     return ('href' in item) && item['href'].indexOf(compval) >= 0;
                 });
                 console.log(pageinfo,path,value);
-
                 var target = Page.Sidebar.getSidebarMenu().find("[data-id="+value[1]['id']+"]");
                 console.log(target);
                 target.parents('li.nav-item').addClass("active");
