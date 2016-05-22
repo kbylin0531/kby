@@ -10,6 +10,7 @@ use Application\Admin\Library\AdminController;
 use Application\Admin\System\Model\MenuItemModel;
 use Application\Admin\System\Model\MenuModel;
 use System\Core\Dao;
+use System\Core\Storage;
 use System\Utils\Response;
 
 /**
@@ -47,7 +48,7 @@ class Menu extends AdminController {
         $menuItemModel = new MenuItemModel();
         $menuItemModel->beginTransaction();
 
-        if(!$this->_setMenu($sideset,$menuItemModel,true)){
+        if(!$this->_setMenuConfigIgnoreExtence($sideset,$menuItemModel,true)){
             Response::failed('设置出错:'.$menuItemModel->error());
         }
 
@@ -59,19 +60,20 @@ class Menu extends AdminController {
         }
         $menuItemModel->commit();
 
+        Storage::unlink(RUNTIME_PATH.'Template/');
         Response::success('成功更新了了'.$this->_success['u'].'条数据,添加了'.$this->_success['c'].'条数据!');
     }
     /**
      * 需要注意的是,更新过之后需要刷新模板引擎的缓存
      * @param $topset
      */
-    public function saveTopMenu($topset){
+    public function saveHeaderConfig($topset){
         $topset = json_decode($topset);
-        if(!is_array($topset)) Response::failed('无法解析前台传递的序列化的信息!');
+        is_array($topset) or Response::failed('无法解析前台传递的序列化的信息!');
         $menuItemModel = new MenuItemModel();
         $menuItemModel->beginTransaction();
 
-        if(!$this->_setMenu($topset,$menuItemModel,true)){
+        if(!$this->_setMenuConfigIgnoreExtence($topset,$menuItemModel,true)){
             Response::failed('设置出错:'.$menuItemModel->error());
         }
 
@@ -83,20 +85,28 @@ class Menu extends AdminController {
         }
         $menuItemModel->commit();
 
+        Storage::unlink(RUNTIME_PATH.'Template/');
         Response::success('成功更新了了'.$this->_success['u'].'条数据,添加了'.$this->_success['c'].'条数据!');
+        //unlink the temp to refresh
     }
 
-    private $_success =null;
+    /**
+     * be shared of result
+     * @var array
+     */
+    private $_success = [];
     /**
      * 设置菜单项,包括修改和添加
-     * @param array $topset
-     * @param MenuItemModel $model
-     * @param bool $reset
-     * @return bool
+     * to set menu config ignore if is the menu config has setup brefore
+     * it will create if not exit but modified if exist
+     * @param array $configs
+     * @param MenuItemModel $model one transaction in it
+     * @param bool $reset used by recursion
+     * @return bool it will return false immediately if error occur ,true will return if all right
      */
-    private function _setMenu($topset,$model,$reset=false){
+    private function _setMenuConfigIgnoreExtence($configs, $model, $reset=true){
         $reset and $this->_success =  ['c'=>0,'u'=>0];
-        foreach ($topset as $object){
+        foreach ($configs as $object){
             if(empty($object->id) or empty($object->title)){
                 Response::failed('Id/Title should not be empty!');
             }
@@ -105,7 +115,7 @@ class Menu extends AdminController {
 
             //检查ID是否存在
             $count = $model->hasMenuItemById($object->id);
-            if(false === $count) Response::failed('failed to query whether if id exist!');
+            if(false === $count) Response::failed('failed to query whether if id exist!'.$model->error());
 
 //            dump($count,[$object->id,$object->title,$object->href,$object->icon]);
             $result = call_user_func_array([$model,$count?'updateMenuItem':'createMenuItem'], [$object->id,$object->title,$object->href,$object->icon]);
@@ -119,7 +129,7 @@ class Menu extends AdminController {
 
             //递归执行
             if(!empty($object->children)){
-                if(false === $this->_setMenu($object->children,$model)){
+                if(false === $this->_setMenuConfigIgnoreExtence($object->children,$model,false)){
                     $model->rollBack();
                     Response::failed('设置子菜单失败');
                 }

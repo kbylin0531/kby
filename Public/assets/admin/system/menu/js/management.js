@@ -13,6 +13,7 @@ dazz.ready(function () {
     //create header-menu and sidebar-menu,all assigned to same group
     var HeaderNestable = Dazzling.nestable.create(1).attachTo("#top_nestable_attach");
     var SiderNestable = Dazzling.nestable.create(1).attachTo("#side_nestable_attach");
+
     var MenuItemAddModal = Dazzling.modal.create("#MenuItemAddModal", {
         'confirmText': '提交',
         'cancelText': '关闭'
@@ -25,11 +26,14 @@ dazz.ready(function () {
         [{'edit':'修改','delete':'删除'}],
         function (element,tabindex) {
             var obj = element.get(0).dataset;
-            // console.log(element,obj);
             if('edit' === tabindex){
                 operator.menuitem.initMenuItemEdit(element,obj);
             }else if('delete' === tabindex){
+                // console.log(element);
+                if(element.find('ol>li').length) return Dazzling.toast.warning('删除该节点前请先删除子菜单项!');
                 operator.menuitem.deleteMenuItem(element,obj['id']);
+            }else{
+                throw "Unknown operation!";
             }
         }
     );
@@ -42,7 +46,7 @@ dazz.ready(function () {
             //load the top menu(whose index is 1)
             loadTopMenu:function (menuconfig) {
                 var isfirst = true;
-                // console.log(menuconfig)
+                // console.log(menuconfig);
                 HeaderNestable.load(menuconfig,function (data, element) {
                     // console.log(element);
                     MenuItemContextMenu.bind(element);
@@ -73,8 +77,6 @@ dazz.ready(function () {
                 var env = this;
                 Dazzling.post(public_url + 'listMenuConfig', {}, function (data) {
                     menu_configs = data;
-                    // return console.log(data);
-                    // console.log(data);
                     //load the top menus
                     env.loadTopMenu(menu_configs[1]['config']);
                     //load the sidebar menu of actived top menu item
@@ -84,17 +86,12 @@ dazz.ready(function () {
             saveTopMenuConfig : function () {
                 var value = HeaderNestable.serialize(true);
     //            console.log(value);//获取序列化
-                Dazzling.post(public_url+'saveTopMenu',{ topset:value});
+                Dazzling.post(public_url+'saveHeaderConfig',{ topset:value});
             },
             saveSideMenuConfig:function () {
                 var value = SiderNestable.serialize(true);
                 // console.log({sideset:value,id:current_index})
                 Dazzling.post(public_url+"saveSidebarMenu",{sideset:value,id:current_index}
-                // function (data, ismsg, msgtype) {
-                //     if(ismsg && msgtype > 1){
-                //         new_sidebar_menuitems = [];
-                //     }
-                // }
                 );
             },
             updateIdForCreate : function (id) {
@@ -111,7 +108,9 @@ dazz.ready(function () {
                     }
                     var form = MenuItemAddModal.getElement("#MenuItemAddForm");
                     dazz.utils.each(obj,function (value, key) {
-                        form.find("[name="+key+"]").val(value);
+                        var input = form.find("[name="+key+"]");
+                        input.val(value);
+                        if(input.attr('name') === 'id') input.attr('readonly','readonly');
                     });
 
                     MenuItemAddModal.show().onConfirm(function () {
@@ -144,9 +143,6 @@ dazz.ready(function () {
         Dazzling.page.registerAction('全部折叠', function () {
             $(".dd").nestable("collapseAll");
         }, "icon-resize-small");
-        $(window).resize(function () {
-            Dazzling.utils.adjustMinHeight(".nestable_container");
-        }).trigger('resize');
         $("#addTop").click(function () {
             operator.updateIdForCreate();
             MenuItemAddModal.title('添加顶部菜单').show().onConfirm(function () {

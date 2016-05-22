@@ -60,7 +60,7 @@ class Dispatcher{
         $className = "Application\\{$modules}\\Controller\\{$ctrler}";
         if(!class_exists($className)){
             if($thisconvention['EMPTY_CONTROLLER'] and class_exists($thisconvention['EMPTY_CONTROLLER'])){
-                $className = $thisconvention['EMPTY_CONTROLLER'];
+                $className && $className = $thisconvention['EMPTY_CONTROLLER'];
             }else{
                 KbylinException::throwing("Controller '$className' not found!");
             }

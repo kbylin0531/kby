@@ -45,7 +45,11 @@ class MenuItemModel extends Model {
      * @return bool
      */
     public function deleteMenuItemById($id){
-        return $this->where('id = '.intval($id))->delete();
+//        $id = intval($id);
+//        $feather = '"id";i:'.$id;
+//        $result = $this->where("[value] like '%".$feather."%' ")->select();
+//        dumpout($result,$this->error());
+        return $this->where('id = '.$id)->delete();
     }
 
     /**
