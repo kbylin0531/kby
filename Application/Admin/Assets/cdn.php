@@ -16,7 +16,6 @@ return [
             ],
             'script'    => [
                 'assets/plugins/bootstrap/js/bootstrap.min.js',
-                'assets/plugins/jquery-slimscroll/jquery.slimscroll.min.js',
                 'assets/plugins/toastr/toastr.min.js',
                 'assets/plugins/bootstrap-contextmenu/bootstrap-contextmenu.js',
 

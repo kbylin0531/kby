@@ -232,6 +232,96 @@ window.dazz = (function () {
     };
 
     var utils = {
+        cookie:{
+            /**
+             * set cookie
+             * @param name
+             * @param value
+             * @param expire
+             * @param path
+             */
+            set:function (name, value, expire,path) {
+                path = ";path="+(path ? path : '/');// all will access if not set the path
+                var cookie;
+                if(undefined === expire || false === expire){
+                    //set or modified the cookie, and it will be remove while leave from browser
+                    cookie = name+"="+value;
+                }else if(!isNaN(expire)){// is numeric
+                    var _date = new Date();//current time
+                    if(expire > 0){
+                        _date.setTime(_date.getTime()+expire);//count as millisecond
+                    }else if(expire === 0){
+                        _date.setDate(_date.getDate()+365);//expire after an year
+                    }else{
+                        //delete cookie while expire < 0
+                        _date.setDate(_date.getDate()-1);//expire after an year
+                    }
+                    cookie = name+"="+value+";expires="+_date.toUTCString();
+                }else{
+                    throw "require the param 3 to be false/undefined/numeric !";
+                }
+                document.cookie = cookie+path;
+            },
+            //get a cookie with a name
+            get:function (name) {
+                if(document.cookie.length > 0){
+                    var cstart = document.cookie.indexOf(name+"=");
+                    if(cstart >= 0){
+                        cstart = cstart + name.length + 1;
+                        var cend = document.cookie.indexOf(';',cstart);//begin from the index of param 2
+                        (-1 === cend) && (cend = document.cookie.length);
+                        return document.cookie.substring(cstart,cend);
+                    }
+                }
+                return "";
+            }
+        },
+        //TODO:wait for test
+        setOpacity: function(ele, opacity) {
+            if (ele.style.opacity != undefined) {
+                ///兼容FF和GG和新版本IE
+                ele.style.opacity = opacity / 100;
+            } else {
+                ///兼容老版本ie
+                ele.style.filter = "alpha(opacity=" + opacity + ")";
+            }
+        },
+        //TODO:wait for test
+        fadein:function (ele, opacity, speed) {
+            if (ele) {
+                var v = ele.style.filter.replace("alpha(opacity=", "").replace(")", "") || ele.style.opacity;
+                (v < 1) && (v *= 100);
+                var count = speed / 1000;
+                var avg = count < 2 ? (opacity / count) : (opacity / count - 1);
+                var timer = null;
+                timer = setInterval(function() {
+                    if (v < opacity) {
+                        v += avg;
+                        this.setOpacity(ele, v);
+                    } else {
+                        clearInterval(timer);
+                    }
+                }, 500);
+            }
+        },
+        //TODO:wait for test
+        fadeout:function (ele, opacity, speed) {
+            if (ele) {
+                var v = ele.style.filter.replace("alpha(opacity=", "").replace(")", "") || ele.style.opacity || 100;
+                v < 1 && (v *= 100);
+                var count = speed / 1000;
+                var avg = (100 - opacity) / count;
+                var timer = null;
+                timer = setInterval(function() {
+                    if (v - avg > opacity) {
+                        v -= avg;
+                        this.setOpacity(ele, v);
+                    } else {
+                        clearInterval(timer);
+                    }
+                }, 500);
+            }
+        },
         /**
          * 原先的设计是在Object中添加一个方法,但与jquery的遍历难兼容
          *  Object.prototype.utils
@@ -369,6 +459,60 @@ window.dazz = (function () {
         }
     };
 
+    //TODO:wait for test
+    var Shadow = (function () {
+        var convention =  {
+            //alpha:0.5,
+            background: 'gray',
+            text:'Loading',
+            opacity:50,
+            fontcolor:'blue',
+            fontsize:'15px'
+        };
+        return {
+            instance:null,
+            init:function (config) {
+                if(config || !this.instance){
+                    config && utils.each(config,function (value,key) {
+                        convention[key] = value;
+                    });
+                    this.instance = document.createElement('div');
+                    // this.instance.style.display = 'none';
+                    this.instance.style.position = 'absolute';
+                    this.instance.style.zIndex = '1000';
+                    this.instance.style.top = '0px';
+                    this.instance.style.left = '0px';
+                    this.instance.style.filter = 'alpha(opacity:'+convention['opacity']+')'; //设置IE的透明度
+                    this.instance.style.opacity = convention['opacity'] / 100; //设置fierfox等透明度，注意透明度值是小数
+                    this.instance.style.mozOpacity = convention['opacity'] / 100;
+                    this.instance.style.width = '100%';
+                    this.instance.style.height = '100%';
+                    this.instance.style.textAlign = 'center';
+                    this.instance.style.background = convention['background'];
+                    var h1 = document.createElement('h1');
+                    h1.style.top = '48%';
+                    h1.style.position = 'relative';
+                    var span = document.createElement('span');
+                    span.style.color = convention['fontcolor'];
+                    span.style.fontSize = convention['fontsize'];
+                    span.innerText = convention['text'];
+                    h1.appendChild(span);
+                    this.instance.appendChild(h1);
+                    document.body.appendChild(this.instance);
+                }
+            },
+            show:function (config) {
+                this.init(config);
+                console.log(this.instance)
+                utils.fadein(this.instance,50,1000);
+            },
+            hide:function (config) {
+                this.init(config);
+                utils.fadeout(this.instance,50,1000);
+            }
+        };
+    })();
+
     //监听窗口状态变化
     window.document.onreadystatechange = function(){
         // console.log(window.document.readyState);
@@ -384,6 +528,7 @@ window.dazz = (function () {
     return {
         context:context,
         utils:utils,
+        shadow:Shadow,
         newElement:function (regular) {
             var tagname  = regular, classes, id;
             if(regular.indexOf('.') > 0 ){

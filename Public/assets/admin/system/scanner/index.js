@@ -4,7 +4,7 @@
 
 dazz.ready(function () {
 
-    Dazzling.utils.adjustMinHeight(".ranklist");
+    // Dazzling.page.Kits.adjustMinHeight(".ranklist");
 
     var ListHandler = (function () {
         var ul = $(".ranklist>ul");

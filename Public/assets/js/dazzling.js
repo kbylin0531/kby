@@ -21,7 +21,7 @@ dazz.ready(function () {
         var thisbody = thishtml.children("body");
 
         //Conponents on page
-        var Page = {
+        var page = {
             setTitle:function (title) {
                 $("title").text(title);
             },
@@ -29,7 +29,7 @@ dazz.ready(function () {
                 $(".text-logo").html(logoText);
             },
             //attributs
-            Header: {
+            header: {
                 header: null ,
                 header_menu:null,
                 getHeader:function () {
@@ -78,14 +78,14 @@ dazz.ready(function () {
                         return false;
                     });
                 },
-                Menu : {
+                menu : {
                     /**
                      * create and return the handler of topmenu
                      * @returns {{}}
                      */
                     getInstance: function () {
                         var instance = dazz.newInstance(this);
-                        instance.target = Page.Header.getHeaderMenu();
+                        instance.target = page.header.getHeaderMenu();
                         return instance;
                     },
                     //get the children attribute of element.It will return an array if attribute exist but null while not exist
@@ -188,7 +188,7 @@ dazz.ready(function () {
                         }
                     }
                 },
-                User: {
+                user: {
                     /**
                      * init user menu with certain config and element on page
                      * @param conf menu config of an array/object
@@ -214,10 +214,16 @@ dazz.ready(function () {
                     }
                 }
             },
-            Content: $('.page-content'),
+            content: {
+                content:null,
+                getContent:function () {
+                    if(!this.content) this.content = $('.page-content');
+                    return this.content;
+                }
+            },
 
             //operate the sidebar status
-            Sidebar: {
+            sidebar: {
                 sidebar: null ,
                 sidebar_menu: null,
                 getSidebar:function(){
@@ -234,26 +240,30 @@ dazz.ready(function () {
                     this.getSidebar();
                     this.getSidebarMenu();
                 },
-                isClosed:function(){
+                nowIsClosed:function(){
                     this.checkInit();
                     return thisbody.hasClass("page-sidebar-closed");
+                },
+                lastIsClosed:function () {
+                    this.checkInit();
+                    return dazz.utils.cookie.get('dazz_sidebar_show');
                 },
                 open:function () {
                     this.checkInit();
                     thisbody.removeClass("page-sidebar-closed");
                     this.sidebar_menu.removeClass("page-sidebar-menu-closed");
-                    $.cookie && $.cookie('sidebar_closed', '0');
+                    dazz.utils.cookie.set('dazz_sidebar_show',0,0);
                 },
                 close:function () {
                     this.checkInit();
                     thisbody.addClass("page-sidebar-closed");
                     this.sidebar_menu.addClass("page-sidebar-menu-closed");
-                    $.cookie && $.cookie('sidebar_closed', '1');
+                    dazz.utils.cookie.set('dazz_sidebar_show',1,0);
                 },
-                Menu:{
+                menu:{
                     getInstance: function () {
                         var instance = dazz.newInstance(this);
-                        instance.target = Page.Sidebar.getSidebarMenu();
+                        instance.target = page.sidebar.getSidebarMenu();
                         return instance;
                     },
                     _getAnchor: function (attrs, hasSubmenu) {
@@ -311,7 +321,7 @@ dazz.ready(function () {
                         if(false === result){
                             throw "No !!!";
                         }
-                        console.log(result);
+                        // console.log(result);
                         var active_menu_parent = result[0];
                         // console.log(data[active_menu_parent]);
                         data = data[active_menu_parent]['config'];
@@ -376,7 +386,7 @@ dazz.ready(function () {
                 }
             },
 
-            Footer: {
+            footer: {
                 footer:null,
                 getFooter:function(){
                     if(!this.footer) this.footer = $('.page-footer');
@@ -388,9 +398,22 @@ dazz.ready(function () {
                 }
             },
 
+            behavior:{
+                autoContentHeight: function () {
+                    var content = $('.page-content');
+                    var height;
+                    var headerHeight = page.header.getHeader().outerHeight();
+                    var footer = page.footer.getFooter();
+                    var footerHeight = footer.outerHeight();
+                    var viewport = dazz.context.getViewPort();
+                    height = viewport.height - headerHeight - footerHeight;
+                    // console.log(content,height)
+                    content.css('min-height' , height + 'px');
+                }
+            },
 
             //handle the element size change while window resized
-            ResizeHandleQuene:{
+            resizer:{
                 handlers:[],
                 push:function (handler) {
                     this.handlers.push(handler);
@@ -477,24 +500,6 @@ dazz.ready(function () {
                     console.log("to jquery failed",selector);
                     throw "Genkits.toJquery!";
                 },
-                adjustMinHeight: function (selector) {
-                    selector = this.toJquery(selector);
-                    var height;
-                    var headerHeight = Page.Header.getHeader().outerHeight();
-                    var footerHeight = Page.Footer.getFooter().outerHeight();
-                    var viewport = dazz.context.getViewPort();
-
-                    if (viewport.width < convention['sizeXS']) {
-                        height = viewport.height - headerHeight - footerHeight;
-                    } else {
-                        height = Page.Sidebar.getSidebar().height() + 20;
-                    }
-
-                    if ((height + headerHeight + footerHeight) <= viewport.height) {
-                        height = viewport.height - headerHeight - footerHeight;
-                    }
-                    selector.css('min-height:' , height + 'px');
-                },
                 _lqt : 0,//last request time
                 /**
                  * @param url 请求地址
@@ -555,7 +560,7 @@ dazz.ready(function () {
             };
         })();
 
-        var BsModal = {
+        var bootmodal = {
             /**
              * 创建一个Modal对象,会将HTML中指定的内容作为自己的一部分拐走
              * @param selector 要把哪些东西添加到modal中的选择器
@@ -693,7 +698,7 @@ dazz.ready(function () {
                     if (isIE8 && (currentHeight == document.documentElement.clientHeight)) return; //quite event since only body resized not window.
                     if (resizehandler) clearTimeout(resizehandler);
                     resizehandler = setTimeout(function () {
-                        Page.ResizeHandleQuene.exec();
+                        page.resizer.exec();
                         // for (var i = 0; i < resizeHandlers.length; i++)  resizeHandlers[i].call();//执行调整函数
                     }, 75); // 等待window调整完成
                     isIE8 && (currentHeight = document.documentElement.clientHeight); // store last body client height
@@ -703,62 +708,60 @@ dazz.ready(function () {
                 //init sidebar
                 //****************************************
                 // 控制sidebar的显示和隐藏
-                if ($.cookie && $.cookie('sidebar_closed') === '1'
-                    && dazz.context.getViewPort().width >= convention['sizeXS']) {
-                    Page.Sidebar.close();
+                //TODO
+                if(dazz.context.getViewPort().width <= convention['sizeSM'] || page.sidebar.lastIsClosed()){
+                    page.sidebar.close();
                 }
-
-                //control thr sidebar showing
                 thisbody.find(".sidebar-toggler").click(function () {
-                    Page.Sidebar.isClosed() ? Page.Sidebar.open() : Page.Sidebar.close();
+                    page.sidebar.nowIsClosed() ? page.sidebar.open() : page.sidebar.close();
                     $(window).trigger('resize');
                 });
 
                 //****************************************
                 // init others
                 //****************************************
-                Page.Header.setSearchHandler(); // handles horizontal menu
+                page.header.setSearchHandler(); // handles horizontal menu
 
-                GenKits.adjustMinHeight(Page.Content);
-
+                
+                page.resizer.push(page.behavior.autoContentHeight);
 
                 var userinfo = infos['user'];
                 GenKits.autofill(itemsIds, userinfo);
-                Page.Header.User.setMenu(userinfo['menu']);
+                page.header.user.setMenu(userinfo['menu']);
 
                 var pageinfo = infos['page'];
                 //设置标题
-                pageinfo.hasOwnProperty('title') && Page.setTitle(pageinfo['title']);
-                pageinfo.hasOwnProperty('logo') && Page.setLogo(pageinfo['logo']);
-                pageinfo.hasOwnProperty('coptright') && Page.Footer.setCopyright(pageinfo['coptright']);
+                pageinfo.hasOwnProperty('title') && page.setTitle(pageinfo['title']);
+                pageinfo.hasOwnProperty('logo') && page.setLogo(pageinfo['logo']);
+                pageinfo.hasOwnProperty('coptright') && page.footer.setCopyright(pageinfo['coptright']);
 
                 //处理顶部菜单
-                Page.Header.Menu.getInstance().load(pageinfo['header_menu']);//.active(headeractiveindex);
+                page.header.menu.getInstance().load(pageinfo['header_menu']);//.active(headeractiveindex);
 
-                Page.Sidebar.Menu.getInstance().load(pageinfo['sidebar_menu'], pageinfo['menuitem_id']);//.active(sideractiveindex);
+                page.sidebar.menu.getInstance().load(pageinfo['sidebar_menu'], pageinfo['menuitem_id']);//.active(sideractiveindex);
 
                 //the real path may be an empty string (while the basic uri is deal in backgroud,this can be set to login with auto jump)
                 var path = dazz.context.getPath();
                 if(!path.length) throw "not allow the empty uri path";
-                var value = Page.Sidebar.Menu.findOuter(pageinfo['sidebar_menu'],path,'href',function (item, compval) {
-                    console.log(item,compval);
+                var value = page.sidebar.menu.findOuter(pageinfo['sidebar_menu'],path,'href',function (item, compval) {
+                    // console.log(item,compval);
                     return ('href' in item) && item['href'].indexOf(compval) >= 0;
                 });
-                console.log(pageinfo,path,value);
-                var target = Page.Sidebar.getSidebarMenu().find("[data-id="+value[1]['id']+"]");
-                console.log(target);
+                // console.log(pageinfo,path,value);
+                var target = page.sidebar.getSidebarMenu().find("[data-id="+value[1]['id']+"]");
+                // console.log(target);
                 target.parents('li.nav-item').addClass("active");
                 // var toptarget = $(".page-sidebar-menu>li.nav-item.active");
-                Page.Header.getHeaderMenu().find("[menu-id="+value[0]+"]").addClass("active");
+                page.header.getHeaderMenu().find("[menu-id="+value[0]+"]").addClass("active");
 
-
+                $(window).trigger('resize');
             },
             //定制的方法,定制过程中避免对jquery中的方法进行修改
             'post': GenKits.doPost,
             //工具箱
             'utils': GenKits,
             //页面工具
-            'page': Page,
+            'page': page,
             //datatable表格工具,一次只能操作一个表格API对象
             //datatable.find("tbody").on('dblclick','tr',function () {});//可以设置为双击编辑
             //改造成return new this;
@@ -895,7 +898,7 @@ dazz.ready(function () {
                 }
             },
             //拟态框
-            modal: BsModal,
+            modal: bootmodal,
             form: {
                 /**
                  * 自动填写表单
