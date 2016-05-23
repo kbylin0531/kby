@@ -89,7 +89,7 @@ class Model {
     public function __construct($tablename=null,$fields=null,$order=null){
         $clsnm = static::class;
         null === $tablename and $tablename = defined("$clsnm::TABLE_NAME")?$clsnm::TABLE_NAME:KbylinException::throwing('The table of model should not be empty on constructor!');
-        null === $fields and $fields = defined("$clsnm::TABLE_FIELDS")?$clsnm::TABLE_FIELDS:KbylinException::throwing('The fields of model should not be empty on constructor!');
+        null === $fields and $fields = defined("$clsnm::TABLE_FIELDS")?$clsnm::TABLE_FIELDS:null;
         null === $order and $order = defined("$clsnm::TABLE_ORDER")?$clsnm::TABLE_ORDER:null;
 
         is_string($tablename) or KbylinException::throwing('Constant TABLE_NAME require to be string !');
@@ -374,6 +374,15 @@ class Model {
         }
     }
 
+
+    public function find(){
+        $result = $this->select(null);
+        if(!empty($result[0])){
+            return $result[0];
+        }
+        return false;
+    }
+
     /**
      * 从数据库中获取指定条件的数据对象
      * @param array|null|string $options 如果是字符串是代表查询这张表中的所有数据并直接返回
@@ -383,9 +392,10 @@ class Model {
     public function select($options=null){
         if(null === $options){
             //链式操作
-            $sql = $this->_options['distinct']?'SELECT DISTINCE ':'SELECT';
+            $sql = $this->_options['distinct']?'SELECT DISTINCE ':'SELECT ';
             empty($this->_options['table']) and KbylinException::throwing('Model has no table binded!');
 
+//            dumpout($this->_options);
             //set the mastable parameters(fields and table)
             $sql .= $this->_options['fields'].' FROM '.$this->_options['table'];
 
@@ -397,9 +407,9 @@ class Model {
             //set the input parameters
             if(isset($this->_inputs['fields'])) $inputs = $this->_inputs['fields'];
             else $inputs = [];
-            if(isset($this->_inputs['where'])) $inputs = array_merge($inputs,$this->_options['where']);
+            if(isset($this->_inputs['where'])) $inputs = array_merge($inputs,$this->_inputs['where']);
 
-//            dump($sql,$inputs);
+//            dumpout($sql,$inputs);
             return $this->query($sql,$inputs);
         }
 
@@ -514,7 +524,8 @@ class Model {
             $holder = ":{$fieldName}";
         }
 
-        $sql = (self::$_conventions[self::class]['AUTO_ESCAPE_ON'] or $escape)? $this->dao->escape($fieldName):$fieldName;
+//        $sql = (self::$_conventions[self::class]['AUTO_ESCAPE_ON'] or $escape)? $this->dao->escape($fieldName):$fieldName;
+        $sql = $this->dao->escape($fieldName);
         $input = [];
 
         switch($operator){

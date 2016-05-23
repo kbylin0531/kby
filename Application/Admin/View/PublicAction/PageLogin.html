@@ -1,154 +1,62 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dazzling</title>
-    <script src="{$smarty.const.PUBLIC_URI}assets/js/dazz.js"></script>
-    <script>
+{extends file="./basic.html"}
+{block name='script'}
+<script>
+    dazz.ready(function () {
+        var message = dazz.context.getHash();
+        message && Dazzling.toast.error(decodeURI(message));
+    });
+</script>
 
-        var infos = {
-            cdn:{
-                'style': [
-                    'assets/plugins/bootstrap/css/bootstrap.min.css',
-                    'assets/plugins/font-awesome/css/font-awesome.min.css',
-                    'assets/plugins/fontawesome4.2/css/font-awesome.min.css',
-                    'assets/plugins/toastr/toastr.min.css',
-
-                    'assets/css/themes/darkblue.css',
-                    'assets/css/dazzling.css'
-                ],
-                'script': [
-                    'assets/plugins/bootstrap/js/bootstrap.min.js',
-                    'assets/plugins/toastr/toastr.min.js',
-                    'assets/plugins/bootstrap-contextmenu/bootstrap-contextmenu.js',
-
-                    'assets/js/dazzling.js'
-                ],
-                //IE8(兼容)
-                'compatible': [
-                    'assets/plugins/html5shiv/dist/html5shiv.min.js',
-                    'assets/plugins/respond/dest/respond.min.js',
-                    'assets/plugins/jquery-placeholder/jquery.placeholder.min.js',
-                    'assets/js/jquery-1.11.3.min.js'
-                ],
-                //非IE或者大于等于9(性能)
-                'performance': [
-                    'assets/js/jquery-2.2.3.min.js'
-                ],
-                'ico': [
-                    'https://elementary.io/favicon.ico'
-                ]
-            }
-        };
-
-        var cdn = infos['cdn'];
-        var options = {
-            public_url: '{$smarty.const.PUBLIC_URI}',
-            debug_on: true
-        };
-        dazz.init(options).load(cdn['ico'], 'ico');
-        dazz.load(cdn['style'], 'css');
-
-        dazz.load('assets/admin/public/login.css');
-
-        var ieVersion = dazz.context.ieVersion();
-        if (ieVersion < 9) {
-            dazz.load(cdn['compatible'], 'js');
-        } else {
-            dazz.load(cdn['performance'], 'js');
-        }
-        dazz.load(cdn['script'], 'js');
-    </script>
-    {block name='style'}{/block}
-</head>
-<body>
+{/block}
+{block name='body'}
 <div class="user-login">
-    <div class="row bs-reset">
+    <div class="row ">
+        <div class="col-md-6 bs-reset grogb" >
+            <div class="login-bg"></div>
+        </div>
         <div class="col-md-6 login-container bs-reset">
-            <img class="login-logo login-6" src=""/>
-            <div class="login-content">
-                <h1>Metronic Admin Login</h1>
-                <p> Lorem ipsum dolor sit amet, coectetuer adipiscing elit sed diam nonummy et nibh euismod aliquam erat
-                    volutpat. Lorem ipsum dolor sit amet, coectetuer adipiscing. </p>
-                <form action="javascript:;" class="login-form" method="post">
-                    <div class="row">
-                        <div class="col-xs-6">
-                            <input class="form-control form-control-solid placeholder-no-fix" type="text"
-                                   autocomplete="off" placeholder="Username" name="username" required/></div>
-                        <div class="col-xs-6">
-                            <input class="form-control form-control-solid placeholder-no-fix" type="password"
-                                   autocomplete="off" placeholder="Password" name="password" required/></div>
-                    </div>
-                    <div class="alert alert-danger display-hide">
-                        <button class="close" data-close="alert"></button>
-                        <span>Enter any username and password. </span>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-4">
-                            <div class="rem-password">
-                                <p>Remember Me
-                                    <input type="checkbox" class="rem-checkbox"/>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-sm-8 text-right">
-                            <div class="forgot-password">
-                                <a href="javascript:;" id="forget-password" class="forget-password">Forgot Password?</a>
-                            </div>
-                            <button class="btn blue" type="submit">Sign In</button>
-                        </div>
-                    </div>
-                </form>
-                <!-- BEGIN FORGOT PASSWORD FORM -->
-                <form class="forget-form" action="javascript:;" method="post">
-                    <h3 class="font-green">Forgot Password ?</h3>
-                    <p> Enter your e-mail address below to reset your password. </p>
+            <div class="login-content bs-reset">
+                <h1>管理员登录</h1>
+                <p> 目前集成了较有限的功能,并且开发和测试使用的是45版本以上的chrome或者42版本以上的火狐，为得到较好的体验，请使用以上两款推荐的浏览器登录操作 </p>
+                <form action="{$smarty.const.__CONTROLLER__}/checkUserPwd" class="form-horizontal" role="form">
                     <div class="form-group">
-                        <input class="form-control placeholder-no-fix" type="text" autocomplete="off"
-                               placeholder="Email" name="email"/></div>
-                    <div class="form-actions">
-                        <button type="button" id="back-btn" class="btn grey btn-default">Back</button>
-                        <button type="submit" class="btn blue btn-success uppercase pull-right">Submit</button>
+                        <label class="col-sm-2 control-label">用户名</label>
+                        <div class="col-sm-10">
+                            <input class="form-control form-control-solid" type="text" placeholder="" name="username" /></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">密码</label>
+                        <div class="col-sm-10">
+                            <input class="form-control form-control-solid" type="password" placeholder="" name="password" /></div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <div class="checkbox">
+                                <label>
+                                    <input name="remember" type="checkbox"> 请记住我
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <button type="submit" class="btn btn-default">登录</button>
+                        </div>
                     </div>
                 </form>
-                <!-- END FORGOT PASSWORD FORM -->
             </div>
             <div class="login-footer">
                 <div class="row bs-reset">
                     <div class="col-xs-4 bs-reset">
-                        <ul class="login-social">
-                            <li>
-                                <a href="javascript:;">
-                                    <i class="icon-social-facebook"></i>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="javascript:;">
-                                    <i class="icon-social-twitter"></i>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="javascript:;">
-                                    <i class="icon-social-dribbble"></i>
-                                </a>
-                            </li>
-                        </ul>
                     </div>
                     <div class="col-xs-8 bs-reset">
                         <div class="login-copyright text-right">
-                            <p>Copyright &copy; Keenthemes 2015</p>
+
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6 bs-reset">
-            <div class="login-bg"></div>
-        </div>
     </div>
 </div>
-
-</body>
-</html>
+{/block}

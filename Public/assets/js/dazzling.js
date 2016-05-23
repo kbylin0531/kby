@@ -20,16 +20,10 @@ dazz.ready(function () {
         var thishtml = $('html');
         var thisbody = thishtml.children("body");
 
+
         //Conponents on page
-        var page = {
-            setTitle:function (title) {
-                $("title").text(title);
-            },
-            setLogo:function (logoText) {
-                $(".text-logo").html(logoText);
-            },
-            //attributs
-            header: {
+        var page = (function () {
+            var header = {
                 header: null ,
                 header_menu:null,
                 getHeader:function () {
@@ -213,17 +207,8 @@ dazz.ready(function () {
                         });
                     }
                 }
-            },
-            content: {
-                content:null,
-                getContent:function () {
-                    if(!this.content) this.content = $('.page-content');
-                    return this.content;
-                }
-            },
-
-            //operate the sidebar status
-            sidebar: {
+            };
+            var sidebar = {
                 sidebar: null ,
                 sidebar_menu: null,
                 getSidebar:function(){
@@ -384,72 +369,98 @@ dazz.ready(function () {
                         return false;
                     }
                 }
-            },
-
-            footer: {
-                footer:null,
-                getFooter:function(){
-                    if(!this.footer) this.footer = $('.page-footer');
-                    if(!this.footer.length) throw "footer not found ";
-                    return this.footer;
-                },
-                setCopyright:function (copyright) {
-                    this.getFooter().find(".page-copyright").html(copyright);
+            };
+            var adjustHeight = function () {
+                var height = dazz.context.getViewPort().height;
+                var target = arguments[0];
+                for(var i = 1 ; i < arguments.length;i++){
+                    var element = arguments[i];
+                    element = GenKits.toJquery(element);
+                    height -= element.outerHeight();
+                    console.log(height)
                 }
-            },
+                target.css('min-height' , height + 'px');
+            };
 
-            behavior:{
-                autoContentHeight: function () {
-                    var content = $('.page-content');
-                    var height;
-                    var headerHeight = page.header.getHeader().outerHeight();
-                    var footer = page.footer.getFooter();
-                    var footerHeight = footer.outerHeight();
-                    var viewport = dazz.context.getViewPort();
-                    height = viewport.height - headerHeight - footerHeight;
-                    // console.log(content,height)
-                    content.css('min-height' , height + 'px');
-                }
-            },
-
-            //handle the element size change while window resized
-            resizer:{
-                handlers:[],
-                push:function (handler) {
-                    this.handlers.push(handler);
+// console.log(adjustHeight)
+            return {
+                setTitle:function (title) {
+                    $("title").text(title);
                 },
-                exec:function (index) {
-                    if(undefined === index) {
-                        for (var i = 0; i < this.handlers.length; i++)  this.handlers[i].call();//执行调整函数
-                    }else{
-                        if((index >= 0) && (index <this.handlers.length)){
-                            this.handlers[index].call();
+                setLogo:function (logoText) {
+                    $(".text-logo").html(logoText);
+                },
+                //attributs
+                header: header,
+                content: {
+                    content:null,
+                    getContent:function () {
+                        if(!this.content) this.content = $('.page-content');
+                        return this.content;
+                    }
+                },
+
+                //operate the sidebar status
+                sidebar: sidebar,
+
+                footer: {
+                    footer:null,
+                    getFooter:function(){
+                        if(!this.footer) this.footer = $('.page-footer');
+                        if(!this.footer.length) throw "footer not found ";
+                        return this.footer;
+                    },
+                    setCopyright:function (copyright) {
+                        this.getFooter().find(".page-copyright").html(copyright);
+                    }
+                },
+
+                behavior:{
+                    adjustHeight:adjustHeight,
+                    autoContentHeight: function () {
+                        adjustHeight($('.page-content'),page.header.getHeader(),page.footer.getFooter());
+                    }
+                },
+
+                //handle the element size change while window resized
+                resizer:{
+                    handlers:[],
+                    push:function (handler) {
+                        this.handlers.push(handler);
+                    },
+                    exec:function (index) {
+                        if(undefined === index) {
+                            for (var i = 0; i < this.handlers.length; i++)  this.handlers[i].call();//执行调整函数
+                        }else{
+                            if((index >= 0) && (index <this.handlers.length)){
+                                this.handlers[index].call();
+                            }
                         }
                     }
-                }
-            },
+                },
 
-            init: function (selector) {
-                if (undefined === selector) selector = '.page-toolbar .dropdown-menu';//默认的选择器
-                !this.page_action_list && (this.page_action_list = GenKits.toJquery(selector));
-            },
-            page_action_list: null,
-            //注册操作:操作名称,点击时候的回调函数
-            registerAction: function (actionName, callback, icon) {
-                !this.page_action_list && (this.page_action_list = $('.page-toolbar .dropdown-menu'));
-                this.init();
-                var li = $("<li></li>");
-                var a;
-                if (icon) {
-                    a = $('<a href="javascript:void(0);" id="la_' + dazz.utils.guid() + '"><i class="' + icon + '"></i> ' + actionName + '</a>');
-                } else {
-                    a = $('<a href="javascript:void(0);" id="la_' + dazz.utils.guid() + '"> ' + actionName + '</a>');
-                }
-                this.page_action_list.append(li.append(a));
-                a.click(callback);
-            },
-            DataManager: {}
-        };
+                init: function (selector) {
+                    if (undefined === selector) selector = '.page-toolbar .dropdown-menu';//默认的选择器
+                    !this.page_action_list && (this.page_action_list = GenKits.toJquery(selector));
+                },
+                page_action_list: null,
+                //注册操作:操作名称,点击时候的回调函数
+                registerAction: function (actionName, callback, icon) {
+                    !this.page_action_list && (this.page_action_list = $('.page-toolbar .dropdown-menu'));
+                    this.init();
+                    var li = $("<li></li>");
+                    var a;
+                    if (icon) {
+                        a = $('<a href="javascript:void(0);" id="la_' + dazz.utils.guid() + '"><i class="' + icon + '"></i> ' + actionName + '</a>');
+                    } else {
+                        a = $('<a href="javascript:void(0);" id="la_' + dazz.utils.guid() + '"> ' + actionName + '</a>');
+                    }
+                    this.page_action_list.append(li.append(a));
+                    a.click(callback);
+                },
+                DataManager: {}
+            };
+        })();
 
         //do some compatibility relatid work
         (function () {
@@ -748,6 +759,7 @@ dazz.ready(function () {
                     return ('href' in item) && item['href'].indexOf(compval) >= 0;
                 });
                 // console.log(pageinfo,path,value);
+                console.log(pageinfo['sidebar_menu'],path)
                 var target = page.sidebar.getSidebarMenu().find("[data-id="+value[1]['id']+"]");
                 // console.log(target);
                 target.parents('li.nav-item').addClass("active");

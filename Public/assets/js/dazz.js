@@ -34,6 +34,23 @@ window.dazz = (function () {
         };
     }
 
+    if (!String.prototype.trim){
+        String.prototype.trim=function()    {
+            return this.replace(/(^\s*)|(\s*$)/g,'');
+        };
+    }
+    if (!String.prototype.ltrim){
+        String.prototype.ltrim=function()    {
+            return this.replace(/(^\s*)/g,'');
+        };
+    }
+    if (!String.prototype.rtrim){
+        String.prototype.rtrim=function()    {
+            return this.replace(/(\s*$)/g,'');
+        };
+    }
+
+
     Object.dazz = (function () {
         return {};
     })();
@@ -114,6 +131,17 @@ window.dazz = (function () {
     //上下文环境相关的信息
     var context = {
         /**
+         * get the hash of uri
+         * @returns {string}
+         */
+        getHash:function () {
+            if(!location.hash) return "";
+            var hash = location.hash;
+            var index = hash.indexOf('#');
+            if(index >= 0) hash = hash.substring(index+1);
+            return ""+hash;
+        },
+        /**
          * get script path
          * there are some diffrence between domain access(virtual machine) and ip access of href
          * domian   :http://192.168.1.29:8085/edu/Public/admin.php/Admin/System/Menu/PageManagement#dsds
@@ -146,7 +174,18 @@ window.dazz = (function () {
             index = path.indexOf("#");
             if(index >= 0) path = path.substring(0,index);
             // console.log(index,location.pathname,path);
-            return path;
+            //trim '/'
+            var startindex = 0;
+            for(var i = 0 ; i < path.length; i ++){
+                if(path[i] === '/' || path[i] === ' '){
+                    startindex ++;
+                    continue;
+                }else{
+                    break;
+                }
+            }
+
+            return "/"+path.substring(startindex);
         },
         //获得可视区域的大小
         getViewPort:function () {
