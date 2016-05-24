@@ -20,7 +20,7 @@ use System\Core\Storage;
 class File implements ConfigInterface {
 
     protected $convention = [
-        'CUSTOM_CONF_PATH'  => RUNTIME_PATH.'Config/', // 用户自定义配置目录
+        'CUSTOM_CONF_PATH'  => KL_RUNTIME_PATH.'Config/', // 用户自定义配置目录
     ];
 
     /**
@@ -28,7 +28,7 @@ class File implements ConfigInterface {
      * @return bool
      */
     public function available(){
-        return is_readable(RUNTIME_PATH) and is_writable(RUNTIME_PATH);
+        return is_readable(KL_RUNTIME_PATH) and is_writable(KL_RUNTIME_PATH);
     }
 
     /**

@@ -26,11 +26,10 @@ class KbylinException extends \Exception{
             $this->message = var_export($args,true);
 
             if(DEBUG_MODE_ON){
-                $place = SEK::getCallPlace(true,SEK::CALL_PLACE_FORWARD);
+                $place = SEK::getCallPlace(true,SEK::CALL_PLACE_FURTHER_FORWARD);
                 dumpout($place,$args);
             }
         }
-
     }
 
     /**
@@ -91,7 +90,7 @@ class KbylinException extends \Exception{
      * @return void
      */
     public static function handleError($errno,$errstr,$errfile,$errline){
-        IS_AJAX and Response::failed([$errno,$errstr,$errfile,$errline]);
+        KL_IS_AJAX and Response::failed([$errno,$errstr,$errfile,$errline]);
 
         //错误信息
         if(!is_string($errstr)) $errstr = serialize($errstr);
@@ -119,7 +118,7 @@ class KbylinException extends \Exception{
      * @return void
      */
     public static function handleException(\Exception $e){
-        IS_AJAX and Response::failed($e->getMessage());
+        KL_IS_AJAX and Response::failed($e->getMessage());
 
         Response::cleanOutput();
 //        $trace = $e->getTrace();

@@ -185,10 +185,10 @@ class CommonAction extends Action {
         header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 
         //150723自定义两个预定义常量
-        define('IS_POST',       $_SERVER['REQUEST_METHOD'] =='POST' ? true : false);
-        define('IS_AJAX', (isset($_SERVER["HTTP_X_REQUESTED_WITH"]) &&
+        defined('IS_POST') or define('IS_POST',       $_SERVER['REQUEST_METHOD'] =='POST' ? true : false);
+        defined('IS_AJAX') or define('IS_AJAX', (isset($_SERVER["HTTP_X_REQUESTED_WITH"]) &&
             strtolower($_SERVER["HTTP_X_REQUESTED_WITH"])=="xmlhttprequest"));
-        define('REQTAG',       isset($_REQUEST['reqtag'])?trim($_REQUEST['reqtag']):NULL);
+        defined('REQTAG') or  define('REQTAG',       isset($_REQUEST['reqtag'])?trim($_REQUEST['reqtag']):NULL);
         $this->assign('user_info',$_SESSION['S_USER_INFO']);
 //mist($_SESSION['S_USER_INFO']);
     }

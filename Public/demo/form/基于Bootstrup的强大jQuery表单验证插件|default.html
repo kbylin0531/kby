@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>基于Bootstrup的强大jQuery表单验证插件|default</title>
+	<!-- Include the FontAwesome CSS if you want to use feedback icons provided by FontAwesome -->
+    <link rel="stylesheet" href="default_files/font-awesome.css">
+    <link rel="stylesheet" href="default_files/bootstrap.css">
+    <link rel="stylesheet" href="default_files/formValidation.css">
+	<link rel="stylesheet" type="text/css" href="default_files/default.css">
+	<!--[if IE]>
+		<script src="http://libs.useso.com/js/html5shiv/3.7/html5shiv.min.js"></script>
+	<![endif]-->
+</head>
+<body>
+	<div class="jq22-sidebar">
+		<ul>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/index.html" class="current">default</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/validators.html">validators</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/ajaxSubmit.html">ajaxSubmit</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/attribute.html">attribute</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/choice.html">choice</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/collapse.html">collapse</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container.html">container</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container2.html">container2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container3.html">container3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container4.html">container4</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/date.html">date</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/defaultMessage.html">defaultMessage</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic.html">dynamic</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic2.html">dynamic2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic3.html">dynamic3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic4.html">dynamic4</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/enable.html">enable</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/enable2.html">enable2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event.html">event</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event2.html">event2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event3.html">event3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/file.html">file</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/html5.html">html5</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/i18n.html">i18n</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/ignored.html">ignored</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/invisible.html">invisible</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/mailgun.html">mailgun</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/message.html">message</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/multiple.html">multiple</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/multipleAsOne.html">multipleAsOne</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/remote.html">remote</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/reset.html">reset</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/row.html">row</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/selector.html">selector</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/selector2.html">selector2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/specialName.html">specialName</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/submitHandler.html">submitHandler</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/tab.html">tab</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/tooltip.html">tooltip</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/typehead.html">typehead</a></li>
+		</ul>
+	</div>
+	<div class="jq22-container">
+		<header class="jq22-header bgcolor-1">
+			<h1>基于Bootstrup的强大jQuery表单验证插件 <span>The best jQuery plugin to validate form fields</span></h1>
+			
+		</header>
+
+		<div class="container">
+	        <div class="row">
+	            <div class="col-sm-8 col-sm-offset-2">
+	                <div class="page-header">
+	                    <h2>Bootstrap Form</h2>
+	                </div>
+
+	                <form novalidate="novalidate" id="defaultForm" method="post" class="form-horizontal fv-form fv-form-bootstrap" action="target.php"><button style="display: none; width: 0px; height: 0px;" class="fv-hidden-submit" type="submit"></button>
+	                    <div class="form-group">
+	                        <label class="col-sm-3 control-label">Full name</label>
+	                        <div class="col-sm-4 has-feedback">
+	                            <input data-fv-field="firstName" class="form-control" name="firstName" placeholder="First name" type="text"><i data-fv-icon-for="firstName" class="form-control-feedback fv-icon-no-label" style="display: none;"></i>
+	                        <small data-fv-result="NOT_VALIDATED" data-fv-for="firstName" data-fv-validator="notEmpty" class="help-block" style="display: none;">The first name is required</small></div>
+	                        <div class="col-sm-4 has-feedback">
+	                            <input data-fv-field="lastName" class="form-control" name="lastName" placeholder="Last name" type="text"><i data-fv-icon-for="lastName" class="form-control-feedback fv-icon-no-label" style="display: none;"></i>
+	                        <small data-fv-result="NOT_VALIDATED" data-fv-for="lastName" data-fv-validator="notEmpty" class="help-block" style="display: none;">The last name is required</small></div>
+	                    </div>
+
+	                    <div class="form-group has-feedback">
+	                        <label class="col-sm-3 control-label">Username</label>
+	                        <div class="col-sm-5">
+	                            <input data-fv-field="username" class="form-control" name="username" type="text"><i data-fv-icon-for="username" class="form-control-feedback" style="display: none;"></i>
+	                        <small data-fv-result="NOT_VALIDATED" data-fv-for="username" data-fv-validator="notEmpty" class="help-block" style="display: none;">用户名必须设置</small><small data-fv-result="NOT_VALIDATED" data-fv-for="username" data-fv-validator="stringLength" class="help-block" style="display: none;">用户名必须在6-30个字符之间</small><small data-fv-result="NOT_VALIDATED" data-fv-for="username" data-fv-validator="regexp" class="help-block" style="display: none;">The username can only consist of alphabetical, number, dot and underscore</small></div>
+	                    </div>
+
+	                    <div class="form-group has-feedback">
+	                        <label class="col-sm-3 control-label">Email address</label>
+	                        <div class="col-sm-5">
+	                            <input data-fv-field="email" class="form-control" name="email" type="text"><i data-fv-icon-for="email" class="form-control-feedback" style="display: none;"></i>
+	                        <small data-fv-result="NOT_VALIDATED" data-fv-for="email" data-fv-validator="notEmpty" class="help-block" style="display: none;">电子邮件不能为空</small><small data-fv-result="NOT_VALIDATED" data-fv-for="email" data-fv-validator="emailAddress" class="help-block" style="display: none;">请输入有效的电子邮件地址</small></div>
+	                    </div>
+
+	                    <div class="form-group has-feedback">
+	                        <label class="col-sm-3 control-label">Password</label>
+	                        <div class="col-sm-5">
+	                            <input data-fv-field="password" class="form-control" name="password" type="password"><i data-fv-icon-for="password" class="form-control-feedback" style="display: none;"></i>
+	                        <small data-fv-result="NOT_VALIDATED" data-fv-for="password" data-fv-validator="notEmpty" class="help-block" style="display: none;">密码不能为空</small><small data-fv-result="NOT_VALIDATED" data-fv-for="password" data-fv-validator="different" class="help-block" style="display: none;">密码不能和用户名相同</small></div>
+	                    </div>
+
+	                    <div class="form-group has-feedback">
+	                        <label class="col-sm-3 control-label">Gender</label>
+	                        <div class="col-sm-6">
+	                            <div class="radio">
+	                                <label>
+	                                    <input data-fv-field="gender" name="gender" value="male" type="radio"> Male
+	                                </label>
+	                            </div>
+	                            <div class="radio">
+	                                <label>
+	                                    <input data-fv-field="gender" name="gender" value="female" type="radio"> Female
+	                                </label>
+	                            </div>
+	                            <div class="radio">
+	                                <label>
+	                                    <input data-fv-field="gender" name="gender" value="other" type="radio"> Other
+	                                </label>
+	                            </div><i data-fv-icon-for="gender" class="form-control-feedback" style="display: none;"></i>
+	                        <small data-fv-result="NOT_VALIDATED" data-fv-for="gender" data-fv-validator="notEmpty" class="help-block" style="display: none;">必须选择一个性别</small></div>
+	                    </div>
+
+	                    <div class="form-group has-feedback">
+	                        <label class="col-sm-3 control-label" id="captchaOperation">32 + 8 =</label>
+	                        <div class="col-sm-2">
+	                            <input data-fv-field="captcha" class="form-control" name="captcha" type="text"><i data-fv-icon-for="captcha" class="form-control-feedback" style="display: none;"></i>
+	                        <small data-fv-result="NOT_VALIDATED" data-fv-for="captcha" data-fv-validator="callback" class="help-block" style="display: none;">Wrong answer</small></div>
+	                    </div>
+
+	                    <div class="form-group has-feedback">
+	                        <div class="col-sm-6 col-sm-offset-3">
+	                            <div class="checkbox">
+	                                <label>
+	                                    <input data-fv-field="agree" name="agree" value="agree" type="checkbox"> Agree with the terms and conditions
+	                                </label>
+	                            </div><i data-fv-icon-for="agree" class="form-control-feedback" style="display: none;"></i>
+	                        <small data-fv-result="NOT_VALIDATED" data-fv-for="agree" data-fv-validator="notEmpty" class="help-block" style="display: none;">You must agree with the terms and conditions</small></div>
+	                    </div>
+
+	                    <div class="form-group">
+	                        <div class="col-sm-9 col-sm-offset-3">
+	                            <button type="submit" class="btn btn-primary" name="signup" value="Sign up">Submit</button>
+	                        </div>
+	                    </div>
+	                </form>
+	            </div>
+	        </div>
+	    </div>
+		
+	</div>
+	
+	<script type="text/javascript" src="default_files/jquery.js"></script>
+    <script type="text/javascript" src="default_files/bootstrap_002.js"></script>
+    <script type="text/javascript" src="default_files/formValidation.js"></script>
+    <script type="text/javascript" src="default_files/bootstrap.js"></script>
+    <script type="text/javascript" src="default_files/zh_CN.js"></script>
+    <script type="text/javascript">
+	$(document).ready(function() {
+	    // Generate a simple captcha
+	    function randomNumber(min, max) {
+	        return Math.floor(Math.random() * (max - min + 1) + min);
+	    };
+	    $('#captchaOperation').html([randomNumber(1, 100), '+', randomNumber(1, 200), '='].join(' '));
+
+	    $('#defaultForm').formValidation({
+	        message: 'This value is not valid',
+	        icon: {
+	            valid: 'glyphicon glyphicon-ok',
+	            invalid: 'glyphicon glyphicon-remove',
+	            validating: 'glyphicon glyphicon-refresh'
+	        },
+	        fields: {
+	            firstName: {
+	                row: '.col-sm-4',
+	                validators: {
+	                    notEmpty: {
+	                        message: 'The first name is required'
+	                    }
+	                }
+	            },
+	            lastName: {
+	                row: '.col-sm-4',
+	                validators: {
+	                    notEmpty: {
+	                        message: 'The last name is required'
+	                    }
+	                }
+	            },
+	            username: {
+	                message: 'The username is not valid',
+	                validators: {
+	                    notEmpty: {
+	                        message: '用户名必须设置'
+	                    },
+	                    stringLength: {
+	                        min: 6,
+	                        max: 30,
+	                        message: '用户名必须在6-30个字符之间'
+	                    },
+	                    regexp: {
+	                        regexp: /^[a-zA-Z0-9_\.]+$/,
+	                        message: 'The username can only consist of alphabetical, number, dot and underscore'
+	                    }
+	                }
+	            },
+	            email: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '电子邮件不能为空'
+	                    },
+	                    emailAddress: {
+	                        message: '请输入有效的电子邮件地址'
+	                    }
+	                }
+	            },
+	            password: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '密码不能为空'
+	                    },
+	                    different: {
+	                        field: 'username',
+	                        message: '密码不能和用户名相同'
+	                    }
+	                }
+	            },
+	            gender: {
+	                validators: {
+	                    notEmpty: {
+	                        message: '必须选择一个性别'
+	                    }
+	                }
+	            },
+	            captcha: {
+	                validators: {
+	                    callback: {
+	                        message: 'Wrong answer',
+	                        callback: function(value, validator, $field) {
+	                            var items = $('#captchaOperation').html().split(' '), sum = parseInt(items[0]) + parseInt(items[2]);
+	                            return value == sum;
+	                        }
+	                    }
+	                }
+	            },
+	            agree: {
+	                validators: {
+	                    notEmpty: {
+	                        message: 'You must agree with the terms and conditions'
+	                    }
+	                }
+	            }
+	        }
+	    });
+	});
+	</script>
+
+</body></html>

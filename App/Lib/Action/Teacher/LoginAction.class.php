@@ -26,11 +26,10 @@ class LoginAction extends Action
         }
 
         $model = M("SqlsrvModel:");
-        $user = $model->sqlFind('select * from USERS LEFT OUTER JOIN TEACHERS on USERS.TEACHERNO = TEACHERS.TEACHERNO
+        $user = $model->sqlFind('select username,password,roles,* from USERS LEFT OUTER JOIN TEACHERS on USERS.TEACHERNO = TEACHERS.TEACHERNO
         		where USERNAME = ? and lock=?',array($_POST["userName"],0));
 
-        if($user)
-        {
+        if($user) {
         	$teacherNo=$user['TEACHERNO'];
         	$user_teacher = $model->sqlFind("SELECT T.SCHOOL,T.TGROUP FROM TEACHERS T WHERE T.TEACHERNO='$teacherNo'");
         	$user['SCHOOL'] = $user_teacher["SCHOOL"];
@@ -46,7 +45,7 @@ class LoginAction extends Action
             session("S_LOGIN_TYPE",1); //注册用户为教师
             session("S_USER_NAME", $user["username"]); //注册用户
             session("S_GUID",$guid); //注册GUID
-            session("S_ROLES", $user['ROLES']); //注册角色信息
+            session("S_ROLES", $user['roles']); //注册角色信息
             session("S_LOGIN_COUNT", 0);
             session("S_USER_INFO", $user);
             if(isset($GLOBALS["CAS_LOGIN"]) && $GLOBALS["CAS_LOGIN"]===true) session("S_CAS_LOGIN", true);

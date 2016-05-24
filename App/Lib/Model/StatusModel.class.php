@@ -577,7 +577,7 @@ INSERT INTO [REGISTRIES]
 ([INFOTYPE], [DATE], [FILENO], [REM],year,term,
  [STUDENTNO],[studentname], [major], [majoritem], [schoolname], [classname])
 SELECT
-:info ,:date, :fileno, :rem,:year,:term
+:info ,:date, :fileno, :rem,:year,:term,
 RTRIM(STUDENTS.STUDENTNO),
 RTRIM(STUDENTS.NAME),
 RTRIM(majorcode.NAME ),
@@ -612,7 +612,7 @@ WHERE STUDENTS.STUDENTNO = :studentno';
      * @param null $offset
      * @return array|string
      */
-    public function listRegisteries($studentno,$fileno,$infotype,$limit=null,$offset=null){
+    public function listRegisteries($studentno,$fileno,$infotype,$year=2015,$term=1,$limit=null,$offset=null){
         $fields = '
 r.recno,
 r.STUDENTNO as STUDENTNO,
@@ -621,12 +621,15 @@ r.CLASSNAME,
 r.SCHOOLNAME,
 RTRIM(INFOTYPE.[NAME]) as INFOTYPEVALUE,
 r.FILENO as FILENO,
+r.REM as rem,
 CONVERT(VARCHAR(10),[DATE],20) as FILEDATE';
         $join = 'INNER JOIN INFOTYPE on INFOTYPE.CODE = r.infotype';
         $where = '
 RTRIM(r.STUDENTNO) like :studentno
 and RTRIM(r.FILENO) like :fileno
-and RTRIM(r.INFOTYPE) like :infotype';
+and RTRIM(r.INFOTYPE) like :infotype
+and r.year like :year
+and r.term like :term';
         $order = 'FILEDATE desc';
         return $this->getTableList(
             $this->makeCountSql('REGISTRIES r',array(
@@ -643,6 +646,8 @@ and RTRIM(r.INFOTYPE) like :infotype';
                 ':studentno'    => $studentno,
                 ':fileno'   => $fileno,
                 ':infotype'  => $infotype,
+                ':year'  => $year,
+                ':term'  => $term,
             )
         );
     }

@@ -20,7 +20,6 @@ use System\Core\KbylinException;
 const AJAX_JSON     = 0;
 const AJAX_XML      = 1;
 const AJAX_STRING   = 2;
-
 /**
  * PHP变量类型
  */
@@ -40,43 +39,41 @@ const TYPE_UNKNOWN  = 'unknown type';
 const MODE_RETURN = 0;
 const MODE_EXCEPTION = 1;
 
-function dump(){
-    $params = func_get_args();
-    $color='#';$str='9ABCDEF';//随机浅色背景
-    for($i=0;$i<6;$i++) $color=$color.$str[rand(0,strlen($str)-1)];
-    $traces = debug_backtrace();//0表示dump本身//如果是dumpout的内部调用,则1和2表现为call_user_func_array和dumpout,此时需要获取的是3开始的位置
-    if(!empty($traces[1]['function']) and !empty($traces[2]['function']) and
-        'call_user_func_array' === $traces[1]['function'] and 'dumpout' === $traces[2]['function']){
-        array_shift($traces);
-        array_shift($traces);
+if(!function_exists('dump')){
+    function dump(){
+        $params = func_get_args();
+        $color='#';$str='9ABCDEF';//随机浅色背景
+        for($i=0;$i<6;$i++) $color=$color.$str[rand(0,strlen($str)-1)];
+        $traces = debug_backtrace();//0表示dump本身//如果是dumpout的内部调用,则1和2表现为call_user_func_array和dumpout,此时需要获取的是3开始的位置
+        if(!empty($traces[1]['function']) and !empty($traces[2]['function']) and
+            'call_user_func_array' === $traces[1]['function'] and 'dumpout' === $traces[2]['function']){
+            array_shift($traces);
+            array_shift($traces);
+        }
+        echo "<pre style='background: {$color};width: 100%;'><h3 style='color: midnightblue'><b>File:</b>{$traces[0]['file']} << <b>Line:</b>{$traces[0]['line']} >> </h3>";
+        foreach ($params as $key=>$val) echo '<b>Param '.$key.':</b><br />'.var_export($val, true).'<br />';
+        echo '</pre>';
     }
-    echo "<pre style='background: {$color};width: 100%;'><h3 style='color: midnightblue'><b>File:</b>{$traces[0]['file']} << <b>Line:</b>{$traces[0]['line']} >> </h3>";
-    foreach ($params as $key=>$val) echo '<b>Param '.$key.':</b><br />'.var_export($val, true).'<br />';
-    echo '</pre>';
 }
-
-function dumpout(){
-    $params = func_get_args();
-    $color='#';$str='9ABCDEF';//随机浅色背景
-    for($i=0;$i<6;$i++) $color=$color.$str[rand(0,strlen($str)-1)];
-    $traces = debug_backtrace();//0表示dump本身//如果是dumpout的内部调用,则1和2表现为call_user_func_array和dumpout,此时需要获取的是3开始的位置
+if(!function_exists('dumpout')){
+    function dumpout(){
+        $params = func_get_args();
+        $color='#';$str='9ABCDEF';//随机浅色背景
+        for($i=0;$i<6;$i++) $color=$color.$str[rand(0,strlen($str)-1)];
+        $traces = debug_backtrace();//0表示dump本身//如果是dumpout的内部调用,则1和2表现为call_user_func_array和dumpout,此时需要获取的是3开始的位置
 //    array_shift($traces);
 //    echo "<pre>";var_dump($params,$traces );exit();
-    echo "<pre style='background: {$color};width: 100%;'><h3 style='color: midnightblue'><b>File:</b>{$traces[0]['file']} << <b>Line:</b>{$traces[0]['line']} >> </h3>";
-    foreach ($params as $key=>$val) echo '<b>Param '.$key.':</b><br />'.var_export($val, true).'<br />';
-    echo '</pre>';
-    exit();
+        echo "<pre style='background: {$color};width: 100%;'><h3 style='color: midnightblue'><b>File:</b>{$traces[0]['file']} << <b>Line:</b>{$traces[0]['line']} >> </h3>";
+        foreach ($params as $key=>$val) echo '<b>Param '.$key.':</b><br />'.var_export($val, true).'<br />';
+        echo '</pre>';
+        exit();
+    }
 }
-
-
 defined('DEBUG_MODE_ON') or define('DEBUG_MODE_ON', true); //是否开启DUBUG模式
-//defined('PAGE_TRACE_ON') or define('PAGE_TRACE_ON', true); //是否开启TRACE界面
-
 /**
  * Class Kbylin 白麟
  */
 final class Kbylin {
-
     /**
      * 应用名称
      * @var string
@@ -102,7 +99,7 @@ final class Kbylin {
 
         //函数包列表
         'FUNC_PACK_LIST'    => [],
-        'FUNC_PATH'         => 'Func/',//相对于BASE_PATH
+        'FUNC_PATH'         => 'Func/',//相对于KL_BASE_PATH
 
         'REQUEST_PARAM_NAME'    => '_KBYLIN_',
     ];
@@ -154,14 +151,14 @@ final class Kbylin {
         self::recordStatus('construct_begin');
         version_compare(PHP_VERSION,'5.4.0','<') and die('Require PHP >= 5.4 !');
         null !== $appname and $this->appname = $appname;
-        $this->init($config);
+        $config and $this->init($config);
     }
 
     /**
      * 初始化应用程序
      * 注意：这个过程中不可以调用其它类，真正的类加载过程是在start应用开始
      * @param array $config
-     * @return void
+     * @return $this
      */
     public function init(array $config=null){
         self::recordStatus('init_begin');
@@ -180,25 +177,27 @@ final class Kbylin {
         }
 
         //目录常量
-        define('BASE_PATH',str_replace('\\','/',dirname(__DIR__)).'/');
-        define('SYSTEM_PATH',BASE_PATH.$this->_convention['SYSTEM_DIR']);
-        define('APP_PATH',BASE_PATH.$this->_convention['APP_DIR']);
-        define('CONFIG_PATH',BASE_PATH.$this->_convention['CONFIG_DIR']);
-        define('RUNTIME_PATH',BASE_PATH.$this->_convention['RUNTIME_DIR']);
-        define('PUBLIC_PATH',BASE_PATH.$this->_convention['PUBLIC_DIR']);
-        define('UPLOAD_PATH',BASE_PATH.$this->_convention['UPLOAD_DIR']);
+        define('KL_BASE_PATH',str_replace('\\','/',dirname(__DIR__)).'/');
+        define('KL_SYSTEM_PATH',KL_BASE_PATH.$this->_convention['SYSTEM_DIR']);
+        define('KL_APP_PATH',KL_BASE_PATH.$this->_convention['APP_DIR']);
+        define('KL_CONFIG_PATH',KL_BASE_PATH.$this->_convention['CONFIG_DIR']);
+        define('KL_RUNTIME_PATH',KL_BASE_PATH.$this->_convention['RUNTIME_DIR']);
+        define('KL_PUBLIC_PATH',KL_BASE_PATH.$this->_convention['PUBLIC_DIR']);
+        define('UPLOAD_PATH',KL_BASE_PATH.$this->_convention['UPLOAD_DIR']);
 
         //布尔常量
-        define('IS_WIN',false !== stripos(PHP_OS, 'WIN')); //运行环境
-        define('IS_CLI', PHP_SAPI === 'cli');
-        define('IS_AJAX', ((isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') ));
-        define('IS_POST',strtoupper($_SERVER['REQUEST_METHOD']) === 'POST');
+        define('KL_IS_WIN',false !== stripos(PHP_OS, 'WIN')); //运行环境
+        define('KL_IS_CLI', PHP_SAPI === 'cli');
+        define('KL_IS_AJAX', ((isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') ));
+        define('KL_IS_POST',strtoupper($_SERVER['REQUEST_METHOD']) === 'POST');
         //其他常量
-        define('APP_NAME',$this->appname);
+        define('KL_APP_NAME',$this->appname);
+
+        //uri constant
         $script = dirname($_SERVER['SCRIPT_NAME']);
-        IS_WIN and $script = str_replace('\\', '/', $script);
+        KL_IS_WIN and $script = str_replace('\\', '/', $script);
         define('BASE_URI',rtrim($script,'/\\').'/');
-        define('PUBLIC_URI',BASE_URI);//.$this->_convention['PUBLIC_DIR']
+        defined('PUBLIC_URI') or define('PUBLIC_URI',BASE_URI);//.$this->_convention['PUBLIC_DIR']
 
 //        dumpout($_SERVER['SCRIPT_NAME'],PUBLIC_URI,BASE_URI,$this->_convention['PUBLIC_DIR']);
 
@@ -206,30 +205,11 @@ final class Kbylin {
         //错误显示和隐藏
         error_reporting(DEBUG_MODE_ON?-1:E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT & ~E_USER_NOTICE & ~E_USER_DEPRECATED);//PHP5.3一下需要用这段 “error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT & ~E_USER_NOTICE);”
         ini_set('display_errors',DEBUG_MODE_ON?1:0);
-        //其他行为
-        false === spl_autoload_register(isset($this->_convention['CLASS_LOADER'])?
-            $this->_convention['CLASS_LOADER']:[$this,'_autoLoad']) and die('spl autoload register failed!');
-        set_error_handler(isset($this->_convention['ERROR_HANDLER'])?$this->_convention['EXCEPTION_HANDLER']:
-            [KbylinException::class,'handleError']) ;
-        set_exception_handler(isset($this->_convention['EXCEPTION_HANDLER'])?$this->_convention['EXCEPTION_HANDLER']:
-            [KbylinException::class,'handleException']);
-        register_shutdown_function([$this,'_onShutDown']);
-
-//        true and KbylinException::throwing(1,2,3);
-
-//        exit();//到此为止加载了SEK和KbylinException类
-        self::recordStatus('funcpack_load_begin');
-        include SYSTEM_PATH.'Common/functions.php'; // 加载系统函数包
-        if($this->_convention['FUNC_PACK_LIST']){
-            foreach($this->_convention['FUNC_PACK_LIST'] as $packname){
-                $filename = BASE_PATH.$this->_convention['FUNC_PATH']."{$packname}.php";
-                if(is_file($filename)) include $filename;//使用include代替include_once提高效率
-            }
-        }
 
 //        dumpout(BASE_URI,PUBLIC_URI);
 
         $this->_inited = true;
+        return $this;
     }
 
     /**
@@ -252,7 +232,7 @@ final class Kbylin {
     public function liten($on=false){
         if($on){
             $this->_liteon = true;
-            define('LITE_FILE_NAME',RUNTIME_PATH.APP_NAME.'.lite.php');//运行时核心文件
+            define('LITE_FILE_NAME',KL_RUNTIME_PATH.KL_APP_NAME.'.lite.php');//运行时核心文件
             //考虑到云服务器上lite文件直接使用is_file判断和包含，需要手动上传
             self::recordStatus('load_lite_begin');
             if(is_file(LITE_FILE_NAME))  include LITE_FILE_NAME;//代替include文件，拥有更好的适应性？
@@ -261,12 +241,40 @@ final class Kbylin {
         return $this;
     }
 
+
+    public function registerAutoloader(callable $loader = null){
+        false === spl_autoload_register(is_callable($loader)?$loader:[$this,'_autoLoad']) and die('spl autoload register failed!');
+    }
+
     /**
      * 开启应用
      */
     public function start(){
         //检查初始化情况(即直接new)
         $this->_inited or $this->init();
+
+        //其他行为
+//        false === spl_autoload_register(isset($this->_convention['CLASS_LOADER'])?
+//            $this->_convention['CLASS_LOADER']:[$this,'_autoLoad']) and die('spl autoload register failed!');
+        $this->registerAutoloader($this->_convention['CLASS_LOADER']);
+        set_error_handler(isset($this->_convention['ERROR_HANDLER'])?$this->_convention['EXCEPTION_HANDLER']:
+            [KbylinException::class,'handleError']) ;
+        set_exception_handler(isset($this->_convention['EXCEPTION_HANDLER'])?$this->_convention['EXCEPTION_HANDLER']:
+            [KbylinException::class,'handleException']);
+        register_shutdown_function([$this,'_onShutDown']);
+
+//        true and KbylinException::throwing(1,2,3);
+
+//        exit();//到此为止加载了SEK和KbylinException类
+        self::recordStatus('funcpack_load_begin');
+        include KL_SYSTEM_PATH.'Common/functions.php'; // 加载系统函数包
+        if($this->_convention['FUNC_PACK_LIST']){
+            foreach($this->_convention['FUNC_PACK_LIST'] as $packname){
+                $filename = KL_BASE_PATH.$this->_convention['FUNC_PATH']."{$packname}.php";
+                if(is_file($filename)) include $filename;//使用include代替include_once提高效率
+            }
+        }
+
         self::recordStatus('app_begin');
 
         $uri = Network::getUri(true);
@@ -292,7 +300,7 @@ final class Kbylin {
 
     public function test(){
         $this->_inited or $this->init();
-        require SYSTEM_PATH.'Test/index.php';
+        require KL_SYSTEM_PATH.'Test/index.php';
         exit();
     }
 
@@ -301,7 +309,7 @@ final class Kbylin {
      */
     public function _onShutDown(){
         self::recordStatus("_xor_exec_shutdown");
-        if(DEBUG_MODE_ON and !IS_AJAX){
+        if(DEBUG_MODE_ON and !KL_IS_AJAX){
              SEK::showTrace(self::$_status,6);//页面跟踪信息显示
         }
 
@@ -325,7 +333,7 @@ final class Kbylin {
         }else{
             $pos = strpos($clsnm,'\\');
             if(false === $pos){
-                $file = BASE_PATH . "{$clsnm}.class.php";
+                $file = KL_BASE_PATH . "{$clsnm}.class.php";
                 if(is_file($file)) include_once $file;
             }else{
                 $path = $this->fetchPathByFullname($clsnm);
@@ -343,8 +351,8 @@ final class Kbylin {
      */
     public function fetchPathByFullname($classname){
         if(!isset($this->_classes[$classname])){
-            $this->_classes[$classname] = BASE_PATH.str_replace('\\', '/', $classname).'.class.php';
-            IS_WIN and $this->_classes[$classname] = str_replace('/', '\\', realpath($this->_classes[$classname]));
+            $this->_classes[$classname] = KL_BASE_PATH.str_replace('\\', '/', $classname).'.class.php';
+            KL_IS_WIN and $this->_classes[$classname] = str_replace('/', '\\', realpath($this->_classes[$classname]));
         }
         return $this->_classes[$classname];
     }

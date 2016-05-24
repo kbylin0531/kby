@@ -49,6 +49,15 @@
                 <label for="ES_GRADE">年级:</label><select name="grade" id="ES_GRADE" class="ES_GRADE s"></select>
                 <label for="school_input">学部:</label><select name="schoolno" id="school_input" class="ES_SCHOOL s"></select>
                 <label for="ES_CLASS">班级:</label><select name="classno" id="ES_CLASS" class="ES_CLASS s"></select>
+
+
+                <label for="approach">修课方式:</label>
+                <select name="approach" id="approach">
+                    <option value="%">全部</option>
+                    <option value="M">必修</option>
+                    <option value="E">选修</option>
+                </select>
+
                 <label for="teacherno_input">教师名称:</label><input size="5" name="teachername" value="%" id="teacherno_input" />
                 <label for="courseno_input">课程名称:</label><input size="5" name="coursename" value="%" id="courseno_input" />
 
@@ -71,10 +80,10 @@
                         <th data-options="field:'courseno',width:100" align="center">课号</th>
                         <th data-options="field:'coursename',width:100" align="center">课程名称</th>
                         <th data-options="field:'teachername',width:100" align="center">任课教师</th>
-                        <th data-options="field:'schoolname',width:100" align="center">课程所属学部</th>
+                        <th data-options="field:'coursetypename',width:100" align="center">课程类型</th>
                         <th data-options="field:'schoolno',width:100,hidden:true" align="center">学部编号</th>
                         <th data-options="field:'score_type',width:100,formatter:scoreTypeFormatter" align="center">分制</th>
-                        <th data-options="field:'num',width:100" align="center">选课人数</th>
+                        <th data-options="field:'num',width:100" align="center">已初始化人数</th>
                         <th  align="center" data-options="field:'midterm_lock',width:100">期中锁定人数</th>
                         <th  align="center" data-options="field:'finals_lock',width:100">期末锁定人数</th>
                         <th  align="center" data-options="field:'resit_lock',width:100">补考锁定人数</th>

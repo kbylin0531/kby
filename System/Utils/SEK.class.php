@@ -67,8 +67,8 @@ final class SEK {
     public static function loadTemplate($tplname,$vars=null,$clean=true){
         $clean and Response::cleanOutput();
         if(is_array($vars)) extract($vars, EXTR_OVERWRITE);
-        $path = SYSTEM_PATH."Tpl/{$tplname}.php";
-        is_file($path) or $path = SYSTEM_PATH."Tpl/systemerror.php";
+        $path = KL_SYSTEM_PATH."Tpl/{$tplname}.php";
+        is_file($path) or $path = KL_SYSTEM_PATH."Tpl/systemerror.php";
         include $path;
     }
 
@@ -623,7 +623,7 @@ final class SEK {
         $path = rtrim($path,'/');
         $scope = rtrim($scope,'/');
 //        dumpout($path,$scope);
-        return (IS_WIN?stripos($path,$scope):strpos($path,$scope)) === 0;
+        return (KL_IS_WIN?stripos($path,$scope):strpos($path,$scope)) === 0;
     }
 
     /**

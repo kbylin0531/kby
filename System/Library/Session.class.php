@@ -72,7 +72,7 @@ class Session {
     private static $convention = [
         'SESSION_MODE'  => self::SESSION_MODE_FILE,//默认使用文件驱动
         'CACHE_EXPIRE'  => 180,//默认session到期时间
-        'SESSION_NAME'  => APP_NAME,//会话名称
+        'SESSION_NAME'  => KL_APP_NAME,//会话名称
 
         'SAVEPATH'      => null,//null表示不进行额外的设置，也可以是一个带权限的目录
         'LIMITER_TYPE'  => null,//不进行修改缓存策略

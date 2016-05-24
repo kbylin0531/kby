@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>基于Bootstrup的强大jQuery表单验证插件|dynamic4</title>
+	<!-- Include the FontAwesome CSS if you want to use feedback icons provided by FontAwesome -->
+    <link rel="stylesheet" href="dynamic4_files/font-awesome.css">
+    <link rel="stylesheet" href="dynamic4_files/bootstrap.css">
+    <link rel="stylesheet" href="dynamic4_files/formValidation.css">
+	<link rel="stylesheet" type="text/css" href="dynamic4_files/default.css">
+	<!--[if IE]>
+		<script src="http://libs.useso.com/js/html5shiv/3.7/html5shiv.min.js"></script>
+	<![endif]-->
+</head>
+<body>
+	<div class="jq22-sidebar">
+		<ul>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/index.html">default</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/validators.html">validators</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/ajaxSubmit.html">ajaxSubmit</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/attribute.html">attribute</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/choice.html">choice</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/collapse.html">collapse</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container.html">container</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container2.html">container2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container3.html">container3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container4.html">container4</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/date.html">date</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/defaultMessage.html">defaultMessage</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic.html">dynamic</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic2.html">dynamic2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic3.html">dynamic3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic4.html" class="current">dynamic4</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/enable.html">enable</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/enable2.html">enable2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event.html">event</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event2.html">event2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event3.html">event3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/file.html">file</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/html5.html">html5</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/i18n.html">i18n</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/ignored.html">ignored</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/invisible.html">invisible</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/mailgun.html">mailgun</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/message.html">message</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/multiple.html">multiple</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/multipleAsOne.html">multipleAsOne</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/remote.html">remote</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/reset.html">reset</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/row.html">row</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/selector.html">selector</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/selector2.html">selector2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/specialName.html">specialName</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/submitHandler.html">submitHandler</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/tab.html">tab</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/tooltip.html">tooltip</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/typehead.html">typehead</a></li>
+		</ul>
+	</div>
+	<div class="jq22-container">
+		<header class="jq22-header bgcolor-1">
+			<h1>基于Bootstrup的强大jQuery表单验证插件 <span>The best jQuery plugin to validate form fields</span></h1>
+			
+		</header>
+
+		<div class="container">
+		    <div class="row">
+		        <div class="col-lg-8 col-lg-offset-2">
+		            <div class="page-header">
+		                <h2>Dynamic fields</h2>
+		            </div>
+
+		            <form novalidate="novalidate" id="interviewForm" method="post" class="form-horizontal fv-form fv-form-bootstrap" action="target.php"><button style="display: none; width: 0px; height: 0px;" class="fv-hidden-submit" type="submit"></button>
+		                <div class="form-group has-feedback">
+		                    <label class="col-lg-3 control-label">Your name</label>
+		                    <div class="col-lg-5">
+		                        <input data-fv-field="name" class="form-control" name="name" type="text"><i data-fv-icon-for="name" class="form-control-feedback" style="display: none;"></i>
+		                    <small data-fv-result="NOT_VALIDATED" data-fv-for="name" data-fv-validator="notEmpty" class="help-block" style="display: none;">The name is required</small></div>
+		                </div>
+
+		                <div class="form-group">
+		                    <label class="col-lg-3 control-label">Topic</label>
+		                    <div class="col-lg-5">
+		                        <div class="checkbox">
+		                            <label>
+		                                <input name="topic[]" value="css" type="checkbox"> CSS
+		                            </label>
+		                        </div>
+		                        <div class="checkbox">
+		                            <label>
+		                                <input name="topic[]" value="javascript" type="checkbox"> Javascript
+		                            </label>
+		                        </div>
+		                    </div>
+		                </div>
+
+		                <div style="display: none;" data-topic="css">
+		                    <fieldset>
+		                        <legend>CSS</legend>
+		                        <p>Choose the frameworks that support responsive:</p>
+
+		                        <div class="form-group">
+		                            <div class="col-lg-offset-3 col-lg-5">
+		                                <div class="checkbox">
+		                                    <label>
+		                                        <input name="css_frameworks[]" value="Bootstrap" type="checkbox"> Bootstrap
+		                                    </label>
+		                                </div>
+		                                <div class="checkbox">
+		                                    <label>
+		                                        <input name="css_frameworks[]" value="Foundation" type="checkbox"> Foundation
+		                                    </label>
+		                                </div>
+		                                <div class="checkbox">
+		                                    <label>
+		                                        <input name="css_frameworks[]" value="Blueprint" type="checkbox"> Blueprint
+		                                    </label>
+		                                </div>
+		                                <div class="checkbox">
+		                                    <label>
+		                                        <input name="css_frameworks[]" value="960gs" type="checkbox"> 960 Grid System
+		                                    </label>
+		                                </div>
+		                                <div class="checkbox">
+		                                    <label>
+		                                        <input name="css_frameworks[]" value="Pure" type="checkbox"> Pure
+		                                    </label>
+		                                </div>
+		                                <div class="checkbox">
+		                                    <label>
+		                                        <input name="css_frameworks[]" value="YAML" type="checkbox"> YAML
+		                                    </label>
+		                                </div>
+		                            </div>
+		                        </div>
+		                    </fieldset>
+		                </div>
+
+		                <div style="display: none;" data-topic="javascript">
+		                    <fieldset>
+		                        <legend>Javascript</legend>
+		                        <p>Name 4 Javascript frameworks you have heard about</p>
+
+		                        <div class="form-group">
+		                            <div class="col-lg-offset-3 col-lg-5">
+		                                <input class="form-control" name="js_frameworks[]" type="text">
+		                            </div>
+		                        </div>
+		                        <div class="form-group">
+		                            <div class="col-lg-offset-3 col-lg-5">
+		                                <input class="form-control" name="js_frameworks[]" type="text">
+		                            </div>
+		                        </div>
+		                        <div class="form-group">
+		                            <div class="col-lg-offset-3 col-lg-5">
+		                                <input class="form-control" name="js_frameworks[]" type="text">
+		                            </div>
+		                        </div>
+		                        <div class="form-group">
+		                            <div class="col-lg-offset-3 col-lg-5">
+		                                <input class="form-control" name="js_frameworks[]" type="text">
+		                            </div>
+		                        </div>
+		                    </fieldset>
+		                </div>
+
+		                <div class="form-group">
+		                    <div class="col-lg-offset-3 col-lg-3">
+		                        <button type="submit" class="btn btn-primary">Submit</button>
+		                    </div>
+		                </div>
+		            </form>
+		        </div>
+		    </div>
+		</div>
+
+		
+	</div>
+	
+	<script type="text/javascript" src="dynamic4_files/jquery.js"></script>
+    <script type="text/javascript" src="dynamic4_files/bootstrap_002.js"></script>
+    <script type="text/javascript" src="dynamic4_files/formValidation.js"></script>
+    <script type="text/javascript" src="dynamic4_files/bootstrap.js"></script>
+    <script type="text/javascript" src="dynamic4_files/zh_CN.js"></script>
+    <script type="text/javascript">
+	$(document).ready(function() {
+        $('#interviewForm')
+            .formValidation({
+                message: 'This value is not valid',
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+                fields: {
+                    name: {
+                        validators: {
+                            notEmpty: {
+                                message: 'The name is required'
+                            }
+                        }
+                    }
+                }
+            })
+            .find('input[type="checkbox"][name="topic[]"]')
+                .on('change', function() {
+                    var topic      = $(this).val(),
+                        $container = $('[data-topic="' + topic + '"]');
+                    $container.toggle();
+
+                    var display = $container.css('display');
+                    switch (true) {
+                        case ('css' == topic && 'block' == display):
+                            $('#interviewForm').formValidation('addField', 'css_frameworks[]', {
+                                validators: {
+                                    notEmpty: {
+                                        message: 'Please choose at least 1 framework'
+                                    }
+                                }
+                            });
+                            break;
+                        case ('css' == topic && 'none' == display):
+                            $('#interviewForm').formValidation('removeField', 'css_frameworks[]');
+                            break;
+                        case ('javascript' == topic && 'block' == display):
+                            $('#interviewForm').formValidation('addField', 'js_frameworks[]', {
+                                validators: {
+                                    notEmpty: {
+                                        message: 'The name of framework is required'
+                                    }
+                                }
+                            });
+                            break;
+                        case ('javascript' == topic && 'none' == display):
+                            $('#interviewForm').formValidation('removeField', 'js_frameworks[]');
+                            break;
+                    }
+                });
+    });
+	</script>
+
+</body></html>

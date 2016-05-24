@@ -21,8 +21,8 @@ class View {
         ],
         'DRIVER_CONFIG_LIST' => [
             [
-                'SMARTY_DIR'        => SYSTEM_PATH.'Vendor/smarty3/libs/',
-                'TEMPLATE_CACHE_DIR'    => RUNTIME_PATH.'Template/',
+                'SMARTY_DIR'        => KL_SYSTEM_PATH.'Vendor/smarty3/libs/',
+                'TEMPLATE_CACHE_DIR'    => KL_RUNTIME_PATH.'Template/',
 
                 'SMARTY_CONF'       => [
                     //模板变量分割符号
@@ -98,7 +98,7 @@ class View {
     public static function fetchTemplatePath($context){
         $thisconvention = self::getConventions();
 
-        $path = APP_PATH."{$context['m']}/View/{$context['c']}/";
+        $path = KL_APP_PATH."{$context['m']}/View/{$context['c']}/";
         isset($context['t']) and $path = "{$path}{$context['t']}/";
 //        dumpout($thisconvention,$path,$context);
         $path = "{$path}{$context['a']}.{$thisconvention['TEMPLATE_SUFFIX']}";

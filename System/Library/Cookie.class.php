@@ -28,25 +28,12 @@ class Cookie {
     ];
 
     /**
-     * Cookie初始化
-     * @param array $config
-     * @return void
-     */
-    public static function init(array $config = [])
-    {
-        self::$_conventions[static::class] = array_merge(self::$_conventions[static::class], array_change_key_case($config));
-        if (!empty(self::$_conventions[static::class]['HTTPONLY'])) {
-            ini_set('session.cookie_httponly', 1);
-        }
-    }
-
-    /**
      * 设置或者获取cookie作用域（前缀）
      * @param string $prefix
      * @return string
      */
-    public static function prefix($prefix = null)
-    {
+    public static function prefix($prefix = null) {
+        self::checkInitialized();
         if (null === $prefix)   return self::$_conventions[static::class]['PREFIX'];
         return self::$_conventions[static::class]['PREFIX'] = $prefix;
     }
@@ -57,12 +44,10 @@ class Cookie {
      * @param string $name  cookie名称
      * @param mixed  $value cookie值
      * @param mixed  $option 可选参数 可能会是 null|integer|string
-     *
      * @return mixed
-     * @internal param mixed $options cookie参数
      */
-    public static function set($name, $value = '', $option = null)
-    {
+    public static function set($name, $value = '', $option = null){
+        self::checkInitialized();
         // 参数设置(会覆盖黙认设置)
         if (!is_null($option)) {
             if (is_numeric($option)) {
@@ -93,8 +78,9 @@ class Cookie {
      * @param string|null $prefix cookie前缀
      * @return mixed
      */
-    public static function get($name, $prefix = null)
-    {
+    public static function get($name, $prefix = null) {
+        self::checkInitialized();
+//        dumpout(self::$_conventions);
         $prefix = !is_null($prefix) ? $prefix : self::$_conventions[static::class]['PREFIX'];
         $name   = $prefix . $name;
         if (isset($_COOKIE[$name])) {
@@ -116,8 +102,8 @@ class Cookie {
      * @param string|null $prefix cookie前缀
      * @return mixed
      */
-    public static function delete($name, $prefix = null)
-    {
+    public static function delete($name, $prefix = null){
+        self::checkInitialized();
         $config = self::$_conventions[static::class];
         $prefix = !is_null($prefix) ? $prefix : $config['PREFIX'];
         $name   = $prefix . $name;
@@ -133,8 +119,8 @@ class Cookie {
      * @param string|null $prefix cookie前缀
      * @return mixed
      */
-    public static function clear($prefix = null)
-    {
+    public static function clear($prefix = null) {
+        self::checkInitialized();
         // 清除指定前缀的所有cookie
         if (empty($_COOKIE)) {
             return;

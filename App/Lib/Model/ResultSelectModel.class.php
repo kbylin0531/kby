@@ -171,7 +171,7 @@ cs.normal_score,
 cs.midterm_score,
 cs.finals_score,
 cs.general_score,
-cs.resit_score';
+case when CAST(cs.resit_score as VARCHAR(15)) >=60 then \'补考合格\' ELSE CAST(cs.resit_score as VARCHAR(15)) END as resit_score';
         $join = '
 INNER JOIN COURSES on cs.courseno = COURSES.COURSENO
 INNER JOIN COURSEPLAN cp on cp.[YEAR] = cs.[year] and cp.TERM = cs.term
@@ -387,7 +387,7 @@ LEFT OUTER JOIN (
 	where cs.[year] = :yearb and cs.term = :termb
 	GROUP BY  cs.studentno , cs.year ,cs.term
 ) as passedselections on  passedselections.studentno = st.STUDENTNO and passedselections.[year] = selections.[year] and passedselections.term = selections.term
-WHERE st.CLASSNO = :classno
+WHERE st.CLASSNO = :classno and st.STATUS = 'A'
 ORDER BY st.STUDENTNO";
         $bind = array(
             ':yeara' => $year,
@@ -418,7 +418,7 @@ t1.approach,
 CAST(normal_score as VARCHAR(15)) as normal_score,
 CAST(midterm_score as VARCHAR(15)) as midterm_score,
 CAST(finals_score as VARCHAR(15)) as finals_score,
-CAST(general_score as VARCHAR(15)) as general_score,
+case when CAST(resit_score as VARCHAR(15)) >=60 then '补考合格' ELSE CAST(general_score as VARCHAR(15)) END as general_score,
 t1.CLASSNO
 from
 (
@@ -433,6 +433,18 @@ credits,
 temp.approach
 from STUDENTS st
 inner JOIN (
+--SELECT DISTINCT
+--cp.[year],
+--cp.term,
+--cp.CLASSNO,
+--cp.courseno+cp.[group] as coursegroup,
+--RTRIM(cu.COURSENAME) as coursename,
+--cp.COURSETYPE as approach,
+--cp.CREDITS as credits
+--FROM COURSEPLAN cp
+--INNER JOIN COURSES cu ON cp.courseno = cu.COURSENO
+--where cp.[year] = :ya and cp.term = :ta and cp.CLASSNO = :ca and cp.COURSETYPE like :approach
+
 SELECT DISTINCT
 cs.[year],
 cs.term,
@@ -446,13 +458,14 @@ INNER JOIN COURSES cu ON cs.courseno = cu.COURSENO
 INNER JOIN COURSEPLAN cp on cs.courseno = cp.COURSENO and cs.[group] = cp.[GROUP] AND cs.year = cp.[YEAR] and cs.term = cp.TERM
 INNER JOIN STUDENTS on cs.studentno = STUDENTS.STUDENTNO
 INNER JOIN CLASSES cl on STUDENTS.CLASSNO = cl.CLASSNO
-where cs.[year] = :ya and cs.term = :ta and cl.CLASSNO = :ca and cp.COURSETYPE like :approach
-) as temp  on temp.CLASSNO = st.CLASSNO
+where cs.[year] = :ya and cs.term = :ta and cl.CLASSNO = cp.CLASSNO and cl.CLASSNO = :ca and cp.COURSETYPE like :approach
+
+) as temp  on temp.CLASSNO = st.CLASSNO and st.STATUS='A'
 
 --where rtrim(st.CLASSNO) = :classa
 ) as t1
 left join cwebs_scores cs
-on cs.courseno + cs.[group] = t1.coursegroup and t1.STUDENTNO = cs.studentno
+on cs.year= t1.year and cs.term=t1.term and cs.courseno + cs.[group] = t1.coursegroup and t1.STUDENTNO = cs.studentno
 
 where t1.[year]= :year and t1.term= :term and t1.CLASSNO = :classno
 ORDER BY t1.STUDENTNO,t1.approach desc,t1.coursegroup ";

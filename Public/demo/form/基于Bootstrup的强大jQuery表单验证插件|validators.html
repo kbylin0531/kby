@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>基于Bootstrup的强大jQuery表单验证插件|validators</title>
+	<!-- Include the FontAwesome CSS if you want to use feedback icons provided by FontAwesome -->
+    <link rel="stylesheet" href="validators_files/font-awesome.css">
+    <link rel="stylesheet" href="validators_files/bootstrap.css">
+    <link rel="stylesheet" href="validators_files/formValidation.css">
+	<link rel="stylesheet" type="text/css" href="validators_files/default.css">
+	<!--[if IE]>
+		<script src="http://libs.useso.com/js/html5shiv/3.7/html5shiv.min.js"></script>
+	<![endif]-->
+</head>
+<body>
+	<div class="jq22-sidebar">
+		<ul>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/index.html">default</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/validators.html" class="current">validators</a></li>
+		</ul>
+	</div>
+	<div class="jq22-container">
+		<header class="jq22-header bgcolor-1">
+			<h1>基于Bootstrup的强大jQuery表单验证插件 <span>The best jQuery plugin to validate form fields</span></h1>
+			
+		</header>
+		<div class="container">
+	        <div class="row">
+	            <!-- form: -->
+	            <section>
+	                <div class="page-header">
+	                    <h1>Built-in validators</h1>
+	                </div>
+d
+	                <div class="col-lg-8 col-lg-offset-2">
+	                    <form novalidate="novalidate" id="defaultForm" method="post" action="target.php" class="form-horizontal fv-form fv-form-bootstrap"><button style="display: none; width: 0px; height: 0px;" class="fv-hidden-submit" type="submit"></button>
+	                        <fieldset>
+	                            <legend>Not Empty validator</legend>
+
+	                            <div class="form-group has-feedback">
+	                                <label class="col-lg-3 control-label">Username</label>
+	                                <div class="col-lg-5">
+	                                    <input data-fv-field="username" class="form-control" name="username" type="text"><i data-fv-icon-for="username" class="form-control-feedback" style="display: none;"></i>
+	                                <small data-fv-result="NOT_VALIDATED" data-fv-for="username" data-fv-validator="notEmpty" class="help-block" style="display: none;">The username is required and can't be empty</small><small data-fv-result="NOT_VALIDATED" data-fv-for="username" data-fv-validator="stringLength" class="help-block" style="display: none;">The username must be more than 6 and less than 30 characters long</small><small data-fv-result="NOT_VALIDATED" data-fv-for="username" data-fv-validator="regexp" class="help-block" style="display: none;">The username can only consist of alphabetical, number, dot and underscore</small></div>
+	                            </div>
+
+	                            <div class="form-group has-feedback">
+	                                <label class="col-lg-3 control-label">Country</label>
+	                                <div class="col-lg-5">
+	                                    <select data-fv-field="country" class="form-control" name="country">
+	                                        <option selected="selected" value="">-- Select a country --</option>
+	                                        <option value="fr">France</option>
+	                                        <option value="de">Germany</option>
+	                                        <option value="it">Italy</option>
+	                                        <option value="jp">Japan</option>
+	                                        <option value="ru">Russia</option>
+	                                        <option value="gb">United Kingdom</option>
+	                                        <option value="us">United State</option>
+	                                    </select><i data-fv-icon-for="country" class="form-control-feedback" style="display: none;"></i>
+	                                <small data-fv-result="NOT_VALIDATED" data-fv-for="country" data-fv-validator="notEmpty" class="help-block" style="display: none;">The country is required and can't be empty</small></div>
+	                            </div>
+
+	                            <div class="form-group has-feedback">
+	                                <div class="col-lg-5 col-lg-offset-3">
+	                                    <div class="checkbox">
+	                                        <input data-fv-field="acceptTerms" name="acceptTerms" type="checkbox"> Accept the terms and policies
+	                                    </div><i data-fv-icon-for="acceptTerms" class="form-control-feedback fv-icon-no-label" style="display: none;"></i>
+	                                <small data-fv-result="NOT_VALIDATED" data-fv-for="acceptTerms" data-fv-validator="notEmpty" class="help-block" style="display: none;">You have to accept the terms and policies</small></div>
+	                            </div>
+	                        </fieldset>
+
+	                        <fieldset>
+	                            <legend>Regular expression based validators</legend>
+
+	                            <div class="form-group has-feedback">
+	                                <label class="col-lg-3 control-label">Email address</label>
+	                                <div class="col-lg-5">
+	                                    <input data-fv-field="email" class="form-control" name="email" type="text"><i data-fv-icon-for="email" class="form-control-feedback" style="display: none;"></i>
+	                                <small data-fv-result="NOT_VALIDATED" data-fv-for="email" data-fv-validator="notEmpty" class="help-block" style="display: none;">The email address is required and can't be empty</small><small data-fv-result="NOT_VALIDATED" data-fv-for="email" data-fv-validator="emailAddress" class="help-block" style="display: none;">The input is not a valid email address</small></div>
+	                            </div>
+
+	                            <div class="form-group has-feedback">
+	                                <label class="col-lg-3 control-label">Website</label>
+	                                <div class="col-lg-5">
+	                                    <input data-fv-field="website" class="form-control" name="website" placeholder="http://" type="text"><i data-fv-icon-for="website" class="form-control-feedback" style="display: none;"></i>
+	                                <small data-fv-result="NOT_VALIDATED" data-fv-for="website" data-fv-validator="uri" class="help-block" style="display: none;">The input is not a valid URL</small></div>
+	                            </div>
+
+	                            <div class="form-group has-feedback">
+	                                <label class="col-lg-3 control-label">US Phone number</label>
+	                                <div class="col-lg-5">
+	                                    <input data-fv-field="phoneNumberUS" class="form-control" name="phoneNumberUS" type="text"><i data-fv-icon-for="phoneNumberUS" class="form-control-feedback" style="display: none;"></i>
+	                                <small data-fv-result="NOT_VALIDATED" data-fv-for="phoneNumberUS" data-fv-validator="phone" class="help-block" style="display: none;">The input is not a valid US phone number</small></div>
+	                            </div>
+
+	                            <div class="form-group has-feedback">
+	                                <label class="col-lg-3 control-label">UK Phone number</label>
+	                                <div class="col-lg-5">
+	                                    <input data-fv-field="phoneNumberUK" class="form-control" name="phoneNumberUK" type="text"><i data-fv-icon-for="phoneNumberUK" class="form-control-feedback" style="display: none;"></i>
+	                                <small data-fv-result="NOT_VALIDATED" data-fv-for="phoneNumberUK" data-fv-validator="phone" class="help-block" style="display: none;">The input is not a valid UK phone number</small></div>
+	                            </div>
+
+	                            <div class="form-group has-feedback">
+	                                <label class="col-lg-3 control-label">Hex, RGB, HSL, Keyword color</label>
+	                                <div class="col-lg-3">
+	                                    <input data-fv-field="color" class="form-control" name="color" type="text"><i data-fv-icon-for="color" class="form-control-feedback" style="display: none;"></i>
+	                                <small data-fv-result="NOT_VALIDATED" data-fv-for="color" data-fv-validator="color" class="help-block" style="display: none;">Must be a valid %s color</small></div>
+	                            </div>
+
+	                            <div class="form-group has-feedback">
+	                                <label class="col-lg-3 control-label">All colors</label>
+	                                <div class="col-lg-3">
+	                                    <input data-fv-field="colorAll" class="form-control" name="colorAll" type="text"><i data-fv-icon-for="colorAll" class="form-control-feedback" style="display: none;"></i>
+	                                <small data-fv-result="NOT_VALIDATED" data-fv-for="colorAll" data-fv-validator="color" class="help-block" style="display: none;">Please enter a valid color</small></div>
+	                            </div>
+
+	                            <div class="form-group has-feedback">
+	                                <label class="col-lg-3 control-label">US zip code</label>
+	                                <div class="col-lg-3">
+	                                    <input data-fv-field="zipCode" class="form-control" name="zipCode" type="text"><i data-fv-icon-for="zipCode" class="form-control-feedback" style="display: none;"></i>
+	                                <small data-fv-result="NOT_VALIDATED" data-fv-for="zipCode" data-fv-validator="zipCode" class="help-block" style="display: none;">The input is not a valid US zip code</small></div>
+	                            </div>
+	                        </fieldset>
+
+	                        <fieldset>
+	                            <legend>Identical validator</legend>
+
+	                            <div class="form-group has-feedback">
+	                                <label class="col-lg-3 control-label">Password</label>
+	                                <div class="col-lg-5">
+	                                    <input data-fv-field="password" class="form-control" name="password" type="password"><i data-fv-icon-for="password" class="form-control-feedback" style="display: none;"></i>
+	                                <small data-fv-result="NOT_VALIDATED" data-fv-for="password" data-fv-validator="notEmpty" class="help-block" style="display: none;">The password is required and can't be empty</small></div>
+	                            </div>
+
+	                            <div class="form-group has-feedback">
+	                                <label class="col-lg-3 control-label">Retype password</label>
+	                                <div class="col-lg-5">
+	                                    <input data-fv-field="confirmPassword" class="form-control" name="confirmPassword" type="password"><i data-fv-icon-for="confirmPassword" class="form-control-feedback" style="display: none;"></i>
+	                                <small data-fv-result="NOT_VALIDATED" data-fv-for="confirmPassword" data-fv-validator="notEmpty" class="help-block" style="display: none;">The confirm password is required and can't be empty</small><small data-fv-result="NOT_VALIDATED" data-fv-for="confirmPassword" data-fv-validator="identical" class="help-block" style="display: none;">The password and its confirm are not the same</small></div>
+	                            </div>
+	                        </fieldset>
+
+	                        <fieldset>
+	                            <legend>Other validators</legend>
+
+	                            <div class="form-group has-feedback">
+	                                <label class="col-lg-3 control-label">Ages</label>
+	                                <div class="col-lg-3">
+	                                    <input data-fv-field="ages" class="form-control" name="ages" type="text"><i data-fv-icon-for="ages" class="form-control-feedback" style="display: none;"></i>
+	                                <small data-fv-result="NOT_VALIDATED" data-fv-for="ages" data-fv-validator="lessThan" class="help-block" style="display: none;">The ages has to be less than 100</small><small data-fv-result="NOT_VALIDATED" data-fv-for="ages" data-fv-validator="greaterThan" class="help-block" style="display: none;">The ages has to be greater than or equals to 10</small></div>
+	                            </div>
+	                        </fieldset>
+
+	                        <div class="form-group">
+	                            <div class="col-lg-9 col-lg-offset-3">
+	                                <button type="submit" class="btn btn-primary">Submit</button>
+	                            </div>
+	                        </div>
+	                    </form>
+	                </div>
+	            </section>
+	            <!-- :form -->
+	        </div>
+	    </div>
+
+	    <div class="form-group hide" id="emailTemplate">
+	        <div class="col-xs-offset-3 col-xs-5">
+	            <input class="form-control" name="email[]" type="text">
+	        </div>
+	        <div class="col-xs-4">
+	            <button type="button" class="btn btn-default btn-sm removeButton">Remove</button>
+	        </div>
+	    </div>
+		
+	</div>
+	
+	<script type="text/javascript" src="validators_files/jquery.js"></script>
+    <script type="text/javascript" src="validators_files/bootstrap.js"></script>
+    <script type="text/javascript" src="validators_files/formValidation.js"></script>
+    <script type="text/javascript" src="validators_files/bootstrap_002.js"></script>
+    <script type="text/javascript" src="validators_files/zh_CN.js"></script>
+    <script type="text/javascript">
+		$(document).ready(function() {
+		    $('#defaultForm').formValidation({
+		        message: 'This value is not valid',
+		        icon: {
+		            valid: 'glyphicon glyphicon-ok',
+		            invalid: 'glyphicon glyphicon-remove',
+		            validating: 'glyphicon glyphicon-refresh'
+		        },
+		        fields: {
+		            username: {
+		                message: 'The username is not valid',
+		                validators: {
+		                    notEmpty: {
+		                        message: 'The username is required and can\'t be empty'
+		                    },
+		                    stringLength: {
+		                        min: 6,
+		                        max: 30,
+		                        message: 'The username must be more than 6 and less than 30 characters long'
+		                    },
+		                    regexp: {
+		                        regexp: /^[a-zA-Z0-9_\.]+$/,
+		                        message: 'The username can only consist of alphabetical, number, dot and underscore'
+		                    }
+		                }
+		            },
+		            country: {
+		                validators: {
+		                    notEmpty: {
+		                        message: 'The country is required and can\'t be empty'
+		                    }
+		                }
+		            },
+		            acceptTerms: {
+		                validators: {
+		                    notEmpty: {
+		                        message: 'You have to accept the terms and policies'
+		                    }
+		                }
+		            },
+		            email: {
+		                validators: {
+		                    notEmpty: {
+		                        message: 'The email address is required and can\'t be empty'
+		                    },
+		                    emailAddress: {
+		                        message: 'The input is not a valid email address'
+		                    }
+		                }
+		            },
+		            website: {
+		                validators: {
+		                    uri: {
+		                        message: 'The input is not a valid URL'
+		                    }
+		                }
+		            },
+		            phoneNumberUS: {
+		                validators: {
+		                    phone: {
+		                        message: 'The input is not a valid US phone number'
+		                    }
+		                }
+		            },
+		            phoneNumberUK: {
+		            	validators: {
+		            		phone: {
+		            			message: 'The input is not a valid UK phone number',
+		            			country: 'GB'
+		            		}
+		            	}
+		            },
+		            color: {
+		                validators: {
+		                    color: {
+		                        type: ['hex', 'rgb', 'hsl', 'keyword'],
+		                        message: 'Must be a valid %s color'
+		                    }
+		                }
+		            },
+		            colorAll: {
+		                validators: {
+		                    color: {}
+		                }
+		            },
+		            zipCode: {
+		                validators: {
+		                    zipCode: {
+		                        country: 'US',
+		                        message: 'The input is not a valid US zip code'
+		                    }
+		                }
+		            },
+		            password: {
+		                validators: {
+		                    notEmpty: {
+		                        message: 'The password is required and can\'t be empty'
+		                    }
+		                }
+		            },
+		            confirmPassword: {
+		                validators: {
+		                    notEmpty: {
+		                        message: 'The confirm password is required and can\'t be empty'
+		                    },
+		                    identical: {
+		                        field: 'password',
+		                        message: 'The password and its confirm are not the same'
+		                    }
+		                }
+		            },
+		            ages: {
+		                validators: {
+		                    lessThan: {
+		                        value: 100,
+		                        inclusive: true,
+		                        message: 'The ages has to be less than 100'
+		                    },
+		                    greaterThan: {
+		                        value: 10,
+		                        inclusive: false,
+		                        message: 'The ages has to be greater than or equals to 10'
+		                    }
+		                }
+		            }
+		        }
+		    });
+		});
+	</script>
+
+</body></html>

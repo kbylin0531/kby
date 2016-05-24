@@ -82,6 +82,7 @@ and CLASSES.CLASSNO like :classno
 and STUDENTS.STUDENTNO like :studentno';
 
         $sql = $this->makeSql('STUDENTS',array(
+            'distinct'  => true,
             'fields'    => $fields,
             'join'      => $join,
             'where'     => $where,

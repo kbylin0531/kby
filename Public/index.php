@@ -5,10 +5,6 @@
  * Date: 13-11-20
  * Time: 下午12:54
  */
-
-
-
-
 //分解请求参数
 if(isset($_REQUEST['_PARAMS_'])){
     $temp = array();
@@ -40,7 +36,17 @@ define("URL_MODEL", 1);
 //151015定义 个别学院代码逻辑可能不同
 const __SCHOOLNAME__ = '鄞州职业教育中心';
 const SCHOOL_CODE = 'yzzj';
-const DEAN_NAME = '教务处';//鄞州职教为教务处，衢州中专为学生处
+const DEAN_NAME = '教务处';//鄞州职教为教务处
+
+function loadKL(){
+    static $flag  = true;
+    if($flag){
+        require BASE_PATH.'System/Kbylin.class.php';
+        (new Kbylin())->init()->registerAutoloader();
+        $flag = false;
+    }
+}
+
 
 //加载框架入口文件
 require BASE_PATH.'ThinkPHP/ThinkPHP.php';

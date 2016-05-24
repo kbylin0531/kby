@@ -43,7 +43,7 @@
  */
 namespace System\Utils;
 
-defined('BASE_PATH') or die('No Permission!');
+defined('KL_BASE_PATH') or die('No Permission!');
 /**
  * CodeIgniter XML Helpers
  *

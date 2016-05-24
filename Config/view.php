@@ -13,8 +13,8 @@ return [
     ],
     'DRIVER_CONFIG_LIST' => [
         [
-            'SMARTY_DIR'        => SYSTEM_PATH.'Vendor/smarty3/libs/',
-            'TEMPLATE_CACHE_DIR'    => RUNTIME_PATH.'View/',
+            'SMARTY_DIR'        => KL_SYSTEM_PATH.'Vendor/smarty3/libs/',
+            'TEMPLATE_CACHE_DIR'    => KL_RUNTIME_PATH.'View/',
 
             'SMARTY_CONF'       => [ // 对应着smarty的配置项
                 //模板变量分割符号

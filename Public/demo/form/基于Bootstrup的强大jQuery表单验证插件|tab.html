@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>基于Bootstrup的强大jQuery表单验证插件|tab</title>
+	<!-- Include the FontAwesome CSS if you want to use feedback icons provided by FontAwesome -->
+    <link rel="stylesheet" href="tab_files/font-awesome.css">
+    <link rel="stylesheet" href="tab_files/bootstrap.css">
+    <link rel="stylesheet" href="tab_files/formValidation.css">
+	<link rel="stylesheet" type="text/css" href="tab_files/default.css">
+	<!--[if IE]>
+		<script src="http://libs.useso.com/js/html5shiv/3.7/html5shiv.min.js"></script>
+	<![endif]-->
+</head>
+<body>
+	<div class="jq22-sidebar">
+		<ul>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/index.html">default</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/validators.html">validators</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/ajaxSubmit.html">ajaxSubmit</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/attribute.html">attribute</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/choice.html">choice</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/collapse.html">collapse</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container.html">container</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container2.html">container2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container3.html">container3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container4.html">container4</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/date.html">date</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/defaultMessage.html">defaultMessage</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic.html">dynamic</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic2.html">dynamic2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic3.html">dynamic3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic4.html">dynamic4</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/enable.html">enable</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/enable2.html">enable2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event.html">event</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event2.html">event2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event3.html">event3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/file.html">file</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/html5.html">html5</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/i18n.html">i18n</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/ignored.html">ignored</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/invisible.html">invisible</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/mailgun.html">mailgun</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/message.html">message</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/multiple.html">multiple</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/multipleAsOne.html">multipleAsOne</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/remote.html">remote</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/reset.html">reset</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/row.html">row</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/selector.html">selector</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/selector2.html">selector2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/specialName.html">specialName</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/submitHandler.html">submitHandler</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/tab.html" class="current">tab</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/tooltip.html">tooltip</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/typehead.html">typehead</a></li>
+		</ul>
+	</div>
+	<div class="jq22-container">
+		<header class="jq22-header bgcolor-1">
+			<h1>基于Bootstrup的强大jQuery表单验证插件 <span>The best jQuery plugin to validate form fields</span></h1>
+			
+		</header>
+		<div class="container">
+	        <div class="row">
+	            <section>
+	                <div class="col-xs-8 col-xs-offset-2">
+	                    <div class="page-header">
+	                        <h2>Tab example</h2>
+	                    </div>
+
+	                    <ul class="nav nav-tabs">
+	                        <li class="active"><a href="#info-tab" data-toggle="tab">Information <i class="glyphicon"></i></a></li>
+	                        <li><a href="#address-tab" data-toggle="tab">Address <i class="glyphicon"></i></a></li>
+	                    </ul>
+
+	                    <form novalidate="novalidate" id="accountForm" method="post" class="form-horizontal fv-form fv-form-bootstrap" action="target.php" style="margin-top: 20px;"><button style="display: none; width: 0px; height: 0px;" class="fv-hidden-submit" type="submit"></button>
+	                        <div class="tab-content">
+	                            <div class="tab-pane active" id="info-tab">
+	                                <div class="form-group has-feedback">
+	                                    <label class="col-xs-3 control-label">Full name</label>
+	                                    <div class="col-xs-5">
+	                                        <input data-fv-field="fullName" class="form-control" name="fullName" type="text"><i data-fv-icon-for="fullName" class="form-control-feedback" style="display: none;"></i>
+	                                    <small data-fv-result="NOT_VALIDATED" data-fv-for="fullName" data-fv-validator="notEmpty" class="help-block" style="display: none;">The full name is required</small></div>
+	                                </div>
+	                                <div class="form-group has-feedback">
+	                                    <label class="col-xs-3 control-label">Company</label>
+	                                    <div class="col-xs-5">
+	                                        <input data-fv-field="company" class="form-control" name="company" type="text"><i data-fv-icon-for="company" class="form-control-feedback" style="display: none;"></i>
+	                                    <small data-fv-result="NOT_VALIDATED" data-fv-for="company" data-fv-validator="notEmpty" class="help-block" style="display: none;">The company name is required</small></div>
+	                                </div>
+	                                <div class="form-group has-feedback">
+	                                    <label class="col-xs-3 control-label">Job title</label>
+	                                    <div class="col-xs-5">
+	                                        <input data-fv-field="jobTitle" class="form-control" name="jobTitle" type="text"><i data-fv-icon-for="jobTitle" class="form-control-feedback" style="display: none;"></i>
+	                                    <small data-fv-result="NOT_VALIDATED" data-fv-for="jobTitle" data-fv-validator="notEmpty" class="help-block" style="display: none;">The company name is required</small></div>
+	                                </div>
+	                                <div class="form-group has-feedback" id="emailRow">
+	                                    <label class="col-xs-3 control-label">Email</label>
+	                                    <div class="col-xs-5">
+	                                        <input data-fv-field="email[]" class="form-control" name="email[]" type="text"><i data-fv-icon-for="email[]" class="form-control-feedback" style="display: none;"></i>
+	                                    <small data-fv-result="NOT_VALIDATED" data-fv-for="email[]" data-fv-validator="notEmpty" class="help-block" style="display: none;">The email address is required</small><small data-fv-result="NOT_VALIDATED" data-fv-for="email[]" data-fv-validator="emailAddress" class="help-block" style="display: none;">The email address is not valid</small></div>
+	                                    <div class="col-xs-4">
+	                                        <button type="button" class="btn btn-default btn-sm addButton">Add</button>
+	                                    </div>
+	                                </div>
+	                            </div>
+	                            <div class="tab-pane" id="address-tab">
+	                                <div class="form-group has-feedback">
+	                                    <label class="col-xs-3 control-label">Address</label>
+	                                    <div class="col-xs-5">
+	                                        <input data-fv-field="address" class="form-control" name="address" type="text"><i data-fv-icon-for="address" class="form-control-feedback" style="display: none;"></i>
+	                                    <small data-fv-result="NOT_VALIDATED" data-fv-for="address" data-fv-validator="notEmpty" class="help-block" style="display: none;">The address is required</small></div>
+	                                </div>
+	                                <div class="form-group has-feedback">
+	                                    <label class="col-xs-3 control-label">City</label>
+	                                    <div class="col-xs-5">
+	                                        <input data-fv-field="city" class="form-control" name="city" type="text"><i data-fv-icon-for="city" class="form-control-feedback" style="display: none;"></i>
+	                                    <small data-fv-result="NOT_VALIDATED" data-fv-for="city" data-fv-validator="notEmpty" class="help-block" style="display: none;">The city is required</small></div>
+	                                </div>
+	                                <div class="form-group has-feedback">
+	                                    <label class="col-xs-3 control-label">Country</label>
+	                                    <div class="col-xs-5">
+	                                        <select data-fv-field="country" class="form-control" name="country">
+	                                            <option selected="selected" value="">Select a country</option>
+	                                            <option value="FR">France</option>
+	                                            <option value="DE">Germany</option>
+	                                            <option value="IT">Italy</option>
+	                                            <option value="JP">Japan</option>
+	                                            <option value="RU">Russian</option>
+	                                            <option value="US">United State</option>
+	                                            <option value="GB">United Kingdom</option>
+	                                            <option value="other">Other</option>
+	                                        </select><i data-fv-icon-for="country" class="form-control-feedback" style="display: none;"></i>
+	                                    <small data-fv-result="NOT_VALIDATED" data-fv-for="country" data-fv-validator="notEmpty" class="help-block" style="display: none;">The city is required</small></div>
+	                                </div>
+	                            </div>
+	                        </div>
+	                        <div class="form-group">
+	                            <div class="col-xs-5 col-xs-offset-3">
+	                                <button type="submit" class="btn btn-primary">Validate</button>
+	                            </div>
+	                        </div>
+	                    </form>
+	                </div>
+	            </section>
+	        </div>
+	    </div>
+
+	    <div class="form-group hide" id="emailTemplate">
+	        <div class="col-xs-offset-3 col-xs-5">
+	            <input class="form-control" name="email[]" type="text">
+	        </div>
+	        <div class="col-xs-4">
+	            <button type="button" class="btn btn-default btn-sm removeButton">Remove</button>
+	        </div>
+	    </div>
+		
+	</div>
+	
+	<script type="text/javascript" src="tab_files/jquery.js"></script>
+    <script type="text/javascript" src="tab_files/bootstrap_002.js"></script>
+    <script type="text/javascript" src="tab_files/formValidation.js"></script>
+    <script type="text/javascript" src="tab_files/bootstrap.js"></script>
+    <script type="text/javascript" src="tab_files/zh_CN.js"></script>
+    <script type="text/javascript">
+		$(document).ready(function() {
+		    $('#accountForm')
+		        .formValidation({
+		            excluded: [':disabled'],
+		            icon: {
+		                valid: 'glyphicon glyphicon-ok',
+		                invalid: 'glyphicon glyphicon-remove',
+		                validating: 'glyphicon glyphicon-refresh'
+		            },
+		            fields: {
+		                fullName: {
+		                    validators: {
+		                        notEmpty: {
+		                            message: 'The full name is required'
+		                        }
+		                    }
+		                },
+		                company: {
+		                    validators: {
+		                        notEmpty: {
+		                            message: 'The company name is required'
+		                        }
+		                    }
+		                },
+		                jobTitle: {
+		                    validators: {
+		                        notEmpty: {
+		                            message: 'The company name is required'
+		                        }
+		                    }
+		                },
+		                'email[]': {
+		                    validators: {
+		                        notEmpty: {
+		                            message: 'The email address is required'
+		                        },
+		                        emailAddress: {
+		                            message: 'The email address is not valid'
+		                        }
+		                    }
+		                },
+		                address: {
+		                    validators: {
+		                        notEmpty: {
+		                            message: 'The address is required'
+		                        }
+		                    }
+		                },
+		                city: {
+		                    validators: {
+		                        notEmpty: {
+		                            message: 'The city is required'
+		                        }
+		                    }
+		                },
+		                country: {
+		                    validators: {
+		                        notEmpty: {
+		                            message: 'The city is required'
+		                        }
+		                    }
+		                }
+		            }
+		        })
+		        .on('err.form.fv', function(e) {
+		            var $form          = $(e.target),
+		                fv             = $form.data('formValidation'),
+		                $invalidFields = fv.getInvalidFields();
+
+		            for (var i = 0; i < $invalidFields.length; i++) {
+		                var $field    = $invalidFields.eq(i),
+		                    autoFocus = fv.isOptionEnabled($field.attr('data-fv-field'), 'autoFocus');
+
+		                if (autoFocus) {
+		                    // Activate the tab containing the field if exists
+		                    var $tabPane = $field.parents('.tab-pane'), tabId;
+		                    if ($tabPane && (tabId = $tabPane.attr('id'))) {
+		                        $('a[href="#' + tabId + '"][data-toggle="tab"]').tab('show');
+		                    }
+		                    break;
+		                }
+		            }
+		        })
+		        .on('status.field.fv', function(e, data) {
+		            var validator = data.fv,
+		                $tabPane  = data.element.parents('.tab-pane'),
+		                tabId     = $tabPane.attr('id');
+		            
+		            if (tabId) {
+		                var $icon = $('a[href="#' + tabId + '"][data-toggle="tab"]').parent().find('i');
+
+		                // Add custom class to tab containing the field
+		                if (data.status == validator.STATUS_INVALID) {
+		                    $icon.removeClass('glyphicon-ok').addClass('glyphicon-remove');
+		                } else if (data.status == validator.STATUS_VALID) {
+		                    $icon.removeClass('glyphicon-ok glyphicon-remove');
+
+		                    var isValidTab = validator.isValidContainer($tabPane);
+		                    if (isValidTab !== null) {
+		                        $icon.addClass(isValidTab ? 'glyphicon-ok' : 'glyphicon-remove');
+		                    }
+		                }
+		            }
+		        });
+
+		    $('.addButton').on('click', function() {
+		        var $template = $('#emailTemplate'),
+		            $row      = $template.clone().removeAttr('id').insertAfter('#emailRow').removeClass('hide'),
+		            $el       = $row.find('input').eq(0);
+		        $('#accountForm').formValidation('addField', $el);
+
+		        $row.on('click', '.removeButton', function(e) {
+		            $('#accountForm').formValidation('removeField', $el);
+		            $row.remove();
+		        });
+		    });
+		});
+	</script>
+
+</body></html>

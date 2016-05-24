@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>基于Bootstrup的强大jQuery表单验证插件|container2</title>
+	<!-- Include the FontAwesome CSS if you want to use feedback icons provided by FontAwesome -->
+    <link rel="stylesheet" href="container2_files/font-awesome.css">
+    <link rel="stylesheet" href="container2_files/bootstrap.css">
+    <link rel="stylesheet" href="container2_files/formValidation.css">
+	<link rel="stylesheet" type="text/css" href="container2_files/default.css">
+	<!--[if IE]>
+		<script src="http://libs.useso.com/js/html5shiv/3.7/html5shiv.min.js"></script>
+	<![endif]-->
+</head>
+<body>
+	<div class="jq22-sidebar">
+		<ul>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/index.html">default</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/validators.html">validators</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/ajaxSubmit.html">ajaxSubmit</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/attribute.html">attribute</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/choice.html">choice</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/collapse.html">collapse</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container.html">container</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container2.html" class="current">container2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container3.html">container3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container4.html">container4</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/date.html">date</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/defaultMessage.html">defaultMessage</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic.html">dynamic</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic2.html">dynamic2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic3.html">dynamic3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic4.html">dynamic4</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/enable.html">enable</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/enable2.html">enable2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event.html">event</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event2.html">event2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event3.html">event3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/file.html">file</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/html5.html">html5</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/i18n.html">i18n</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/ignored.html">ignored</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/invisible.html">invisible</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/mailgun.html">mailgun</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/message.html">message</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/multiple.html">multiple</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/multipleAsOne.html">multipleAsOne</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/remote.html">remote</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/reset.html">reset</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/row.html">row</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/selector.html">selector</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/selector2.html">selector2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/specialName.html">specialName</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/submitHandler.html">submitHandler</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/tab.html">tab</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/tooltip.html">tooltip</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/typehead.html">typehead</a></li>
+		</ul>
+	</div>
+	<div class="jq22-container">
+		<header class="jq22-header bgcolor-1">
+			<h1>基于Bootstrup的强大jQuery表单验证插件 <span>The best jQuery plugin to validate form fields</span></h1>
+			
+		</header>
+
+		<div class="container">
+	        <div class="row">
+	            <!-- form: -->
+	            <section>
+	                <div class="col-lg-8 col-lg-offset-2">
+	                    <div class="page-header">
+	                        <h2>Showing errors in custom container</h2>
+	                    </div>
+
+	                    <form novalidate="novalidate" id="defaultForm" method="post" class="form-horizontal fv-form fv-form-bootstrap" action="target.php"><button style="display: none; width: 0px; height: 0px;" class="fv-hidden-submit" type="submit"></button>
+	                        <div class="form-group has-feedback">
+	                            <label class="col-lg-3 control-label">Full name</label>
+	                            <div class="col-lg-4">
+	                                <input data-fv-field="firstName" class="form-control" name="firstName" placeholder="First name" type="text"><i data-fv-icon-for="firstName" class="form-control-feedback" style="display: none;"></i>
+	                            </div>
+	                            <div class="col-lg-4">
+	                                <input data-fv-field="lastName" class="form-control" name="lastName" placeholder="Last name" type="text"><i data-fv-icon-for="lastName" class="form-control-feedback" style="display: none;"></i>
+	                            </div>
+	                        </div>
+
+	                        <div class="form-group has-feedback">
+	                            <label class="col-lg-3 control-label">Username</label>
+	                            <div class="col-lg-5">
+	                                <input data-fv-field="username" class="form-control" name="username" type="text"><i data-fv-icon-for="username" class="form-control-feedback" style="display: none;"></i>
+	                            </div>
+	                        </div>
+
+	                        <div class="form-group has-feedback">
+	                            <label class="col-lg-3 control-label">Email address</label>
+	                            <div class="col-lg-5">
+	                                <input data-fv-field="email" class="form-control" name="email" type="text"><i data-fv-icon-for="email" class="form-control-feedback" style="display: none;"></i>
+	                            </div>
+	                        </div>
+
+	                        <div class="form-group has-feedback">
+	                            <label class="col-lg-3 control-label">Password</label>
+	                            <div class="col-lg-5">
+	                                <input data-fv-field="password" class="form-control" name="password" type="password"><i data-fv-icon-for="password" class="form-control-feedback" style="display: none;"></i>
+	                            </div>
+	                        </div>
+
+	                        <div class="form-group has-feedback">
+	                            <label class="col-lg-3 control-label">Gender</label>
+	                            <div class="col-lg-5">
+	                                <div class="radio">
+	                                    <label>
+	                                        <input data-fv-field="gender" name="gender" value="male" type="radio"> Male
+	                                    </label>
+	                                </div>
+	                                <div class="radio">
+	                                    <label>
+	                                        <input data-fv-field="gender" name="gender" value="female" type="radio"> Female
+	                                    </label>
+	                                </div>
+	                                <div class="radio">
+	                                    <label>
+	                                        <input data-fv-field="gender" name="gender" value="other" type="radio"> Other
+	                                    </label>
+	                                </div><i data-fv-icon-for="gender" class="form-control-feedback" style="display: none;"></i>
+	                            </div>
+	                        </div>
+
+	                        <div class="form-group">
+	                            <div class="col-lg-9 col-lg-offset-3">
+	                                <div class="help-block" id="errors"><small data-fv-result="NOT_VALIDATED" data-fv-for="firstName" data-fv-validator="notEmpty" class="help-block" style="display: none;">The first name is required and cannot be empty</small><small data-fv-result="NOT_VALIDATED" data-fv-for="lastName" data-fv-validator="notEmpty" class="help-block" style="display: none;">The last name is required and cannot be empty</small><small data-fv-result="NOT_VALIDATED" data-fv-for="username" data-fv-validator="notEmpty" class="help-block" style="display: none;">The username is required and cannot be empty</small><small data-fv-result="NOT_VALIDATED" data-fv-for="username" data-fv-validator="stringLength" class="help-block" style="display: none;">The username must be more than 6 and less than 30 characters long</small><small data-fv-result="NOT_VALIDATED" data-fv-for="username" data-fv-validator="regexp" class="help-block" style="display: none;">The username can only consist of alphabetical, number, dot and underscore</small><small data-fv-result="NOT_VALIDATED" data-fv-for="email" data-fv-validator="emailAddress" class="help-block" style="display: none;">The input is not a valid email address</small><small data-fv-result="NOT_VALIDATED" data-fv-for="password" data-fv-validator="notEmpty" class="help-block" style="display: none;">The password is required and cannot be empty</small><small data-fv-result="NOT_VALIDATED" data-fv-for="password" data-fv-validator="different" class="help-block" style="display: none;">The password cannot be the same as username</small><small data-fv-result="NOT_VALIDATED" data-fv-for="gender" data-fv-validator="notEmpty" class="help-block" style="display: none;">The gender is required</small></div>
+	                            </div>
+	                        </div>
+
+	                        <div class="form-group">
+	                            <div class="col-lg-9 col-lg-offset-3">
+	                                <button type="submit" class="btn btn-primary" name="signup" value="Sign up">Sign up</button>
+	                            </div>
+	                        </div>
+	                    </form>
+	                </div>
+	            </section>
+	            <!-- :form -->
+	        </div>
+	    </div>
+		
+	</div>
+	
+	<script type="text/javascript" src="container2_files/jquery.js"></script>
+    <script type="text/javascript" src="container2_files/bootstrap.js"></script>
+    <script type="text/javascript" src="container2_files/formValidation.js"></script>
+    <script type="text/javascript" src="container2_files/bootstrap_002.js"></script>
+    <script type="text/javascript" src="container2_files/zh_CN.js"></script>
+    <script type="text/javascript">
+		$(document).ready(function() {
+	    $('#defaultForm').formValidation({
+	        message: 'This value is not valid',
+	        err: {
+	            container: '#errors'
+	        },
+	        icon: {
+	            valid: 'glyphicon glyphicon-ok',
+	            invalid: 'glyphicon glyphicon-remove',
+	            validating: 'glyphicon glyphicon-refresh'
+	        },
+	        fields: {
+	            firstName: {
+	                validators: {
+	                    notEmpty: {
+	                        message: 'The first name is required and cannot be empty'
+	                    }
+	                }
+	            },
+	            lastName: {
+	                validators: {
+	                    notEmpty: {
+	                        message: 'The last name is required and cannot be empty'
+	                    }
+	                }
+	            },
+	            username: {
+	                message: 'The username is not valid',
+	                validators: {
+	                    notEmpty: {
+	                        message: 'The username is required and cannot be empty'
+	                    },
+	                    stringLength: {
+	                        min: 6,
+	                        max: 30,
+	                        message: 'The username must be more than 6 and less than 30 characters long'
+	                    },
+	                    regexp: {
+	                        regexp: /^[a-zA-Z0-9_\.]+$/,
+	                        message: 'The username can only consist of alphabetical, number, dot and underscore'
+	                    }
+	                }
+	            },
+	            email: {
+	                validators: {
+	                    emailAddress: {
+	                        message: 'The input is not a valid email address'
+	                    }
+	                }
+	            },
+	            password: {
+	                validators: {
+	                    notEmpty: {
+	                        message: 'The password is required and cannot be empty'
+	                    },
+	                    different: {
+	                        field: 'username',
+	                        message: 'The password cannot be the same as username'
+	                    }
+	                }
+	            },
+	            gender: {
+	                validators: {
+	                    notEmpty: {
+	                        message: 'The gender is required'
+	                    }
+	                }
+	            }
+	        }
+	    });
+	});
+	</script>
+
+</body></html>

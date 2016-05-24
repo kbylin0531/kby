@@ -1,0 +1,1 @@
+select count(*) from bookpress b where b.name like :name and b.status like :status

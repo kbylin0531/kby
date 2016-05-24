@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>基于Bootstrup的强大jQuery表单验证插件|dynamic</title>
+	<!-- Include the FontAwesome CSS if you want to use feedback icons provided by FontAwesome -->
+    <link rel="stylesheet" href="dynamic_files/font-awesome.css">
+    <link rel="stylesheet" href="dynamic_files/bootstrap.css">
+    <link rel="stylesheet" href="dynamic_files/formValidation.css">
+	<link rel="stylesheet" type="text/css" href="dynamic_files/default.css">
+	<!--[if IE]>
+		<script src="http://libs.useso.com/js/html5shiv/3.7/html5shiv.min.js"></script>
+	<![endif]-->
+</head>
+<body>
+	<div class="jq22-sidebar">
+		<ul>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/index.html">default</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/validators.html">validators</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/ajaxSubmit.html">ajaxSubmit</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/attribute.html">attribute</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/choice.html">choice</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/collapse.html">collapse</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container.html">container</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container2.html">container2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container3.html">container3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container4.html">container4</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/date.html">date</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/defaultMessage.html">defaultMessage</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic.html" class="current">dynamic</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic2.html">dynamic2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic3.html">dynamic3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic4.html">dynamic4</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/enable.html">enable</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/enable2.html">enable2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event.html">event</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event2.html">event2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event3.html">event3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/file.html">file</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/html5.html">html5</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/i18n.html">i18n</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/ignored.html">ignored</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/invisible.html">invisible</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/mailgun.html">mailgun</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/message.html">message</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/multiple.html">multiple</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/multipleAsOne.html">multipleAsOne</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/remote.html">remote</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/reset.html">reset</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/row.html">row</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/selector.html">selector</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/selector2.html">selector2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/specialName.html">specialName</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/submitHandler.html">submitHandler</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/tab.html">tab</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/tooltip.html">tooltip</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/typehead.html">typehead</a></li>
+		</ul>
+	</div>
+	<div class="jq22-container">
+		<header class="jq22-header bgcolor-1">
+			<h1>基于Bootstrup的强大jQuery表单验证插件 <span>The best jQuery plugin to validate form fields</span></h1>
+			
+		</header>
+
+		<div class="container">
+		    <div class="row">
+		        <!-- form: -->
+		        <section>
+		            <div class="col-lg-8 col-lg-offset-2">
+		                <div class="page-header">
+		                    <h2>Dynamic fields</h2>
+		                </div>
+
+		                <form novalidate="novalidate" id="defaultForm" method="post" class="form-horizontal fv-form fv-form-bootstrap" action="target.php"><button style="display: none; width: 0px; height: 0px;" class="fv-hidden-submit" type="submit"></button>
+		                    <div class="form-group has-feedback">
+		                        <label class="col-lg-3 control-label">Textbox</label>
+		                        <div class="col-lg-5">
+		                            <input data-fv-field="textbox[]" class="form-control" name="textbox[]" placeholder="Textbox #1" type="text"><i data-fv-icon-for="textbox[]" class="form-control-feedback" style="display: none;"></i>
+		                        <small data-fv-result="NOT_VALIDATED" data-fv-for="textbox[]" data-fv-validator="notEmpty" class="help-block" style="display: none;">The textbox field is required</small></div>
+		                        <div class="col-lg-4">
+		                            <button type="button" class="btn btn-default btn-sm addButton" data-template="textbox">Add</button>
+		                        </div>
+		                    </div>
+		                    <div class="form-group hide" id="textboxTemplate">
+		                        <div class="col-lg-offset-3 col-lg-5">
+		                            <input class="form-control" type="text">
+		                        </div>
+		                        <div class="col-lg-4">
+		                            <button type="button" class="btn btn-default btn-sm removeButton">Remove</button>
+		                        </div>
+		                    </div>
+
+		                    <div class="form-group has-feedback">
+		                        <label class="col-lg-3 control-label">Checkbox</label>
+		                        <div class="col-lg-5">
+		                            <div class="checkbox">
+		                                <label>
+		                                    <input data-fv-field="checkbox[]" name="checkbox[]" value="Choice #1" type="checkbox"> Choice <button type="button" class="btn btn-default btn-sm addButton" data-template="checkbox">Add</button>
+		                                </label>
+		                            </div><i data-fv-icon-for="checkbox[]" class="form-control-feedback" style="display: none;"></i>
+
+		                             <div class="checkbox hide template" id="checkboxTemplate">
+		                                <label>
+		                                    <input value="1" type="checkbox"> <span class="lbl">Choice</span> <button type="button" class="btn btn-default btn-sm removeButton">Remove</button>
+		                                </label>
+		                            </div>
+		                        <small data-fv-result="NOT_VALIDATED" data-fv-for="checkbox[]" data-fv-validator="notEmpty" class="help-block" style="display: none;">The checkbox field is required</small></div>
+		                    </div>
+
+		                    <div class="form-group has-feedback">
+		                        <label class="col-lg-3 control-label">Radio</label>
+		                        <div class="col-lg-5">
+		                            <div class="radio">
+		                                <label>
+		                                    <input data-fv-field="radio[]" name="radio[]" value="Choice #1" type="radio"> Choice <button type="button" class="btn btn-default btn-sm addButton" data-template="radio">Add</button>
+		                                </label>
+		                            </div><i data-fv-icon-for="radio[]" class="form-control-feedback" style="display: none;"></i>
+
+		                             <div class="radio hide" id="radioTemplate">
+		                                <label>
+		                                    <input value="1" type="radio"> <span class="lbl">Choice</span> <button type="button" class="btn btn-default btn-sm removeButton">Remove</button>
+		                                </label>
+		                            </div>
+		                        <small data-fv-result="NOT_VALIDATED" data-fv-for="radio[]" data-fv-validator="notEmpty" class="help-block" style="display: none;">The radio field is required</small></div>
+		                    </div>
+
+		                    <div class="form-group">
+		                        <div class="col-lg-offset-3 col-lg-3">
+		                            <button type="submit" class="btn btn-primary">Submit</button>
+		                        </div>
+		                    </div>
+		                </form>
+		            </div>
+		        </section>
+		        <!-- :form -->
+		    </div>
+		</div>
+		
+	</div>
+	
+	<script type="text/javascript" src="dynamic_files/jquery.js"></script>
+    <script type="text/javascript" src="dynamic_files/bootstrap.js"></script>
+    <script type="text/javascript" src="dynamic_files/formValidation.js"></script>
+    <script type="text/javascript" src="dynamic_files/bootstrap_002.js"></script>
+    <script type="text/javascript" src="dynamic_files/zh_CN.js"></script>
+    <script type="text/javascript">
+	$(document).ready(function() {
+        $('.addButton').on('click', function() {
+            var index = $(this).data('index');
+            if (!index) {
+                index = 1;
+                $(this).data('index', 1);
+            }
+            index++;
+            $(this).data('index', index);
+
+            var template     = $(this).attr('data-template'),
+                $templateEle = $('#' + template + 'Template'),
+                $row         = $templateEle.clone().removeAttr('id').insertBefore($templateEle).removeClass('hide'),
+                $el          = $row.find('input').eq(0).attr('name', template + '[]');
+            $('#defaultForm').formValidation('addField', $el);
+
+            // Set random value for checkbox and textbox
+            if ('checkbox' == $el.attr('type') || 'radio' == $el.attr('type')) {
+                $el.val('Choice #' + index)
+                   .parent().find('span.lbl').html('Choice #' + index);
+            } else {
+                $el.attr('placeholder', 'Textbox #' + index);
+            }
+
+            $row.on('click', '.removeButton', function(e) {
+                $('#defaultForm').formValidation('removeField', $el);
+                $row.remove();
+            });
+        });
+
+        $('#defaultForm')
+            .formValidation({
+                message: 'This value is not valid',
+                icon: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+                fields: {
+                    'textbox[]': {
+                        validators: {
+                            notEmpty: {
+                                message: 'The textbox field is required'
+                            }
+                        }
+                    },
+                    'checkbox[]': {
+                        validators: {
+                            notEmpty: {
+                                message: 'The checkbox field is required'
+                            }
+                        }
+                    },
+                    'radio[]': {
+                        validators: {
+                            notEmpty: {
+                                message: 'The radio field is required'
+                            }
+                        }
+                    }
+                }
+            })
+            .on('err.field.fv', function(e, data) {
+                //console.log('err.field.fv -->', data.element);
+            })
+            .on('success.field.fv', function(e, data) {
+                //console.log('success.field.fv -->', data.element);
+            })
+            .on('added.field.fv', function(e, data) {
+                //console.log('Added element -->', data.field, data.element);
+            })
+            .on('removed.field.fv', function(e, data) {
+                //console.log('Removed element -->', data.field, data.element);
+            });
+    });
+	</script>
+
+</body></html>

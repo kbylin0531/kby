@@ -81,9 +81,11 @@ jQuery.each( [ "iGet", "iPost" ], function( i, method ) {
  * String的trim函数
  * @returns {string}
  */
-String.prototype.trim = function () {
-    return this.replace(/(^\s*)|(\s*$)/g, "");
-};
+if(!String.prototype.trim){
+    String.prototype.trim = function () {
+        return this.replace(/(^\s*)|(\s*$)/g, "");
+    };
+}
 
 function string2Jquery(selector){
     if(!(selector instanceof jQuery)){

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>基于Bootstrup的强大jQuery表单验证插件|DEMO1</title>
+	<!-- Include the FontAwesome CSS if you want to use feedback icons provided by FontAwesome -->
+    <link rel="stylesheet" href="DEMO1_files/font-awesome.css">
+    <link rel="stylesheet" href="DEMO1_files/bootstrap.css">
+    <link rel="stylesheet" href="DEMO1_files/formValidation.css">
+	<link rel="stylesheet" type="text/css" href="DEMO1_files/default.css">
+	<!--[if IE]>
+		<script src="http://libs.useso.com/js/html5shiv/3.7/html5shiv.min.js"></script>
+	<![endif]-->
+</head>
+<body>
+	<div class="jq22-sidebar">
+		<ul>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/index.html">default</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/validators.html">validators</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/ajaxSubmit.html">ajaxSubmit</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/attribute.html">attribute</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/choice.html">choice</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/collapse.html">collapse</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container.html">container</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container2.html">container2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container3.html">container3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container4.html">container4</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/date.html">date</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/defaultMessage.html">defaultMessage</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic.html">dynamic</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic2.html">dynamic2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic3.html">dynamic3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic4.html">dynamic4</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/enable.html">enable</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/enable2.html">enable2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event.html">event</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event2.html">event2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event3.html">event3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/file.html">file</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/html5.html">html5</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/i18n.html">i18n</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/ignored.html">ignored</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/invisible.html">invisible</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/mailgun.html">mailgun</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/message.html" class="current">message</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/multiple.html">multiple</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/multipleAsOne.html">multipleAsOne</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/remote.html">remote</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/reset.html">reset</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/row.html">row</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/selector.html">selector</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/selector2.html">selector2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/specialName.html">specialName</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/submitHandler.html">submitHandler</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/tab.html">tab</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/tooltip.html">tooltip</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/typehead.html">typehead</a></li>
+		</ul>
+	</div>
+	<div class="jq22-container">
+		<header class="jq22-header bgcolor-1">
+			<h1>基于Bootstrup的强大jQuery表单验证插件 <span>The best jQuery plugin to validate form fields</span></h1>
+			
+		</header>
+		<div class="container">
+	        <div class="row">
+		        <div class="page-header">
+		            <h1>Use error message that is returned from remote/callback validator</h1>
+		        </div>
+
+		        <div class="col-lg-8 col-lg-offset-2">
+		            <form novalidate="novalidate" id="defaultForm" method="post" class="form-horizontal fv-form fv-form-bootstrap" action="target.php"><button style="display: none; width: 0px; height: 0px;" class="fv-hidden-submit" type="submit"></button>
+		                <div class="form-group has-feedback">
+		                    <label class="col-lg-3 control-label">Username</label>
+		                    <div class="col-lg-5">
+		                        <input data-fv-field="username" class="form-control" name="username" autocomplete="off" type="text"><i data-fv-icon-for="username" class="form-control-feedback" style="display: none;"></i>
+		                    <small data-fv-result="NOT_VALIDATED" data-fv-for="username" data-fv-validator="notEmpty" class="help-block" style="display: none;">The username is required and can't be empty</small><small data-fv-result="NOT_VALIDATED" data-fv-for="username" data-fv-validator="remote" class="help-block" style="display: none;">The username is not valid</small></div>
+		                </div>
+
+		                <div class="form-group has-feedback">
+		                    <label class="col-lg-3 control-label">Email address</label>
+		                    <div class="col-lg-5">
+		                        <input data-fv-field="email" class="form-control" name="email" autocomplete="off" type="text"><i data-fv-icon-for="email" class="form-control-feedback" style="display: none;"></i>
+		                    <small data-fv-result="NOT_VALIDATED" data-fv-for="email" data-fv-validator="notEmpty" class="help-block" style="display: none;">The email address is required and can't be empty</small><small data-fv-result="NOT_VALIDATED" data-fv-for="email" data-fv-validator="emailAddress" class="help-block" style="display: none;">The input is not a valid email address</small><small data-fv-result="NOT_VALIDATED" data-fv-for="email" data-fv-validator="remote" class="help-block" style="display: none;">Please enter a valid value</small></div>
+		                </div>
+
+		                <div class="form-group has-feedback">
+		                    <label class="col-lg-3 control-label">Password</label>
+		                    <div class="col-lg-5">
+		                        <input data-fv-field="password" class="form-control" name="password" type="password"><i data-fv-icon-for="password" class="form-control-feedback" style="display: none;"></i>
+		                    <small data-fv-result="NOT_VALIDATED" data-fv-for="password" data-fv-validator="notEmpty" class="help-block" style="display: none;">The password is required and can't be empty</small><small data-fv-result="NOT_VALIDATED" data-fv-for="password" data-fv-validator="different" class="help-block" style="display: none;">The password can't be the same as username</small><small data-fv-result="NOT_VALIDATED" data-fv-for="password" data-fv-validator="callback" class="help-block" style="display: none;">Please enter a valid value</small></div>
+		                </div>
+
+		                <div class="form-group">
+		                    <div class="col-lg-9 col-lg-offset-3">
+		                        <button type="submit" class="btn btn-primary">Submit</button>
+		                    </div>
+		                </div>
+		            </form>
+		        </div>
+		    </div>
+	    </div>
+		
+	</div>
+	
+	<script type="text/javascript" src="DEMO1_files/jquery.js"></script>
+    <script type="text/javascript" src="DEMO1_files/bootstrap.js"></script>
+    <script type="text/javascript" src="DEMO1_files/formValidation.js"></script>
+    <script type="text/javascript" src="DEMO1_files/bootstrap_002.js"></script>
+    <script type="text/javascript" src="DEMO1_files/zh_CN.js"></script>
+    <script type="text/javascript">
+		$(document).ready(function() {
+		    $('#defaultForm').formValidation({
+		        message: 'This value is not valid',
+		        icon: {
+		            valid: 'glyphicon glyphicon-ok',
+		            invalid: 'glyphicon glyphicon-remove',
+		            validating: 'glyphicon glyphicon-refresh'
+		        },
+		        fields: {
+		            username: {
+		                message: 'The username is not valid',
+		                validators: {
+		                    notEmpty: {
+		                        message: 'The username is required and can\'t be empty'
+		                    },
+		                    remote: {
+		                        url: 'remote2.php'
+		                    }
+		                }
+		            },
+		            email: {
+		                validators: {
+		                    notEmpty: {
+		                        message: 'The email address is required and can\'t be empty'
+		                    },
+		                    emailAddress: {
+		                        message: 'The input is not a valid email address'
+		                    },
+		                    remote: {
+		                        url: 'remote2.php'
+		                    }
+		                }
+		            },
+		            password: {
+		                validators: {
+		                    notEmpty: {
+		                        message: 'The password is required and can\'t be empty'
+		                    },
+		                    different: {
+		                        field: 'username',
+		                        message: 'The password can\'t be the same as username'
+		                    },
+		                    callback: {
+		                        callback: function(value, validator) {
+		                            // Check the password strength
+		                            if (value.length < 6) {
+		                                return {
+		                                    valid: false,
+		                                    message: 'The password must be more than 6 characters'
+		                                }
+		                            }
+
+		                            if (value === value.toLowerCase()) {
+		                                return {
+		                                    valid: false,
+		                                    message: 'The password must contain at least one upper case character'
+		                                }
+		                            }
+		                            if (value === value.toUpperCase()) {
+		                                return {
+		                                    valid: false,
+		                                    message: 'The password must contain at least one lower case character'
+		                                }
+		                            }
+		                            if (value.search(/[0-9]/) < 0) {
+		                                return {
+		                                    valid: false,
+		                                    message: 'The password must contain at least one digit'
+		                                }
+		                            }
+
+		                            return true;
+		                        }
+		                    }
+		                }
+		            }
+		        }
+		    });
+		});
+	</script>
+
+</body></html>

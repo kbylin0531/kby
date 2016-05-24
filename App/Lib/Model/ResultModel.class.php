@@ -441,7 +441,7 @@ WHERE RTRIM(st.CLASSNO) like :classnoC and cs.[year] = :year and cs.term = :term
 	and CLASSES.SCHOOL like :schoolno and csp.COURSETYPE = '{$approach}' and st.STATUS = 'A'
 GROUP BY cs.courseno , cs.[group],COURSES.COURSENAME,st.STUDENTNO ,st.CLASSNO ,CLASSES.CLASSNAME,
 sp.ATTENDENTS,
-cs.midterm_score,cs.midterm_exam_status ,
+cs.{$scoretype},cs.{$statustype} ,
 CLASSES.STUDENTS,
 CLASSES.SCHOOL,CLASSES.remark
 ORDER BY cs.courseno+cs.[group]";

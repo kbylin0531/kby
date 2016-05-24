@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>基于Bootstrup的强大jQuery表单验证插件|date</title>
+	<!-- Include the FontAwesome CSS if you want to use feedback icons provided by FontAwesome -->
+    <link rel="stylesheet" href="date_files/font-awesome.css">
+    <link rel="stylesheet" href="date_files/bootstrap.css">
+    <link rel="stylesheet" href="date_files/formValidation.css">
+	<link rel="stylesheet" type="text/css" href="date_files/default.css">
+	<link rel="stylesheet" href="date_files/bootstrap-datetimepicker.css">
+	<style type="text/css">
+    /* Override to make the feedback icons shown properly */
+    .form-horizontal .has-feedback .form-control-feedback {
+        top: 0;
+        right: -15px;
+    }
+    .form-horizontal .has-feedback .input-group .form-control-feedback {
+        top: 0;
+        right: -30px;
+    }
+	</style>
+	<!--[if IE]>
+		<script src="http://libs.useso.com/js/html5shiv/3.7/html5shiv.min.js"></script>
+	<![endif]-->
+</head>
+<body>
+	<div class="jq22-sidebar">
+		<ul>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/index.html">default</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/validators.html">validators</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/ajaxSubmit.html">ajaxSubmit</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/attribute.html">attribute</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/choice.html">choice</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/collapse.html">collapse</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container.html">container</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container2.html">container2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container3.html">container3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container4.html">container4</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/date.html" class="current">date</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/defaultMessage.html">defaultMessage</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic.html">dynamic</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic2.html">dynamic2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic3.html">dynamic3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic4.html">dynamic4</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/enable.html">enable</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/enable2.html">enable2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event.html">event</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event2.html">event2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event3.html">event3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/file.html">file</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/html5.html">html5</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/i18n.html">i18n</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/ignored.html">ignored</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/invisible.html">invisible</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/mailgun.html">mailgun</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/message.html">message</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/multiple.html">multiple</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/multipleAsOne.html">multipleAsOne</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/remote.html">remote</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/reset.html">reset</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/row.html">row</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/selector.html">selector</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/selector2.html">selector2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/specialName.html">specialName</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/submitHandler.html">submitHandler</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/tab.html">tab</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/tooltip.html">tooltip</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/typehead.html">typehead</a></li>
+		</ul>
+	</div>
+	<div class="jq22-container">
+		<header class="jq22-header bgcolor-1">
+			<h1>基于Bootstrup的强大jQuery表单验证插件 <span>The best jQuery plugin to validate form fields</span></h1>
+			
+		</header>
+
+		<div class="container">
+	        <div class="row">
+	            <!-- form: -->
+	            <section>
+	                <div class="col-lg-8 col-lg-offset-2">
+	                    <div class="page-header">
+	                        <h2>Date validator</h2>
+	                    </div>
+
+	                    <form novalidate="novalidate" id="defaultForm" method="post" class="form-horizontal fv-form fv-form-bootstrap" action="target.php"><button style="display: none; width: 0px; height: 0px;" class="fv-hidden-submit" type="submit"></button>
+	                        <div class="form-group has-feedback">
+	                            <label class="col-lg-3 control-label">MM/DD/YYYY</label>
+	                            <div class="col-lg-5">
+	                                <input data-fv-field="monthDayYear" class="form-control" name="monthDayYear" type="text"><i data-fv-icon-for="monthDayYear" class="form-control-feedback" style="display: none;"></i>
+	                            <small data-fv-result="NOT_VALIDATED" data-fv-for="monthDayYear" data-fv-validator="notEmpty" class="help-block" style="display: none;">The date is required and cannot be empty</small><small data-fv-result="NOT_VALIDATED" data-fv-for="monthDayYear" data-fv-validator="date" class="help-block" style="display: none;">Please enter a valid date</small></div>
+	                        </div>
+
+	                        <div class="form-group has-feedback">
+	                            <label class="col-lg-3 control-label">YYYY-DD-MM</label>
+	                            <div class="col-lg-5">
+	                                <input data-fv-field="yearDayMonth" class="form-control" name="yearDayMonth" type="text"><i data-fv-icon-for="yearDayMonth" class="form-control-feedback" style="display: none;"></i>
+	                            <small data-fv-result="NOT_VALIDATED" data-fv-for="yearDayMonth" data-fv-validator="notEmpty" class="help-block" style="display: none;">The date is required and cannot be empty</small><small data-fv-result="NOT_VALIDATED" data-fv-for="yearDayMonth" data-fv-validator="date" class="help-block" style="display: none;">Please enter a valid date</small></div>
+	                        </div>
+
+	                        <div class="form-group has-feedback">
+	                            <label class="col-lg-3 control-label">YYYY.MM.DD</label>
+	                            <div class="col-lg-5">
+	                                <input data-fv-field="yearMonthDay" class="form-control" name="yearMonthDay" type="text"><i data-fv-icon-for="yearMonthDay" class="form-control-feedback" style="display: none;"></i>
+	                            <small data-fv-result="NOT_VALIDATED" data-fv-for="yearMonthDay" data-fv-validator="notEmpty" class="help-block" style="display: none;">The date is required and cannot be empty</small><small data-fv-result="NOT_VALIDATED" data-fv-for="yearMonthDay" data-fv-validator="date" class="help-block" style="display: none;">Please enter a valid date</small></div>
+	                        </div>
+
+	                        <div class="form-group has-feedback">
+	                            <label class="col-lg-3 control-label">MM/DD/YYYY h:m A</label>
+	                            <div class="col-lg-5">
+	                                <input data-fv-field="monthDayYearTime" class="form-control" name="monthDayYearTime" type="text"><i data-fv-icon-for="monthDayYearTime" class="form-control-feedback" style="display: none;"></i>
+	                            <small data-fv-result="NOT_VALIDATED" data-fv-for="monthDayYearTime" data-fv-validator="notEmpty" class="help-block" style="display: none;">The date is required and cannot be empty</small><small data-fv-result="NOT_VALIDATED" data-fv-for="monthDayYearTime" data-fv-validator="date" class="help-block" style="display: none;">Please enter a valid date</small></div>
+	                        </div>
+
+	                        <div class="form-group has-feedback">
+	                            <label class="col-lg-3 control-label">YYYY-DD-MM h:m A</label>
+	                            <div class="col-lg-5">
+	                                <input data-fv-field="yearDayMonthTime" class="form-control" name="yearDayMonthTime" type="text"><i data-fv-icon-for="yearDayMonthTime" class="form-control-feedback" style="display: none;"></i>
+	                            <small data-fv-result="NOT_VALIDATED" data-fv-for="yearDayMonthTime" data-fv-validator="notEmpty" class="help-block" style="display: none;">The date is required and cannot be empty</small><small data-fv-result="NOT_VALIDATED" data-fv-for="yearDayMonthTime" data-fv-validator="date" class="help-block" style="display: none;">Please enter a valid date</small></div>
+	                        </div>
+
+	                        <!-- datetime picker -->
+	                        <div class="form-group has-feedback">
+	                            <label class="col-lg-3 control-label"><a href="http://eonasdan.github.io/bootstrap-datetimepicker/">DateTime Picker</a> (MM/DD/YYYY h:m A)</label>
+	                            <div class="col-lg-5">
+	                                <div class="input-group date" id="datetimePicker">
+	                                    <input data-fv-field="datetimePicker" class="form-control" name="datetimePicker" type="text">
+	                                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+	                                </div><i data-fv-icon-for="datetimePicker" class="form-control-feedback fv-bootstrap-icon-input-group" style="display: none;"></i>
+	                            <small data-fv-result="NOT_VALIDATED" data-fv-for="datetimePicker" data-fv-validator="notEmpty" class="help-block" style="display: none;">The date is required and cannot be empty</small><small data-fv-result="NOT_VALIDATED" data-fv-for="datetimePicker" data-fv-validator="date" class="help-block" style="display: none;">Please enter a valid date</small></div>
+	                        </div>
+
+	                        <div class="form-group">
+	                            <div class="col-lg-9 col-lg-offset-3">
+	                                <button type="submit" class="btn btn-primary">Submit</button>
+	                            </div>
+	                        </div>
+	                    </form>
+	                </div>
+	            </section>
+	            <!-- :form -->
+	        </div>
+	    </div>
+		
+	</div>
+	
+	<script type="text/javascript" src="date_files/jquery.js"></script>
+    <script type="text/javascript" src="date_files/bootstrap_002.js"></script>
+    <script type="text/javascript" src="date_files/formValidation.js"></script>
+    <script type="text/javascript" src="date_files/bootstrap.js"></script>
+    <script type="text/javascript" src="date_files/zh_CN.js"></script>
+    <script type="text/javascript" src="date_files/moment.js"></script>
+    <script type="text/javascript" src="date_files/bootstrap-datetimepicker.js"></script>
+    <script type="text/javascript">
+		$(document).ready(function() {
+		    $('#datetimePicker').datetimepicker();
+
+		    $('#defaultForm').formValidation({
+		        message: 'This value is not valid',
+		        icon: {
+		            valid: 'glyphicon glyphicon-ok',
+		            invalid: 'glyphicon glyphicon-remove',
+		            validating: 'glyphicon glyphicon-refresh'
+		        },
+		        fields: {
+		            monthDayYear: {
+		                validators: {
+		                    notEmpty: {
+		                        message: 'The date is required and cannot be empty'
+		                    },
+		                    date: {
+		                        format: 'MM/DD/YYYY'
+		                    }
+		                }
+		            },
+		            yearDayMonth: {
+		                validators: {
+		                    notEmpty: {
+		                        message: 'The date is required and cannot be empty'
+		                    },
+		                    date: {
+		                        format: 'YYYY-DD-MM'
+		                    }
+		                }
+		            },
+		            yearMonthDay: {
+		                validators: {
+		                    notEmpty: {
+		                        message: 'The date is required and cannot be empty'
+		                    },
+		                    date: {
+		                        format: 'YYYY.MM.DD',
+		                        separator: '.'
+		                    }
+		                }
+		            },
+		            monthDayYearTime: {
+		                validators: {
+		                    notEmpty: {
+		                        message: 'The date is required and cannot be empty'
+		                    },
+		                    date: {
+		                        format: 'MM/DD/YYYY h:m A'
+		                    }
+		                }
+		            },
+		            yearDayMonthTime: {
+		                validators: {
+		                    notEmpty: {
+		                        message: 'The date is required and cannot be empty'
+		                    },
+		                    date: {
+		                        format: 'YYYY-DD-MM h:m A'
+		                    }
+		                }
+		            },
+		            datetimePicker: {
+		                validators: {
+		                    notEmpty: {
+		                        message: 'The date is required and cannot be empty'
+		                    },
+		                    date: {
+		                        format: 'MM/DD/YYYY h:m A'
+		                    }
+		                }
+		            }
+		        }
+		    });
+
+		    $('#datetimePicker')
+		        .on('dp.change dp.show', function(e) {
+		            // Validate the date when user change it
+		            $('#defaultForm').data('formValidation').revalidateField('datetimePicker');
+		            // You also can call it as following:
+		            // $('#defaultForm').formValidation('revalidateField', 'datetimePicker');
+		        });
+		});
+	</script>
+
+</body></html>

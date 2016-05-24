@@ -78,13 +78,13 @@ trait Crux {
     /**
      * <不存在依赖关系>
      * 读取全局配置
-     * 设定在 'CONFIG_PATH' 目录下的配置文件的名称
+     * 设定在 'KL_CONFIG_PATH' 目录下的配置文件的名称
      * @param string|array $itemname 自定义配置项名称
      * @param string $conf_path 配置文件的路径
      * @return array|mixed 配置项存在的情况下返回array，否则返回参数$replacement的值
      * @throws
      */
-    public static function readGlobal($itemname, $conf_path=CONFIG_PATH) {
+    public static function readGlobal($itemname, $conf_path=KL_CONFIG_PATH) {
         $result = [];
 
         $type = gettype($itemname);
@@ -112,7 +112,7 @@ trait Crux {
      * @return bool
      * @throws KbylinException
      */
-    protected static function checkInitialized($dowhilenot=false){
+    protected static function checkInitialized($dowhilenot=true){
         return isset(static::$_conventions[static::class])?true:$dowhilenot?static::initialize():false;
     }
 

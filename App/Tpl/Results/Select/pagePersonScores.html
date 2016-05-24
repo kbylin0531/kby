@@ -30,6 +30,7 @@
                 studentno:studentno
             }, function (data) {
                 if(Messager.isMessage(data)){
+                    shadow.hide();
                     return Messager.show(data);
                 }
                 var personinfo = data['person_info'];

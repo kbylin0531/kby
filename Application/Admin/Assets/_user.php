@@ -10,13 +10,8 @@ return [
     'nickname'      => 'kbylin@163.com',
     'menu'          => [
         [
-            'title' => 'settings',
-            'href'  => '#',
-            'icon'  => 'icon-settings',
-        ],
-        [
             'title' => 'Logout',
-            'href'  => '#',
+            'href'  => '/Admin/PublicAction/doLogout',
             'target'    => '_self',
             'icon'  => 'icon-logout',
         ],

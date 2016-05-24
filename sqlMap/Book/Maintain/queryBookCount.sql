@@ -1,0 +1,1 @@
+select count(*) from book b where b.isbn like :isbn and b.bookname like :bookname and b.status like :status and b.booknature like :booknature

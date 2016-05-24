@@ -1076,38 +1076,39 @@ TEACHERS.MOBILE_LONG,TEACHERS.MOBILE_SHORT';
      * @param null $limit
      * @return array|string
      */
-    public function listExamCourses($year,$term,$classno,$teachername,$coursename,$offset=null,$limit=null){
+    public function listExamCourses($year,$term,$classno,$teachername,$coursename,$approach,$offset=null,$limit=null){
+
         $fields = "
-cs.courseno+cs.[group] as courseno,
-dbo.getone(RTRIM(COURSES.COURSENAME)) as coursename,
-SUM(cs.midterm_lock) as midterm_lock, -- 锁定人数
-SUM(cs.finals_lock) as finals_lock, -- 锁定人数
-SUM(cs.resit_lock) as resit_lock, -- 锁定人数
-count(*) as num, -- 锁定的学生的数目
-SCHOOLS.SCHOOL as schoolno,
-RTRIM(SCHOOLS.NAME) as schoolname,
+sp.courseno+sp.[group] as courseno,
+RTRIM(COURSES.COURSENAME) as coursename,
+SUM(ISNULL(cs.midterm_lock, 0)) as midterm_lock, -- 锁定人数
+SUM(ISNULL(cs.finals_lock, 0)) as finals_lock, -- 锁定人数
+SUM(ISNULL(cs.resit_lock, 0)) as resit_lock, -- 锁定人数
+count(cs.studentno) as num, -- 锁定的学生的数目
 cp.score_type,
 cp.CLASSNO,
-tp.TEACHERNO,
-RTRIM(TEACHERS.NAME) as teachername";
+cp.COURSETYPE,
+ca.VALUE as coursetypename,
+RTRIM(ISNULL(TEACHERS.NAME,'[未安排]')) as teachername";
         $join = '
-INNER JOIN SCHEDULEPLAN sp ON sp.[YEAR] = cs.[year] and sp.TERM = cs.term and sp.COURSENO = cs.courseno and sp.[GROUP] = cs.[group]
+INNER JOIN COURSEPLAN cp on cp.[YEAR] = sp.[year] and cp.TERM = sp.term and cp.COURSENO+cp.[GROUP] = sp.courseno+sp.[group]
+LEFT OUTER JOIN COURSEAPPROACHES ca on ca.[NAME] = cp.COURSETYPE
+INNER JOIN CLASSES on CLASSES.CLASSNO = cp.CLASSNO
+INNER JOIN COURSES on sp.courseno = COURSES.COURSENO
+LEFT OUTER JOIN cwebs_scores cs ON sp.[YEAR] = cs.[year] and sp.TERM = cs.term and sp.COURSENO = cs.courseno and sp.[GROUP] = cs.[group]
 LEFT OUTER JOIN TEACHERPLAN tp ON tp.MAP = sp.RECNO
-INNER JOIN COURSEPLAN cp on cp.[YEAR] = cs.[year] and cp.TERM = cs.term and cp.COURSENO+cp.[GROUP] = cs.courseno+cs.[group]
-INNER JOIN COURSES on cs.courseno = COURSES.COURSENO
-INNER JOIN TEACHERS on TEACHERS.TEACHERNO = tp.TEACHERNO
-LEFT OUTER JOIN SCHOOLS on COURSES.SCHOOL = SCHOOLS.SCHOOL';
-        $where = 'cs.[year] = :year and cs.term = :term and RTRIM(COURSES.COURSENAME) like :coursename and
-            cp.classno like :classno and RTRIM(TEACHERS.NAME) like :teachername';
-        $group = 'cs.courseno,cs.[group],COURSES.COURSENAME,SCHOOLS.SCHOOL,SCHOOLS.NAME,cp.score_type,tp.TEACHERNO,cp.CLASSNO,TEACHERS.NAME';
-        $order = 'cs.courseno';
-        $csql = $this->makeCountSql('cwebs_scores cs',array(
+LEFT OUTER JOIN TEACHERS on TEACHERS.TEACHERNO = tp.TEACHERNO';
+        $where = 'sp.[year] = :year and sp.term = :term and cp.COURSETYPE like :coursetype and RTRIM(COURSES.COURSENAME) like :coursename and
+            cp.classno like :classno and RTRIM(ISNULL(TEACHERS.NAME,\'\')) like :teachername';
+        $group = 'ca.VALUE,cp.COURSETYPE,sp.courseno,sp.[group],COURSES.COURSENAME,cp.score_type,TEACHERS.NAME,cp.CLASSNO,TEACHERS.NAME';
+        $order = 'cp.COURSETYPE DESC, sp.courseno';//ci fei bi
+        $csql = $this->makeCountSql('SCHEDULEPLAN sp',array(
             'join'      => $join,
             'where'     => $where,
             'group'     => $group,
             'order'     => $order,
         ));
-        $ssql = $this->makeSql('cwebs_scores cs',array(
+        $ssql = $this->makeSql('SCHEDULEPLAN sp',array(
             'fields'    => $fields,
             'join'      => $join,
             'where'     => $where,
@@ -1117,6 +1118,7 @@ LEFT OUTER JOIN SCHOOLS on COURSES.SCHOOL = SCHOOLS.SCHOOL';
         $bind = array(
             ':year' => $year,
             ':term' => $term,
+            ':coursetype' => $approach,
             ':coursename'       => $coursename,
             ':classno'          => $classno,
             ':teachername'      => $teachername,

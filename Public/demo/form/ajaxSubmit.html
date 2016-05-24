@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>基于Bootstrup的强大jQuery表单验证插件|ajaxSubmit</title>
+	<!-- Include the FontAwesome CSS if you want to use feedback icons provided by FontAwesome -->
+    <link rel="stylesheet" href="./font-awesome.css">
+    <link rel="stylesheet" href="./bootstrap.css">
+    <link rel="stylesheet" href="./formValidation.css">
+	<link rel="stylesheet" type="text/css" href="ajaxSubmit_files/default.css">
+</head>
+<body>
+	<div class="jq22-sidebar">
+		<ul>
+			<li><span class="fa fa-arrow-right"></span> <a href="">default</a></li>
+		</ul>
+	</div>
+	<div class="jq22-container">
+		<div class="container">
+		    <div class="row">
+		        <div class="col-lg-8 col-lg-offset-2">
+		            <div class="page-header">
+		                <h2>Using Ajax to submit data</h2>
+		            </div>
+
+		            <form novalidate="novalidate" id="defaultForm" method="post" class="form-horizontal fv-form fv-form-bootstrap" action="ajaxSubmit.php"><button style="display: none; width: 0px; height: 0px;" class="fv-hidden-submit" type="submit"></button>
+		                <div class="form-group has-feedback">
+		                    <label class="col-lg-3 control-label">Username</label>
+		                    <div class="col-lg-5">
+		                        <input data-fv-field="username" class="form-control" name="username" type="text"><i data-fv-icon-for="username" class="form-control-feedback" style="display: none;"></i>
+		                    <small data-fv-result="NOT_VALIDATED" data-fv-for="username" data-fv-validator="notEmpty" class="help-block" style="display: none;">The username is required and can't be empty</small><small data-fv-result="NOT_VALIDATED" data-fv-for="username" data-fv-validator="stringLength" class="help-block" style="display: none;">The username must be more than 6 and less than 30 characters long</small><small data-fv-result="NOT_VALIDATED" data-fv-for="username" data-fv-validator="regexp" class="help-block" style="display: none;">The username can only consist of alphabetical, number, dot and underscore</small></div>
+		                </div>
+
+		                <div class="form-group has-feedback">
+		                    <label class="col-lg-3 control-label">Email address</label>
+		                    <div class="col-lg-5">
+		                        <input data-fv-field="email" class="form-control" name="email" type="text"><i data-fv-icon-for="email" class="form-control-feedback" style="display: none;"></i>
+		                    <small data-fv-result="NOT_VALIDATED" data-fv-for="email" data-fv-validator="notEmpty" class="help-block" style="display: none;">The email address is required and can't be empty</small><small data-fv-result="NOT_VALIDATED" data-fv-for="email" data-fv-validator="emailAddress" class="help-block" style="display: none;">The input is not a valid email address</small></div>
+		                </div>
+
+		                <div class="form-group has-feedback">
+		                    <label class="col-lg-3 control-label">Password</label>
+		                    <div class="col-lg-5">
+		                        <input data-fv-field="password" class="form-control" name="password" type="password"><i data-fv-icon-for="password" class="form-control-feedback" style="display: none;"></i>
+		                    <small data-fv-result="NOT_VALIDATED" data-fv-for="password" data-fv-validator="notEmpty" class="help-block" style="display: none;">The password is required and can't be empty</small></div>
+		                </div>
+
+		                <div class="form-group">
+		                    <div class="col-lg-9 col-lg-offset-3">
+		                        <button type="submit" class="btn btn-primary">Sign up</button>
+		                    </div>
+		                </div>
+		            </form>
+		        </div>
+		    </div>
+		</div>
+		
+	</div>
+	
+	<script type="text/javascript" src="./jquery.js"></script>
+    <script type="text/javascript" src="./formValidation.js"></script>
+    <script type="text/javascript" src="./bootstrap.js"></script>
+    <script type="text/javascript" src="./zh_CN.js"></script>
+    <script type="text/javascript">
+$(document).ready(function() {
+    $('#defaultForm')
+        .formValidation({
+            message: 'This value is not valid',
+            icon: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                username: {
+                    message: 'The username is not valid',
+                    validators: {
+                        notEmpty: {
+                            message: 'The username is required and can\'t be empty'
+                        },
+                        stringLength: {
+                            min: 6,
+                            max: 30,
+                            message: 'The username must be more than 6 and less than 30 characters long'
+                        },
+                        /*remote: {
+                            url: 'remote.php',
+                            message: 'The username is not available'
+                        },*/
+                        regexp: {
+                            regexp: /^[a-zA-Z0-9_\.]+$/,
+                            message: 'The username can only consist of alphabetical, number, dot and underscore'
+                        }
+                    }
+                },
+                email: {
+                    validators: {
+                        notEmpty: {
+                            message: 'The email address is required and can\'t be empty'
+                        },
+                        emailAddress: {
+                            message: 'The input is not a valid email address'
+                        }
+                    }
+                },
+                password: {
+                    validators: {
+                        notEmpty: {
+                            message: 'The password is required and can\'t be empty'
+                        }
+                    }
+                }
+            }
+        })
+        .on('success.form.fv', function(e) {
+            // Prevent form submission
+            e.preventDefault();
+
+            // Get the form instance
+            var $form = $(e.target);
+
+            // Get the FormValidation instance
+            var bv = $form.data('formValidation');
+
+            // Use Ajax to submit form data
+            $.post($form.attr('action'), $form.serialize(), function(result) {
+                console.log(result);
+            }, 'json');
+        });
+});
+</script>
+
+</body></html>

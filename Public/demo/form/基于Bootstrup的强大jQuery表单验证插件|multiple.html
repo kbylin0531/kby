@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>基于Bootstrup的强大jQuery表单验证插件|multiple</title>
+	<!-- Include the FontAwesome CSS if you want to use feedback icons provided by FontAwesome -->
+    <link rel="stylesheet" href="multiple_files/font-awesome.css">
+    <link rel="stylesheet" href="multiple_files/bootstrap.css">
+    <link rel="stylesheet" href="multiple_files/formValidation.css">
+	<link rel="stylesheet" type="text/css" href="multiple_files/default.css">
+	<!--[if IE]>
+		<script src="http://libs.useso.com/js/html5shiv/3.7/html5shiv.min.js"></script>
+	<![endif]-->
+</head>
+<body>
+	<div class="jq22-sidebar">
+		<ul>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/index.html">default</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/validators.html">validators</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/ajaxSubmit.html">ajaxSubmit</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/attribute.html">attribute</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/choice.html">choice</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/collapse.html">collapse</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container.html">container</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container2.html">container2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container3.html">container3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container4.html">container4</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/date.html">date</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/defaultMessage.html">defaultMessage</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic.html">dynamic</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic2.html">dynamic2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic3.html">dynamic3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic4.html">dynamic4</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/enable.html">enable</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/enable2.html">enable2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event.html">event</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event2.html">event2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event3.html">event3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/file.html">file</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/html5.html">html5</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/i18n.html">i18n</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/ignored.html">ignored</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/invisible.html">invisible</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/mailgun.html">mailgun</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/message.html">message</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/multiple.html" class="current">multiple</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/multipleAsOne.html">multipleAsOne</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/remote.html">remote</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/reset.html">reset</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/row.html">row</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/selector.html">selector</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/selector2.html">selector2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/specialName.html">specialName</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/submitHandler.html">submitHandler</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/tab.html">tab</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/tooltip.html">tooltip</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/typehead.html">typehead</a></li>
+		</ul>
+	</div>
+	<div class="jq22-container">
+		<header class="jq22-header bgcolor-1">
+			<h1>基于Bootstrup的强大jQuery表单验证插件 <span>The best jQuery plugin to validate form fields</span></h1>
+			
+		</header>
+		<div class="container">
+		    <div class="row">
+		        <section>
+		            <div class="col-lg-8 col-lg-offset-2">
+		                <div class="page-header">
+		                    <h2>Multiple elements with the same name</h2>
+		                </div>
+
+		                <form novalidate="novalidate" id="defaultForm" method="post" class="form-horizontal fv-form fv-form-bootstrap" action="target.php"><button style="display: none; width: 0px; height: 0px;" class="fv-hidden-submit" type="submit"></button>
+		                    <div class="form-group has-feedback">
+		                        <label class="col-lg-3 control-label">Gender</label>
+		                        <div class="col-lg-5">
+		                            <div class="radio">
+		                                <label>
+		                                    <input data-fv-field="gender" name="gender" value="male" type="radio"> Male
+		                                </label>
+		                            </div>
+		                            <div class="radio">
+		                                <label>
+		                                    <input data-fv-field="gender" name="gender" value="female" type="radio"> Female
+		                                </label>
+		                            </div>
+		                            <div class="radio">
+		                                <label>
+		                                    <input data-fv-field="gender" name="gender" value="other" type="radio"> Other
+		                                </label>
+		                            </div><i data-fv-icon-for="gender" class="form-control-feedback" style="display: none;"></i>
+		                        <small data-fv-result="NOT_VALIDATED" data-fv-for="gender" data-fv-validator="notEmpty" class="help-block" style="display: none;">The gender is required</small></div>
+		                    </div>
+
+		                    <div class="form-group has-feedback">
+		                        <label class="col-lg-3 control-label">Browser</label>
+		                        <div class="col-lg-5">
+		                            <div class="checkbox">
+		                                <label>
+		                                    <input data-fv-field="browsers[]" name="browsers[]" value="chrome" type="checkbox"> Google Chrome
+		                                </label>
+		                            </div>
+		                            <div class="checkbox">
+		                                <label>
+		                                    <input data-fv-field="browsers[]" name="browsers[]" value="firefox" type="checkbox"> Firefox
+		                                </label>
+		                            </div>
+		                            <div class="checkbox">
+		                                <label>
+		                                    <input data-fv-field="browsers[]" name="browsers[]" value="ie" type="checkbox"> IE
+		                                </label>
+		                            </div>
+		                            <div class="checkbox">
+		                                <label>
+		                                    <input data-fv-field="browsers[]" name="browsers[]" value="safari" type="checkbox"> Safari
+		                                </label>
+		                            </div>
+		                            <div class="checkbox">
+		                                <label>
+		                                    <input data-fv-field="browsers[]" name="browsers[]" value="opera" type="checkbox"> Opera
+		                                </label>
+		                            </div>
+		                            <div class="checkbox">
+		                                <label>
+		                                    <input data-fv-field="browsers[]" name="browsers[]" value="other" type="checkbox"> Other
+		                                </label>
+		                            </div><i data-fv-icon-for="browsers[]" class="form-control-feedback" style="display: none;"></i>
+		                        <small data-fv-result="NOT_VALIDATED" data-fv-for="browsers[]" data-fv-validator="notEmpty" class="help-block" style="display: none;">Please specify at least one browser you use daily for development</small></div>
+		                    </div>
+
+		                    <div class="form-group has-feedback">
+		                        <label class="col-lg-3 control-label">Editors</label>
+		                        <div class="col-lg-5">
+		                            <input data-fv-field="editors[]" class="form-control" name="editors[]" type="text"><i data-fv-icon-for="editors[]" class="form-control-feedback" style="display: none;"></i>
+		                        <small data-fv-result="NOT_VALIDATED" data-fv-for="editors[]" data-fv-validator="notEmpty" class="help-block" style="display: none;">The editor names are required</small></div>
+		                    </div>
+		                    <div class="form-group has-feedback">
+		                        <div class="col-lg-offset-3 col-lg-5">
+		                            <input data-fv-field="editors[]" class="form-control" name="editors[]" type="text"><i data-fv-icon-for="editors[]" class="form-control-feedback fv-icon-no-label" style="display: none;"></i>
+		                        <small data-fv-result="NOT_VALIDATED" data-fv-for="editors[]" data-fv-validator="notEmpty" class="help-block" style="display: none;">The editor names are required</small></div>
+		                    </div>
+		                    <div class="form-group has-feedback">
+		                        <div class="col-lg-offset-3 col-lg-5">
+		                            <input data-fv-field="editors[]" class="form-control" name="editors[]" type="text"><i data-fv-icon-for="editors[]" class="form-control-feedback fv-icon-no-label" style="display: none;"></i>
+		                        <small data-fv-result="NOT_VALIDATED" data-fv-for="editors[]" data-fv-validator="notEmpty" class="help-block" style="display: none;">The editor names are required</small></div>
+		                    </div>
+		                    <div class="form-group has-feedback">
+		                        <div class="col-lg-offset-3 col-lg-5">
+		                            <input data-fv-field="editors[]" class="form-control" name="editors[]" type="text"><i data-fv-icon-for="editors[]" class="form-control-feedback fv-icon-no-label" style="display: none;"></i>
+		                        <small data-fv-result="NOT_VALIDATED" data-fv-for="editors[]" data-fv-validator="notEmpty" class="help-block" style="display: none;">The editor names are required</small></div>
+		                    </div>
+
+		                    <div class="form-group">
+		                        <div class="col-lg-offset-3 col-lg-3">
+		                            <button type="submit" class="btn btn-primary">Submit</button>
+		                        </div>
+		                    </div>
+		                </form>
+		            </div>
+		        </section>
+		    </div>
+		</div>
+		
+	</div>
+	
+	<script type="text/javascript" src="multiple_files/jquery.js"></script>
+    <script type="text/javascript" src="multiple_files/bootstrap_002.js"></script>
+    <script type="text/javascript" src="multiple_files/formValidation.js"></script>
+    <script type="text/javascript" src="multiple_files/bootstrap.js"></script>
+    <script type="text/javascript" src="multiple_files/zh_CN.js"></script>
+    <script type="text/javascript">
+		$(document).ready(function() {
+		    $('#defaultForm').formValidation({
+		        icon: {
+		            valid: 'glyphicon glyphicon-ok',
+		            invalid: 'glyphicon glyphicon-remove',
+		            validating: 'glyphicon glyphicon-refresh'
+		        },
+		        err: {
+		            container: 'tooltip'
+		        },
+		        fields: {
+		            gender: {
+		                validators: {
+		                    notEmpty: {
+		                        message: 'The gender is required'
+		                    }
+		                }
+		            },
+		            'browsers[]': {
+		                validators: {
+		                    notEmpty: {
+		                        message: 'Please specify at least one browser you use daily for development'
+		                    }
+		                }
+		            },
+		            'editors[]': {
+		                validators: {
+		                    notEmpty: {
+		                        message: 'The editor names are required'
+		                    }
+		                }
+		            }
+		        }
+		    });
+		});
+	</script>
+
+</body></html>

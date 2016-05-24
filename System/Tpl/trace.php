@@ -1,4 +1,4 @@
-<?php defined('BASE_PATH') or die('No Permission!');  ?>
+<?php defined('KL_BASE_PATH') or die('No Permission!');  ?>
 <div id="think_page_trace" style="border-left:thin double #ccc;position: fixed;bottom:0;right:0;font-size:14px;width:800px;z-index: 999999;color: #000;text-align:left;font-family:'Times New Roman';cursor:default;">
     <div id="think_page_trace_tab" style="display: none;background:white;margin:0;height: 250px;">
         <!-- 导航条 -->

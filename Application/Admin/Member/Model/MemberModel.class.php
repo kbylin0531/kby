@@ -13,10 +13,9 @@ class MemberModel extends Model {
 
     const TABLE_NAME = 'users';
 
-    public function getUser($username){
+    public function getUserInfo($username){
         $result = $this->fields('username,password,roles')->where(['username'=>$username])->find();
 //        dumpout($result);
         return $result;
     }
-
 }

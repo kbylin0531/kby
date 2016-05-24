@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>基于Bootstrup的强大jQuery表单验证插件|typehead</title>
+	<!-- Include the FontAwesome CSS if you want to use feedback icons provided by FontAwesome -->
+    <link rel="stylesheet" href="typehead_files/font-awesome.css">
+    <link rel="stylesheet" href="typehead_files/bootstrap.css">
+    <link rel="stylesheet" href="typehead_files/formValidation.css">
+	<link rel="stylesheet" type="text/css" href="typehead_files/default.css">
+	<style type="text/css">
+    /* https://github.com/bassjobsen/typeahead.js-bootstrap-css */
+    span.twitter-typeahead .tt-dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        z-index: 1000;
+        display: none;
+        float: left;
+        min-width: 160px;
+        padding: 5px 0;
+        margin: 2px 0 0;
+        list-style: none;
+        font-size: 14px;
+        text-align: left;
+        background-color: #ffffff;
+        border: 1px solid #cccccc;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        border-radius: 4px;
+        -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+        background-clip: padding-box;
+    }
+    span.twitter-typeahead .tt-suggestion > p {
+        display: block;
+        padding: 3px 20px;
+        clear: both;
+        font-weight: normal;
+        line-height: 1.42857143;
+        color: #333333;
+        white-space: nowrap;
+    }
+    span.twitter-typeahead .tt-suggestion > p:hover,
+    span.twitter-typeahead .tt-suggestion > p:focus {
+        color: #ffffff;
+        text-decoration: none;
+        outline: 0;
+        background-color: #428bca;
+    }
+    span.twitter-typeahead .tt-suggestion.tt-cursor {
+        color: #ffffff;
+        background-color: #428bca;
+    }
+    span.twitter-typeahead {
+        width: 100%;
+    }
+    .input-group span.twitter-typeahead {
+        display: block !important;
+    }
+    .input-group span.twitter-typeahead .tt-dropdown-menu {
+        top: 32px !important;
+    }
+    .input-group.input-group-lg span.twitter-typeahead .tt-dropdown-menu {
+        top: 44px !important;
+    }
+    .input-group.input-group-sm span.twitter-typeahead .tt-dropdown-menu {
+        top: 28px !important;
+    }
+    </style>
+	<!--[if IE]>
+		<script src="http://libs.useso.com/js/html5shiv/3.7/html5shiv.min.js"></script>
+	<![endif]-->
+</head>
+<body>
+	<div class="jq22-sidebar">
+		<ul>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/index.html">default</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/validators.html">validators</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/ajaxSubmit.html">ajaxSubmit</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/attribute.html">attribute</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/choice.html">choice</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/collapse.html">collapse</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container.html">container</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container2.html">container2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container3.html">container3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container4.html">container4</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/date.html">date</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/defaultMessage.html">defaultMessage</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic.html">dynamic</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic2.html">dynamic2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic3.html">dynamic3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic4.html">dynamic4</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/enable.html">enable</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/enable2.html">enable2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event.html">event</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event2.html">event2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event3.html">event3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/file.html">file</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/html5.html">html5</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/i18n.html">i18n</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/ignored.html">ignored</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/invisible.html">invisible</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/mailgun.html">mailgun</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/message.html">message</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/multiple.html">multiple</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/multipleAsOne.html">multipleAsOne</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/remote.html">remote</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/reset.html">reset</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/row.html">row</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/selector.html">selector</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/selector2.html">selector2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/specialName.html">specialName</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/submitHandler.html">submitHandler</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/tab.html">tab</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/tooltip.html">tooltip</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/typehead.html" class="current">typehead</a></li>
+		</ul>
+	</div>
+	<div class="jq22-container">
+		<header class="jq22-header bgcolor-1">
+			<h1>基于Bootstrup的强大jQuery表单验证插件 <span>The best jQuery plugin to validate form fields</span></h1>
+			
+		</header>
+		<div class="container">
+	        <div class="row">
+	            <div class="col-xs-8 col-xs-offset-2">
+	                <div class="page-header">
+	                    <h1>Using with typehead</h1>
+	                </div>
+
+	                <form class="fv-form fv-form-bootstrap" novalidate="novalidate" id="typeheadForm" method="post" action="target.php"><button style="display: none; width: 0px; height: 0px;" class="fv-hidden-submit" type="submit"></button>
+	                    <div class="form-group has-feedback has-success">
+	                        <span style="position: relative; display: inline-block; direction: ltr;" class="twitter-typeahead"><input tabindex="-1" spellcheck="false" autocomplete="off" readonly="readonly" style="position: absolute; top: 0px; left: 0px; border-color: transparent; box-shadow: none; opacity: 1; background: rgb(255, 255, 255) none repeat scroll 0% 0%;" class="form-control tt-hint" type="text"><input value="South Carolina" data-fv-field="state" dir="auto" style="position: relative; vertical-align: top; background-color: transparent;" spellcheck="false" autocomplete="off" class="form-control tt-input" name="state" placeholder="US state" type="text"><i data-fv-icon-for="state" class="form-control-feedback fv-icon-no-label glyphicon glyphicon-ok" style="display: block;"></i><pre style="position: absolute; visibility: hidden; white-space: pre; font-family: &quot;Segoe UI&quot;,&quot;Lucida Grande&quot;,Helvetica,Arial,&quot;Microsoft YaHei&quot;,FreeSans,Arimo,&quot;Droid Sans&quot;,&quot;wenquanyi micro hei&quot;,&quot;Hiragino Sans GB&quot;,&quot;Hiragino Sans GB W3&quot;,&quot;FontAwesome&quot;,sans-serif; font-size: 14px; font-style: normal; font-variant: normal; font-weight: 500; word-spacing: 0px; letter-spacing: 0px; text-indent: 0px; text-rendering: optimizelegibility; text-transform: none;" aria-hidden="true">U</pre><span style="position: absolute; top: 100%; left: 0px; z-index: 100; display: none; right: auto;" class="tt-dropdown-menu"><div class="tt-dataset-states"></div></span></span>
+	                    <small data-fv-result="VALID" data-fv-for="state" data-fv-validator="notEmpty" class="help-block" style="display: none;">The state is required</small><small data-fv-result="VALID" data-fv-for="state" data-fv-validator="stringLength" class="help-block" style="display: none;">Please choose a state with at least 10 characters</small></div>
+
+	                    <div class="form-group">
+	                        <button type="submit" class="btn btn-primary">Submit</button>
+	                    </div>
+	                </form>
+	            </div>
+	        </div>
+	    </div>
+
+	    <div class="form-group hide" id="emailTemplate">
+	        <div class="col-xs-offset-3 col-xs-5">
+	            <input class="form-control" name="email[]" type="text">
+	        </div>
+	        <div class="col-xs-4">
+	            <button type="button" class="btn btn-default btn-sm removeButton">Remove</button>
+	        </div>
+	    </div>
+		
+	</div>
+	
+	<script type="text/javascript" src="typehead_files/jquery.js"></script>
+    <script type="text/javascript" src="typehead_files/bootstrap.js"></script>
+    <script src="typehead_files/typeahead.js"></script>
+    <script type="text/javascript" src="typehead_files/formValidation.js"></script>
+    <script type="text/javascript" src="typehead_files/bootstrap_002.js"></script>
+    <script type="text/javascript" src="typehead_files/zh_CN.js"></script>
+    <script type="text/javascript">
+		$(document).ready(function() {
+		    var states = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California',
+		        'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii',
+		        'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana',
+		        'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota',
+		        'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire',
+		        'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota',
+		        'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island',
+		        'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont',
+		        'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'
+		    ];
+
+		    var substringMatcher = function(strs) {
+		        return function findMatches(q, cb) {
+		            var matches, substrRegex;
+
+		            // an array that will be populated with substring matches
+		            matches = [];
+
+		            // regex used to determine if a string contains the substring `q`
+		            substrRegex = new RegExp(q, 'i');
+
+		            // iterate through the pool of strings and for any string that
+		            // contains the substring `q`, add it to the `matches` array
+		            $.each(strs, function(i, str) {
+		                if (substrRegex.test(str)) {
+		                    // the typeahead jQuery plugin expects suggestions to a
+		                    // JavaScript object, refer to typeahead docs for more info
+		                    matches.push({ value: str });
+		                }
+		            });
+
+		            cb(matches);
+		        };
+		    };
+
+		    $('#typeheadForm').find('input[name="state"]')
+		        .typeahead({
+		            hint: true,
+		            highlight: true,
+		            minLength: 1
+		        }, {
+		            name: 'states',
+		            displayKey: 'value',
+		            source: substringMatcher(states)
+		        })
+		        .on('typeahead:selected', function(e, suggestion, dataSetName) {
+		            // Revalidate the state field
+		            $('#typeheadForm').formValidation('revalidateField', 'state');
+		        })
+		        .on('typeahead:closed', function(e) {
+		            // Revalidate the state field
+		            $('#typeheadForm').formValidation('revalidateField', 'state');
+		        });
+
+		    $('#typeheadForm').formValidation({
+		        icon: {
+		            valid: 'glyphicon glyphicon-ok',
+		            invalid: 'glyphicon glyphicon-remove',
+		            validating: 'glyphicon glyphicon-refresh'
+		        },
+		        fields: {
+		            state: {
+		                validators: {
+		                    notEmpty: {
+		                        message: 'The state is required'
+		                    },
+		                    stringLength: {
+		                        min: 10,
+		                        message: 'Please choose a state with at least 10 characters'
+		                    }
+		                }
+		            }
+		        }
+		    });
+		});
+	</script>
+
+</body></html>

@@ -52,7 +52,7 @@ class Log{
      */
     protected static function fetchLogUID($level=self::LOG_LEVEL_DEBUG,$datetime=null){
         if(isset($datetime)){
-            $path = RUNTIME_PATH."Log/{$level}/{$datetime}.log";
+            $path = KL_RUNTIME_PATH."Log/{$level}/{$datetime}.log";
         }else{
             $datetime = SEK::getDate();
             $thisconfig = self::getConventions();
@@ -60,10 +60,10 @@ class Log{
 
             switch($thisconfig['LOG_RATE']){
                 case self::LOGRATE_DAY:
-                    $path = RUNTIME_PATH."Log/{$level}/{$datetime[1]}.log";
+                    $path = KL_RUNTIME_PATH."Log/{$level}/{$datetime[1]}.log";
                     break;
                 case self::LOGRATE_HOUR:
-                    $path = RUNTIME_PATH."Log/{$level}/{$datetime[1]}/{$datetime[2]}.log";
+                    $path = KL_RUNTIME_PATH."Log/{$level}/{$datetime[1]}/{$datetime[2]}.log";
                     break;
                 default:
                     throw new KbylinException("Undefined log making rate constant of '{$thisconfig['LOG_RATE']}'!");

@@ -1,0 +1,1 @@
+select count(*) from bookapply b where b.[year] = :year and b.term = :term and b.school like :school and b.status = '0'

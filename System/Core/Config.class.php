@@ -28,7 +28,7 @@ class Config {
         ],
         'DRIVER_CONFIG_LIST' => [
             [
-                'CUSTOM_CONF_PATH'  => RUNTIME_PATH.'Config/', // 用户自定义配置目录
+                'CUSTOM_CONF_PATH'  => KL_RUNTIME_PATH.'Config/', // 用户自定义配置目录
             ]
         ],
         'CONFIG_CACHE_LIST'     => [],

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<meta charset="utf-8">
+		<title> 网站常用效果插件 </title>
+		<meta http-equiv="Content-Language" content="zh-CN">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="index/base.css">
+		<link rel="stylesheet" href="index/common.css">
+	</head>
+	<body>
+		<div class="body">
+		
+			<!--轮播-->
+			<div class="limit"> 
+				<h1 class="title">轮播</h1>
+				<div class="content">
+					<!--html处理-->
+					<div style="position: relative; height: 429px; overflow: hidden; background-color: rgb(255, 255, 255); z-index: 9;" class="slider" id="slider" e-fun="slider">
+						<a style="display: block; position: absolute; top: 0px; left: -100%; width: 100%; height: 100%; z-index: 9;" href="javascript:"><img style="width: 100%; height: 100%;" src="index/1.jpg" alt=""></a>
+						<a style="display: block; position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; z-index: 9;" href="javascript:"><img style="width: 100%; height: 100%;" src="index/2.jpg" alt=""></a>
+						<a style="display: block; position: absolute; top: 0px; left: 100%; width: 100%; height: 100%; z-index: 9;" href="javascript:"><img style="width: 100%; height: 100%;" src="index/3.jpg" alt=""></a>
+						<a style="display: block; position: absolute; top: 0px; left: 100%; width: 100%; height: 100%; z-index: 9;" href="javascript:"><img style="width: 100%; height: 100%;" src="index/4.jpg" alt=""></a>
+						<a style="display: block; position: absolute; top: 0px; left: -100%; width: 100%; height: 100%; z-index: 9;" href="javascript:"><img style="width: 100%; height: 100%;" src="index/5.jpg" alt=""></a>
+					<div style="position: absolute; left: 0px; bottom: 0px; width: 100%; height: 40px; line-height: 40px; font-size: 0px; text-align: center; z-index: 10;" class="s_tag"><span style="display: inline-block; margin-top: 14px; margin-left: 5px; margin-right: 5px; width: 12px; height: 12px; background-color: rgb(255, 255, 255); border-radius: 9999px; cursor: pointer;"></span><span style="display: inline-block; margin-top: 14px; margin-left: 5px; margin-right: 5px; width: 12px; height: 12px; background-color: rgb(86, 56, 216); border-radius: 9999px; cursor: pointer;"></span><span style="display: inline-block; margin-top: 14px; margin-left: 5px; margin-right: 5px; width: 12px; height: 12px; background-color: rgb(255, 255, 255); border-radius: 9999px; cursor: pointer;"></span><span style="display: inline-block; margin-top: 14px; margin-left: 5px; margin-right: 5px; width: 12px; height: 12px; background-color: rgb(255, 255, 255); border-radius: 9999px; cursor: pointer;"></span><span style="display: inline-block; margin-top: 14px; margin-left: 5px; margin-right: 5px; width: 12px; height: 12px; background-color: rgb(255, 255, 255); border-radius: 9999px; cursor: pointer;"></span></div><span style="position: absolute; top: 50%; margin-top: -30px; width: 30px; height: 60px; cursor: pointer; background-color: rgba(255, 255, 255, 0.6); z-index: 10; left: 10px;" class="s_btn"></span><span style="position: absolute; top: 50%; margin-top: -30px; width: 30px; height: 60px; cursor: pointer; background-color: rgba(255, 255, 255, 0.6); z-index: 10; right: 10px;" class="s_btn"></span></div>
+					<!--操作-->
+					<div class="demoDo">
+						<h3 class="title">基础设置</h3>
+						<ul class="demo-list clear">
+							<li class="clear">
+								<span>timeout(时间间隔)：</span>
+								<input value="3000" type="text">
+							</li>
+							<li class="clear">
+								<span>moveTime(动画时间)：</span>
+								<input value="300" type="text">
+							</li>
+							<li class="clear">
+								<span>autoSlider(是否自动轮播)：</span>
+								<div style="position: relative; border: 1px solid rgb(211, 211, 211);" e-fun="dropBox" e-val="0" class="demoDrop clear">
+									<input style="float: left; padding: 5px; width: 60px; height: 20px; line-height: 20px; font-family: Microsoft YaHei; border-radius: 5px;" readonly="readonly" value="true" type="text">
+									<i style="float: left; width: 29px; height: 30px; line-height: 30px; border-left: 1px solid rgb(211, 211, 211); cursor: pointer;" class="fa fa-chevron-down"></i>
+									<ul style="position: absolute; top: 30px; left: -1px; display: none; width: 100px; background-color: rgb(255, 255, 255); border: 1px solid rgb(211, 211, 211); z-index: 100;" class="">
+										<li value="0" style="line-height: 30px; padding-left: 5px; cursor: pointer;">true</li>
+										<li value="1" style="line-height: 30px; padding-left: 5px; cursor: pointer;">false</li>
+									</ul>
+								</div>
+							</li>
+							<li class="clear">
+								<span>moveStyle(动画效果)：</span>
+								<div style="position: relative; border: 1px solid rgb(211, 211, 211);" e-fun="dropBox" e-val="0" class="demoDrop clear">
+									<input style="float: left; padding: 5px; width: 60px; height: 20px; line-height: 20px; font-family: Microsoft YaHei; border-radius: 5px;" readonly="readonly" value="slide" type="text">
+									<i style="float: left; width: 29px; height: 30px; line-height: 30px; border-left: 1px solid rgb(211, 211, 211); cursor: pointer;" class="fa fa-chevron-down"></i>
+									<ul style="position: absolute; top: 30px; left: -1px; display: none; width: 100px; background-color: rgb(255, 255, 255); border: 1px solid rgb(211, 211, 211); z-index: 100;" class="">
+										<li value="0" style="line-height: 30px; padding-left: 5px; cursor: pointer;">slide</li>
+										<li value="1" style="line-height: 30px; padding-left: 5px; cursor: pointer;">fade</li>
+									</ul>
+								</div>
+							</li>
+							<li class="clear">
+								<span>addTag(是否创建圆点标记)：</span>
+								<div style="position: relative; border: 1px solid rgb(211, 211, 211);" e-fun="dropBox" e-val="0" class="demoDrop clear">
+									<input style="float: left; padding: 5px; width: 60px; height: 20px; line-height: 20px; font-family: Microsoft YaHei; border-radius: 5px;" readonly="readonly" value="true" type="text">
+									<i style="float: left; width: 29px; height: 30px; line-height: 30px; border-left: 1px solid rgb(211, 211, 211); cursor: pointer;" class="fa fa-chevron-down"></i>
+									<ul style="position: absolute; top: 30px; left: -1px; display: none; width: 100px; background-color: rgb(255, 255, 255); border: 1px solid rgb(211, 211, 211); z-index: 100;" class="">
+										<li value="0" style="line-height: 30px; padding-left: 5px; cursor: pointer;">true</li>
+										<li value="1" style="line-height: 30px; padding-left: 5px; cursor: pointer;">false</li>
+									</ul>
+								</div>
+							</li>
+							<li class="clear">
+								<span>tagSize(圆点的尺寸)：</span>
+								<input value="12" type="text">
+							</li>
+							<li class="clear">
+								<span>tagDefaultBg(圆点标记的默认背景)：</span>
+								<input value="#fff" type="text">
+							</li>
+							<li class="clear">
+								<span>tagActiveBg(圆点标记选中背景)：</span>
+								<input value="#5638d8" type="text">
+							</li>
+							<li class="clear">
+								<span>btnShow(是否显示左右按钮)：</span>
+								<div style="position: relative; border: 1px solid rgb(211, 211, 211);" e-fun="dropBox" e-val="0" class="demoDrop clear">
+									<input style="float: left; padding: 5px; width: 60px; height: 20px; line-height: 20px; font-family: Microsoft YaHei; border-radius: 5px;" readonly="readonly" value="true" type="text">
+									<i style="float: left; width: 29px; height: 30px; line-height: 30px; border-left: 1px solid rgb(211, 211, 211); cursor: pointer;" class="fa fa-chevron-down"></i>
+									<ul style="position: absolute; top: 30px; left: -1px; display: none; width: 100px; background-color: rgb(255, 255, 255); border: 1px solid rgb(211, 211, 211); z-index: 100;" class="">
+										<li value="0" style="line-height: 30px; padding-left: 5px; cursor: pointer;">true</li>
+										<li value="1" style="line-height: 30px; padding-left: 5px; cursor: pointer;">false</li>
+									</ul>
+								</div>
+							</li>
+							<li class="clear">
+								<span>btnW(按钮的宽度)：</span>
+								<input value="30" type="text">
+							</li>
+							<li class="clear">
+								<span>btnH(按钮的高度)：</span>
+								<input value="60" type="text">
+							</li>
+							<li class="clear">
+								<span>btnBg(按钮的背景)：</span>
+								<input value="rgba(255,255,255,.6)" type="text">
+							</li>
+						</ul>
+						<a class="demo-a" id="slider_a" href="javascript:">GO</a>
+					</div>
+				</div>
+			</div>
+			<!--截取字符串-->
+			<div class="limit"> 
+				<h1 class="title">截取字符串</h1>
+				<div class="content">
+					<!--html处理-->
+					<p title="这里只能显示10个字符，嗯呢呢呢" e-fun="limit" e-num="10">这里只能显示10个字...</p>
+				</div>
+			</div>
+			
+			<!--Tab菜单切换-->
+			<div class="">
+				<h1 class="title">Tab菜单切换</h1>
+				<div class="content">
+					<!--js-->
+					<div e-fun="tab" e-event="click" e-index="0" class="tab">
+						<div class="clear">
+							<a class="choo" e-tab-for="nav0">a</a>
+							<a e-tab-for="nav1">b</a>
+							<a e-tab-for="nav2">c</a>
+						</div>
+						<div>
+							<p style="display: block;" e-tab-nav="nav0">a</p>
+							<p style="display: none;" e-tab-nav="nav1">b</p>
+							<p style="display: none;" e-tab-nav="nav2">c</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<!--div模拟下拉-->
+			<div class="">
+				<h1 class="title">div模拟下拉</h1>
+				<div class="content">
+					<!--js-->
+					<div style="position: relative; border: 1px solid rgb(211, 211, 211);" e-fun="dropBox" e-val="0" class="dropBox clear">
+						<input style="float: left; padding: 5px; width: 100px; height: 20px; line-height: 20px; font-family: Microsoft YaHei; border-radius: 5px;" readonly="readonly" type="text">
+						<i style="float: left; width: 29px; height: 30px; line-height: 30px; border-left: 1px solid rgb(211, 211, 211); cursor: pointer;" class="fa fa-chevron-down"></i>
+						<ul style="position: absolute; top: 30px; left: -1px; display: none; width: 140px; background-color: rgb(255, 255, 255); border: 1px solid rgb(211, 211, 211); z-index: 100;" class="">
+							<li value="0" style="line-height: 30px; padding-left: 5px; cursor: pointer;">选项1</li>
+							<li value="1" style="line-height: 30px; padding-left: 5px; cursor: pointer;">选项2</li>
+							<li value="2" style="line-height: 30px; padding-left: 5px; cursor: pointer;">选项3</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			
+			<!--弹出框-->
+			<div class="">
+				<h1 class="title">指定弹出框</h1>
+				<div class="content">
+					<!--js-->
+					<a class="pop-a" href="javascript:" e-pop-for="pop1">点我弹出popBox</a>
+				</div>
+				<div class="popBox none" e-pop-box="pop1">
+					<div class="popCon">
+						<p class="popTit">这是popBox</p>
+						<p><a class="pop-a" href="javascript:" e-pop-close="pop1">关闭</a></p>
+					</div>
+				</div>
+			</div>
+			
+			<!--多选框-->
+			<div class="" id="a">
+				<h1 class="title">图片式多选框</h1>
+				<div class="content">
+					<!--js-->
+					<div class="" e-fun="check">
+						<ul class="checkList">
+							<li class="fristCheck"><i e-check-all="" e-check="0"><img src="index/e-check.png" alt="">全选</i></li>
+							<li class="secCheck clear">
+								<i e-check-one="" e-check="0"><img src="index/e-check.png" alt="">多选1</i>
+								<i e-check-one="" e-check="0"><img src="index/e-check.png" alt="">多选2</i>
+								<i e-check-one="" e-check="0"><img src="index/e-check.png" alt="">多选3</i>
+								<i e-check-one="" e-check="0"><img src="index/e-check.png" alt="">多选4</i>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			
+			<!--单选框-->
+			<div class="">
+				<h1 class="title">图片式单选框</h1>
+				<div class="content">
+					<!--js-->
+					<div class="" e-fun="radio">
+						<ul class="checkList">
+							<li class="secCheck clear">
+								<i e-radio="" e-check="1"><img src="index/e-radioed.png" alt="">单选1</i>
+								<i e-radio="" e-check="0"><img src="index/e-radio.png" alt="">单选2</i>
+								<i e-radio="" e-check="0"><img src="index/e-radio.png" alt="">单选3</i>
+								<i e-radio="" e-check="0"><img src="index/e-radio.png" alt="">单选4</i>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		
+			<!--回到顶部-->
+			<div class="">
+				<h1 class="title">类锚点  回到顶部</h1>
+				<div class="content">
+					<!--js-->
+					<div class="">
+						<a class="pop-a" href="javascript:" e-for="" e-fun="anchor">点我就能回到顶部了</a>
+					</div>
+				</div>
+			</div>
+			
+			<!--弹出框（确认框，提示框）-->
+			<div class="">
+				<h1 class="title">弹出框（确认框，提示框）</h1>
+				<div class="content">
+					<!--js-->
+					<div class="">
+						<a class="btn" id="pop1" e-fun="popUpWindow" e-style="1" href="javascript:">点我试试看咯</a>
+						<a class="btn" id="pop2" e-fun="popUpWindow" e-style="2" href="javascript:">还有我呢</a>
+						<a class="btn" id="pop3" e-fun="popUpWindow" e-style="3" href="javascript:">再来一次</a>
+					</div>
+				</div>
+			</div>
+
+		</div>
+		
+		
+		
+		<!--js-->
+		<script type="text/javascript" src="index/jquery.js"></script>
+		<script type="text/javascript" src="index/simba.js"></script>
+		
+		<script type="text/javascript" src="index/common.js"></script>
+	
+</body></html>

@@ -11,6 +11,6 @@ return [
     'path_level'    => 1,
     'prefix'        => '',
     'length'        => 0,
-    'path'          => RUNTIME_PATH.'ThinkCache/',
+    'path'          => KL_RUNTIME_PATH.'ThinkCache/',
     'data_compress' => false,
 ];

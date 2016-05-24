@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>基于Bootstrup的强大jQuery表单验证插件|attribute</title>
+	<!-- Include the FontAwesome CSS if you want to use feedback icons provided by FontAwesome -->
+    <link rel="stylesheet" href="attribute_files/font-awesome.css">
+    <link rel="stylesheet" href="attribute_files/bootstrap.css">
+    <link rel="stylesheet" href="attribute_files/formValidation.css">
+	<link rel="stylesheet" type="text/css" href="attribute_files/default.css">
+	<!--[if IE]>
+		<script src="http://libs.useso.com/js/html5shiv/3.7/html5shiv.min.js"></script>
+	<![endif]-->
+</head>
+<body>
+	<div class="jq22-sidebar">
+		<ul>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/index.html">default</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/validators.html">validators</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/ajaxSubmit.html">ajaxSubmit</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/attribute.html" class="current">attribute</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/choice.html">choice</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/collapse.html">collapse</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container.html">container</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container2.html">container2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container3.html">container3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container4.html">container4</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/date.html">date</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/defaultMessage.html">defaultMessage</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic.html">dynamic</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic2.html">dynamic2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic3.html">dynamic3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic4.html">dynamic4</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/enable.html">enable</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/enable2.html">enable2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event.html">event</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event2.html">event2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event3.html">event3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/file.html">file</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/html5.html">html5</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/i18n.html">i18n</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/ignored.html">ignored</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/invisible.html">invisible</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/mailgun.html">mailgun</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/message.html">message</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/multiple.html">multiple</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/multipleAsOne.html">multipleAsOne</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/remote.html">remote</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/reset.html">reset</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/row.html">row</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/selector.html">selector</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/selector2.html">selector2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/specialName.html">specialName</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/submitHandler.html">submitHandler</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/tab.html">tab</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/tooltip.html">tooltip</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/typehead.html">typehead</a></li>
+		</ul>
+	</div>
+	<div class="jq22-container">
+		<header class="jq22-header bgcolor-1">
+			<h1>基于Bootstrup的强大jQuery表单验证插件 <span>The best jQuery plugin to validate form fields</span></h1>
+			
+		</header>
+
+		<div class="container">
+		    <div class="row">
+		        <!-- form: -->
+		        <section>
+		            <div class="col-lg-8 col-lg-offset-2">
+		                <div class="page-header">
+		                    <h2>Sign up</h2>
+		                </div>
+
+		                <form novalidate="novalidate" id="defaultForm" method="post" class="form-horizontal fv-form fv-form-bootstrap" action="target.php" data-fv-message="This value is not valid" data-fv-icon-valid="glyphicon glyphicon-ok" data-fv-icon-invalid="glyphicon glyphicon-remove" data-fv-icon-validating="glyphicon glyphicon-refresh"><button style="display: none; width: 0px; height: 0px;" class="fv-hidden-submit" type="submit"></button>
+		                    <div class="form-group has-feedback">
+		                        <label class="col-lg-3 control-label">Full name</label>
+		                        <div class="col-lg-4">
+		                            <input data-fv-field="firstName" class="form-control" name="firstName" placeholder="First name" required="" data-fv-notempty-message="The first name is required and cannot be empty" type="text"><i data-fv-icon-for="firstName" class="form-control-feedback" style="display: none;"></i>
+		                        <small data-fv-result="NOT_VALIDATED" data-fv-for="firstName" data-fv-validator="notEmpty" class="help-block" style="display: none;">The first name is required and cannot be empty</small></div>
+		                        <div class="col-lg-4">
+		                            <input data-fv-field="lastName" class="form-control" name="lastName" placeholder="Last name" required="" data-fv-notempty-message="The last name is required and cannot be empty" type="text"><i data-fv-icon-for="lastName" class="form-control-feedback" style="display: none;"></i>
+		                        <small data-fv-result="NOT_VALIDATED" data-fv-for="lastName" data-fv-validator="notEmpty" class="help-block" style="display: none;">The last name is required and cannot be empty</small></div>
+		                    </div>
+
+		                    <div class="form-group has-feedback">
+		                        <label class="col-lg-3 control-label">Username</label>
+		                        <div class="col-lg-5">
+		                            <input data-fv-field="username" class="form-control" name="username" data-fv-message="The username is not valid" required="" data-fv-notempty-message="The username is required and cannot be empty" pattern="^[a-zA-Z0-9]+$" data-fv-regexp-message="The username can only consist of alphabetical and digits" data-fv-stringlength="true" data-fv-stringlength-min="6" data-fv-stringlength-max="30" data-fv-stringlength-message="The username must be more than 6 and less than 30 characters long" data-fv-remote="true" data-fv-remote-url="remote.php" data-fv-remote-message="The username is not available" type="text"><i data-fv-icon-for="username" class="form-control-feedback" style="display: none;"></i>
+		                        <small data-fv-result="NOT_VALIDATED" data-fv-for="username" data-fv-validator="notEmpty" class="help-block" style="display: none;">The username is required and cannot be empty</small><small data-fv-result="NOT_VALIDATED" data-fv-for="username" data-fv-validator="regexp" class="help-block" style="display: none;">The username can only consist of alphabetical and digits</small><small data-fv-result="NOT_VALIDATED" data-fv-for="username" data-fv-validator="remote" class="help-block" style="display: none;">The username is not available</small><small data-fv-result="NOT_VALIDATED" data-fv-for="username" data-fv-validator="stringLength" class="help-block" style="display: none;">The username must be more than 6 and less than 30 characters long</small></div>
+		                    </div>
+
+		                    <div class="form-group has-feedback">
+		                        <label class="col-lg-3 control-label">Email address</label>
+		                        <div class="col-lg-5">
+		                            <input data-fv-field="email" class="form-control" name="email" data-fv-emailaddress-message="The input is not a valid email address" type="email"><i data-fv-icon-for="email" class="form-control-feedback" style="display: none;"></i>
+		                        <small data-fv-result="NOT_VALIDATED" data-fv-for="email" data-fv-validator="emailAddress" class="help-block" style="display: none;">The input is not a valid email address</small></div>
+		                    </div>
+
+		                    <div class="form-group has-feedback">
+		                        <label class="col-lg-3 control-label">Password</label>
+		                        <div class="col-lg-5">
+		                            <input data-fv-field="password" class="form-control" name="password" required="" data-fv-notempty-message="The password is required and cannot be empty" data-fv-different="true" data-fv-different-field="username" data-fv-different-message="The password cannot be the same as username" type="password"><i data-fv-icon-for="password" class="form-control-feedback" style="display: none;"></i>
+		                        <small data-fv-result="NOT_VALIDATED" data-fv-for="password" data-fv-validator="different" class="help-block" style="display: none;">The password cannot be the same as username</small><small data-fv-result="NOT_VALIDATED" data-fv-for="password" data-fv-validator="notEmpty" class="help-block" style="display: none;">The password is required and cannot be empty</small></div>
+		                    </div>
+
+		                    <div class="form-group has-feedback">
+		                        <label class="col-lg-3 control-label">Retype password</label>
+		                        <div class="col-lg-5">
+		                            <input data-fv-field="confirmPassword" class="form-control" name="confirmPassword" required="" data-fv-notempty-message="The confirm password is required and cannot be empty" data-fv-identical="true" data-fv-identical-field="password" data-fv-identical-message="The password and its confirm are not the same" type="password"><i data-fv-icon-for="confirmPassword" class="form-control-feedback" style="display: none;"></i>
+		                        <small data-fv-result="NOT_VALIDATED" data-fv-for="confirmPassword" data-fv-validator="identical" class="help-block" style="display: none;">The password and its confirm are not the same</small><small data-fv-result="NOT_VALIDATED" data-fv-for="confirmPassword" data-fv-validator="notEmpty" class="help-block" style="display: none;">The confirm password is required and cannot be empty</small></div>
+		                    </div>
+
+		                    <div class="form-group has-feedback">
+		                        <label class="col-lg-3 control-label">Gender</label>
+		                        <div class="col-lg-5">
+		                            <div class="radio">
+		                                <label>
+		                                    <input data-fv-field="gender" name="gender" value="male" required="" data-fv-notempty-message="The gender is required" type="radio"> Male
+		                                </label>
+		                            </div>
+		                            <div class="radio">
+		                                <label>
+		                                    <input data-fv-field="gender" name="gender" value="female" type="radio"> Female
+		                                </label>
+		                            </div>
+		                            <div class="radio">
+		                                <label>
+		                                    <input data-fv-field="gender" name="gender" value="other" type="radio"> Other
+		                                </label>
+		                            </div><i data-fv-icon-for="gender" class="form-control-feedback" style="display: none;"></i>
+		                        <small data-fv-result="NOT_VALIDATED" data-fv-for="gender" data-fv-validator="notEmpty" class="help-block" style="display: none;">The gender is required</small></div>
+		                    </div>
+
+		                    <div class="form-group">
+		                        <label class="col-lg-3 control-label">Birthday</label>
+		                        <div class="col-lg-5">
+		                            <input class="form-control" name="birthday" data-fv-date="false" data-fv-date-format="YYYY/MM/DD" data-fv-date-message="The birthday is not valid" type="text"> (YYYY/MM/DD)
+		                        </div>
+		                    </div>
+
+		                    <div class="form-group has-feedback">
+		                        <label class="col-lg-3 control-label">Country</label>
+		                        <div class="col-lg-5">
+		                            <select data-fv-field="country" class="form-control" name="country" data-fv-notempty="" data-fv-notempty-message="The country is required">
+		                                <option selected="selected" value="">-- Select a country --</option>
+		                                <option value="fr">France</option>
+		                                <option value="de">Germany</option>
+		                                <option value="it">Italy</option>
+		                                <option value="jp">Japan</option>
+		                                <option value="ru">Russia</option>
+		                                <option value="gb">United Kingdom</option>
+		                                <option value="us">United State</option>
+		                            </select><i data-fv-icon-for="country" class="form-control-feedback" style="display: none;"></i>
+		                        <small data-fv-result="NOT_VALIDATED" data-fv-for="country" data-fv-validator="notEmpty" class="help-block" style="display: none;">The country is required</small></div>
+		                    </div>
+
+		                    <div class="form-group has-feedback">
+		                        <label class="col-lg-3 control-label">Languages</label>
+		                        <div class="col-lg-5">
+		                            <div class="checkbox">
+		                                <label>
+		                                    <input data-fv-field="languages[]" name="languages[]" value="english" data-fv-message="Please specify at least one language you can speak" type="checkbox"> English
+		                                </label>
+		                            </div>
+		                            <div class="checkbox">
+		                                <label>
+		                                    <input data-fv-field="languages[]" name="languages[]" value="french" type="checkbox"> French
+		                                </label>
+		                            </div>
+		                            <div class="checkbox">
+		                                <label>
+		                                    <input data-fv-field="languages[]" name="languages[]" value="german" required="" type="checkbox"> German
+		                                </label>
+		                            </div>
+		                            <div class="checkbox">
+		                                <label>
+		                                    <input data-fv-field="languages[]" name="languages[]" value="russian" type="checkbox"> Russian
+		                                </label>
+		                            </div>
+		                            <div class="checkbox">
+		                                <label>
+		                                    <input data-fv-field="languages[]" name="languages[]" value="other" type="checkbox"> Other
+		                                </label>
+		                            </div><i data-fv-icon-for="languages[]" class="form-control-feedback" style="display: none;"></i>
+		                        <small data-fv-result="NOT_VALIDATED" data-fv-for="languages[]" data-fv-validator="notEmpty" class="help-block" style="display: none;">Please enter a value</small></div>
+		                    </div>
+
+		                    <div class="form-group has-feedback">
+		                        <label class="col-lg-3 control-label">Programming Languages</label>
+		                        <div class="col-lg-5">
+		                            <div class="checkbox">
+		                                <label>
+		                                    <input data-fv-field="programs[]" name="programs[]" value="net" data-fv-choice="true" data-fv-choice-min="2" data-fv-choice-max="4" data-fv-choice-message="Please choose 2 - 4 programming languages you are good at" type="checkbox"> .Net
+		                                </label>
+		                            </div>
+		                            <div class="checkbox">
+		                                <label>
+		                                    <input data-fv-field="programs[]" name="programs[]" value="java" type="checkbox"> Java
+		                                </label>
+		                            </div>
+		                            <div class="checkbox">
+		                                <label>
+		                                    <input data-fv-field="programs[]" name="programs[]" value="c" type="checkbox"> C/C++
+		                                </label>
+		                            </div>
+		                            <div class="checkbox">
+		                                <label>
+		                                    <input data-fv-field="programs[]" name="programs[]" value="php" type="checkbox"> PHP
+		                                </label>
+		                            </div>
+		                            <div class="checkbox">
+		                                <label>
+		                                    <input data-fv-field="programs[]" name="programs[]" value="perl" type="checkbox"> Perl
+		                                </label>
+		                            </div>
+		                            <div class="checkbox">
+		                                <label>
+		                                    <input data-fv-field="programs[]" name="programs[]" value="ruby" type="checkbox"> Ruby
+		                                </label>
+		                            </div>
+		                            <div class="checkbox">
+		                                <label>
+		                                    <input data-fv-field="programs[]" name="programs[]" value="python" type="checkbox"> Python
+		                                </label>
+		                            </div>
+		                            <div class="checkbox">
+		                                <label>
+		                                    <input data-fv-field="programs[]" name="programs[]" value="javascript" type="checkbox"> Javascript
+		                                </label>
+		                            </div><i data-fv-icon-for="programs[]" class="form-control-feedback" style="display: none;"></i>
+		                        <small data-fv-result="NOT_VALIDATED" data-fv-for="programs[]" data-fv-validator="choice" class="help-block" style="display: none;">Please choose 2 - 4 programming languages you are good at</small></div>
+		                    </div>
+
+		                    <div class="form-group">
+		                        <div class="col-lg-9 col-lg-offset-3">
+		                            <button type="submit" class="btn btn-primary">Sign up</button>
+		                        </div>
+		                    </div>
+		                </form>
+		            </div>
+		        </section>
+		        <!-- :form -->
+		    </div>
+		</div>
+		
+	</div>
+	
+	<script type="text/javascript" src="attribute_files/jquery.js"></script>
+    <script type="text/javascript" src="attribute_files/bootstrap_002.js"></script>
+    <script type="text/javascript" src="attribute_files/formValidation.js"></script>
+    <script type="text/javascript" src="attribute_files/bootstrap.js"></script>
+    <script type="text/javascript" src="attribute_files/zh_CN.js"></script>
+    <script type="text/javascript">
+	$(document).ready(function() {
+        $('#defaultForm').formValidation();
+    });
+	</script>
+
+</body></html>

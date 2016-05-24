@@ -7,15 +7,18 @@
  */
 namespace Application\Admin\Library;
 
+use Application\Admin\Controller\PublicAction;
 use Application\Admin\System\Model\MenuModel;
-use System\Library\Controller;
 use System\Utils\Assets;
+use System\Utils\Network;
 use System\Utils\SEK;
 
-class AdminController extends Controller{
+class AdminController extends PublicAction{
 
     public function __construct(){
-        $this->checkLogin() or $this->redirectLoginPage();
+        if(!$this->checkLoginStatus()){
+            $this->go('/Admin/PublicAction/PageLogin');
+        }
     }
 
     /**
@@ -94,12 +97,5 @@ class AdminController extends Controller{
      */
     protected function assignActionsList(){}
 
-    private function checkLogin(){
-        return true;
-    }
-
-    private function redirectLoginPage(){
-        echo '你还未登录系统';
-    }
 
 }

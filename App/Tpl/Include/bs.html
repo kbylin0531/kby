@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>鄞州职教中心教务管理系统 </title>
+    <script src="__ROOT__/assets/js/dazz.js"></script>
+    <script>
+        var infos = {
+            cdn:{
+                'style': [
+                    'assets/plugins/bootstrap/css/bootstrap.min.css',
+                    'assets/plugins/font-awesome/css/font-awesome.min.css',
+                    'assets/plugins/fontawesome4.2/css/font-awesome.min.css',
+                    'assets/plugins/toastr/toastr.min.css',
+
+                    'assets/css/dazzling.css'
+                ],
+                'script': [
+                    'assets/plugins/bootstrap/js/bootstrap.min.js',
+                    'assets/plugins/toastr/toastr.min.js',
+                    'assets/plugins/bootstrap-contextmenu/bootstrap-contextmenu.js',
+                    'assets/js/md5.js',
+
+                    'assets/js/dazzling.js'
+                ],
+                //IE8
+                'compatible': [
+                    'assets/plugins/html5shiv/dist/html5shiv.min.js',
+                    'assets/plugins/respond/dest/respond.min.js',
+                    'assets/js/jquery-1.11.3.min.js'
+                ],
+                //非IE或者大于等于9
+                'performance': [
+                    'assets/js/jquery-2.2.3.min.js'
+                ]
+//                'ico': [
+//                    'https://elementary.io/favicon.ico'
+//                ]
+            }
+        };
+
+        var cdn = infos['cdn'];
+        var options = {
+            public_url: '__ROOT__/',
+            debug_on: true
+        };
+//        dazz.init(options).load(cdn['ico'], 'ico');
+        dazz.load(cdn['style'], 'css');
+
+        dazz.load('assets/admin/public/login.css');
+
+        var ieVersion = dazz.context.ieVersion();
+        if (ieVersion < 9) {
+            dazz.load(cdn['compatible'], 'js');
+        } else {
+            dazz.load(cdn['performance'], 'js');
+        }
+        dazz.load(cdn['script'], 'js');
+    </script>
+    <block name='style'></block>
+</head>
+<body>
+<block name='body'></block>
+</body>
+<block name='script'></block>
+</html>

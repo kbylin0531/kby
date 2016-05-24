@@ -24,7 +24,7 @@ class File implements CacheInterface {
         'path_level'    => 1,
         'prefix'        => '',
         'length'        => 0,
-        'path'          => RUNTIME_PATH.'Cache/File/',
+        'path'          => KL_RUNTIME_PATH.'Cache/File/',
         'data_compress' => false,
     ];
 

@@ -4,6 +4,7 @@
 
     $(function(){
          //todo:datagrid
+
         var chuangkou={closed:true,
             fit:true,
             modal:true,
@@ -41,6 +42,9 @@
                 },
                 {field:'FILEDATE',title:'发文日期',width:100,sortable:true
                 }
+                ,
+                {field:'rem',title:'概要',width:100,sortable:true
+                }
 
             ]],
             pagination:true,
@@ -60,10 +64,12 @@
                 })
             }})
         //todo:layout
-        //$('#layout').layout({})
         //todo:点击提交按钮的时候 触发的方法
         $('#B1').bind('click',function(){
-           var obj={}
+           var obj={
+               year:$("#year").val(),
+               term:$("#term").val()
+           }
             obj['STUDENTNO']=$('#STUDENTNO').val().Trim()
             obj['FILENO']=$('#FILENO').val().Trim();
             obj['INFOTYPE']=$('#INFOTYPE').val().Trim();
@@ -140,29 +146,11 @@
         }).bind('click',function(){                              //点击添加按钮时候触发的事件
                     var two=$('#wd3 :text');
                     var one=$('#wd3 :checkbox');
-                   // xquzhi('#wd3',two,one,'updatejieyong')
                     dat.datagrid('reload')
                     wd3.window({
                         closed:true
                     })
          })
-
-      /*  //todo:点击编辑学生情况的时候 触发的事件
-        $('#editstudent').bind('click',function(){           //点击编辑学生情况时候 触发的事件
-            var boo=qxpanduan('BA12','__APP__/Book/Book/Bexecute')
-
-            if(!boo){
-
-                return $.messager.alert('提示','BA12 您没有足够的权限')
-            }
-            var obj={}
-            obj.studentno=$('#STUDENTNO1').html();
-            var spanList=$('#wd3 :text')
-            ajia('studentNO',obj,'学生号不存在,非法操作！',spanList,wd3,2);
-            wd2.window({closed:true})
-            wd3.window({closed:false})
-            obj=null;
-        })*/
 
         //todo:ajax取编辑后的值的方法
         function ajiaqu(url,wd,list,str,num){                                                      //取值
@@ -194,22 +182,6 @@
             ajiaqu('studentUpdate','wd3',list,'修改成功',2);
         })
 
- /*       //todo:注册信息的返回
-        $('#register_back').bind('click',function(){
-            wd2.window({closed:true})
-        })*/
-
-     /*   //todo:查看概要的返回
-        $('#gaiyao_back').bind('click',function(){
-            wd4.window({closed:true})
-        })*/
-
-   /*     //todo:编辑注册信息的 返回
-        $('#edit_back').bind('click',function(){
-            wd2.window({closed:false})
-            wd3.window({closed:true})
-        })
-*/
         //todo:提交学生注册信息的方法
         $('#tijiaoreg').bind('click',function(){
             var boo=qxpanduan('BA12','__APP__/Book/Book/Bexecute')
@@ -355,6 +327,8 @@
 <div id="cc" class="easyui-layout" data-options="fit:true" >
 <div id="tdemo">
     <div style="margin-bottom:0px ">
+        学年：<input type="text" name="year" id='year' size="9" value="{$yearterm.YEAR}">
+        学期：<input type="text" name="term" id='term' size="9" value="{$yearterm.TERM}">
       学号：<input type="text" name="STUDENTNO" id='STUDENTNO' size="9" value="%">&nbsp&nbsp&nbsp&nbsp
       公文号：<input type="text" name="FILENO"  id="FILENO" size="20" value="%">&nbsp&nbsp&nbsp&nbsp
       记录性质：<select size="1" name="INFOTYPE" id="INFOTYPE">

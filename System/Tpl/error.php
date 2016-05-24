@@ -1,4 +1,4 @@
-<?php defined('BASE_PATH') or die('No Permission!');  ?>
+<?php defined('KL_BASE_PATH') or die('No Permission!');  ?>
 <!DOCTYPE html>
 <html>
 <head lang="en">

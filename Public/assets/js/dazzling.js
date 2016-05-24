@@ -103,6 +103,7 @@ dazz.ready(function () {
                         var href;
                         callback && (href = callback(a, config));//return true value can prevent default value setting
                         if (!href) {
+                            // console.log(config,config.hasOwnProperty('href'))
                             config.hasOwnProperty('href') || (config.href = '#');
                             a.attr('href', config.href);
                         }
@@ -195,8 +196,8 @@ dazz.ready(function () {
                             a.innerHTML = item['title'];
                             li.appendChild(a);
 
-                            if (item.hasOwnProperty('href')) item['href'] = '#';
-                            a.setAttribute('href', item['href']);
+                            if (!item.hasOwnProperty('href')) item['href'] = '#';
+                            a.setAttribute('href', dazz.context.getBaseUri()+item['href']);
 
                             if (item.hasOwnProperty('icon')) {
                                 var i = document.createElement('i');
@@ -382,7 +383,6 @@ dazz.ready(function () {
                 target.css('min-height' , height + 'px');
             };
 
-// console.log(adjustHeight)
             return {
                 setTitle:function (title) {
                     $("title").text(title);
@@ -759,7 +759,7 @@ dazz.ready(function () {
                     return ('href' in item) && item['href'].indexOf(compval) >= 0;
                 });
                 // console.log(pageinfo,path,value);
-                console.log(pageinfo['sidebar_menu'],path)
+                console.log(pageinfo['sidebar_menu'],path,value)
                 var target = page.sidebar.getSidebarMenu().find("[data-id="+value[1]['id']+"]");
                 // console.log(target);
                 target.parents('li.nav-item').addClass("active");
@@ -786,7 +786,17 @@ dazz.ready(function () {
                     dtJquery = GenKits.toJquery(dtJquery);
                     var newinstance = dazz.newInstance(this);
                     newinstance.dtElement = dtJquery;
-                    newinstance.tableApi = dtJquery.DataTable(options);
+
+                    var convention = {
+                        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
+                    };
+                    dazz.utils.each(options,function (value, key) {
+                        convention[key] = value;
+                    });
+
+                    console.log(convention)
+
+                    newinstance.tableApi = dtJquery.DataTable(convention);
                     return newinstance;
                     /* this 对象同于链式调用 */
                 },

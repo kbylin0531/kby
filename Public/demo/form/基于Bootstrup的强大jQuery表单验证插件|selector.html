@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>基于Bootstrup的强大jQuery表单验证插件|selector</title>
+	<!-- Include the FontAwesome CSS if you want to use feedback icons provided by FontAwesome -->
+    <link rel="stylesheet" href="selector_files/font-awesome.css">
+    <link rel="stylesheet" href="selector_files/bootstrap.css">
+    <link rel="stylesheet" href="selector_files/formValidation.css">
+	<link rel="stylesheet" type="text/css" href="selector_files/default.css">
+	<!--[if IE]>
+		<script src="http://libs.useso.com/js/html5shiv/3.7/html5shiv.min.js"></script>
+	<![endif]-->
+</head>
+<body>
+	<div class="jq22-sidebar">
+		<ul>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/index.html">default</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/validators.html">validators</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/ajaxSubmit.html">ajaxSubmit</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/attribute.html">attribute</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/choice.html">choice</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/collapse.html">collapse</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container.html">container</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container2.html">container2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container3.html">container3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/container4.html">container4</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/date.html">date</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/defaultMessage.html">defaultMessage</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic.html">dynamic</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic2.html">dynamic2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic3.html">dynamic3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/dynamic4.html">dynamic4</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/enable.html">enable</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/enable2.html">enable2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event.html">event</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event2.html">event2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/event3.html">event3</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/file.html">file</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/html5.html">html5</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/i18n.html">i18n</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/ignored.html">ignored</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/invisible.html">invisible</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/mailgun.html">mailgun</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/message.html">message</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/multiple.html">multiple</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/multipleAsOne.html">multipleAsOne</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/remote.html">remote</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/reset.html">reset</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/row.html">row</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/selector.html" class="current">selector</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/selector2.html">selector2</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/specialName.html">specialName</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/submitHandler.html">submitHandler</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/tab.html">tab</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/tooltip.html">tooltip</a></li>
+			<li><span class="fa fa-arrow-right"></span> <a href="http://www.jq22.com/demo/bootstrapfromvalidation20160419/typehead.html">typehead</a></li>
+		</ul>
+	</div>
+	<div class="jq22-container">
+		<header class="jq22-header bgcolor-1">
+			<h1>基于Bootstrup的强大jQuery表单验证插件 <span>The best jQuery plugin to validate form fields</span></h1>
+			
+		</header>
+		<div class="container">
+	        <div class="row">
+	            <section>
+	                <div class="col-sm-8 col-sm-offset-2">
+	                    <div class="page-header">
+	                        <h2>Credit card information</h2>
+	                    </div>
+
+	                    <form novalidate="novalidate" id="paymentForm" method="post" class="form-horizontal fv-form fv-form-bootstrap" action="target.php"><button style="display: none; width: 0px; height: 0px;" class="fv-hidden-submit" type="submit"></button>
+	                        <div class="form-group has-feedback">
+	                            <label class="col-sm-3 control-label">Card holder</label>
+	                            <div class="col-sm-5">
+	                                <input data-fv-field="cardHolder" class="form-control" id="cardHolder" type="text"><i data-fv-icon-for="cardHolder" class="form-control-feedback" style="display: none;"></i>
+	                            <small data-fv-result="NOT_VALIDATED" data-fv-for="cardHolder" data-fv-validator="notEmpty" class="help-block" style="display: none;">The card holder is required</small><small data-fv-result="NOT_VALIDATED" data-fv-for="cardHolder" data-fv-validator="stringCase" class="help-block" style="display: none;">The card holder must contain upper case characters only</small></div>
+	                        </div>
+
+	                        <div class="form-group has-feedback">
+	                            <label class="col-sm-3 control-label">Credit card number</label>
+	                            <div class="col-sm-5">
+	                                <input data-fv-field="ccNumber" class="form-control" id="ccNumber" type="text"><i data-fv-icon-for="ccNumber" class="form-control-feedback" style="display: none;"></i>
+	                            <small data-fv-result="NOT_VALIDATED" data-fv-for="ccNumber" data-fv-validator="notEmpty" class="help-block" style="display: none;">The credit card number is required</small><small data-fv-result="NOT_VALIDATED" data-fv-for="ccNumber" data-fv-validator="creditCard" class="help-block" style="display: none;">The credit card number is not valid</small></div>
+	                        </div>
+
+	                        <div class="form-group has-feedback">
+	                            <label class="col-sm-3 control-label">Expiration</label>
+	                            <div class="col-sm-4">
+	                                <input data-fv-field="expMonth" class="form-control" placeholder="Month" data-stripe="exp-month" type="text"><i data-fv-icon-for="expMonth" class="form-control-feedback" style="display: none;"></i>
+	                            <small data-fv-result="NOT_VALIDATED" data-fv-for="expMonth" data-fv-validator="notEmpty" class="help-block" style="display: none;">The expiration month is required</small><small data-fv-result="NOT_VALIDATED" data-fv-for="expMonth" data-fv-validator="digits" class="help-block" style="display: none;">The expiration month can contain digits only</small><small data-fv-result="NOT_VALIDATED" data-fv-for="expMonth" data-fv-validator="callback" class="help-block" style="display: none;">Expired</small></div>
+	                            <div class="col-sm-4">
+	                                <input data-fv-field="expYear" class="form-control" placeholder="Year" data-stripe="exp-year" type="text"><i data-fv-icon-for="expYear" class="form-control-feedback" style="display: none;"></i>
+	                            <small data-fv-result="NOT_VALIDATED" data-fv-for="expYear" data-fv-validator="notEmpty" class="help-block" style="display: none;">The expiration year is required</small><small data-fv-result="NOT_VALIDATED" data-fv-for="expYear" data-fv-validator="digits" class="help-block" style="display: none;">The expiration year can contain digits only</small><small data-fv-result="NOT_VALIDATED" data-fv-for="expYear" data-fv-validator="callback" class="help-block" style="display: none;">Expired</small></div>
+	                        </div>
+
+	                        <div class="form-group has-feedback">
+	                            <label class="col-sm-3 control-label">CVV</label>
+	                            <div class="col-sm-2">
+	                                <input data-fv-field="cvvNumber" class="form-control cvvNumber" name="cvv" type="text"><i data-fv-icon-for="cvvNumber" class="form-control-feedback" style="display: none;"></i>
+	                            <small data-fv-result="NOT_VALIDATED" data-fv-for="cvvNumber" data-fv-validator="notEmpty" class="help-block" style="display: none;">The CVV number is required</small><small data-fv-result="NOT_VALIDATED" data-fv-for="cvvNumber" data-fv-validator="cvv" class="help-block" style="display: none;">The value is not a valid CVV</small></div>
+	                        </div>
+
+	                        <div class="form-group">
+	                            <div class="col-sm-9 col-sm-offset-3">
+	                                <button type="submit" class="btn btn-primary">Pay</button>
+	                            </div>
+	                        </div>
+	                    </form>
+	                </div>
+	            </section>
+	        </div>
+	    </div>
+		
+	</div>
+	
+	<script type="text/javascript" src="selector_files/jquery.js"></script>
+    <script type="text/javascript" src="selector_files/bootstrap.js"></script>
+    <script type="text/javascript" src="selector_files/formValidation.js"></script>
+    <script type="text/javascript" src="selector_files/bootstrap_002.js"></script>
+    <script type="text/javascript" src="selector_files/zh_CN.js"></script>
+    <script type="text/javascript">
+		$(document).ready(function() {
+		    $('#paymentForm')
+		        .formValidation({
+		            icon: {
+		                valid: 'fa fa-check',
+		                invalid: 'fa fa-times',
+		                validating: 'fa fa-refresh'
+		            },
+		            fields: {
+		                cardHolder: {
+		                    selector: '#cardHolder',
+		                    validators: {
+		                        notEmpty: {
+		                            message: 'The card holder is required'
+		                        },
+		                        stringCase: {
+		                            message: 'The card holder must contain upper case characters only',
+		                            case: 'upper'
+		                        }
+		                    }
+		                },
+		                ccNumber: {
+		                    selector: '#ccNumber',
+		                    validators: {
+		                        notEmpty: {
+		                            message: 'The credit card number is required'
+		                        },
+		                        creditCard: {
+		                            message: 'The credit card number is not valid'
+		                        }
+		                    }
+		                },
+		                expMonth: {
+		                    selector: '[data-stripe="exp-month"]',
+		                    validators: {
+		                        notEmpty: {
+		                            message: 'The expiration month is required'
+		                        },
+		                        digits: {
+		                            message: 'The expiration month can contain digits only'
+		                        },
+		                        callback: {
+		                            message: 'Expired',
+		                            callback: function(value, validator) {
+		                                value = parseInt(value, 10);
+		                                var year         = validator.getFieldElements('expYear').val(),
+		                                    currentMonth = new Date().getMonth() + 1,
+		                                    currentYear  = new Date().getFullYear();
+		                                if (value < 0 || value > 12) {
+		                                    return false;
+		                                }
+		                                if (year == '') {
+		                                    return true;
+		                                }
+		                                year = parseInt(year, 10);
+		                                if (year > currentYear || (year == currentYear && value > currentMonth)) {
+		                                    validator.updateStatus('expYear', 'VALID');
+		                                    return true;
+		                                } else {
+		                                    return false;
+		                                }
+		                            }
+		                        }
+		                    }
+		                },
+		                expYear: {
+		                    selector: '[data-stripe="exp-year"]',
+		                    validators: {
+		                        notEmpty: {
+		                            message: 'The expiration year is required'
+		                        },
+		                        digits: {
+		                            message: 'The expiration year can contain digits only'
+		                        },
+		                        callback: {
+		                            message: 'Expired',
+		                            callback: function(value, validator) {
+		                                value = parseInt(value, 10);
+		                                var month        = validator.getFieldElements('expMonth').val(),
+		                                    currentMonth = new Date().getMonth() + 1,
+		                                    currentYear  = new Date().getFullYear();
+		                                if (value < currentYear || value > currentYear + 10) {
+		                                    return false;
+		                                }
+		                                if (month == '') {
+		                                    return false;
+		                                }
+		                                month = parseInt(month, 10);
+		                                if (value > currentYear || (value == currentYear && month > currentMonth)) {
+		                                    validator.updateStatus('expMonth', 'VALID');
+		                                    return true;
+		                                } else {
+		                                    return false;
+		                                }
+		                            }
+		                        }
+		                    }
+		                },
+		                cvvNumber: {
+		                    selector: '.cvvNumber',
+		                    validators: {
+		                        notEmpty: {
+		                            message: 'The CVV number is required'
+		                        },
+		                        cvv: {
+		                            message: 'The value is not a valid CVV',
+		                            creditCardField: 'ccNumber'
+		                        }
+		                    }
+		                }
+		            }
+		        })
+		        .on('success.validator.fv', function(e, data) {
+		            if (data.field === 'ccNumber' && data.validator === 'creditCard') {
+		                var $icon = data.element.data('fv.icon');
+		                switch (data.result.type) {
+		                    case 'AMERICAN_EXPRESS':
+		                        $icon.removeClass().addClass('form-control-feedback fa fa-cc-amex');
+		                        break;
+		                    case 'DISCOVER':
+		                        $icon.removeClass().addClass('form-control-feedback fa fa-cc-discover');
+		                        break;
+		                    case 'MASTERCARD':
+		                        $icon.removeClass().addClass('form-control-feedback fa fa-cc-mastercard');
+		                        break;
+		                    case 'VISA':
+		                        $icon.removeClass().addClass('form-control-feedback fa fa-cc-visa');
+		                        break;
+		                    default:
+		                        $icon.removeClass().addClass('form-control-feedback fa fa-credit-card');
+		                        break;
+		                }
+		            }
+		        })
+		        .on('err.field.fv', function(e, data) {
+		            if (data.field === 'ccNumber') {
+		                var $icon = data.element.data('fv.icon');
+		                $icon.removeClass().addClass('form-control-feedback fa fa-times');
+		            }
+		        });
+		});
+	</script>
+
+</body></html>

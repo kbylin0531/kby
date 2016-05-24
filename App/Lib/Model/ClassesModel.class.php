@@ -21,7 +21,7 @@ INNER JOIN PERSONAL on PERSONAL.studentno = STUDENTS.STUDENTNO
 INNER JOIN CLASSES on STUDENTS.CLASSNO = CLASSES.CLASSNO
 LEFT OUTER JOIN cwebs_student_class_change cscc on cscc.studentno = STUDENTS.STUDENTNO
 LEFT OUTER JOIN MAJORCODE on MAJORCODE.CODE = PERSONAL.MAJOR";
-        $where = "STUDENTS.CLASSNO = :classno";
+        $where = "STUDENTS.CLASSNO = :classno  and STUDENTS.STATUS = 'A'";
         $order = "cscc.change_date";
         $csql = $this->makeCountSql('STUDENTS',array(
             'join'      => $join,

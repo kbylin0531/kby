@@ -569,12 +569,29 @@ class StatusAction extends RightAction{
     /*
      * 学籍异动的方法
      */
-    public function xuejiyidong($studentno='%',$fileno='%',$infotype='%'){
+    public function xuejiyidong($studentno='%',$fileno='%',$infotype='%',$year=2015,$term=1){
+
+
+        if(REQTAG === 'export'){
+
+
+
+
+
+        }
+
+
         if($this->_hasJson){
             $statusModel = new StatusModel();
-            $list = $statusModel->listRegisteries($studentno,$fileno,$infotype,$this->_pageDataIndex,$this->_pageSize);
+            $list = $statusModel->listRegisteries($studentno,$fileno,$infotype,$year,$term,$this->_pageDataIndex,$this->_pageSize);
             $this->ajaxReturn($list);
         }
+
+
+
+        $model = new CommonModel();
+        $this->assign('yearterm',$model->getYearTerm());
+
 
         $data= $this->model1->sqlFind($this->model1->getSqlMap("course/getCourseYearTerm.sql"),array(":TYPE"=>"C"));
         $this->assign('YEARTERM',$data);

@@ -20,8 +20,8 @@ class SmartyEngine implements ViewEngineInterface {
     protected $_context = null;
 
     protected $convention = [
-        'SMARTY_DIR'        => SYSTEM_PATH.'Vendor/smarty3/libs/',
-        'TEMPLATE_CACHE_DIR'    => RUNTIME_PATH.'Template/',
+        'SMARTY_DIR'        => KL_SYSTEM_PATH.'Vendor/smarty3/libs/',
+        'TEMPLATE_CACHE_DIR'    => KL_RUNTIME_PATH.'Template/',
 
         'SMARTY_CONF'       => [
             //模板变量分割符号
