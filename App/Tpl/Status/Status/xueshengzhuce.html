@@ -49,6 +49,7 @@
             $('#yearterm2').html(str2)
 
             var obj={}
+            console.log(one)
             for(var i=0;i<list.length;i++){
                 var nm=list[i].id;
                 $('#'+nm).val(one[nm.substring(0,nm.indexOf(2))]);                     //todo: 按学号注册 编辑注册信息的  ⑵。⑵
@@ -58,6 +59,7 @@
                 $('#'+selectlist[i].id).val(one[selectlist[i].id.substring(0,selectlist[i].id.indexOf(2))])
             }
 
+            $("#majorname").val(one['majorname']);
         })
     })
     function ajiaqu(url,wd,list,str,num){                                                      //取值
@@ -73,7 +75,7 @@
             nm=select[i].id.substring(0,select[i].id.indexOf(num));
             obj[nm]=select[i].value;
         }
-        ajiakesi('__URL__/studentUpdate/hasJson/1',obj,function(c){
+        ajiakesi('__URL__/< /hasJson/1',obj,function(c){
             $.messager.alert('提示',c)
         })
     }
@@ -116,11 +118,8 @@
         <td height="22" width="95">
             <p align="right">专业：</td>
         <td height="22" width="95">
-            <SELECT NAME=Major id=MAJOR2 SIZE=1>
-                <volist name="majorcode" id="v">
-                    <option value="{$v.CODE}">{$v.NAME}</option>
-                </volist>
-            </select></td>
+            <input type="text" name="majorname" id="majorname" readonly>
+        </td>
     </tr>
     <tr>
         <td width="181" align="right" height="22">主修班级编号：</td>
@@ -129,7 +128,7 @@
         <td height="22" width="125" colspan="2" nowrap>
             <p align="right">班级名称：</td>
         <td height="22" width="205">
-            <input type="text" style="readonly:expression(this.readOnly=true);border:0px" id=CLASSNAME2></td>
+            <input type="text" style="readonly:expression(this.readOnly=true);border:0px" readonly id=CLASSNAME2></td>
     </tr>
     <tr>
         <td width="181" align="right" height="22"><span lang="en-us">&nbsp;</span>选课总学分<span lang="en-us">:&nbsp;</span></td>

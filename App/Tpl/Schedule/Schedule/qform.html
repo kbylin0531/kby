@@ -1,5 +1,5 @@
 <include file=":Include:jqueryHeader" />
-
+<script src="__ROOT__/thirdparty/jquery/js/ExtSearcher.js"></script>
 <script type="text/javascript">
 $(function() {
     $("#YEAR").val(parent.$("#YEAR").val());
@@ -21,6 +21,8 @@ $(function() {
     $("#PlanSelect").bind("click",function(){
         doSearch("检索公选课",4);
     });
+
+    new ExtSearcher('__APP__/Common/Provider/seacher',true,'s').start();
 
     function doSearch(title, searchType){
         openTabsWindows(title,"__ROOT__ /Schedule/Schedule/qlist?"+$('#schForm').serialize(),"",true);
@@ -46,14 +48,19 @@ $(function() {
         <tr><td width="18%" align="right">课程组号：</td>
             <td width="21%"><input type="text" name="GROUP" id="GROUP" size="3" value="%"></td>
             <td width="11%" align="right">开课学部：</td>
-            <td width="51%" colspan="3"><Cwebs:sqlselect id="SCHOOL" name="SCHOOL" value="CODE" title="NAME" headerKey="%" headerTitle="所有学部" file="school/schoolOptions.sql" /></td>
+            <td width="51%" colspan="3">
+                <Cwebs:sqlselect id="SCHOOL" name="SCHOOL" value="CODE" title="NAME" headerKey="%" headerTitle="所有学部" file="school/schoolOptions.sql" /></td>
         </tr>
         <tr><td width="18%" align="right">课程类别：</td>
-            <td width="21%"><Cwebs:sqlselect id="COURSETYPE" name="COURSETYPE" value="CODE" title="NAME" headerKey="%" headerTitle="所有类型" file="common/courseTypeOptions2.sql" /></td>
-            <td width="11%" align="right">班号：</td>
-            <td width="11%"><input type="text" name="CLASSNO" id="CLASSNO" size="10" value="%"></td>
-            <td width="8%" align="right">班名：</td>
-            <td width="35%"><input type="text" name="CLASSNAME" id="CLASSNAME" size="20" value="%"></td>
+            <td width="21%">
+                <select name="COURSETYPE" id="ES_COURSETYPE" class="ES_COURSETYPE s"></select>
+            </td>
+            <td width="11%" align="right">班级：</td>
+            <td width="51%">
+                <label for="ES_GRADE">年级:</label><select name="grade" id="ES_GRADE" class="ES_GRADE s"></select>
+                <label for="ES_SCHOOL">学部:</label><select name="schoolno" id="ES_SCHOOL" class="ES_SCHOOL s"></select>*
+                <label for="ES_CLASS">班级:</label><select name="CLASSNO" id="ES_CLASS" class="ES_CLASS s"></select>*
+            </td>
         </tr>
         <tr><td width="18%" align="right">修课方式：</td>
             <td width="21%"><Cwebs:sqlselect id="APPROACHES" name="APPROACHES" value="CODE" title="NAME" headerKey="%" headerTitle="全部" file="common/approaches.sql" /></td>

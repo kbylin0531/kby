@@ -21,7 +21,6 @@
             datagrid.datagrid("load", {_PARAMS_: query_form.serialize()});
         };
 
-
         new ExtSearcher('__APP__/Common/Provider/seacher', ['grade'], 's').start();
         new ExtSearcher('__APP__/Common/Provider/seacher', ['examtype', 'coursetype', 'courseapproach', 'scoretype'], 'e').start();
         //搜索事件

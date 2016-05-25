@@ -48,7 +48,7 @@ class ScheduleAction extends RightAction {
                 case null:
                     throw new Exception();
             }
-            $bind = $this->model->getBind("YEAR,TERM,COURSENO,GROUP,CLASSNO,APPROACHES,EXAMTYPE,ROOMR,UNIT,DAY,TIME,ROOMNO,CLASSNAME,TEACHERNO,TEACHERNAME,COURSENAME,SCHOOL,COURSETYPE",$_GET,"%");  //,ROOMTYPE
+            $bind = $this->model->getBind("schoolno,YEAR,TERM,COURSENO,GROUP,CLASSNO,APPROACHES,EXAMTYPE,ROOMR,UNIT,DAY,TIME,ROOMNO,TEACHERNO,TEACHERNAME,COURSENAME,SCHOOL,COURSETYPE",$_GET,"%");  //,ROOMTYPE
             $rst = $this->model->getScheduleExcelList($bind,$filter);
 
 //            vardump($rst);
@@ -85,7 +85,7 @@ class ScheduleAction extends RightAction {
                 case null:
                     throw new Exception();
             }
-            $bind = $this->model->getBind("YEAR,TERM,COURSENO,GROUP,CLASSNO,APPROACHES,EXAMTYPE,ROOMR,UNIT,DAY,TIME,ROOMNO,CLASSNAME,TEACHERNO,TEACHERNAME,COURSENAME,SCHOOL,COURSETYPE",$_REQUEST,"%");  //,ROOMTYPE
+            $bind = $this->model->getBind("schoolno,YEAR,TERM,COURSENO,GROUP,CLASSNO,APPROACHES,EXAMTYPE,ROOMR,UNIT,DAY,TIME,ROOMNO,CLASSNAME,TEACHERNO,TEACHERNAME,COURSENAME,SCHOOL,COURSETYPE",$_REQUEST,"%");  //,ROOMTYPE
             $json = $this->model->getScheuleTablelist($bind,$filter,$this->_pageDataIndex, $this->_pageSize);
             $this->ajaxReturn($json,"JSON");
             exit;

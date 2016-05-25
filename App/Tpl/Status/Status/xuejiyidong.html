@@ -4,6 +4,23 @@
 
     $(function(){
          //todo:datagrid
+        $('#B1').bind('click',function(){
+            var obj={
+                year:$("#year").val(),
+                term:$("#term").val()
+            }
+            obj['STUDENTNO']=$('#STUDENTNO').val().Trim()
+            obj['FILENO']=$('#FILENO').val().Trim();
+            obj['INFOTYPE']=$('#INFOTYPE').val().Trim();
+            dat.datagrid('load',obj);
+        })
+
+
+        $('#B2').click(function () {
+            var values = $("#form").serialize();
+            window.open("__ACTION__?reqtag=export&_PARAMS_="+values);
+        });
+
 
         var chuangkou={closed:true,
             fit:true,
@@ -25,7 +42,7 @@
                 });
             },
             url:'__URL__/xuejiyidong/hasJson/1',
-            columns:[[{field:'RECNO',checkbox:true},
+            columns:[[{field:'recno',checkbox:true},
                 {field:'STUDENTNO',title:'学号',width:100,sortable:true
             },
                 {field:'STUDENTNAME',title:'姓名',width:60,sortable:true
@@ -65,16 +82,7 @@
             }})
         //todo:layout
         //todo:点击提交按钮的时候 触发的方法
-        $('#B1').bind('click',function(){
-           var obj={
-               year:$("#year").val(),
-               term:$("#term").val()
-           }
-            obj['STUDENTNO']=$('#STUDENTNO').val().Trim()
-            obj['FILENO']=$('#FILENO').val().Trim();
-            obj['INFOTYPE']=$('#INFOTYPE').val().Trim();
-            dat.datagrid('load',obj);
-        })
+
 
         //todo:ajax请求方法
         function ajia(url,data,str1,list,wd,str){                                    //todo:赋值
@@ -216,13 +224,11 @@
 
         //todo:查看概要
         function ddel(){
-
-
             var yi=yitiao(dat,'请选择一条查看不能选择多条','请选择一条要查看的数据');
             if(yi){
                 var row3 = dat.datagrid('getSelected');                 //获得被选中的索引
                 var obj={};
-                openTabsWindows('查看概要','__URL__/studentFileEdit/recno/'+row3.RECNO,'',true)
+                openTabsWindows('查看概要','__URL__/studentFileEdit/recno/'+row3.recno,'',true)
             }
         }
 
@@ -306,12 +312,6 @@
         }
         $('#e_save').bind('click',kaichu)
         $('#admin_save').bind('click',kaichu)
-
-
-
-
-
-
     })
 
     //todo:去掉空格函数
@@ -327,6 +327,7 @@
 <div id="cc" class="easyui-layout" data-options="fit:true" >
 <div id="tdemo">
     <div style="margin-bottom:0px ">
+        <form id="form">
         学年：<input type="text" name="year" id='year' size="9" value="{$yearterm.YEAR}">
         学期：<input type="text" name="term" id='term' size="9" value="{$yearterm.TERM}">
       学号：<input type="text" name="STUDENTNO" id='STUDENTNO' size="9" value="%">&nbsp&nbsp&nbsp&nbsp
@@ -337,7 +338,9 @@
                             <option value="{$v.CODE}">{$v.NAME}</option>
                         </volist>
                     </select>&nbsp&nbsp&nbsp&nbsp
-      <a href="javascript:void(0)" iconCls='icon-search' class="easyui-linkbutton" id="B1">提交查询</a>
+        <a href="javascript:void(0)" iconCls='icon-search' class="easyui-linkbutton" id="B1">提交查询</a>
+        <a href="javascript:void(0)" iconCls='icon-excel' id="B2">excel导出</a>
+        </form>
             <input type="hidden" name="page" value="1">
             <input type="hidden" name="pagename" value="STUDENTFILELIST.htm">
     </div>

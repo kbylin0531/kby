@@ -573,11 +573,30 @@ class StatusAction extends RightAction{
 
 
         if(REQTAG === 'export'){
+            $statusModel = new StatusModel();
+            $list = $statusModel->listRegisteries($studentno,$fileno,$infotype,$year,$term,$this->_pageDataIndex,$this->_pageSize);
 
+//            dumpout($list['rows']);
 
+            $data = array();
+            //dsadadadasddfdsfsdfsdasdasgfhfghfdkjhjkhj
+            $data['title'] = '学籍异动';
+            $data['head'] = array(
+                'STUDENTNO' => array( '学号 ', 'align' => CommonModel::ALI_CENTER,'width'=>20,'type'=>CommonModel::TYPE_STR ),
+                'STUDENTNAME' => array( '姓名', 'align' => CommonModel::ALI_CENTER,'width'=>20,'type'=>CommonModel::TYPE_STR ),
+                'CLASSNAME' => array( '班级 ', 'align' => CommonModel::ALI_CENTER,'width'=>20,'type'=>CommonModel::TYPE_STR ),
+                'SCHOOLNAME' => array( '学部', 'align' => CommonModel::ALI_CENTER,'width'=>20,'type'=>CommonModel::TYPE_STR ),
+                'INFOTYPEVALUE' => array( '异动代码 ', 'align' => CommonModel::ALI_CENTER,'width'=>20,'type'=>CommonModel::TYPE_STR ),
+                'rem' => array( '概要 ', 'align' => CommonModel::ALI_CENTER,'width'=>20,'type'=>CommonModel::TYPE_STR ),
+                'FILEDATE' => array( '发文日期 ', 'align' => CommonModel::ALI_CENTER,'width'=>20,'type'=>CommonModel::TYPE_STR ),
+                'year' => array( '学年', 'align' => CommonModel::ALI_CENTER,'width'=>10,'type'=>CommonModel::TYPE_STR ),
+                'term' => array( '学期', 'align' => CommonModel::ALI_CENTER,'width'=>10,'type'=>CommonModel::TYPE_STR ),
+            );
+            $data['body'] = $list['rows'];
 
-
-
+            $excelModel = new ExcelExtensionModel();
+            $excelModel->export($data, $data['title']);
+            exit();
         }
 
 

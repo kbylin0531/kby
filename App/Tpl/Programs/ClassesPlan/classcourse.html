@@ -1,0 +1,69 @@
+<extend name=":Include:bs" />
+<block name='script'>
+    <script>
+        dazz.load([
+            'assets/plugins/datatables/media/css/dataTables.bootstrap.min.css',
+            'assets/plugins/datatables/media/js/jquery.dataTables.min.js',
+            'assets/plugins/datatables/media/js/dataTables.bootstrap.min.js'
+        ]);
+        var url = "__ACTION__/";
+        var year = "{$year}";
+        var term = "{$term}";
+        var classno = "{$classno}";
+
+        dazz.ready(function () {
+            var datatable = $('#dtable');
+            var tableManager = Dazzling.datatables.bind(datatable,{
+                'columns':[
+                    {
+                        'title':'课程名称',
+                        'width':'8%',
+                        'data':'coursename'
+                    },
+                    {
+                        'title':'课程号',
+                        'width':'20%',
+                        'className':'text_align_center',
+                        'data':'courseno'
+                    },
+                    {
+                        'title':'课程类型',
+                        'width':'8%',
+                        'className':'text_align_center',
+                        'data':'coursetype'
+                    },
+                    {
+                        'title':'学分',
+                        'width':'15%',
+                        'data':'credit'
+                    },
+                    {
+                        'title':'修课方式',
+                        'width':'15%',
+                        'data':'approach'
+                    },
+                    {
+                        'title':'教学计划名称',
+                        'width':'15%',
+                        'data':'programname'
+                    },
+                    {
+                        'title':'教学计划号',
+                        'width':'15%',
+                        'data':'programno'
+                    }
+                ]
+            });
+            Dazzling.post(
+                    url+'reqtag/list',
+                    {year:year,term:term,classno:classno},
+                    function (data) {
+                        tableManager.load(data);
+                    }
+            );
+        });
+    </script>
+</block>
+<block name='body'>
+    <table id="dtable" class="display table-condensed table-bordered" cellspacing="0" width="100%"></table>
+</block>

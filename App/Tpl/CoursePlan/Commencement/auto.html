@@ -28,7 +28,9 @@
                         coursetype: coursetype,
                         grade:$("#ES_GRADE").val(),
                         schoolno:$("#ES_SCHOOL").val(),
-                        classno:$("#ES_CLASS").val()
+                        classno:$("#ES_CLASS").val(),
+                        clear:$("[name=clear]:checked").val(),
+                        approach:$("#approach").val()
                     }, function (rsp) {
                         if (rsp) {
                             msgShow("系统消息：", rsp.message, rsp.type);
@@ -72,6 +74,23 @@
             <tr>
                 <td align="right">周数：</td>
                 <td id="WEEKS">{$yearTerm.WEEKS}</td>
+            </tr>
+            <tr>
+                <td align="right">是否清空：</td>
+                <td >
+                    <input type="radio" name="clear" value="0" checked="checked" /> 否
+                    <input type="radio" name="clear" value="1"/> 是
+                </td>
+            </tr>
+            <tr>
+                <td align="right">修课方式：</td>
+                <td>
+                    <select id="approach">
+                        <option value="%">全部 </option>
+                        <option value="M">必修 </option>
+                        <option value="E">选修 </option>
+                    </select>
+                </td>
             </tr>
             <tr>
                 <td align="right">课程类型：</td>

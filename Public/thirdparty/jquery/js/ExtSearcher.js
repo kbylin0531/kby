@@ -120,6 +120,7 @@ function ExtSearcher(sourseUrl) {
     pro.appendToSelect = function (data,target,noallname) {
         pro.cleanSelect(target,noallname);
         for(var x in data){
+            console.log(data)
             $('<option value="'+data[x].value+'">'+data[x].text+'</option>').appendTo(target);
         }
     };

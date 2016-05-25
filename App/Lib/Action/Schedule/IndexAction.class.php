@@ -41,8 +41,7 @@ class IndexAction extends RightAction {
             }
         }
 
-        $sql = "
-SELECT
+        $sql = "SELECT
 	dbo.getone(scheduleplan.YEAR) as  YEAR,
 	dbo.getone(scheduleplan.TERM) as  TERM,
 	dbo.getone(scheduleplan.COURSENO) as  COURSENO,
@@ -77,6 +76,10 @@ WHERE scheduleplan.YEAR=:YEAR
   AND teacherplan.TEACHERNO IS NOT NULL
   AND teacherplan.TEACHERNO<>''
   AND teacherplan.TEACHERNO<>'000000'
+	and not EXISTS (
+	SELECT 1 from SCHEDULE s WHERE  s.year = scheduleplan.year and s.term = scheduleplan.TERM
+	and s.courseno = scheduleplan.courseno and s.[group] = scheduleplan.[group]
+	)
 GROUP BY scheduleplan.YEAR,
        scheduleplan.TERM,
        scheduleplan.COURSENO,
@@ -114,10 +117,6 @@ ORDER BY scheduleplan.COURSENO,
 				++$lines;
 			}
         }
-
-        //todo 设置教师已传递到排课表
-        //$bind = $this->model->getBind("YEAR,TERM", $_REQUEST);
-        //$this->model->sqlExecute("UPDATE SCHEDULEPLAN SET TOSCHEDULE=1 WHERE YEAR=:YEAR AND TERM=:TERM AND TEACHERNO is not null AND TEACHERNO<>'' AND <>'000000'", $bind);
 
         $this->message["type"] = "info";
         $this->message["message"] = $_REQUEST["YEAR"]."年".$_REQUEST["TERM"]."学期排课计划成功导入{$lines}！";
@@ -993,7 +992,8 @@ ORDER BY scheduleplan.COURSENO,
     public function refreshResTime2(){
         if($this->_hasJson){
             //todo:找出所有被安排到老师
-            $teachernoList=$this->model->sqlQuery("SELECT DISTINCT(RTRIM(TEACHERS.TEACHERNO)) AS TEACHERNO
+            $teachernoList=$this->model->sqlQuery("
+SELECT DISTINCT(RTRIM(TEACHERS.TEACHERNO)) AS TEACHERNO
 FROM TEACHERS JOIN TEACHERPLAN ON TEACHERS.TEACHERNO=TEACHERPLAN.TEACHERNO
 JOIN SCHEDULE ON TEACHERPLAN.RECNO=SCHEDULE.MAP
 WHERE SCHEDULE.YEAR=:year AND SCHEDULE.TERM=:term
@@ -1009,9 +1009,18 @@ ORDER BY TEACHERNO",array(':year'=>$_POST['YEAR'],':term'=>$_POST['TERM']));
                     //todo:
                     $day=array(1=>0,0,0,0,0,0,0);
 
-                    //todo:找出每个教师上的课程
-                    $courseList=$this->model->sqlQuery($this->model->getSqlMap('schedule/source_teacherCourse.SQL'),
-                        array(':year'=>$_POST['YEAR'],':term'=>$_POST['TERM'],':teacherno'=>$val['TEACHERNO']));
+                    //:找出每个教师上的课程
+                    $courseList=$this->model->sqlQuery('
+SELECT row_number() over(order by SCHEDULE.COURSENO) as row,
+SCHEDULE.COURSENO+SCHEDULE.[GROUP] AS COURSE,TIMESECTIONS.[VALUE] as jc,OEWOPTIONS.NAME as dsz,
+SCHEDULE.DAY,SCHEDULE.TIME,SCHEDULE.OEW,SCHEDULE.WEEKS,OEWOPTIONS.TIMEBIT&TIMESECTIONS.TIMEBITS2 AS TIMES
+FROM SCHEDULE JOIN TEACHERPLAN
+ON SCHEDULE.MAP=TEACHERPLAN.RECNO
+inner join TIMESECTIONS on TIMESECTIONS.NAME=SCHEDULE.TIME
+inner join OEWOPTIONS on OEWOPTIONS.CODE=SCHEDULE.OEW
+WHERE SCHEDULE.YEAR=:year
+AND SCHEDULE.TERM=:term
+AND TEACHERPLAN.TEACHERNO=:teacherno', array(':year'=>$_POST['YEAR'],':term'=>$_POST['TERM'],':teacherno'=>$val['TEACHERNO']));
                     $courseList2=$this->groupday($courseList);
                     foreach($courseList as $v){
                         if($v['TIMES']&$day[$v['DAY']]){       //todo:某一天的某节课和该天的课 &
@@ -1025,7 +1034,6 @@ ORDER BY TEACHERNO",array(':year'=>$_POST['YEAR'],':term'=>$_POST['TERM']));
                         }
                         $day[$v['DAY']]|=$v['TIMES'];
                     }
-                    //$this->groupday()
                 }
             }
             echo json_encode(array('str'=>$str,'count'=>$num));
@@ -1047,7 +1055,7 @@ ORDER BY TEACHERNO",array(':year'=>$_POST['YEAR'],':term'=>$_POST['TERM']));
     //todo:判断班级时间
     public function classTime(){
 
-        //todo:找出班号
+        //:找出班号
         $classList=$this->model->sqlQuery("SELECT DISTINCT(RTRIM(CLASSES.CLASSNO)) AS CLASSNO
 FROM CLASSES JOIN COURSEPLAN ON CLASSES.CLASSNO=COURSEPLAN.CLASSNO
 WHERE COURSEPLAN.YEAR=:YEAR AND COURSEPLAN.TERM=:TERM
@@ -1064,7 +1072,20 @@ ORDER BY CLASSNO",array(':YEAR'=>$_POST['YEAR'],':TERM'=>$_POST['TERM']));
 
 
                 //todo:找出每个班级上的课程
-                $courseList=$this->model->sqlQuery($this->model->getSqlMap('schedule/source_classCourse.SQL'),
+                $courseList=$this->model->sqlQuery('
+SELECT row_number() over(order by SCHEDULE.COURSENO) as row,SCHEDULE.COURSENO+SCHEDULE.[GROUP] AS COURSE
+,TIMESECTIONS.[VALUE] as jc,OEWOPTIONS.NAME as dsz,SCHEDULE.WEEKS,OEWOPTIONS.TIMEBIT&TIMESECTIONS.TIMEBITS2 AS TIMES,
+SCHEDULE.DAY,SCHEDULE.TIME,SCHEDULE.OEW,SCHEDULE.WEEKS
+FROM SCHEDULE JOIN COURSEPLAN
+ON  SCHEDULE.YEAR=COURSEPLAN.YEAR
+inner join TIMESECTIONS on TIMESECTIONS.NAME=SCHEDULE.TIME
+inner join OEWOPTIONS on OEWOPTIONS.CODE=SCHEDULE.OEW
+AND SCHEDULE.TERM=COURSEPLAN.TERM
+AND SCHEDULE.[GROUP]=COURSEPLAN.[GROUP]
+AND SCHEDULE.COURSENO=COURSEPLAN.COURSENO
+WHERE COURSEPLAN.CLASSNO=:classno
+AND SCHEDULE.YEAR=:year
+AND SCHEDULE.TERM=:term',
                     array(':classno'=>$val['CLASSNO'],':year'=>$_POST['YEAR'],':term'=>$_POST['TERM']));
 
                 $courseList2=$this->groupday($courseList);

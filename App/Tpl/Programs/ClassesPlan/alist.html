@@ -7,13 +7,15 @@ $(function() {
         $.messager.alert('提示','获取班级[{$Think.request.CLASSNO}]的详细信息失败，请重试!');
     }
 
+    var year = "{$year}";
+    var term = "{$term}";
     
     
     var classNoArr = {}; //已经选择的班级
     var datagrid = $('#datagrid').datagrid({
         toolbar: '#toobar',
         frozenColumns:[[{field:'ck',checkbox:true}]],
-        url : "__ROOT__ /Programs/ClassesPlan/alist/hasJson/true/CLASSNO/{$Think.request.CLASSNO}",
+        url : "__ROOT__ /Programs/ClassesPlan/alist/hasJson/true/CLASSNO/{$Think.request.CLASSNO}/year/"+year+"/term/"+term,
         onBeforeLoad:function(){
             $(this).datagrid("clearSelections");
             $(this).datagrid("unselectAll");

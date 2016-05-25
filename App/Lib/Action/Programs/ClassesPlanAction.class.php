@@ -22,9 +22,67 @@ class ClassesPlanAction extends RightAction {
     /**
      * 班级修课计划  查询
      */
-    public function search(){
+    public function search($year=null,$term=null,$classno=null){
+
+        switch (REQTAG){
+            case 'onekey':
+                loadKL();
+                $result = \System\Core\Dao::getInstance()->exec('INSERT INTO R28 (PROGRAMNO,STUDENTNO )
+SELECT  DISTINCT
+PROGRAMS.PROGRAMNO,
+STUDENTS.STUDENTNO
+FROM PROGRAMS
+INNER JOIN R16 on R16.PROGRAMNO = PROGRAMS.PROGRAMNO
+INNER JOIN STUDENTS on STUDENTS.CLASSNO = R16.CLASSNO
+WHERE not EXISTS (SELECT 1 from R28 WHERE R28.STUDENTNO = STUDENTS.STUDENTNO
+	and R28.PROGRAMNO = PROGRAMS.PROGRAMNO) and PROGRAMS.PROGRAMNO like :yearterm',array(
+                    ':yearterm'  => substr($year . '', 2, 2).$term.'%',
+                    ));
+                if(false === $result){
+                    $this->failedWithReport(\System\Core\Dao::getInstance()->getError());
+                }else{
+                    $this->successWithReport('成功插入的数据量:'.$result);
+                }
+                break;
+            case 'classcourse':
+                $this->assign('year',$year);
+                $this->assign('term',$term);
+                $this->assign('classno',$classno);
+                $this->display('classcourse');
+                exit ;
+                break;
+            case 'list':
+                loadKL();
+                $list = \System\Core\Dao::getInstance()->query('
+select 
+COURSES.COURSENAME as coursename,
+R12.COURSENO as courseno,
+COURSEAPPROACHES.[VALUE] as approach ,
+COURSETYPEOPTIONS.[VALUE] as coursetype,
+R12.CREDITS as credit,
+PROGRAMS.PROGRAMNO as programno,
+PROGRAMS.PROGNAME as programname
+from PROGRAMS
+INNER JOIN R16 on R16.PROGRAMNO = PROGRAMS.PROGRAMNO
+INNER JOIN R12 on R12.PROGRAMNO = PROGRAMS.PROGRAMNO
+INNER JOIN COURSES on COURSES.COURSENO = R12.COURSENO
+INNER JOIN COURSEAPPROACHES on R12.COURSETYPE = COURSEAPPROACHES.NAME
+INNER JOIN COURSETYPEOPTIONS on COURSETYPEOPTIONS.NAME = R12.CATEGORY
+WHERE R16.CLASSNO = :classno and PROGRAMS.PROGRAMNO like :yearterm
+ORDER BY R12.CATEGORY',array(
+                    ':classno'  => $classno,
+                    ':yearterm'  => substr($year . '', 2, 2).$term.'%',
+                ));
+                $this->ajaxReturn($list);
+                break;
+
+        }
+
+
         if($this->_hasJson){
             $bind = $this->model->getBind('GRADE,CLASSNO,CLASSNAME,SCHOOL',$_REQUEST);
+            $bind[':year'] = $year;
+            $bind[':term'] = $term;
             $rst = $this->model->getClassTableList($bind, $this->_pageDataIndex, $this->_pageSize);
             if(is_string($rst)){
                 $this->exitWithReport('查询失败'.$rst);
@@ -32,6 +90,9 @@ class ClassesPlanAction extends RightAction {
             $this->ajaxReturn($rst,"JSON");
             exit;
         }
+
+        $model = new CommonModel();
+        $this->assign('yearterm',$model->getYearTerm());
         $this->display("search");
     }
 
@@ -39,15 +100,17 @@ class ClassesPlanAction extends RightAction {
     /**
      * 查看和修改班级教学计划的页面
      */
-    public function alist(){
+    public function alist($year=null,$term=null){
         if($this->_hasJson){
-            $rst = $this->model->getClassPrograms($_REQUEST['CLASSNO'], $this->_pageDataIndex, $this->_pageSize);
+            $rst = $this->model->getClassPrograms($_REQUEST['CLASSNO'],$year,$term, $this->_pageDataIndex, $this->_pageSize);
             $this->ajaxReturn($rst,"JSON");
             exit;
         }
         $rst = $this->model->getClassDetail($_REQUEST['CLASSNO']);
         $this->assign('error',is_string($rst)?$rst:'');
         $this->assign("class", $rst);
+        $this->assign("year", $year);
+        $this->assign("term", $term);
         $this->display("alist");
     }
 

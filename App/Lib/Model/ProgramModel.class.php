@@ -242,7 +242,8 @@ AND COURSES.TGROUP like :TGROUPNO';
         ),$count);
     }
 
-    public function getClassPrograms($classno,$offset,$limit){
+    public function getClassPrograms($classno,$year,$term,$offset,$limit){
+        $pro = substr($year."",2,2 ).''.$term.'%';
         $fields = '
 R16.CLASSNO AS CLASSNO,
 R16.PROGRAMNO AS PROGRAMNO,
@@ -256,7 +257,7 @@ SCHOOLS.NAME AS SCHOOLNAME';
 INNER JOIN PROGRAMS ON R16.PROGRAMNO=PROGRAMS.PROGRAMNO
 INNER JOIN SCHOOLS ON PROGRAMS.SCHOOL=SCHOOLS.SCHOOL
 LEFT OUTER JOIN PROGRAMTYPE ON PROGRAMS.TYPE=PROGRAMTYPE.NAME';
-        $where = 'WHERE R16.CLASSNO=:CLASSNO';
+        $where = "WHERE R16.CLASSNO=:CLASSNO and PROGRAMS.PROGRAMNO like '$pro'";
         $order = 'PROGRAMNO DESC';
 
         $csql = $this->makeSql('R16',array(
@@ -274,6 +275,9 @@ LEFT OUTER JOIN PROGRAMTYPE ON PROGRAMS.TYPE=PROGRAMTYPE.NAME';
         $bind = array(
             ':CLASSNO' => $classno,
         );
+
+//        dumpout($csql);
+
         return $this->getTableList($csql,$ssql,$bind);
 
     }

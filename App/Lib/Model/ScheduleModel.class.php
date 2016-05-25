@@ -57,7 +57,9 @@ left join COURSETYPEOPTIONS2 on COURSETYPEOPTIONS2.name=courses.type2
 left JOIN CLASSROOMS ON (SCHEDULE.ROOMNO=CLASSROOMS.ROOMNO)
 left join scheduleplan on scheduleplan.year=schedule.year and scheduleplan.term=schedule.term and scheduleplan.courseno+scheduleplan.[group]=schedule.courseno+schedule.[group]';
         $where = "
-WHERE SCHEDULE.YEAR=:YEAR
+WHERE 
+CLASSES.school like :schoolno and 
+SCHEDULE.YEAR=:YEAR
 AND SCHEDULE.TERM=:TERM
 AND SCHEDULE.COURSENO LIKE :COURSENO
 AND SCHEDULE.[GROUP] LIKE :GROUP
@@ -74,7 +76,7 @@ AND TEACHERS.TEACHERNO LIKE :TEACHERNO
 AND TEACHERS.NAME LIKE :TEACHERNAME
 AND COURSES.COURSENAME LIKE :COURSENAME
 AND COURSES.SCHOOL LIKE :SCHOOL
-AND COURSES.TYPE2 LIKE :COURSETYPE {$filter}";
+AND COURSEPLAN.course_type_options LIKE :COURSETYPE {$filter}";
         $group = '
 SCHEDULE.COURSENO+SCHEDULE.[GROUP] ,
 COURSES.COURSENAME,
@@ -128,7 +130,9 @@ left join COURSETYPEOPTIONS2 on COURSETYPEOPTIONS2.name=courses.type2
 left JOIN CLASSROOMS ON (SCHEDULE.ROOMNO=CLASSROOMS.ROOMNO)
 left join scheduleplan on scheduleplan.year=schedule.year and scheduleplan.term=schedule.term and scheduleplan.courseno+scheduleplan.[group]=schedule.courseno+schedule.[group]';
         $where = "
-WHERE SCHEDULE.YEAR=:YEAR
+WHERE 
+CLASSES.school like :schoolno and 
+SCHEDULE.YEAR=:YEAR
 AND SCHEDULE.TERM=:TERM
 AND SCHEDULE.COURSENO LIKE :COURSENO
 AND SCHEDULE.[GROUP] LIKE :GROUP
@@ -145,7 +149,7 @@ AND TEACHERS.TEACHERNO LIKE :TEACHERNO
 AND TEACHERS.NAME LIKE :TEACHERNAME
 AND COURSES.COURSENAME LIKE :COURSENAME
 AND COURSES.SCHOOL LIKE :SCHOOL
-AND COURSES.TYPE2 LIKE :COURSETYPE {$filter}";
+AND COURSEPLAN.course_type_options  like :COURSETYPE {$filter}";
         $csql = $this->makeCountSql('SCHEDULE',array(
             'join'  => $join,
             'where' => $where,

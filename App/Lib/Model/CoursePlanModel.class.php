@@ -210,7 +210,7 @@ and COURSEPLAN.CLASSNO in
      * @return mixed
      * @throws Exception
      */
-    public function startCoursePlan($types,$grade='%',$schoolno='%',$classno='%',$flag = true){
+    public function startCoursePlan($types,$grade='%',$schoolno='%',$classno='%',$approach='%',$flag = true){
         $insertPart = '
 INSERT INTO COURSEPLAN
 ([YEAR],TERM,COURSENO,CLASSNO,SCHOOL,WEEKS,[GROUP],COURSETYPE,EXAMTYPE,ATTENDENTS,LIMITGROUPNO,LIMITNUM,CREDITS,course_type_options,LIMITCREDIT) ';
@@ -244,32 +244,16 @@ left join (select distinct YEAR,TERM,COURSENO,MAX([GROUP]) as [group] from COURS
 where Dbo_r12.TERM=:TERM
 and YEAR(Dbo_classes.[YEAR]) like :grade
 and Dbo_classes.SCHOOL like :school
-and Dbo_classes.CLASSNO like :classno';
-/* 旧的查询
- * SELECT DISTINCT
-:COL_YEAR as [YEAR],
-:COL_TERM as TERM,
-Dbo_r12.COURSENO as COURSENO,
-Dbo_r16.CLASSNO as CLASSNO,
-Dbo_courses.SCHOOL as SCHOOL,
-:COL_WEEKS as WEEKS,
-dbo.fn_10to36(DENSE_RANK() over(PARTITION BY Dbo_r12.COURSENO order by Dbo_r16.CLASSNO,Dbo_r16.PROGRAMNO)-1) as [GROUP],
-Dbo_r12.COURSETYPE as COURSETYPE,
-Dbo_r12.EXAMTYPE as EXAMTYPE,
-Dbo_classes.STUDENTS as ATTENDENTS,
-Dbo_r12.LIMITGROUPNO,
-Dbo_r12.LIMITNUM,
-Dbo_r12.CREDITS,
-Dbo_r12.CATEGORY as coursetypeoption
-FROM dbo.PROGRAMS Dbo_Programs ,dbo.R16 Dbo_r16, dbo.R12 Dbo_r12, dbo.CLASSES Dbo_classes, dbo.COURSES Dbo_courses
-WHERE  (Dbo_r16.PROGRAMNO = Dbo_r12.PROGRAMNO)
-AND (Dbo_Programs.ProgramNo=Dbo_r12.ProgramNo)
-AND  (Dbo_r12.COURSENO = Dbo_courses.COURSENO)
-AND  (Dbo_r16.CLASSNO = Dbo_classes.CLASSNO)
-AND  (Dbo_r12.YEAR = Dbo_Classes.Grade and Dbo_r12.TERM=:TERM)
-*/
-        //课程类型过滤
-
+and Dbo_classes.CLASSNO like :classno
+and Dbo_r12.coursetype like :approach
+and not EXISTS (
+SELECT 1 from COURSEPLAN cp 
+WHERE 
+	    cp.[YEAR] = :COL_YEAR2 
+	and cp.term = :COL_TERM2
+	and cp.COURSENO = Dbo_r12.COURSENO 
+	and cp.CLASSNO = Dbo_classes.CLASSNO
+ )';
         $filter = $this->makeFilter('Dbo_r12.CATEGORY',$types,$flag);
 
         $bind = array(
@@ -280,6 +264,9 @@ AND  (Dbo_r12.YEAR = Dbo_Classes.Grade and Dbo_r12.TERM=:TERM)
             ':grade'    => $grade,
             ':school'   => $schoolno,
             ':classno'  => $classno,
+            ':approach' => $approach,
+            ':COL_YEAR2'=>intval($_REQUEST['YEAR']),
+            ':COL_TERM2'=>intval($_REQUEST['TERM']),
         );
 
         $sql = " {$insertPart} {$searchPart} {$filter} ";
@@ -426,12 +413,12 @@ dbo.getone(cst.description) as  score_type,
 dbo.getone(cp.score_type) as score_type_code,
 dbo.getone(cp.total_attendents_limit) as total_attendents_limit';
         $join = '
-left outer JOIN COURSES on COURSES.COURSENO = cp.COURSENO
-left outer JOIN CLASSES ON CLASSES.CLASSNO = cp.CLASSNO
-left outer JOIN COURSEAPPROACHES ca ON ca.NAME = cp.COURSETYPE
-left outer JOIN COURSETYPEOPTIONS cto ON cto.NAME = cp.course_type_options
+inner JOIN COURSES on COURSES.COURSENO = cp.COURSENO
+inner JOIN CLASSES ON CLASSES.CLASSNO = cp.CLASSNO
+inner JOIN COURSEAPPROACHES ca ON ca.NAME = cp.COURSETYPE
+inner JOIN COURSETYPEOPTIONS cto ON cto.NAME = cp.course_type_options
 left outer JOIN EXAMOPTIONS ON EXAMOPTIONS.NAME = cp.EXAMTYPE
-left outer JOIN SCHOOLS on SCHOOLS.SCHOOL = cp.school
+inner JOIN SCHOOLS on SCHOOLS.SCHOOL = cp.school
 left outer JOIN cwebs_score_type cst on cst.id = cp.score_type';
         $where = "
 cp.[YEAR] = :year and cp.TERM = :term
@@ -452,6 +439,7 @@ and cp.CLASSNO like :classno and cp.EXAMTYPE like :examtype {$filter}";
             'where' => $where,
             'group' => $group,
         ),$offset,$limit);
+//        $_REQUEST['SCHOOL'];
         $bind = array(
             ':year' => $_REQUEST['YEAR'],
             ':term' => $_REQUEST['TERM'],
@@ -463,12 +451,14 @@ and cp.CLASSNO like :classno and cp.EXAMTYPE like :examtype {$filter}";
             ':classno' => $_REQUEST['CLASSNO'],
             ':examtype' => $_REQUEST['EXAMTYPE'],
         );
+//        dumpout($csql,$ssql,$bind);
         $rst = $this->getTableList2($csql,$ssql,$bind);
 
         //周次整合
         foreach($rst['rows'] as $k=>&$row){
             $row['WEEKS'] = strrev(sprintf('%018s', decbin($row['WEEKS'])));
         }
+//        dumpout($rst);
         return $rst;
 
     }

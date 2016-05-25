@@ -24,7 +24,10 @@
 
         $("#searcher").bind("click",function(){
             datagrid.datagrid("options").url = "__ROOT__/Programs/ClassesPlan/search/hasJson/true";
-         datagrid.datagrid("load", {GRADE:$("#ES_GRADE").val(),SCHOOL:$("#ES_SCHOOL").val(), CLASSNO:$("#ES_CLASS").val(), CLASSNAME:$("#CLASSNAME").val()})
+         datagrid.datagrid("load", {
+             year:$("#year").val(),
+             term:$("#term").val(),
+             GRADE:$("#ES_GRADE").val(),SCHOOL:$("#ES_SCHOOL").val(), CLASSNO:$("#ES_CLASS").val(), CLASSNAME:$("#CLASSNAME").val()})
       });
 
         function goProgramPage(){
@@ -32,24 +35,36 @@
             if(row==null){
                 return $.messager.alert("系统提示：","没有选择任何数据进行操作！","error");
             }
-            openTabsWindows(row['CLASSNO'] + "修读计划","__ROOT__/Programs/ClassesPlan/alist/CLASSNO/"+row['CLASSNO']);
+            openTabsWindows(row['CLASSNO'] + "修读计划","__ROOT__/Programs/ClassesPlan/alist/CLASSNO/"+row['CLASSNO']+"/year/"+
+                    $("#year").val()+"/term/"+$("#term").val());
         }
 
         $("#handlerList").bind("click",goProgramPage);
         $('#admin_edit').bind('click',goProgramPage);
+        $('#courselist').bind('click',function () {
+            var row = datagrid.datagrid("getSelected");
+            if(row==null){
+                return $.messager.alert("系统提示：","没有选择任何数据进行操作！","error");
+            }
+            openTabsWindows(row['CLASSNO'] + "修读计划","__ACTION__/reqtag/classcourse/classno/"+row['CLASSNO']+"/year/"+
+                    $("#year").val()+"/term/"+$("#term").val());
+        });
+
+
+$("#onekey").click(function () {
+    $.post('__ACTION__/reqtag/onekey'+"/year/"+
+            $("#year").val()+"/term/"+$("#term").val(),{},function (data) {
+        Messager.show(data);
+    });
+});
+
+
+        
     });
 </script>
 
 <body>
 <div  class="easyui-layout"  data-options="border:false,fit:true" >
- <!--   <div data-options="region:'north',split:false,border:false" style="height:40px;background:#E0ECFF;overflow: hidden">
-        <label for="CLASSNAME">班名:</label><input type="text" id="CLASSNAME" name="CLASSNAME" size="10"  value="%">
-        <label for="CLASSNO">班号:</label><input type="text" id="CLASSNO" size="10" name="CLASSNO"  value="%">
-        <label for="SCHOOL">学部:</label>
-        <Cwebs:sqlselect id="SCHOOL" name="SCHOOL" value="CODE" title="NAME" headerKey="%" headerTitle="全部学部" file="school/schoolOptions.sql" />
-        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon icon-search"  id="searcher">搜索</a>
-        </form>
-    </div>-->
     <div data-options="region:'center',border:false" style=";background:#eee;">
         <table id="datagrid" fitColumns="true" width="100%" singleSelect="true" fit="true" idField="CLASSNO"
                pagination="true" pageSize="20" pageList="[20,40,60]" striped="true" >
@@ -64,6 +79,9 @@
 </div>
 
 <div id="toobar">
+    <label for="CLASSNAME">班名:</label><input type="text" id="year" name="year" size="10"  value="{$yearterm.YEAR}">
+    <label for="CLASSNAME">班名:</label><input type="text" id="term" name="term" size="10"  value="{$yearterm.TERM}">
+
     <label for="ES_GRADE">年级:</label><select name="grade" id="ES_GRADE" class="ES_GRADE s"></select>
     <label for="ES_SCHOOL">学部:</label><select name="SCHOOL" id="ES_SCHOOL" class="ES_SCHOOL s"></select>
     <label for="ES_CLASS">班级:</label><select name="CLASSNO" id="ES_CLASS" class="ES_CLASS s"></select>
@@ -76,6 +94,8 @@
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon icon-search"  id="searcher">搜索</a>
     &nbsp&nbsp&nbsp
     <a href="#" id="handlerList" class="easyui-linkbutton" data-options="iconCls:'icon-shenhe',plain:true">查看、修改并添加删除修课计划</a>
+    <a href="#" id="courselist" class="easyui-linkbutton" data-options="iconCls:'icon-shenhe',plain:true">查看课程</a>
+    <a href="#" id="onekey" class="easyui-linkbutton" data-options="iconCls:'icon-shenhe',plain:true">一键绑定</a>
 </div>
 <div id="admin_access_menu" class="easyui-menu" style="width:100px;">
     <div id="admin_edit">查看、修改并添加删除修课计划</div>

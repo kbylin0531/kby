@@ -614,6 +614,7 @@ WHERE STUDENTS.STUDENTNO = :studentno';
      */
     public function listRegisteries($studentno,$fileno,$infotype,$year=2015,$term=1,$limit=null,$offset=null){
         $fields = '
+r.year,r.term,
 r.recno,
 r.STUDENTNO as STUDENTNO,
 r.studentname as STUDENTNAME,

@@ -11,7 +11,8 @@
                 if(data){
                     var ischeckedok = $("#btAutook").attr('checked') === 'checked'?1:0;
 
-                    $.post("__ROOT__/Schedule/Index/auto/hasJson/true", {YEAR:$("#YEAR").val(),TERM:$("#TERM").val(),"checked":ischeckedok}, function(rsp) {
+                    $.post("__ROOT__/Schedule/Index/auto/hasJson/true", {YEAR:$("#YEAR").val(),TERM:$("#TERM").val(),"checked":ischeckedok},
+                            function(rsp) {
                         if(rsp){
                             msgShow("系统消息：", rsp.message, rsp.type);
                         }
@@ -30,8 +31,10 @@
             <tr><td width="140" align="right">排课学年：</td><td><input type="text" id="YEAR" name="YEAR" /></td></tr>
             <tr><td align="right">排课学期：</td><td><input type="text" id="TERM" name="TERM" /></td></tr>
             <tr><td align="right">是否清空排课：</td>
-                <td>是<input type="checkbox" id="btAutook" value="是" />&nbsp;&nbsp;
-                    否<input type="checkbox" id="btAutono" value="否" checked="checked" /></td>
+                <td>
+                    <input type="radio" name="clear" id="btAutono" value="0" checked="checked" /> 否
+                    <input type="radio" name="clear" id="btAutook" value="1"/> 是
+                </td>
             </tr>
             <tr><td></td><td><input type="button" id="btAuto" value="自动创建课程总表"></td></tr>
         </table>

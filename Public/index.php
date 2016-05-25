@@ -14,11 +14,6 @@ if(isset($_REQUEST['_PARAMS_'])){
     $_GET = array_merge($_GET,$temp);
     unset($_REQUEST['_PARAMS_']);
 }
-//设计了标记跳转
-if(isset($_REQUEST['gokbylin']) and $_REQUEST['gokbylin']){
-    include '../Kbylin/index.php';
-    exit();
-}
 
 //存放sql Map的路径，建议放到服务器要目录以外
 define('BASE_PATH',str_replace('\\','/',dirname(__DIR__)).'/');
@@ -37,7 +32,36 @@ define("URL_MODEL", 1);
 const __SCHOOLNAME__ = '鄞州职业教育中心';
 const SCHOOL_CODE = 'yzzj';
 const DEAN_NAME = '教务处';//鄞州职教为教务处
-
+if(!function_exists('dump')){
+    function dump(){
+        $params = func_get_args();
+        $color='#';$str='9ABCDEF';//随机浅色背景
+        for($i=0;$i<6;$i++) $color=$color.$str[rand(0,strlen($str)-1)];
+        $traces = debug_backtrace();//0表示dump本身//如果是dumpout的内部调用,则1和2表现为call_user_func_array和dumpout,此时需要获取的是3开始的位置
+        if(!empty($traces[1]['function']) and !empty($traces[2]['function']) and
+            'call_user_func_array' === $traces[1]['function'] and 'dumpout' === $traces[2]['function']){
+            array_shift($traces);
+            array_shift($traces);
+        }
+        echo "<pre style='background: {$color};width: 100%;'><h3 style='color: midnightblue'><b>File:</b>{$traces[0]['file']} << <b>Line:</b>{$traces[0]['line']} >> </h3>";
+        foreach ($params as $key=>$val) echo '<b>Param '.$key.':</b><br />'.var_export($val, true).'<br />';
+        echo '</pre>';
+    }
+}
+if(!function_exists('dumpout')){
+    function dumpout(){
+        $params = func_get_args();
+        $color='#';$str='9ABCDEF';//随机浅色背景
+        for($i=0;$i<6;$i++) $color=$color.$str[rand(0,strlen($str)-1)];
+        $traces = debug_backtrace();//0表示dump本身//如果是dumpout的内部调用,则1和2表现为call_user_func_array和dumpout,此时需要获取的是3开始的位置
+//    array_shift($traces);
+//    echo "<pre>";var_dump($params,$traces );exit();
+        echo "<pre style='background: {$color};width: 100%;'><h3 style='color: midnightblue'><b>File:</b>{$traces[0]['file']} << <b>Line:</b>{$traces[0]['line']} >> </h3>";
+        foreach ($params as $key=>$val) echo '<b>Param '.$key.':</b><br />'.var_export($val, true).'<br />';
+        echo '</pre>';
+        exit();
+    }
+}
 function loadKL(){
     static $flag  = true;
     if($flag){

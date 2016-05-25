@@ -126,13 +126,15 @@ class CommencementAction extends RightAction {
      * @param string $classno
      * @throws Exception
      */
-    private function startCoursePlan($types,$flag,$year,$term,$grade='%',$schoolno='%',$classno='%'){
+    private function startCoursePlan($types,$flag,$year,$term,$grade='%',$schoolno='%',$classno='%',$clear=0,$approach='%'){
         $this->model->startTrans();
         //清空原有数据
-        $rst = $this->model->clearCoursePlan($year,$term,$grade,$schoolno,$classno,$types,$flag);
-        if(is_string($rst) ){
-            $this->model->rollback();
-            $this->exitWithReport('<font color="red">清空已有开课计划发生错误，自动创建开课计划失败！</font>'.$rst);
+        if(intval($clear)){
+            $rst = $this->model->clearCoursePlan($year,$term,$grade,$schoolno,$classno,$types,$flag);
+            if(is_string($rst) ){
+                $this->model->rollback();
+                $this->exitWithReport('<font color="red">清空已有开课计划发生错误，自动创建开课计划失败！</font>'.$rst);
+            }
         }
         //班级年级自增
         $data = $this->model->updateClassesGrade($year);
@@ -141,7 +143,7 @@ class CommencementAction extends RightAction {
             $this->exitWithReport('<font color="red">计算班级开课等级时发生错误，自动创建开课计划失败！</font>'.$data);
         }
         //开课执行
-        $rst = $this->model->startCoursePlan($types,$grade,$schoolno,$classno,$flag);
+        $rst = $this->model->startCoursePlan($types,$grade,$schoolno,$classno,$approach,$flag);
         if(is_int($rst)){
             $this->model->commit();
             $this->exitWithReport("{$rst}条开课计划已成功导入！",'info');
